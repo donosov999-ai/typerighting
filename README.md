@@ -8,7 +8,8 @@
 
 - **Контент извлечён 1:1** из оригинала (декомпиляция .NET → JSON): **5549 упражнений** в 4 банках.
 - **Движок печати** (`src/typing.ts`) — посимвольное сравнение, подсветка верно/неверно, блок при ошибке (как оригинал), статистика (зн/мин, точность, ошибки, время).
-- **UI** (`src/main.ts`) — выбор банка, навигация по упражнениям, режимы «спрятать образец» / «звук ошибки» / «блок при ошибке».
+- **UI** (`src/main.ts`) — выбор банка, навигация по упражнениям, режимы «спрятать образец» / «звук ошибки» / «блок при ошибке» / «клавиатура».
+- **Схема клавиатуры из оригинала** (`public/images/keyboard.jpg`, 920×380) — раскладка ЙЦУКЕН↔QWERTY со стрелками соответствия рус/англ букв, показывается под областью набора (вкл по умолчанию). Остальные ассеты оригинала и их описание — `public/images/ASSETS.md`.
 - Звук ошибки — Web Audio (без внешних файлов).
 
 ## Банки упражнений
@@ -22,17 +23,40 @@
 
 Источник нормализации: `public/content/exercises.json` (из сырых `abandon/engRus/letterByLetter/poemHymn.json`).
 
-## Запуск
+## Запуск (веб)
 
 ```bash
 npm install
-npm run dev      # http://localhost:8006
+npm run dev      # http://localhost:8006 (порт фиксирован в vite.config.ts — его ждёт Tauri devUrl)
 npm run build    # dist/ — статика для Tauri / веб-хостинга
 ```
 
+## Desktop (Tauri 2)
+
+```bash
+npm run tauri dev                              # дев-окно (поднимает vite на :8006 сам)
+npm run tauri build -- --target aarch64-apple-darwin   # локальный .app + .dmg (macOS arm64)
+```
+
+Скаффолдинг: `src-tauri/` (конфиг `tauri.conf.json`: `frontendDist ../dist`, `beforeBuildCommand npm run build`). Иконка генерируется из `src-tauri/icon-source.png` (исходник — `src-tauri/make-icon.py`) командой `cargo tauri icon src-tauri/icon-source.png`.
+
+### Кроссбилд (GitHub Actions)
+
+`.github/workflows/build.yml` — триггер: push в `main`, тег `v*`, ручной запуск. Матрица:
+
+| Job | Артефакты |
+|---|---|
+| macos-arm | `.app` (tar.gz) + `.dmg` (arm64) |
+| windows-x64 | `.exe` (NSIS setup) + `.msi` |
+| linux-x64 | `.AppImage` + `.deb` + `.rpm` |
+
+Тег `vX.Y.Z` дополнительно собирает **GitHub Release** со всеми бинарями. Подписи/нотаризации нет (приложение бесплатное): на macOS первый запуск — правый клик → «Открыть» (Gatekeeper).
+
+Репо: `github.com/donosov999-ai/typerighting`.
+
 ## TODO (следующие этапы)
 
-- [ ] **Tauri-обёртка** + GitHub Actions кроссбилд (Mac/Win/Linux), как в psygames-native.
+- [x] **Tauri-обёртка** + GitHub Actions кроссбилд (Mac/Win/Linux), как в psygames-native — *готово 12.06.2026*.
 - [ ] **Разбить `poemHymn`** на строфы — сейчас «Ворон» = одно упражнение на 127 строк.
 - [ ] Сохранение прогресса/рекордов (localStorage): лучшая скорость по банку.
 - [ ] Виртуальная клавиатура с подсветкой следующей клавиши (опц.).

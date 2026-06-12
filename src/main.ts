@@ -11,6 +11,7 @@ let st: TypingState = createState(['']);
 let hidePattern = false;
 let soundOn = true;
 let blockOnError = true;
+let showKeyb = true; // схема клавиатуры из оригинального TypeRIGHTing
 let statsTimer: number | null = null;
 
 // ── Звук ошибки (Web Audio, без внешних файлов) ──
@@ -50,6 +51,7 @@ function render() {
         <label><input type="checkbox" id="hide" ${hidePattern ? 'checked' : ''}/> Спрятать образец</label>
         <label><input type="checkbox" id="sound" ${soundOn ? 'checked' : ''}/> Звук ошибки</label>
         <label><input type="checkbox" id="block" ${blockOnError ? 'checked' : ''}/> Блок при ошибке</label>
+        <label><input type="checkbox" id="keyb" ${showKeyb ? 'checked' : ''}/> Клавиатура</label>
         <span class="spacer"></span>
         <button id="prev" class="ghost">‹ Пред</button>
         <span class="counter">${idx + 1} / ${pool.length}</span>
@@ -63,6 +65,8 @@ function render() {
         </div>
         <div class="pattern ${hidePattern ? 'hidden' : ''}" id="pattern">${renderPattern()}</div>
       </div>
+
+      ${showKeyb ? `<div class="keyb"><img src="/images/keyboard.jpg" alt="Раскладка ЙЦУКЕН↔QWERTY со стрелками соответствия русских и английских букв (из оригинального TypeRIGHTing)"/></div>` : ''}
 
       <div class="statsbar">
         <div><b>${s.wpm}</b><span>зн/мин ÷5</span></div>
@@ -119,6 +123,7 @@ function bindControls() {
   document.getElementById('hide')!.onchange = (e) => { hidePattern = (e.target as HTMLInputElement).checked; render(); };
   document.getElementById('sound')!.onchange = (e) => { soundOn = (e.target as HTMLInputElement).checked; };
   document.getElementById('block')!.onchange = (e) => { blockOnError = (e.target as HTMLInputElement).checked; };
+  document.getElementById('keyb')!.onchange = (e) => { showKeyb = (e.target as HTMLInputElement).checked; render(); };
   document.getElementById('prev')!.onclick = () => { idx = (idx - 1 + pool.length) % pool.length; reset(); };
   document.getElementById('next')!.onclick = () => { idx = (idx + 1) % pool.length; reset(); };
   const again = document.getElementById('again'); if (again) again.onclick = () => reset();

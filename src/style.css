@@ -52,6 +52,11 @@ button:hover { filter: brightness(1.1); }
 @keyframes blink { 50% { opacity: 0.55; } }
 .hidden-note { color: var(--muted); font-style: italic; font-size: 16px; }
 
+.keyb { margin-top: 14px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 12px; }
+.keyb img { display: block; width: 100%; height: auto; border-radius: 8px;
+  filter: brightness(0.94); }
+
 .statsbar { display: flex; gap: 10px; margin: 18px 0; }
 .statsbar div { flex: 1; background: var(--surface); border: 1px solid var(--border);
   border-radius: 12px; padding: 12px; text-align: center; }

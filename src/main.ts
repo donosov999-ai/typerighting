@@ -1,6 +1,7 @@
 import './style.css';
 import { loadExercises, exercisesOfBank, BANK_LABELS, BANK_DESC, type Bank, type Exercise } from './content';
 import { createState, pressChar, backspace, stats, MARK, type TypingState } from './typing';
+import { keyboardSVG } from './keyboard';
 
 // ── Состояние сессии ──
 let all: Exercise[] = [];
@@ -96,7 +97,10 @@ function render() {
         <div class="pattern ${hidePattern ? 'hidden' : ''}" id="pattern">${renderPattern()}</div>
       </div>
 
-      ${showKeyb ? `<div class="keyb"><img src="/images/keyboard.jpg" alt="Раскладка ЙЦУКЕН↔QWERTY; красные стрелки — правильное направление движения пальцев от домашнего ряда (из оригинального TypeRIGHTing)"/></div>` : ''}
+      ${showKeyb ? `<div class="keyb">${keyboardSVG(
+        st.finishedAt === null ? st.pattern[st.pos] ?? null : null,
+        /[а-яё]/i.test(st.pattern),
+      )}</div>` : ''}
 
       <div class="statsbar">
         <div><b>${s.wpm}</b><span>зн/мин ÷5</span></div>

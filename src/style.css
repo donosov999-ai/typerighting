@@ -54,8 +54,40 @@ button:hover { filter: brightness(1.1); }
 
 .keyb { margin-top: 14px; background: var(--surface); border: 1px solid var(--border);
   border-radius: 16px; padding: 12px; }
-.keyb img { display: block; width: 100%; height: auto; border-radius: 8px;
-  filter: brightness(0.94); }
+
+/* ── Интерактивная SVG-клавиатура (схема оригинала) ── */
+:root {
+  --kb-bg: #e3e3e7;
+  --kb-key-base: #b9bbc2;
+  --kb-key-face: #f5f5f7;
+  --kb-en: #1f2329;
+  --kb-ru: #c0392b;
+  --kb-arrow: #d6452f;
+  --kb-next: var(--accent);
+  --kb-shift: #e8a715;
+}
+.kbsvg { display: block; width: 100%; height: auto; user-select: none; }
+.kb-bg { fill: var(--kb-bg); }
+.key-base { fill: var(--kb-key-base); }
+.key-face { fill: var(--kb-key-face); }
+.key-fn  { fill: #5a6068; font-size: 14px; }
+.key-en  { fill: var(--kb-en); font-size: 18px; font-weight: 700; }
+.key-en2 { fill: #4a505a; font-size: 12px; }
+.key-ru  { fill: var(--kb-ru); font-size: 15px; font-weight: 600; }
+.arr { stroke: var(--kb-arrow); stroke-width: 2.4; fill: none; opacity: .8; }
+.arrhead, .arrhead-a { fill: var(--kb-arrow); }
+/* активная цель: прочие стрелки пригасить, маршрутную — оживить */
+.kbsvg.has-target .arr { opacity: .15; }
+.kbsvg.has-target .arr-active { opacity: 1; stroke-width: 3.6;
+  stroke-dasharray: 10 6; animation: arrflow .45s linear infinite; }
+@keyframes arrflow { to { stroke-dashoffset: -16; } }
+.key-next .key-face { fill: var(--kb-next); }
+.key-next .key-en, .key-next .key-en2, .key-next .key-ru, .key-next .key-fn { fill: #fff; }
+.key-next { animation: keypulse 1s ease-in-out infinite; }
+@keyframes keypulse { 50% { opacity: .82; } }
+.key-shift .key-face { fill: var(--kb-shift); }
+.key-shift .key-fn { fill: #fff; }
+.key-home .key-face { stroke: var(--kb-arrow); stroke-width: 2.5; }
 
 .statsbar { display: flex; gap: 10px; margin: 18px 0; }
 .statsbar div { flex: 1; background: var(--surface); border: 1px solid var(--border);

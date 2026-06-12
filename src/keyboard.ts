@@ -87,6 +87,16 @@ const ARROWS: Array<[string, string]> = [
 const HOME_OF: Record<string, string> = {};
 for (const [from, to] of ARROWS) HOME_OF[to] = from;
 
+// Клавиши ЛЕВОЙ руки (колонки 1–5: до T/G/B и цифры 1–5 включительно).
+// Для них Shift берётся правый, и наоборот. Явное множество — граница рук
+// не совпадает с геометрической серединой клавиатуры (T/Y, G/H, B/N).
+const LEFT_HAND = new Set([
+  'tilde', 'd1', 'd2', 'd3', 'd4', 'd5',
+  'tab', 'q', 'w', 'e', 'r', 't',
+  'caps', 'a', 's', 'd', 'f', 'g',
+  'lshift', 'z', 'x', 'c', 'v', 'b',
+]);
+
 // ── Геометрия (viewBox 920×380, как оригинал) ──
 const W = 920, H = 380, PAD = 12, GAP = 6, KEY_H = 60, PITCH = 70, TOP = 14;
 
@@ -186,9 +196,9 @@ export function keyboardSVG(nextChar: string | null, ruContext: boolean): string
   const hit = nextChar !== null ? findKey(nextChar, ruContext) : null;
   const targetId = hit?.id ?? null;
   const homeId = targetId ? (HOME_OF[targetId] ?? null) : null;
-  // Shift противоположной руки: цель в левой половине → правый Shift, и наоборот
+  // Shift противоположной руки: цель у левой руки → правый Shift, и наоборот
   let shiftId: string | null = null;
-  if (hit?.shift && targetId) shiftId = cx(GEO[targetId]) < W / 2 ? 'rshift' : 'lshift';
+  if (hit?.shift && targetId) shiftId = LEFT_HAND.has(targetId) ? 'rshift' : 'lshift';
 
   const parts: string[] = [];
   for (const g of Object.values(GEO)) {

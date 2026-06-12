@@ -65,7 +65,7 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; }
-.wrap { max-width: 900px; margin: 0 auto; padding: 24px 20px 40px; }
+.wrap { max-width: 900px; margin: 0 auto; padding: 18px 20px 24px; }
 
 header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .headctl { display: flex; gap: 8px; align-items: center; }
@@ -103,14 +103,14 @@ button.ghost:hover { background: var(--surface2); }
 button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
 button:hover { filter: brightness(1.1); }
 
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px 24px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 16px 22px; }
 .exhead { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 14px;
   border-bottom: 1px solid var(--border); padding-bottom: 12px; }
 .extitle { font-size: 17px; font-weight: 700; color: var(--accent); }
 .exhint { font-size: 14px; color: var(--muted); }
 
 .pattern { font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
-  font-size: 22px; line-height: 1.9; letter-spacing: 0.5px; white-space: pre-wrap; word-break: break-word; min-height: 60px; }
+  font-size: 21px; line-height: 1.75; letter-spacing: 0.5px; white-space: pre-wrap; word-break: break-word; min-height: 56px; }
 .pattern span { border-radius: 3px; }
 .pattern .pend { color: var(--muted); }
 .pattern .ok { color: var(--ok); }
@@ -120,8 +120,9 @@ button:hover { filter: brightness(1.1); }
 @keyframes blink { 50% { opacity: 0.55; } }
 .hidden-note { color: var(--muted); font-style: italic; font-size: 16px; }
 
-.keyb { margin-top: 14px; background: var(--surface); border: 1px solid var(--border);
-  border-radius: 16px; padding: 12px; }
+.keyb { margin-top: 12px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 16px; padding: 8px 10px; }
+.keyb .kbsvg { max-width: 840px; margin: 0 auto; }
 
 /* ── Интерактивная SVG-клавиатура (схема оригинала) ── */
 .kbsvg { display: block; width: 100%; height: auto; user-select: none; }
@@ -147,10 +148,10 @@ button:hover { filter: brightness(1.1); }
 .key-shift .key-fn { fill: #fff; }
 .key-home .key-face { stroke: var(--kb-arrow); stroke-width: 2.5; }
 
-.statsbar { display: flex; gap: 10px; margin: 18px 0; }
+.statsbar { display: flex; gap: 10px; margin: 12px 0 10px; }
 .statsbar div { flex: 1; background: var(--surface); border: 1px solid var(--border);
-  border-radius: 12px; padding: 12px; text-align: center; }
-.statsbar b { display: block; font-size: 24px; font-weight: 800; }
+  border-radius: 12px; padding: 8px 10px; text-align: center; }
+.statsbar b { display: block; font-size: 22px; font-weight: 800; }
 .statsbar b.err { color: var(--bad); }
 .statsbar span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
 

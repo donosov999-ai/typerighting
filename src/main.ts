@@ -14,6 +14,35 @@ let blockOnError = true;
 let showKeyb = true; // схема клавиатуры из оригинального TypeRIGHTing
 let statsTimer: number | null = null;
 
+// ── Прогресс по банку (Задача 3 ТЗ): ключ tr_progress_<bank> ──
+interface Progress {
+  bestWpm: number;   // лучшая скорость (зн/мин ÷5)
+  bestAcc: number;   // лучшая точность, %
+  done: string[];    // id пройденных упражнений (без дублей)
+  lastIdx: number;   // продолжить с места
+}
+let prog: Progress = { bestWpm: 0, bestAcc: 0, done: [], lastIdx: 0 };
+
+function loadProgress(b: Bank): Progress {
+  try {
+    const p = JSON.parse(localStorage.getItem(`tr_progress_${b}`) ?? '');
+    if (p && Array.isArray(p.done)) return { bestWpm: p.bestWpm | 0, bestAcc: p.bestAcc | 0, done: p.done, lastIdx: p.lastIdx | 0 };
+  } catch { /* нет сохранения */ }
+  return { bestWpm: 0, bestAcc: 0, done: [], lastIdx: 0 };
+}
+
+function saveProgress() {
+  try { localStorage.setItem(`tr_progress_${bank}`, JSON.stringify(prog)); } catch { /* quota */ }
+}
+
+function recordFinish(ex: Exercise) {
+  const s = stats(st);
+  if (s.wpm > prog.bestWpm) prog.bestWpm = s.wpm;
+  if (s.accuracy > prog.bestAcc) prog.bestAcc = s.accuracy;
+  if (!prog.done.includes(ex.id)) prog.done.push(ex.id);
+  saveProgress();
+}
+
 // ── Звук ошибки (Web Audio, без внешних файлов) ──
 let audioCtx: AudioContext | null = null;
 function beep() {
@@ -45,7 +74,8 @@ function render() {
             `<option value="${b}" ${b === bank ? 'selected' : ''}>${BANK_LABELS[b]}</option>`).join('')}
         </select>
       </header>
-      <p class="bankdesc">${BANK_DESC[bank]} · <b>${pool.length}</b> упражнений</p>
+      <p class="bankdesc">${BANK_DESC[bank]} · <b>${pool.length}</b> упражнений
+        · пройдено <b>${prog.done.length}</b>${prog.bestWpm > 0 ? ` · рекорд <b>${prog.bestWpm}</b> зн/мин · <b>${prog.bestAcc}%</b>` : ''}</p>
 
       <div class="toolbar">
         <label><input type="checkbox" id="hide" ${hidePattern ? 'checked' : ''}/> Спрятать образец</label>
@@ -132,7 +162,8 @@ function bindControls() {
 
 function loadBank() {
   pool = exercisesOfBank(all, bank);
-  idx = 0;
+  prog = loadProgress(bank);
+  idx = Math.min(Math.max(prog.lastIdx, 0), Math.max(pool.length - 1, 0)); // продолжить с места
   reset();
 }
 
@@ -140,6 +171,7 @@ function reset() {
   const ex = pool[idx];
   st = createState(ex ? ex.lines : ['']);
   if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
+  if (prog.lastIdx !== idx) { prog.lastIdx = idx; saveProgress(); }
   render();
 }
 
@@ -165,7 +197,11 @@ document.addEventListener('keydown', (e) => {
   }
   const r = pressChar(st, ch, blockOnError);
   if (r.wrong) beep();
-  if (r.finished && statsTimer) { clearInterval(statsTimer); statsTimer = null; }
+  if (r.finished) {
+    if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
+    const ex = pool[idx];
+    if (ex) recordFinish(ex);
+  }
   render();
 });
 

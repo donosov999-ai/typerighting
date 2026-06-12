@@ -9,25 +9,15 @@ export interface Exercise {
   lines: string[];   // строки для печати, построчно
 }
 
-export const BANK_LABELS: Record<Bank, string> = {
-  abandon: 'Слова в предложениях',
-  engRus: 'Англ↔Рус (с переводом)',
-  letterByLetter: 'По буквам (наращивание)',
-  poemHymn: 'Стихи и гимны',
-};
-
-export const BANK_DESC: Record<Bank, string> = {
-  abandon: 'Печатай предложение с новым словом — словарный запас + скорость.',
-  engRus: 'Слово с переводом + предложение. Перевод-подсказка над образцом.',
-  letterByLetter: 'Слово печатается по нарастающей: a, ab, aba… — постановка пальцев.',
-  poemHymn: 'Стихи и гимны по строфам (4–8 строк) — ритм и выносливость печати.',
-};
+// Подписи банков — в i18n.ts (ключи bank.<id> / bank.<id>.desc)
+export const BANKS: Bank[] = ['abandon', 'engRus', 'letterByLetter', 'poemHymn'];
 
 let cache: Exercise[] | null = null;
 
 export async function loadExercises(): Promise<Exercise[]> {
   if (cache) return cache;
-  const res = await fetch('/content/exercises.json');
+  // относительный путь: работает и в Tauri, и в вебе из подпапки
+  const res = await fetch('content/exercises.json');
   cache = (await res.json()) as Exercise[];
   return cache;
 }

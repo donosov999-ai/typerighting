@@ -157,6 +157,28 @@ button:hover { filter: brightness(1.1); }
 
 .hint2 { color: var(--muted); font-size: 13px; text-align: center; }
 
+/* ── Экзаменационный режим (Typing Test) ── */
+.exam-setup, .exam-result { background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 30px 26px; margin-top: 7vh; text-align: center; }
+.exam-setup h2, .exam-result h2 { margin: 0 0 10px; }
+.ex-desc { color: var(--muted); font-size: 14px; max-width: 540px; margin: 0 auto 20px; }
+.ex-form { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-bottom: 22px; }
+.ex-form label { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+.ex-form input, .ex-form select { background: var(--surface2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 9px; padding: 8px 10px; font-size: 14px; }
+.ex-form input[type="number"] { width: 70px; }
+.ex-form input[type="text"] { width: 180px; }
+.exam-hud { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+.ex-timer { font-size: 30px; font-weight: 800; font-variant-numeric: tabular-nums; min-width: 96px; }
+.ex-hudstats { color: var(--muted); font-size: 14px; flex: 1; }
+.ex-verdict { font-size: 30px; font-weight: 800; margin: 14px 0 18px; }
+.ex-verdict small { font-size: 14px; color: var(--muted); font-weight: 600; }
+.ex-verdict.pass { color: var(--ok); }
+.ex-verdict.fail { color: var(--bad); }
+.exam-result .statsbar { margin-bottom: 20px; }
+.ob-lang { position: absolute; top: 18px; right: 22px; }
+.onboard { position: relative; }
+
 /* ── Детский режим ── */
 .kids .k-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .kids .k-head h1 { font-size: 26px; margin: 0; }

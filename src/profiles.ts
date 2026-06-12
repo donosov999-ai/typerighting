@@ -3,11 +3,8 @@
 // [data-profile]) + для детского — отдельный игровой режим (src/kids.ts).
 export type Profile = 'm' | 'f' | 'kids';
 
-export const PROFILE_META: Record<Profile, { label: string; emoji: string; desc: string }> = {
-  m:    { label: 'Мужской',  emoji: '⌨️', desc: 'Тёмная тема, скорость и рекорды' },
-  f:    { label: 'Женский',  emoji: '🌸', desc: 'Светлая тёплая тема, мягкий темп' },
-  kids: { label: 'Детский',  emoji: '🐱', desc: 'Игра: уровни, звёзды и котик' },
-};
+// Подписи профилей — в i18n.ts (ключи profile.<id> / profile.<id>.desc)
+export const PROFILE_EMOJI: Record<Profile, string> = { m: '⌨️', f: '🌸', kids: '🐱' };
 
 const KEY = 'tr_profile';
 
@@ -26,7 +23,3 @@ export function applyProfile(p: Profile | null) {
   else delete document.documentElement.dataset.profile;
 }
 
-// Профильные формулировки (минимум различий, дети — отдельный режим)
-export function doneTitle(p: Profile | null): string {
-  return p === 'f' ? '✓ Отлично!' : '✓ Готово';
-}

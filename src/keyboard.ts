@@ -190,9 +190,10 @@ function arrowPath(from: KeyGeo, to: KeyGeo): string {
 
 /**
  * SVG-клавиатура. nextChar — следующий символ упражнения (null = без подсветки),
- * ruContext — упражнение русское (для неоднозначных . и ,).
+ * ruContext — упражнение русское (для неоднозначных . и ,),
+ * showRu — рисовать ли русский слой букв (false = чистая QWERTY для EN-рынка).
  */
-export function keyboardSVG(nextChar: string | null, ruContext: boolean): string {
+export function keyboardSVG(nextChar: string | null, ruContext: boolean, showRu = true): string {
   const hit = nextChar !== null ? findKey(nextChar, ruContext) : null;
   const targetId = hit?.id ?? null;
   const homeId = targetId ? (HOME_OF[targetId] ?? null) : null;
@@ -214,7 +215,7 @@ export function keyboardSVG(nextChar: string | null, ruContext: boolean): string
     } else {
       if (g.en2) parts.push(`<text class="key-en2" x="${(g.x + 12).toFixed(1)}" y="${g.y + 22}">${esc(g.en2)}</text>`);
       if (g.en) parts.push(`<text class="key-en" x="${(g.x + 12).toFixed(1)}" y="${g.y + (g.en2 ? 46 : 38)}">${esc(g.en)}</text>`);
-      if (g.ru) parts.push(`<text class="key-ru" x="${(g.x + g.w - 12).toFixed(1)}" y="${g.y + g.h - 14}" text-anchor="end">${esc(g.ru)}</text>`);
+      if (g.ru && showRu) parts.push(`<text class="key-ru" x="${(g.x + g.w - 12).toFixed(1)}" y="${g.y + g.h - 14}" text-anchor="end">${esc(g.ru)}</text>`);
     }
     parts.push('</g>');
   }

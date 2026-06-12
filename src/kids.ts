@@ -4,14 +4,25 @@
 // мягкая пауза после 3 уровней подряд. Прогресс: localStorage `tr_kids`.
 import { createState, pressChar, MARK, type TypingState } from './typing';
 import { keyboardSVG, bridgeChar } from './keyboard';
+import { t, lang } from './i18n';
 
-// ── Банк слов (3–6 букв, проверено тестом длины) ──
+// ── Банк слов (3–5 букв, проверено тестом длины/дублей) ──
 const RU3 = ['кот', 'дом', 'сок', 'лес', 'мяч', 'сыр', 'нос', 'рот', 'лук', 'мак', 'жук', 'дым', 'сон', 'мир', 'кит'];
 const RU4 = ['мама', 'папа', 'каша', 'зима', 'лето', 'луна', 'небо', 'море', 'гора', 'рыба', 'окно', 'сова', 'лиса', 'волк', 'утка'];
 const RU5 = ['весна', 'осень', 'школа', 'книга', 'песня', 'чашка', 'ложка', 'мышка', 'кошка', 'зебра', 'лампа', 'шапка', 'санки', 'горка', 'речка'];
-const EN3 = ['cat', 'dog', 'sun', 'box', 'red', 'run', 'mom', 'dad', 'egg', 'ice', 'car', 'bus', 'fox', 'bee', 'owl'];
-const EN4 = ['ball', 'fish', 'bird', 'cake', 'milk', 'tree', 'star', 'moon', 'rain', 'snow', 'frog', 'duck', 'bear', 'lion', 'wolf'];
-const EN5 = ['apple', 'house', 'smile', 'happy', 'water', 'bread', 'candy', 'tiger', 'mouse', 'horse', 'sheep', 'green', 'white', 'black', 'music'];
+// EN-банк расширен до 40 слов на длину (рынок EN-школьников): 8 уровней на длину
+const EN3 = ['cat', 'dog', 'sun', 'box', 'red', 'run', 'mom', 'dad', 'egg', 'ice',
+  'car', 'bus', 'fox', 'bee', 'owl', 'hat', 'pen', 'map', 'cup', 'jam',
+  'sea', 'sky', 'toy', 'zoo', 'kid', 'leg', 'arm', 'eye', 'ear', 'nut',
+  'pig', 'hen', 'cow', 'ant', 'bat', 'big', 'hot', 'wet', 'six', 'ten'];
+const EN4 = ['ball', 'fish', 'bird', 'cake', 'milk', 'tree', 'star', 'moon', 'rain', 'snow',
+  'frog', 'duck', 'bear', 'lion', 'wolf', 'book', 'game', 'blue', 'pink', 'rose',
+  'door', 'desk', 'lamp', 'sofa', 'kite', 'ship', 'road', 'park', 'hand', 'foot',
+  'nose', 'face', 'hair', 'king', 'gold', 'fast', 'slow', 'warm', 'cold', 'five'];
+const EN5 = ['apple', 'house', 'smile', 'happy', 'water', 'bread', 'candy', 'tiger', 'mouse', 'horse',
+  'sheep', 'green', 'white', 'black', 'music', 'table', 'chair', 'plant', 'grass', 'cloud',
+  'river', 'beach', 'stone', 'train', 'plane', 'pizza', 'juice', 'sugar', 'lemon', 'mango',
+  'zebra', 'panda', 'koala', 'eagle', 'shark', 'dance', 'sleep', 'dream', 'light', 'seven'];
 
 interface KidsLevel { id: number; lang: 'ru' | 'en'; title: string; words: string[] }
 
@@ -21,9 +32,9 @@ export const KIDS_LEVELS: KidsLevel[] = [];
 {
   let id = 1;
   const blocks: Array<[string[], 'ru' | 'en']> = [[RU3, 'ru'], [RU4, 'ru'], [RU5, 'ru'], [EN3, 'en'], [EN4, 'en'], [EN5, 'en']];
-  for (const [bank, lang] of blocks) {
-    for (let part = 0; part < 3; part++) {
-      KIDS_LEVELS.push({ id, lang, title: `Уровень ${id}`, words: slice5(bank, part) });
+  for (const [bank, blockLang] of blocks) {
+    for (let part = 0; part * 5 < bank.length; part++) {
+      KIDS_LEVELS.push({ id, lang: blockLang, title: String(id), words: slice5(bank, part) });
       id++;
     }
   }
@@ -55,8 +66,16 @@ let mascotSay = '';
 let root: HTMLElement | null = null;
 let onExit: (() => void) | null = null;
 
-const PRAISE = ['Молодец!', 'Здорово!', 'Так держать!', 'Ты супер!', 'Отлично!', 'Вот это да!'];
-const OOPS = ['Ой! Попробуй ещё', 'Чуть-чуть мимо', 'Не спеши', 'Почти попал!'];
+const PRAISE_L: Record<string, string[]> = {
+  ru: ['Молодец!', 'Здорово!', 'Так держать!', 'Ты супер!', 'Отлично!', 'Вот это да!'],
+  en: ['Well done!', 'Great!', 'Keep it up!', 'You rock!', 'Awesome!', 'Wow!'],
+};
+const OOPS_L: Record<string, string[]> = {
+  ru: ['Ой! Попробуй ещё', 'Чуть-чуть мимо', 'Не спеши', 'Почти попал!'],
+  en: ['Oops! Try again', 'Almost!', 'Take your time', 'So close!'],
+};
+const PRAISE = () => PRAISE_L[lang()];
+const OOPS = () => OOPS_L[lang()];
 const pick = (a: string[]) => a[Math.floor(Math.random() * a.length)];
 
 // ── Звук (Web Audio, весёлый) ──
@@ -94,10 +113,10 @@ export function kidsHandleKey(e: KeyboardEvent): void {
   const expected = st.pattern[st.pos] ?? '';
   ch = bridgeChar(ch, expected); // раскладка ОС не мешает ребёнку
   const r = pressChar(st, ch, true);
-  if (r.wrong) { levelErrors++; mascotSay = pick(OOPS); sndOops(); }
+  if (r.wrong) { levelErrors++; mascotSay = pick(OOPS()); sndOops(); }
   if (r.finished) {
     levelChars += st.pattern.length;
-    mascotSay = pick(PRAISE);
+    mascotSay = pick(PRAISE());
     if (wordIdx + 1 < level.words.length) {
       sndWord();
       wordIdx++;
@@ -120,7 +139,7 @@ function finishLevel() {
 
 function startLevel(l: KidsLevel) {
   level = l; wordIdx = 0; levelErrors = 0; levelChars = 0;
-  mascotSay = l.lang === 'ru' ? 'Печатаем по-русски!' : 'Печатаем по-английски!';
+  mascotSay = l.lang === 'ru' ? t('k.startRu') : t('k.startEn');
   st = createState([l.words[0]]);
   screen = 'level';
   kidsRender();
@@ -140,18 +159,18 @@ function kidsRender() {
 
 function renderMap() {
   const blocks = [
-    { lang: 'ru' as const, title: '🇷🇺 По-русски', levels: KIDS_LEVELS.filter((l) => l.lang === 'ru') },
-    { lang: 'en' as const, title: '🇬🇧 По-английски', levels: KIDS_LEVELS.filter((l) => l.lang === 'en') },
+    { lang: 'ru' as const, title: t('k.block.ru'), levels: KIDS_LEVELS.filter((l) => l.lang === 'ru') },
+    { lang: 'en' as const, title: t('k.block.en'), levels: KIDS_LEVELS.filter((l) => l.lang === 'en') },
   ];
   const rest = playedThisSession > 0 && playedThisSession % 3 === 0
-    ? `<div class="k-rest">🐱 Ты отлично позанимался! Передохни немножко 💛</div>` : '';
+    ? `<div class="k-rest">${t('k.rest')}</div>` : '';
   root!.innerHTML = `
     <div class="wrap kids">
       <header class="k-head">
-        <h1>🐱 Котик-печатник</h1>
-        <button id="k-exit" class="ghost" title="Сменить профиль">⚙</button>
+        <h1>${t('k.title')}</h1>
+        <button id="k-exit" class="ghost" title="Profile">⚙</button>
       </header>
-      <p class="k-hello">Привет! Выбирай уровень — будем учиться печатать. Печатай точно, спешить не надо!</p>
+      <p class="k-hello">${t('k.hello')}</p>
       ${rest}
       ${blocks.map((b) => `
         <h2 class="k-block">${b.title}</h2>
@@ -185,16 +204,17 @@ function renderWord(): string {
 function renderLevel() {
   const l = level!;
   const nextCh = st.finishedAt === null ? st.pattern[st.pos] ?? null : null;
+  const showRu = lang() === 'ru' || l.lang === 'ru';
   root!.innerHTML = `
     <div class="wrap kids">
       <header class="k-head">
-        <button id="k-back" class="ghost">← К карте</button>
-        <span class="k-progress">${l.title} · слово ${wordIdx + 1} / ${l.words.length}</span>
-        <span class="k-acc">${levelErrors === 0 ? '⭐ без ошибок' : `ошибок: ${levelErrors}`}</span>
+        <button id="k-back" class="ghost">${t('k.back')}</button>
+        <span class="k-progress">${t('k.level')} ${l.title} · ${t('k.word')} ${wordIdx + 1} / ${l.words.length}</span>
+        <span class="k-acc">${levelErrors === 0 ? t('k.noerr') : `${t('k.errors')}: ${levelErrors}`}</span>
       </header>
-      <div class="k-mascot"><span class="k-cat">${levelErrors > 0 && mascotSay && OOPS.includes(mascotSay) ? '🙀' : '😺'}</span> <span class="k-say">${esc(mascotSay)}</span></div>
+      <div class="k-mascot"><span class="k-cat">${levelErrors > 0 && mascotSay && OOPS().includes(mascotSay) ? '🙀' : '😺'}</span> <span class="k-say">${esc(mascotSay)}</span></div>
       <div class="k-word">${renderWord()}</div>
-      <div class="keyb">${keyboardSVG(nextCh, l.lang === 'ru')}</div>
+      <div class="keyb">${keyboardSVG(nextCh, l.lang === 'ru', showRu)}</div>
     </div>`;
   (root!.querySelector('#k-back') as HTMLButtonElement).onclick = () => { screen = 'map'; kidsRender(); };
 }
@@ -205,13 +225,13 @@ function renderDone() {
     <div class="wrap kids">
       <div class="k-done">
         <div class="k-cat-big">${lastStars === 3 ? '😻' : '😺'}</div>
-        <h2>${l.title} пройден!</h2>
+        <h2>${t('k.level')} ${l.title} ${t('k.passed')}</h2>
         <div class="k-stars-big">${'⭐'.repeat(lastStars)}${'☆'.repeat(3 - lastStars)}</div>
-        <p class="k-done-note">${lastStars === 3 ? 'Ни одной ошибки — ты звезда!' : lastStars === 2 ? 'Очень здорово! Ещё чуть точнее — будет три звезды.' : 'Уровень пройден! Попробуй ещё раз — получится точнее.'}</p>
+        <p class="k-done-note">${lastStars === 3 ? t('k.note3') : lastStars === 2 ? t('k.note2') : t('k.note1')}</p>
         <div class="donebtns">
-          <button id="k-again">↻ Ещё раз</button>
-          <button id="k-map2" class="ghost">К карте</button>
-          ${KIDS_LEVELS.find((x) => x.id === l.id + 1) ? `<button id="k-next" class="primary">Дальше →</button>` : ''}
+          <button id="k-again">${t('k.again')}</button>
+          <button id="k-map2" class="ghost">${t('k.map')}</button>
+          ${KIDS_LEVELS.find((x) => x.id === l.id + 1) ? `<button id="k-next" class="primary">${t('k.next')}</button>` : ''}
         </div>
       </div>
     </div>`;

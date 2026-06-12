@@ -1,9 +1,10 @@
 import './style.css';
-import { loadExercises, exercisesOfBank, BANK_LABELS, BANK_DESC, type Bank, type Exercise } from './content';
+import { loadExercises, exercisesOfBank, BANKS, type Bank, type Exercise } from './content';
 import { createState, pressChar, backspace, stats, MARK, type TypingState } from './typing';
 import { keyboardSVG, bridgeChar } from './keyboard';
-import { type Profile, PROFILE_META, loadProfile, saveProfile, applyProfile, doneTitle } from './profiles';
+import { type Profile, PROFILE_EMOJI, loadProfile, saveProfile, applyProfile } from './profiles';
 import { kidsEnter, kidsHandleKey } from './kids';
+import { t, lang, setLang, type Lang } from './i18n';
 
 // ── Состояние сессии ──
 let profile: Profile | null = loadProfile();
@@ -24,22 +25,68 @@ let flowMode = localStorage.getItem('tr_flow') === '1';
 let flow = { typed: 0, errors: 0, ms: 0, count: 0 }; // завершённые сегменты серии
 function flowReset() { flow = { typed: 0, errors: 0, ms: 0, count: 0 }; }
 
-// Статистика для шкалы: в потоке — сквозная (серия + текущий сегмент)
-function viewStats() {
-  const s = stats(st);
-  if (!flowMode) return s;
-  const typed = flow.typed + s.typed;
-  const errors = flow.errors + s.errors;
-  const elapsedMs = flow.ms + s.elapsedMs;
-  const minutes = elapsedMs / 60000;
-  const wpm = minutes > 0 ? Math.round(typed / 5 / minutes) : 0;
+// ── Экзаменационный режим (Typing Test): таймер, Gross/Net WPM, сертификат ──
+interface Exam {
+  phase: 'setup' | 'run' | 'result';
+  durMin: number;        // длительность, минуты
+  target: number;        // целевой Net WPM
+  name: string;          // имя для сертификата
+  endAt: number;         // timestamp конца
+  typed: number;         // верных символов (завершённые сегменты)
+  errors: number;
+  count: number;         // упражнений завершено
+  pool: Exercise[];      // перемешанные предложения
+  pi: number;            // позиция в exam.pool
+  timer: number | null;
+}
+let exam: Exam | null = null;
+
+function examStats() {
+  // текущий сегмент + накопленное; gross — по всем нажатиям, net — по верным
+  const s = exam && exam.phase === 'run' ? stats(st) : { typed: 0, errors: 0 };
+  const typed = (exam?.typed ?? 0) + s.typed;
+  const errors = (exam?.errors ?? 0) + s.errors;
+  const elapsedMs = exam ? exam.durMin * 60000 - Math.max(0, exam.endAt - Date.now()) : 0;
+  const minutes = Math.max(elapsedMs / 60000, 1 / 600);
+  const gross = Math.round((typed + errors) / 5 / minutes);
+  const net = Math.round(typed / 5 / minutes);
   const total = typed + errors;
-  return { typed, errors, elapsedMs, wpm, accuracy: total > 0 ? Math.round((typed / total) * 100) : 100 };
+  const accuracy = total > 0 ? Math.round((typed / total) * 100) : 100;
+  return { typed, errors, gross, net, accuracy, elapsedMs };
+}
+
+function startExam(durMin: number, target: number, name: string) {
+  const sentences = exercisesOfBank(all, 'abandon');
+  const shuffled = [...sentences].sort(() => Math.random() - 0.5);
+  exam = { phase: 'run', durMin, target, name, endAt: Date.now() + durMin * 60000, typed: 0, errors: 0, count: 0, pool: shuffled, pi: 0, timer: null };
+  try { localStorage.setItem('tr_name', name); } catch { /* quota */ }
+  st = createState([shuffled[0].lines.join(' ')]);
+  exam.timer = window.setInterval(() => {
+    if (!exam || exam.phase !== 'run') return;
+    if (Date.now() >= exam.endAt) { finishExam(); return; }
+    updateExamHud();
+  }, 250);
+  render();
+}
+
+function finishExam() {
+  if (!exam) return;
+  const s = stats(st); // забрать незавершённый сегмент
+  exam.typed += s.typed; exam.errors += s.errors;
+  if (exam.timer) { clearInterval(exam.timer); exam.timer = null; }
+  exam.phase = 'result';
+  render();
+}
+
+function exitExam() {
+  if (exam?.timer) clearInterval(exam.timer);
+  exam = null;
+  reset();
 }
 
 // ── Прогресс по банку (Задача 3 ТЗ): ключ tr_progress_<bank> ──
 interface Progress {
-  bestWpm: number;   // лучшая скорость (зн/мин ÷5)
+  bestWpm: number;   // лучшая скорость, WPM
   bestAcc: number;   // лучшая точность, %
   done: string[];    // id пройденных упражнений (без дублей)
   lastIdx: number;   // продолжить с места
@@ -66,6 +113,19 @@ function recordFinish(ex: Exercise) {
   saveProgress();
 }
 
+// Статистика для шкалы: в потоке — сквозная (серия + текущий сегмент)
+function viewStats() {
+  const s = stats(st);
+  if (!flowMode) return s;
+  const typed = flow.typed + s.typed;
+  const errors = flow.errors + s.errors;
+  const elapsedMs = flow.ms + s.elapsedMs;
+  const minutes = elapsedMs / 60000;
+  const wpm = minutes > 0 ? Math.round(typed / 5 / minutes) : 0;
+  const total = typed + errors;
+  return { typed, errors, elapsedMs, wpm, accuracy: total > 0 ? Math.round((typed / total) * 100) : 100 };
+}
+
 // ── Звук ошибки (Web Audio, без внешних файлов) ──
 let audioCtx: AudioContext | null = null;
 function beep() {
@@ -87,6 +147,23 @@ const app = document.getElementById('app')!;
 
 let kidsActive = false;
 
+// RU-слой клавиатуры: прятать, если интерфейс EN и упражнение не русское
+function kbShowRu(ruContext: boolean): boolean {
+  return lang() === 'ru' || ruContext;
+}
+
+function langSwitcherHtml(): string {
+  return `<select id="lang" title="Language">
+    <option value="ru" ${lang() === 'ru' ? 'selected' : ''}>RU</option>
+    <option value="en" ${lang() === 'en' ? 'selected' : ''}>EN</option>
+  </select>`;
+}
+
+function bindLang(after: () => void) {
+  const el = document.getElementById('lang') as HTMLSelectElement | null;
+  if (el) el.onchange = () => { setLang(el.value as Lang); after(); };
+}
+
 function render() {
   if (profile === null) { kidsActive = false; renderOnboarding(); return; }
   if (profile === 'kids') {
@@ -97,6 +174,7 @@ function render() {
     return; // детский режим рисует себя сам
   }
   kidsActive = false;
+  if (exam) { renderExam(); return; }
   const ex = pool[idx];
   const s = viewStats();
   app.innerHTML = `
@@ -105,28 +183,30 @@ function render() {
         <h1>Type<span>RIGHT</span>ing</h1>
         <div class="headctl">
           <select id="bank">
-            ${(Object.keys(BANK_LABELS) as Bank[]).map((b) =>
-              `<option value="${b}" ${b === bank ? 'selected' : ''}>${BANK_LABELS[b]}</option>`).join('')}
+            ${BANKS.map((b) =>
+              `<option value="${b}" ${b === bank ? 'selected' : ''}>${t('bank.' + b)}</option>`).join('')}
           </select>
-          <select id="profile" title="Профиль">
-            ${(Object.keys(PROFILE_META) as Profile[]).map((p) =>
-              `<option value="${p}" ${p === profile ? 'selected' : ''}>${PROFILE_META[p].emoji} ${PROFILE_META[p].label}</option>`).join('')}
+          <select id="profile" title="Profile">
+            ${(Object.keys(PROFILE_EMOJI) as Profile[]).map((p) =>
+              `<option value="${p}" ${p === profile ? 'selected' : ''}>${PROFILE_EMOJI[p]} ${t('profile.' + p)}</option>`).join('')}
           </select>
+          ${langSwitcherHtml()}
         </div>
       </header>
-      <p class="bankdesc">${BANK_DESC[bank]} · <b>${pool.length}</b> упражнений
-        · пройдено <b>${prog.done.length}</b>${prog.bestWpm > 0 ? ` · рекорд <b>${prog.bestWpm}</b> зн/мин · <b>${prog.bestAcc}%</b>` : ''}</p>
+      <p class="bankdesc">${t('bank.' + bank + '.desc')} · <b>${pool.length}</b> ${t('st.exercises')}
+        · ${t('st.done')} <b>${prog.done.length}</b>${prog.bestWpm > 0 ? ` · ${t('st.record')} <b>${prog.bestWpm}</b> ${t('st.wpm')} · <b>${prog.bestAcc}%</b>` : ''}</p>
 
       <div class="toolbar">
-        <label><input type="checkbox" id="hide" ${hidePattern ? 'checked' : ''}/> Спрятать образец</label>
-        <label><input type="checkbox" id="sound" ${soundOn ? 'checked' : ''}/> Звук ошибки</label>
-        <label><input type="checkbox" id="block" ${blockOnError ? 'checked' : ''}/> Блок при ошибке</label>
-        <label><input type="checkbox" id="keyb" ${showKeyb ? 'checked' : ''}/> Клавиатура</label>
-        <label title="Как в Stamina: упражнения идут подряд, без пауз и Enter"><input type="checkbox" id="flow" ${flowMode ? 'checked' : ''}/> Поток</label>
+        <label><input type="checkbox" id="hide" ${hidePattern ? 'checked' : ''}/> ${t('tb.hide')}</label>
+        <label><input type="checkbox" id="sound" ${soundOn ? 'checked' : ''}/> ${t('tb.sound')}</label>
+        <label><input type="checkbox" id="block" ${blockOnError ? 'checked' : ''}/> ${t('tb.block')}</label>
+        <label><input type="checkbox" id="keyb" ${showKeyb ? 'checked' : ''}/> ${t('tb.keyb')}</label>
+        <label title="Stamina-style"><input type="checkbox" id="flow" ${flowMode ? 'checked' : ''}/> ${t('tb.flow')}</label>
+        <button id="exam" class="ghost">⏱ ${t('tb.exam')}</button>
         <span class="spacer"></span>
-        <button id="prev" class="ghost">‹ Пред</button>
+        <button id="prev" class="ghost">${t('tb.prev')}</button>
         <span class="counter">${idx + 1} / ${pool.length}</span>
-        <button id="next" class="ghost">След ›</button>
+        <button id="next" class="ghost">${t('tb.next')}</button>
       </div>
 
       <div class="card">
@@ -137,23 +217,33 @@ function render() {
         <div class="pattern ${hidePattern ? 'hidden' : ''}" id="pattern">${renderPattern()}</div>
       </div>
 
-      ${showKeyb ? `<div class="keyb">${keyboardSVG(
-        st.finishedAt === null ? st.pattern[st.pos] ?? null : null,
-        /[а-яё]/i.test(st.pattern),
-      )}</div>` : ''}
+      ${keybBlock()}
 
-      <div class="statsbar">
-        <div><b>${s.wpm}</b><span>зн/мин ÷5</span></div>
-        <div><b>${s.accuracy}%</b><span>точность</span></div>
-        <div><b class="${s.errors > 0 ? 'err' : ''}">${s.errors}</b><span>ошибок</span></div>
-        <div><b>${(s.elapsedMs / 1000).toFixed(0)}с</b><span>время</span></div>
-        ${flowMode ? `<div><b>🔥 ${flow.count}</b><span>подряд</span></div>` : ''}
-      </div>
+      <div class="statsbar">${statsCells(s)}</div>
 
-      ${st.finishedAt !== null ? renderDone(s) : `<p class="hint2">${flowMode ? 'Поток: упражнения идут подряд без остановки.' : 'Печатай по образцу.'} ${blockOnError ? 'Неверный символ не пропускается.' : 'Backspace — исправить.'}</p>`}
+      ${st.finishedAt !== null ? renderDone(s) : `<p class="hint2">${flowMode ? t('hint.flow') : t('hint.type')} ${blockOnError ? t('hint.block') : t('hint.bs')}</p>`}
     </div>
   `;
   bindControls();
+}
+
+function keybBlock(): string {
+  if (!showKeyb) return '';
+  const ruCtx = /[а-яё]/i.test(st.pattern);
+  return `<div class="keyb">${keyboardSVG(
+    st.finishedAt === null ? st.pattern[st.pos] ?? null : null,
+    ruCtx,
+    kbShowRu(ruCtx),
+  )}</div>`;
+}
+
+function statsCells(s: ReturnType<typeof viewStats>): string {
+  return `
+    <div><b>${s.wpm}</b><span>${t('st.wpm')}</span></div>
+    <div><b>${s.accuracy}%</b><span>${t('st.accuracy')}</span></div>
+    <div><b class="${s.errors > 0 ? 'err' : ''}">${s.errors}</b><span>${t('st.errors')}</span></div>
+    <div><b>${(s.elapsedMs / 1000).toFixed(0)}s</b><span>${t('st.time')}</span></div>
+    ${flowMode ? `<div><b>🔥 ${flow.count}</b><span>${t('st.streak')}</span></div>` : ''}`;
 }
 
 function esc(s: string) {
@@ -161,7 +251,7 @@ function esc(s: string) {
 }
 
 function renderPattern(): string {
-  if (hidePattern) return '<span class="hidden-note">образец скрыт — печатай по памяти</span>';
+  if (hidePattern) return `<span class="hidden-note">${t('hint.hidden')}</span>`;
   let html = '';
   for (let i = 0; i < st.pattern.length; i++) {
     const ch = st.pattern[i];
@@ -176,38 +266,177 @@ function renderPattern(): string {
 function renderOnboarding() {
   app.innerHTML = `
     <div class="wrap onboard">
+      <div class="ob-lang">${langSwitcherHtml()}</div>
       <h1 class="ob-title">Type<span>RIGHT</span>ing</h1>
-      <p class="ob-sub">Тренажёр слепой печати. Для кого настроить?</p>
+      <p class="ob-sub">${t('ob.sub')}</p>
       <div class="ob-cards">
-        ${(Object.keys(PROFILE_META) as Profile[]).map((p) => `
+        ${(Object.keys(PROFILE_EMOJI) as Profile[]).map((p) => `
           <button class="ob-card" data-profile-pick="${p}">
-            <span class="ob-emoji">${PROFILE_META[p].emoji}</span>
-            <span class="ob-name">${PROFILE_META[p].label}</span>
-            <span class="ob-desc">${PROFILE_META[p].desc}</span>
+            <span class="ob-emoji">${PROFILE_EMOJI[p]}</span>
+            <span class="ob-name">${t('profile.' + p)}</span>
+            <span class="ob-desc">${t('profile.' + p + '.desc')}</span>
           </button>`).join('')}
       </div>
-      <p class="ob-note">Профиль можно сменить в любой момент в шапке.</p>
+      <p class="ob-note">${t('ob.note')}</p>
     </div>`;
   app.querySelectorAll<HTMLButtonElement>('[data-profile-pick]').forEach((btn) => {
     btn.onclick = () => { profile = btn.dataset.profilePick as Profile; saveProfile(profile); render(); };
   });
+  bindLang(() => renderOnboarding());
 }
 
-function renderDone(s: ReturnType<typeof stats>): string {
+function renderDone(s: ReturnType<typeof viewStats>): string {
   return `
     <div class="done">
-      <h2>${doneTitle(profile)}</h2>
+      <h2>${profile === 'f' ? t('done.title.f') : t('done.title')}</h2>
       <div class="donestats">
-        <span><b>${s.wpm}</b> зн/мин÷5</span>
-        <span><b>${s.accuracy}%</b> точность</span>
-        <span><b>${s.errors}</b> ошибок</span>
-        <span><b>${(s.elapsedMs / 1000).toFixed(1)}с</b></span>
+        <span><b>${s.wpm}</b> ${t('st.wpm')}</span>
+        <span><b>${s.accuracy}%</b> ${t('st.accuracy')}</span>
+        <span><b>${s.errors}</b> ${t('st.errors')}</span>
+        <span><b>${(s.elapsedMs / 1000).toFixed(1)}s</b></span>
       </div>
       <div class="donebtns">
-        <button id="again">↻ Заново</button>
-        <button id="nextdone" class="primary">Следующее →</button>
+        <button id="again">${t('done.again')}</button>
+        <button id="nextdone" class="primary">${t('done.next')}</button>
       </div>
     </div>`;
+}
+
+// ── Экзамен: экраны ──
+function renderExam() {
+  if (!exam) return;
+  if (exam.phase === 'setup') {
+    const savedName = localStorage.getItem('tr_name') ?? '';
+    app.innerHTML = `
+      <div class="wrap">
+        <div class="exam-setup">
+          <h2>⏱ ${t('ex.title')}</h2>
+          <p class="ex-desc">${t('ex.desc')}</p>
+          <div class="ex-form">
+            <label>${t('ex.duration')}:
+              <select id="ex-dur">
+                <option value="1">1 ${t('ex.min')}</option>
+                <option value="5">5 ${t('ex.min')}</option>
+                <option value="10" selected>10 ${t('ex.min')}</option>
+              </select>
+            </label>
+            <label>${t('ex.target')}: <input id="ex-target" type="number" value="35" min="5" max="120"/></label>
+            <label>${t('ex.name')}: <input id="ex-name" type="text" value="${esc(savedName)}" placeholder="—"/></label>
+          </div>
+          <div class="donebtns">
+            <button id="ex-cancel" class="ghost">${t('ex.cancel')}</button>
+            <button id="ex-go" class="primary">${t('ex.start')}</button>
+          </div>
+        </div>
+      </div>`;
+    (document.getElementById('ex-go') as HTMLButtonElement).onclick = () => {
+      const dur = Number((document.getElementById('ex-dur') as HTMLSelectElement).value);
+      const target = Number((document.getElementById('ex-target') as HTMLInputElement).value) || 35;
+      const name = (document.getElementById('ex-name') as HTMLInputElement).value.trim();
+      startExam(dur, target, name);
+    };
+    (document.getElementById('ex-cancel') as HTMLButtonElement).onclick = () => exitExam();
+    return;
+  }
+  if (exam.phase === 'run') {
+    const ex = exam.pool[exam.pi];
+    const s = examStats();
+    const leftMs = Math.max(0, exam.endAt - Date.now());
+    app.innerHTML = `
+      <div class="wrap">
+        <div class="exam-hud">
+          <span class="ex-timer" id="ex-timer">${fmtTime(leftMs)}</span>
+          <span class="ex-hudstats" id="ex-hudstats">${t('ex.net')} <b>${s.net}</b> · ${t('st.accuracy')} <b>${s.accuracy}%</b> · ${t('ex.target.short')} ${exam.target}</span>
+          <button id="ex-stop" class="ghost">${t('ex.cancel')}</button>
+        </div>
+        <div class="card">
+          <div class="exhead"><span class="extitle">${esc(ex?.title ?? '')}</span></div>
+          <div class="pattern" id="pattern">${renderPattern()}</div>
+        </div>
+        ${keybBlock()}
+      </div>`;
+    (document.getElementById('ex-stop') as HTMLButtonElement).onclick = () => finishExam();
+    return;
+  }
+  // result
+  const s = examStats();
+  const pass = s.net >= exam.target;
+  app.innerHTML = `
+    <div class="wrap">
+      <div class="exam-result">
+        <h2>${t('ex.result')}</h2>
+        <div class="ex-verdict ${pass ? 'pass' : 'fail'}">${pass ? t('ex.pass') : t('ex.fail')} <small>(${t('ex.target.short')} ${exam.target} ${t('ex.net')})</small></div>
+        <div class="statsbar">
+          <div><b>${s.net}</b><span>${t('ex.net')}</span></div>
+          <div><b>${s.gross}</b><span>${t('ex.gross')}</span></div>
+          <div><b>${s.accuracy}%</b><span>${t('st.accuracy')}</span></div>
+          <div><b>${s.typed + s.errors}</b><span>${t('ex.keystrokes')}</span></div>
+          <div><b>${exam.durMin} ${t('ex.min')}</b><span>${t('st.time')}</span></div>
+        </div>
+        <div class="donebtns">
+          <button id="ex-cert" class="primary">${t('ex.cert')}</button>
+          <button id="ex-retry">${t('ex.again')}</button>
+          <button id="ex-exit" class="ghost">${t('ex.cancel')}</button>
+        </div>
+      </div>
+    </div>`;
+  (document.getElementById('ex-cert') as HTMLButtonElement).onclick = () => downloadCertificate(s, pass);
+  (document.getElementById('ex-retry') as HTMLButtonElement).onclick = () => { exam!.phase = 'setup'; render(); };
+  (document.getElementById('ex-exit') as HTMLButtonElement).onclick = () => exitExam();
+}
+
+function fmtTime(ms: number): string {
+  const sec = Math.ceil(ms / 1000);
+  return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+}
+
+function updateExamHud() {
+  if (!exam || exam.phase !== 'run') return;
+  const tEl = document.getElementById('ex-timer');
+  const sEl = document.getElementById('ex-hudstats');
+  if (!tEl || !sEl) return;
+  const s = examStats();
+  tEl.textContent = fmtTime(Math.max(0, exam.endAt - Date.now()));
+  sEl.innerHTML = `${t('ex.net')} <b>${s.net}</b> · ${t('st.accuracy')} <b>${s.accuracy}%</b> · ${t('ex.target.short')} ${exam.target}`;
+}
+
+// Сертификат: canvas → PNG (без внешних библиотек)
+function downloadCertificate(s: ReturnType<typeof examStats>, pass: boolean) {
+  if (!exam) return;
+  const c = document.createElement('canvas');
+  c.width = 1200; c.height = 850;
+  const g = c.getContext('2d')!;
+  g.fillStyle = '#faf7f0'; g.fillRect(0, 0, 1200, 850);
+  g.strokeStyle = '#b9962e'; g.lineWidth = 6; g.strokeRect(30, 30, 1140, 790);
+  g.lineWidth = 1.5; g.strokeRect(44, 44, 1112, 762);
+  g.fillStyle = '#2a2a33'; g.textAlign = 'center';
+  g.font = '700 28px Georgia, serif';
+  g.fillText('TypeRIGHTing', 600, 110);
+  g.font = '800 64px Georgia, serif';
+  g.fillStyle = '#b9962e';
+  g.fillText(t('ex.cert.title'), 600, 200);
+  g.font = '400 26px Georgia, serif';
+  g.fillStyle = '#555';
+  g.fillText(t('ex.cert.sub'), 600, 240);
+  g.font = '700 52px Georgia, serif';
+  g.fillStyle = '#2a2a33';
+  g.fillText(exam.name || '—', 600, 350);
+  g.font = '800 110px Georgia, serif';
+  g.fillStyle = pass ? '#2f7d4f' : '#b3443a';
+  g.fillText(`${s.net} ${t('ex.net')}`, 600, 500);
+  g.font = '400 30px Georgia, serif';
+  g.fillStyle = '#444';
+  g.fillText(`${t('ex.gross')}: ${s.gross}   ·   ${t('st.accuracy')}: ${s.accuracy}%   ·   ${exam.durMin} ${t('ex.min')}`, 600, 570);
+  g.font = '700 36px Georgia, serif';
+  g.fillStyle = pass ? '#2f7d4f' : '#b3443a';
+  g.fillText(pass ? `✔ ${t('ex.pass')}` : `✘ ${t('ex.fail')}`, 600, 650);
+  g.font = '400 22px Georgia, serif';
+  g.fillStyle = '#777';
+  g.fillText(`${t('ex.cert.date')}: ${new Date().toLocaleDateString()}`, 600, 740);
+  const a = document.createElement('a');
+  a.download = `TypeRIGHTing-test-${s.net}wpm.png`;
+  a.href = c.toDataURL('image/png');
+  a.click();
 }
 
 function bindControls() {
@@ -220,6 +449,7 @@ function bindControls() {
     saveProfile(profile);
     render();
   };
+  bindLang(() => render());
   document.getElementById('hide')!.onchange = (e) => { hidePattern = (e.target as HTMLInputElement).checked; render(); };
   document.getElementById('sound')!.onchange = (e) => { soundOn = (e.target as HTMLInputElement).checked; };
   document.getElementById('block')!.onchange = (e) => { blockOnError = (e.target as HTMLInputElement).checked; };
@@ -229,6 +459,11 @@ function bindControls() {
     try { localStorage.setItem('tr_flow', flowMode ? '1' : '0'); } catch { /* quota */ }
     flowReset();
     reset();
+  };
+  document.getElementById('exam')!.onclick = () => {
+    exam = { phase: 'setup', durMin: 10, target: 35, name: '', endAt: 0, typed: 0, errors: 0, count: 0, pool: [], pi: 0, timer: null };
+    if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
+    render();
   };
   document.getElementById('prev')!.onclick = () => { idx = (idx - 1 + pool.length) % pool.length; reset(); };
   document.getElementById('next')!.onclick = () => { idx = (idx + 1) % pool.length; reset(); };
@@ -261,11 +496,13 @@ document.addEventListener('keydown', (e) => {
   const tag = (e.target as HTMLElement)?.tagName;
   if (tag === 'SELECT' || tag === 'INPUT') return; // не перехватываем настройки
   if (profile === 'kids') { kidsHandleKey(e); return; }
+  if (exam && exam.phase !== 'run') return;
   if (st.finishedAt !== null) return;
 
   if (e.key === 'Backspace') {
     e.preventDefault();
-    if (!blockOnError) { backspace(st); render(); }
+    // в экзамене Backspace разрешён всегда (исправления — часть теста)
+    if (exam || !blockOnError) { backspace(st); render(); }
     return;
   }
   let ch: string | null = null;
@@ -277,6 +514,21 @@ document.addEventListener('keydown', (e) => {
   // мост раскладок: физическая клавиша важнее раскладки ОС
   // (чинит и «Аbolishment» с кириллической А внутри латинского слова)
   ch = bridgeChar(ch, st.pattern[st.pos] ?? '');
+
+  if (exam) {
+    // экзамен: блок выключен (ошибки фиксируются и идут в Gross/Accuracy)
+    const r = pressChar(st, ch, false);
+    if (r.wrong) beep();
+    if (r.finished) {
+      const s = stats(st);
+      exam.typed += s.typed; exam.errors += s.errors; exam.count++;
+      exam.pi = (exam.pi + 1) % exam.pool.length;
+      st = createState([exam.pool[exam.pi].lines.join(' ')]);
+    }
+    render();
+    return;
+  }
+
   if (st.startedAt === null && !statsTimer) {
     statsTimer = window.setInterval(() => { if (st.finishedAt === null) updateStatsOnly(); }, 250);
   }
@@ -303,15 +555,9 @@ document.addEventListener('keydown', (e) => {
 
 // лёгкое обновление статистики без полного перерендера паттерна (таймер)
 function updateStatsOnly() {
-  const s = viewStats();
   const bar = document.querySelector('.statsbar');
   if (!bar) return;
-  bar.innerHTML = `
-    <div><b>${s.wpm}</b><span>зн/мин ÷5</span></div>
-    <div><b>${s.accuracy}%</b><span>точность</span></div>
-    <div><b class="${s.errors > 0 ? 'err' : ''}">${s.errors}</b><span>ошибок</span></div>
-    <div><b>${(s.elapsedMs / 1000).toFixed(0)}с</b><span>время</span></div>
-    ${flowMode ? `<div><b>🔥 ${flow.count}</b><span>подряд</span></div>` : ''}`;
+  bar.innerHTML = statsCells(viewStats());
 }
 
 // ── Старт ──
@@ -320,5 +566,5 @@ loadExercises().then((data) => {
   all = data;
   loadBank();
 }).catch((err) => {
-  app.innerHTML = `<div class="wrap"><p class="err">Не удалось загрузить упражнения: ${esc(String(err))}</p></div>`;
+  app.innerHTML = `<div class="wrap"><p class="err">${t('err.load')}: ${esc(String(err))}</p></div>`;
 });

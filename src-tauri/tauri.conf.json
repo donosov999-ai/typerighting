@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "TypeRIGHTing",
+  "version": "2.0.0",
+  "identifier": "com.odv999.typerighting",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "devUrl": "http://localhost:8006",
+    "beforeBuildCommand": "npm run build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "TypeRIGHTing — тренажёр слепой печати",
+        "width": 1100,
+        "height": 800,
+        "minWidth": 720,
+        "minHeight": 540,
+        "resizable": true,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Education",
+    "shortDescription": "Touch typing trainer (English + Russian)",
+    "longDescription": "TypeRIGHTing 2.0 — touch typing trainer with 5549 exercises in 4 banks: words in sentences, EN-RU with translation hints, letter-by-letter buildup, poems. Migrated from the original .NET WinForms app to web + Tauri.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "11.0"
+    }
+  }
+}

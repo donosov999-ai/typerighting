@@ -1,0 +1,223 @@
+name: Build desktop bundles (macOS + Windows + Linux)
+
+on:
+  push:
+    branches: [main]
+    tags:    ['v*']
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  # Cargo network hardening — крейты с crates.io иногда падают на
+  # "curl [16] HTTP2 framing layer" (флейки HTTP/2). Отключаем мультиплексинг
+  # (→ HTTP/1.1) + ретраи. Паттерн проверен на psygames-native.
+  CARGO_NET_RETRY: "10"
+  CARGO_HTTP_MULTIPLEXING: "false"
+  CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+  NODE_VERSION: '22'
+
+jobs:
+  # ─── macOS Apple Silicon ──────────────────────────────────────────────
+  macos-arm:
+    name: macOS arm64 (.app + .dmg)
+    runs-on: macos-latest  # github-hosted M-runner, native arm64
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin
+
+      - name: Cache Cargo target
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            src-tauri/target/
+          key: ${{ runner.os }}-arm-cargo-${{ hashFiles('src-tauri/Cargo.toml') }}
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Clean stale bundle (cached target)
+        run: rm -rf src-tauri/target/aarch64-apple-darwin/release/bundle
+
+      # beforeBuildCommand в tauri.conf.json сам гоняет `npm run build` (tsc + vite)
+      - name: Build .app + .dmg (arm64)
+        run: npx tauri build --target aarch64-apple-darwin
+
+      - name: Package .app → tar.gz
+        run: |
+          cd src-tauri/target/aarch64-apple-darwin/release/bundle/macos
+          tar -czf TypeRIGHTing-macos-arm64.tar.gz TypeRIGHTing.app
+          ls -la
+
+      - name: Upload .app artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: TypeRIGHTing-macos-arm64-app
+          path: src-tauri/target/aarch64-apple-darwin/release/bundle/macos/TypeRIGHTing-macos-arm64.tar.gz
+          retention-days: 30
+
+      - name: Upload .dmg artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: TypeRIGHTing-macos-arm64-dmg
+          path: src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg
+          retention-days: 30
+
+  # ─── Windows x86_64 ────────────────────────────────────────────────────
+  windows-x64:
+    name: Windows x86_64 (.exe + .msi)
+    runs-on: windows-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: x86_64-pc-windows-msvc
+
+      - name: Cache Cargo target
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            src-tauri/target/
+          key: ${{ runner.os }}-win-cargo-${{ hashFiles('src-tauri/Cargo.toml') }}
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Clean stale bundle (cached target)
+        shell: bash
+        run: rm -rf src-tauri/target/x86_64-pc-windows-msvc/release/bundle
+
+      - name: Build .exe + .msi
+        run: npx tauri build --target x86_64-pc-windows-msvc
+
+      - name: Upload .exe artifact (NSIS setup)
+        uses: actions/upload-artifact@v7
+        with:
+          name: TypeRIGHTing-windows-x64-exe
+          path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+          retention-days: 30
+
+      - name: Upload .msi artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: TypeRIGHTing-windows-x64-msi
+          path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
+          retention-days: 30
+        continue-on-error: true
+
+  # ─── Linux x86_64 ──────────────────────────────────────────────────────
+  linux-x64:
+    name: Linux x86_64 (.AppImage + .deb)
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install system deps (webkit2gtk etc.)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev build-essential curl wget file \
+            libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Cargo target
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            src-tauri/target/
+          key: ${{ runner.os }}-linux-cargo-${{ hashFiles('src-tauri/Cargo.toml') }}
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Clean stale bundle (cached target)
+        run: rm -rf src-tauri/target/release/bundle
+
+      - name: Build .AppImage + .deb + .rpm
+        run: npx tauri build
+
+      - name: Upload .AppImage artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: TypeRIGHTing-linux-x64-appimage
+          path: src-tauri/target/release/bundle/appimage/*.AppImage
+          retention-days: 30
+
+      - name: Upload .deb artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: TypeRIGHTing-linux-x64-deb
+          path: src-tauri/target/release/bundle/deb/*.deb
+          retention-days: 30
+
+      - name: Upload .rpm artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: TypeRIGHTing-linux-x64-rpm
+          path: src-tauri/target/release/bundle/rpm/*.rpm
+          retention-days: 30
+        continue-on-error: true
+
+  # ─── Create GitHub Release if tagged (vX.Y.Z) ─────────────────────────
+  release:
+    needs: [macos-arm, windows-x64, linux-x64]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: artifacts/
+
+      - name: Show artifacts
+        run: find artifacts -type f
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            artifacts/TypeRIGHTing-macos-arm64-app/TypeRIGHTing-macos-arm64.tar.gz
+            artifacts/TypeRIGHTing-macos-arm64-dmg/*.dmg
+            artifacts/TypeRIGHTing-windows-x64-exe/*.exe
+            artifacts/TypeRIGHTing-windows-x64-msi/*.msi
+            artifacts/TypeRIGHTing-linux-x64-appimage/*.AppImage
+            artifacts/TypeRIGHTing-linux-x64-deb/*.deb
+            artifacts/TypeRIGHTing-linux-x64-rpm/*.rpm
+          generate_release_notes: true

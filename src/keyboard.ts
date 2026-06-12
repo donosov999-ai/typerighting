@@ -131,6 +131,29 @@ const RU_MAP: Record<string, KeyHit> = {};
   for (const [ch, hit] of Object.entries(EN_MAP)) if (!(ch in RU_MAP) && !/[a-zA-Z.,]/.test(ch)) RU_MAP[ch] = hit;
 }
 
+// ── Мост раскладок: одна физическая клавиша — две буквы (EN↔RU) ──
+// Если ожидается кириллица, а раскладка ОС латинская (или наоборот),
+// нажатие правильной ФИЗИЧЕСКОЙ клавиши засчитывается.
+const EN_TO_RU: Record<string, string> = {};
+const RU_TO_EN: Record<string, string> = {};
+for (const row of ROWS) for (const k of row) {
+  if (k.en && k.ru && /^[A-Z]$/.test(k.en) && /^[А-ЯЁ]$/.test(k.ru)) {
+    EN_TO_RU[k.en.toLowerCase()] = k.ru.toLowerCase();
+    RU_TO_EN[k.ru.toLowerCase()] = k.en.toLowerCase();
+  }
+}
+
+/** Перевести введённый символ в алфавит ожидаемого по физической клавише. */
+export function bridgeChar(input: string, expected: string): string {
+  if (input.length !== 1 || expected.length !== 1) return input;
+  const lower = input.toLowerCase();
+  let mapped: string | undefined;
+  if (/[а-яё]/i.test(expected) && /[a-z]/.test(lower)) mapped = EN_TO_RU[lower];
+  else if (/[a-z]/i.test(expected) && /[а-яё]/.test(lower)) mapped = RU_TO_EN[lower];
+  if (!mapped) return input;
+  return input === lower ? mapped : mapped.toUpperCase();
+}
+
 export function findKey(ch: string, ruContext: boolean): KeyHit | null {
   if (/[а-яё]/i.test(ch)) return RU_MAP[ch] ?? null;
   if (/[a-z]/i.test(ch)) return EN_MAP[ch] ?? null;

@@ -1,8 +1,9 @@
 import './style.css';
 import { loadExercises, exercisesOfBank, BANK_LABELS, BANK_DESC, type Bank, type Exercise } from './content';
 import { createState, pressChar, backspace, stats, MARK, type TypingState } from './typing';
-import { keyboardSVG } from './keyboard';
+import { keyboardSVG, bridgeChar } from './keyboard';
 import { type Profile, PROFILE_META, loadProfile, saveProfile, applyProfile, doneTitle } from './profiles';
+import { kidsEnter, kidsHandleKey } from './kids';
 
 // ── Состояние сессии ──
 let profile: Profile | null = loadProfile();
@@ -65,8 +66,18 @@ function beep() {
 
 const app = document.getElementById('app')!;
 
+let kidsActive = false;
+
 function render() {
-  if (profile === null) { renderOnboarding(); return; }
+  if (profile === null) { kidsActive = false; renderOnboarding(); return; }
+  if (profile === 'kids') {
+    if (!kidsActive) {
+      kidsActive = true;
+      kidsEnter(app, () => { kidsActive = false; profile = null; applyProfile(null); render(); });
+    }
+    return; // детский режим рисует себя сам
+  }
+  kidsActive = false;
   const ex = pool[idx];
   const s = stats(st);
   app.innerHTML = `
@@ -215,9 +226,10 @@ function reset() {
 
 // ── Ввод с клавиатуры ──
 document.addEventListener('keydown', (e) => {
-  if (st.finishedAt !== null) return;
   const tag = (e.target as HTMLElement)?.tagName;
   if (tag === 'SELECT' || tag === 'INPUT') return; // не перехватываем настройки
+  if (profile === 'kids') { kidsHandleKey(e); return; }
+  if (st.finishedAt !== null) return;
 
   if (e.key === 'Backspace') {
     e.preventDefault();
@@ -230,6 +242,9 @@ document.addEventListener('keydown', (e) => {
   if (ch === null) return;
 
   e.preventDefault();
+  // мост раскладок: физическая клавиша важнее раскладки ОС
+  // (чинит и «Аbolishment» с кириллической А внутри латинского слова)
+  ch = bridgeChar(ch, st.pattern[st.pos] ?? '');
   if (st.startedAt === null && !statsTimer) {
     statsTimer = window.setInterval(() => { if (st.finishedAt === null) updateStatsOnly(); }, 250);
   }

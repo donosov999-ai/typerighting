@@ -2,8 +2,10 @@ import './style.css';
 import { loadExercises, exercisesOfBank, BANK_LABELS, BANK_DESC, type Bank, type Exercise } from './content';
 import { createState, pressChar, backspace, stats, MARK, type TypingState } from './typing';
 import { keyboardSVG } from './keyboard';
+import { type Profile, PROFILE_META, loadProfile, saveProfile, applyProfile, doneTitle } from './profiles';
 
 // ── Состояние сессии ──
+let profile: Profile | null = loadProfile();
 let all: Exercise[] = [];
 let bank: Bank = 'abandon';
 let pool: Exercise[] = [];
@@ -64,16 +66,23 @@ function beep() {
 const app = document.getElementById('app')!;
 
 function render() {
+  if (profile === null) { renderOnboarding(); return; }
   const ex = pool[idx];
   const s = stats(st);
   app.innerHTML = `
     <div class="wrap">
       <header>
         <h1>Type<span>RIGHT</span>ing</h1>
-        <select id="bank">
-          ${(Object.keys(BANK_LABELS) as Bank[]).map((b) =>
-            `<option value="${b}" ${b === bank ? 'selected' : ''}>${BANK_LABELS[b]}</option>`).join('')}
-        </select>
+        <div class="headctl">
+          <select id="bank">
+            ${(Object.keys(BANK_LABELS) as Bank[]).map((b) =>
+              `<option value="${b}" ${b === bank ? 'selected' : ''}>${BANK_LABELS[b]}</option>`).join('')}
+          </select>
+          <select id="profile" title="Профиль">
+            ${(Object.keys(PROFILE_META) as Profile[]).map((p) =>
+              `<option value="${p}" ${p === profile ? 'selected' : ''}>${PROFILE_META[p].emoji} ${PROFILE_META[p].label}</option>`).join('')}
+          </select>
+        </div>
       </header>
       <p class="bankdesc">${BANK_DESC[bank]} · <b>${pool.length}</b> упражнений
         · пройдено <b>${prog.done.length}</b>${prog.bestWpm > 0 ? ` · рекорд <b>${prog.bestWpm}</b> зн/мин · <b>${prog.bestAcc}%</b>` : ''}</p>
@@ -132,10 +141,30 @@ function renderPattern(): string {
   return html;
 }
 
+function renderOnboarding() {
+  app.innerHTML = `
+    <div class="wrap onboard">
+      <h1 class="ob-title">Type<span>RIGHT</span>ing</h1>
+      <p class="ob-sub">Тренажёр слепой печати. Для кого настроить?</p>
+      <div class="ob-cards">
+        ${(Object.keys(PROFILE_META) as Profile[]).map((p) => `
+          <button class="ob-card" data-profile-pick="${p}">
+            <span class="ob-emoji">${PROFILE_META[p].emoji}</span>
+            <span class="ob-name">${PROFILE_META[p].label}</span>
+            <span class="ob-desc">${PROFILE_META[p].desc}</span>
+          </button>`).join('')}
+      </div>
+      <p class="ob-note">Профиль можно сменить в любой момент в шапке.</p>
+    </div>`;
+  app.querySelectorAll<HTMLButtonElement>('[data-profile-pick]').forEach((btn) => {
+    btn.onclick = () => { profile = btn.dataset.profilePick as Profile; saveProfile(profile); render(); };
+  });
+}
+
 function renderDone(s: ReturnType<typeof stats>): string {
   return `
     <div class="done">
-      <h2>✓ Готово</h2>
+      <h2>${doneTitle(profile)}</h2>
       <div class="donestats">
         <span><b>${s.wpm}</b> зн/мин÷5</span>
         <span><b>${s.accuracy}%</b> точность</span>
@@ -153,6 +182,11 @@ function bindControls() {
   (document.getElementById('bank') as HTMLSelectElement).onchange = (e) => {
     bank = (e.target as HTMLSelectElement).value as Bank;
     loadBank();
+  };
+  (document.getElementById('profile') as HTMLSelectElement).onchange = (e) => {
+    profile = (e.target as HTMLSelectElement).value as Profile;
+    saveProfile(profile);
+    render();
   };
   document.getElementById('hide')!.onchange = (e) => { hidePattern = (e.target as HTMLInputElement).checked; render(); };
   document.getElementById('sound')!.onchange = (e) => { soundOn = (e.target as HTMLInputElement).checked; };
@@ -222,6 +256,7 @@ function updateStatsOnly() {
 }
 
 // ── Старт ──
+applyProfile(profile);
 loadExercises().then((data) => {
   all = data;
   loadBank();

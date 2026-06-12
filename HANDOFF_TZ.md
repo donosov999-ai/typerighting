@@ -61,13 +61,17 @@ npx tsc --noEmit     # проверка типов (должно быть 0 ош
 
 ## 5. ЗАДАЧИ (по приоритету)
 
-### 🔴 ЗАДАЧА 1 — Tauri-обёртка + кроссбилд (главное)
+### ✅ ЗАДАЧА 1 — ВЫПОЛНЕНО 12.06.2026
+Tauri 2 обёртка готова (`src-tauri/`), репо создан и запушен: `github.com/donosov999-ai/typerighting` (**private** — публичность не была явно согласована; открыть: `gh repo edit donosov999-ai/typerighting --visibility public --accept-visibility-change-consequences`). CI: `.github/workflows/build.yml`, триггер — тег `v*` или вручную; артефакты .app/.dmg + .exe/.msi + .AppImage/.deb/.rpm, на тег создаётся GitHub Release. Тег v2.0.0 поставлен. Бонус: в UI возвращена схема клавиатуры из оригинала (`public/images/keyboard.jpg`, переключатель «Клавиатура»).
+
+<details><summary>Исходная постановка</summary>
 Превратить веб-приложение в устанавливаемое desktop (Mac/Windows/Linux).
 - Эталон уже есть в системе: `/Users/denisonosov/dev/psygames/src-tauri/` (Tauri 2) + его GitHub Actions workflow собирает Mac/Win артефакты. Копировать паттерн оттуда.
 - Шаги: `npm create tauri-app` поверх (или вручную `src-tauri/`), указать `frontendDist: "../dist"`, `devUrl: "http://localhost:8006"`, `beforeBuildCommand: "npm run build"`.
 - Требует Rust (`rustup`) — проверить/поставить.
 - GitHub Actions: матрица macos-latest + windows-latest + ubuntu, артефакты `.dmg`/`.app`, `.msi`/`.exe`, `.AppImage`/`.deb`. Тег-триггер как в psygames.
 - Аккаунт GitHub владельца: **`donosov999-ai`** (email `d.onosov999@gmail.com`). Создать репо `typerighting`, запушить.
+</details>
 
 ### 🟡 ЗАДАЧА 2 — Разбить `poemHymn` на строфы
 Сейчас вся поэма («Ворон») = одно упражнение на 127 строк, печатать нереально. Нужно резать на куски по 4–8 строк (строфа = упражнение).

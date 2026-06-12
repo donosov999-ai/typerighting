@@ -1,9 +1,10 @@
 name: Build desktop bundles (macOS + Windows + Linux)
 
+# Триггер: только теги v* + ручной запуск. Сборку на каждый push в main
+# (как в psygames-native) убрали: репо приватный, macOS-минуты Actions ×10.
 on:
   push:
-    branches: [main]
-    tags:    ['v*']
+    tags: ['v*']
   workflow_dispatch:
 
 env:

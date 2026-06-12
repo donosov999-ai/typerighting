@@ -18,6 +18,25 @@ let blockOnError = true;
 let showKeyb = true; // схема клавиатуры из оригинального TypeRIGHTing
 let statsTimer: number | null = null;
 
+// ── Режим «Поток» (как Stamina): строки сшиты, упражнения идут подряд,
+//    статистика сквозная за серию — темп не ломается ──
+let flowMode = localStorage.getItem('tr_flow') === '1';
+let flow = { typed: 0, errors: 0, ms: 0, count: 0 }; // завершённые сегменты серии
+function flowReset() { flow = { typed: 0, errors: 0, ms: 0, count: 0 }; }
+
+// Статистика для шкалы: в потоке — сквозная (серия + текущий сегмент)
+function viewStats() {
+  const s = stats(st);
+  if (!flowMode) return s;
+  const typed = flow.typed + s.typed;
+  const errors = flow.errors + s.errors;
+  const elapsedMs = flow.ms + s.elapsedMs;
+  const minutes = elapsedMs / 60000;
+  const wpm = minutes > 0 ? Math.round(typed / 5 / minutes) : 0;
+  const total = typed + errors;
+  return { typed, errors, elapsedMs, wpm, accuracy: total > 0 ? Math.round((typed / total) * 100) : 100 };
+}
+
 // ── Прогресс по банку (Задача 3 ТЗ): ключ tr_progress_<bank> ──
 interface Progress {
   bestWpm: number;   // лучшая скорость (зн/мин ÷5)
@@ -79,7 +98,7 @@ function render() {
   }
   kidsActive = false;
   const ex = pool[idx];
-  const s = stats(st);
+  const s = viewStats();
   app.innerHTML = `
     <div class="wrap">
       <header>
@@ -103,6 +122,7 @@ function render() {
         <label><input type="checkbox" id="sound" ${soundOn ? 'checked' : ''}/> Звук ошибки</label>
         <label><input type="checkbox" id="block" ${blockOnError ? 'checked' : ''}/> Блок при ошибке</label>
         <label><input type="checkbox" id="keyb" ${showKeyb ? 'checked' : ''}/> Клавиатура</label>
+        <label title="Как в Stamina: упражнения идут подряд, без пауз и Enter"><input type="checkbox" id="flow" ${flowMode ? 'checked' : ''}/> Поток</label>
         <span class="spacer"></span>
         <button id="prev" class="ghost">‹ Пред</button>
         <span class="counter">${idx + 1} / ${pool.length}</span>
@@ -127,9 +147,10 @@ function render() {
         <div><b>${s.accuracy}%</b><span>точность</span></div>
         <div><b class="${s.errors > 0 ? 'err' : ''}">${s.errors}</b><span>ошибок</span></div>
         <div><b>${(s.elapsedMs / 1000).toFixed(0)}с</b><span>время</span></div>
+        ${flowMode ? `<div><b>🔥 ${flow.count}</b><span>подряд</span></div>` : ''}
       </div>
 
-      ${st.finishedAt !== null ? renderDone(s) : `<p class="hint2">Печатай по образцу. ${blockOnError ? 'Неверный символ не пропускается.' : 'Backspace — исправить.'}</p>`}
+      ${st.finishedAt !== null ? renderDone(s) : `<p class="hint2">${flowMode ? 'Поток: упражнения идут подряд без остановки.' : 'Печатай по образцу.'} ${blockOnError ? 'Неверный символ не пропускается.' : 'Backspace — исправить.'}</p>`}
     </div>
   `;
   bindControls();
@@ -203,6 +224,12 @@ function bindControls() {
   document.getElementById('sound')!.onchange = (e) => { soundOn = (e.target as HTMLInputElement).checked; };
   document.getElementById('block')!.onchange = (e) => { blockOnError = (e.target as HTMLInputElement).checked; };
   document.getElementById('keyb')!.onchange = (e) => { showKeyb = (e.target as HTMLInputElement).checked; render(); };
+  document.getElementById('flow')!.onchange = (e) => {
+    flowMode = (e.target as HTMLInputElement).checked;
+    try { localStorage.setItem('tr_flow', flowMode ? '1' : '0'); } catch { /* quota */ }
+    flowReset();
+    reset();
+  };
   document.getElementById('prev')!.onclick = () => { idx = (idx - 1 + pool.length) % pool.length; reset(); };
   document.getElementById('next')!.onclick = () => { idx = (idx + 1) % pool.length; reset(); };
   const again = document.getElementById('again'); if (again) again.onclick = () => reset();
@@ -216,9 +243,14 @@ function loadBank() {
   reset();
 }
 
+function exState(ex: Exercise | undefined) {
+  if (!ex) return createState(['']);
+  // Поток: строки сшиваются пробелом — без Enter и обрывов
+  return createState(flowMode ? [ex.lines.join(' ')] : ex.lines);
+}
+
 function reset() {
-  const ex = pool[idx];
-  st = createState(ex ? ex.lines : ['']);
+  st = exState(pool[idx]);
   if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
   if (prog.lastIdx !== idx) { prog.lastIdx = idx; saveProgress(); }
   render();
@@ -251,23 +283,35 @@ document.addEventListener('keydown', (e) => {
   const r = pressChar(st, ch, blockOnError);
   if (r.wrong) beep();
   if (r.finished) {
-    if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
     const ex = pool[idx];
-    if (ex) recordFinish(ex);
+    if (flowMode && ex) {
+      // поток: копим серию и мгновенно подаём следующее — без экрана «Готово»
+      const s = stats(st);
+      flow.typed += s.typed; flow.errors += s.errors; flow.ms += s.elapsedMs; flow.count++;
+      if (!prog.done.includes(ex.id)) { prog.done.push(ex.id); }
+      idx = (idx + 1) % pool.length;
+      prog.lastIdx = idx;
+      saveProgress();
+      st = exState(pool[idx]);
+    } else {
+      if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
+      if (ex) recordFinish(ex);
+    }
   }
   render();
 });
 
 // лёгкое обновление статистики без полного перерендера паттерна (таймер)
 function updateStatsOnly() {
-  const s = stats(st);
+  const s = viewStats();
   const bar = document.querySelector('.statsbar');
   if (!bar) return;
   bar.innerHTML = `
     <div><b>${s.wpm}</b><span>зн/мин ÷5</span></div>
     <div><b>${s.accuracy}%</b><span>точность</span></div>
     <div><b class="${s.errors > 0 ? 'err' : ''}">${s.errors}</b><span>ошибок</span></div>
-    <div><b>${(s.elapsedMs / 1000).toFixed(0)}с</b><span>время</span></div>`;
+    <div><b>${(s.elapsedMs / 1000).toFixed(0)}с</b><span>время</span></div>
+    ${flowMode ? `<div><b>🔥 ${flow.count}</b><span>подряд</span></div>` : ''}`;
 }
 
 // ── Старт ──

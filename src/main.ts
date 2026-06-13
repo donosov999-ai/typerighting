@@ -203,6 +203,7 @@ function renderTopbar() {
     </div>
     <span class="tb-sp"></span>
     <button id="tb-flow" class="tb-btn ${flowMode ? 'on' : ''}" title="${t('hint.flow')}">🌊 ${t('tb.flow')}</button>
+    <button id="tb-progress" class="tb-icon" title="${t('prog.title')}">📈</button>
     <button id="tb-settings" class="tb-icon" title="${t('hub.settings')}">⚙</button>
     <button id="tb-dark" class="tb-icon" title="${t('tb.dark')}">${dark ? '☀️' : '🌙'}</button>
     <select id="tb-profile" title="Profile">
@@ -212,6 +213,7 @@ function renderTopbar() {
   chromeEl.querySelectorAll<HTMLButtonElement>('[data-goto]').forEach((b) => { b.onclick = () => goTo(b.dataset.goto!); });
   (document.getElementById('tb-home') as HTMLButtonElement).onclick = () => goTo('hub');
   (document.getElementById('tb-flow') as HTMLButtonElement).onclick = () => { flowMode = !flowMode; try { localStorage.setItem('tr_flow', flowMode ? '1' : '0'); } catch { /* */ } flowReset(); reapplyGlobal(); };
+  (document.getElementById('tb-progress') as HTMLButtonElement).onclick = () => { modal = 'progress'; render(); };
   (document.getElementById('tb-settings') as HTMLButtonElement).onclick = () => { modal = 'settings'; render(); };
   (document.getElementById('tb-dark') as HTMLButtonElement).onclick = () => { dark = !dark; try { localStorage.setItem('tr_dark', dark ? '1' : '0'); } catch { /* */ } applyDark(); renderTopbar(); };
   const tp = document.getElementById('tb-profile') as HTMLSelectElement;

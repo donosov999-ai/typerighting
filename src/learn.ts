@@ -3,7 +3,7 @@
 // подмешивающих слабые буквы пользователя, с метриками Мастерство / Ритмичность
 // / Темп. Адаптируется под профиль (м/ж/дети). Прогресс/статистика — общие.
 import { createState, pressChar, MARK, type TypingState } from './typing';
-import { keyboardSVG, bridgeChar, keyIdFor } from './keyboard';
+import { keyboardSVG, bridgeChar, keyIdFor, handLetters } from './keyboard';
 import { recordKey, pushHistory, letterWeights } from './stats-store';
 import { buildModel, generate, type NgramModel } from './ngram';
 import { CORPUS_RU, CORPUS_EN } from './corpus';
@@ -27,6 +27,7 @@ let st: TypingState = createState(['']);
 let lineStart = 0;     // время начала текущей строки (мс)
 let lastStroke = 0;    // время прошлого нажатия (для интервалов)
 let prof: Profile = 'm';
+let hand: 'both' | 'left' | 'right' = 'both'; // однорукие режимы (реабилитация / слабая рука)
 let root: HTMLElement | null = null;
 let onExit: (() => void) | null = null;
 
@@ -34,10 +35,30 @@ function curLang(): 'en' | 'ru' { return lang() === 'ru' ? 'ru' : 'en'; }
 
 function genLine(): string {
   const L = curLang();
-  ensureModel(L);
   const chars = prof === 'kids' ? 24 : prof === 'f' ? 40 : 50;
   const maxWord = prof === 'kids' ? 5 : 8;
-  return generate(model!, { chars, weight: letterWeights(L), maxWord });
+  if (hand === 'both') {
+    ensureModel(L);
+    return generate(model!, { chars, weight: letterWeights(L), maxWord });
+  }
+  // одна рука: слоги из букв этой руки, слабые буквы — чаще (осмысленных слов
+  // одной рукой почти нет, цель — досягаемость и сила пальцев конкретной руки)
+  const w = letterWeights(L);
+  const bag: string[] = [];
+  for (const ch of handLetters(L, hand)) {
+    const rep = Math.max(1, Math.round(w[ch] ?? 1));
+    for (let i = 0; i < rep; i++) bag.push(ch);
+  }
+  if (bag.length === 0) return '';
+  const out: string[] = [];
+  let guard = 0;
+  while (out.join(' ').length < chars && guard++ < 60) {
+    const len = 3 + Math.floor(Math.random() * (maxWord - 2));
+    let word = '';
+    for (let i = 0; i < len; i++) word += bag[Math.floor(Math.random() * bag.length)];
+    out.push(word);
+  }
+  return out.join(' ');
 }
 
 function nextLine() {
@@ -143,6 +164,10 @@ function learnRender() {
         <button id="ai-exit" class="ghost">${t('course.exit')}</button>
       </header>
       <p class="c-intro">${kids ? t('learn.intro.kids') : t('learn.intro')}</p>
+      ${kids ? '' : `<div class="hand-row">
+        <span class="hand-lbl">${t('learn.hand')}:</span>
+        ${(['both', 'left', 'right'] as const).map((h) => `<button class="hand-btn ${hand === h ? 'on' : ''}" data-hand="${h}">${t('learn.hand.' + h)}</button>`).join('')}
+      </div>`}
       <div class="card"><div class="pattern" id="pattern">${renderPattern()}</div></div>
       <div class="keyb">${keyboardSVG(st.finishedAt === null ? st.pattern[st.pos] ?? null : null, rc, showRu)}</div>
       ${kids ? `
@@ -159,4 +184,7 @@ function learnRender() {
       `}
     </div>`;
   (root.querySelector('#ai-exit') as HTMLButtonElement).onclick = () => learnExit();
+  root.querySelectorAll<HTMLButtonElement>('[data-hand]').forEach((b) => {
+    b.onclick = () => { hand = b.dataset.hand as 'both' | 'left' | 'right'; acc = blank(); nextLine(); learnRender(); };
+  });
 }

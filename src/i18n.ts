@@ -77,6 +77,10 @@ const DICT: Record<string, { ru: string; en: string }> = {
   'learn.lvl.good': { ru: 'хорошо', en: 'good' },
   'learn.lvl.work': { ru: 'рабочий', en: 'working' },
   'learn.lvl.pro': { ru: 'профи', en: 'pro' },
+  'learn.hand': { ru: 'Рука', en: 'Hand' },
+  'learn.hand.both': { ru: 'Обе', en: 'Both' },
+  'learn.hand.left': { ru: 'Левая', en: 'Left' },
+  'learn.hand.right': { ru: 'Правая', en: 'Right' },
   // структурированный курс
   'course.title': { ru: 'Курс печати', en: 'Typing course' },
   'course.intro': { ru: 'Последовательные уроки от домашнего ряда до предложений. Каждый урок открывает следующий.', en: 'Step-by-step lessons from the home row to sentences. Each lesson unlocks the next.' },

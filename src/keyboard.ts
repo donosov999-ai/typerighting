@@ -185,6 +185,13 @@ export function keyIdFor(ch: string, ruContext: boolean): string | null {
   return findKey(ch, ruContext)?.id ?? null;
 }
 
+/** Буквы одной руки (для одноруких режимов: реабилитация / тренировка слабой руки). */
+export function handLetters(lang: 'en' | 'ru', hand: 'left' | 'right'): string[] {
+  return letterKeys(lang)
+    .filter(({ id }) => (hand === 'left' ? LEFT_HAND.has(id) : !LEFT_HAND.has(id)))
+    .map(({ ch }) => ch);
+}
+
 // ── Рендер ──
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
 const cx = (g: KeyGeo) => g.x + g.w / 2;

@@ -256,6 +256,12 @@ button:hover { filter: brightness(1.1); }
 .learn-stats div { position: relative; }
 .learn-stats i { display: block; font-size: 10px; color: var(--muted); font-style: normal; margin-top: 2px; }
 .learn-kids { text-align: center; font-size: 22px; margin-top: 16px; }
+.hand-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.hand-lbl { font-size: 13px; color: var(--muted); }
+.hand-btn { background: transparent; border: 1px solid var(--border); border-radius: 8px;
+  padding: 6px 14px; font-size: 13px; cursor: pointer; color: var(--text); }
+.hand-btn:hover { border-color: var(--accent); }
+.hand-btn.on { background: var(--accent); color: #fff; border-color: var(--accent); }
 .learn-kids .k-cat { font-size: 40px; vertical-align: middle; }
 
 /* ── Структурированный курс ── */

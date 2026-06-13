@@ -7,7 +7,7 @@ import { kidsEnter, kidsHandleKey } from './kids';
 import { courseEnter, courseHandleKey } from './course';
 import { learnEnter, learnHandleKey } from './learn';
 import { competeEnter, competeHandleKey } from './compete';
-import { t, lang, setLang, type Lang } from './i18n';
+import { t, lang, setLang, LANGS, LANG_LABEL, type Lang } from './i18n';
 import { recordKey, heatMap, hasKeyData, weakDrill, pushHistory, progressSVG, streakDays } from './stats-store';
 
 // ── Состояние сессии ──
@@ -158,10 +158,7 @@ function applyDark() {
 }
 
 function langSwitcherHtml(): string {
-  return `<select id="lang" title="Language">
-    <option value="ru" ${lang() === 'ru' ? 'selected' : ''}>RU</option>
-    <option value="en" ${lang() === 'en' ? 'selected' : ''}>EN</option>
-  </select>`;
+  return `<select id="lang" title="Language">${LANGS.map((l) => `<option value="${l}" ${lang() === l ? 'selected' : ''}>${LANG_LABEL[l]}</option>`).join('')}</select>`;
 }
 function bindLang(after: () => void) {
   const el = document.getElementById('lang') as HTMLSelectElement | null;
@@ -209,7 +206,7 @@ function renderTopbar() {
     <select id="tb-profile" title="Profile">
       ${(Object.keys(PROFILE_EMOJI) as Profile[]).map((p) => `<option value="${p}" ${p === profile ? 'selected' : ''}>${PROFILE_EMOJI[p]}</option>`).join('')}
     </select>
-    <select id="tb-lang" title="Language"><option value="ru" ${lang() === 'ru' ? 'selected' : ''}>RU</option><option value="en" ${lang() === 'en' ? 'selected' : ''}>EN</option></select>`;
+    <select id="tb-lang" title="Language">${LANGS.map((l) => `<option value="${l}" ${lang() === l ? 'selected' : ''}>${LANG_LABEL[l]}</option>`).join('')}</select>`;
   chromeEl.querySelectorAll<HTMLButtonElement>('[data-goto]').forEach((b) => { b.onclick = () => goTo(b.dataset.goto!); });
   (document.getElementById('tb-home') as HTMLButtonElement).onclick = () => goTo('hub');
   (document.getElementById('tb-flow') as HTMLButtonElement).onclick = () => { flowMode = !flowMode; try { localStorage.setItem('tr_flow', flowMode ? '1' : '0'); } catch { /* */ } flowReset(); reapplyGlobal(); };

@@ -6,15 +6,17 @@ import { createState, pressChar, MARK, type TypingState } from './typing';
 import { keyboardSVG, bridgeChar, keyIdFor, handLetters } from './keyboard';
 import { recordKey, pushHistory, letterWeights } from './stats-store';
 import { buildModel, generate, type NgramModel } from './ngram';
-import { CORPUS_RU, CORPUS_EN } from './corpus';
-import { t, lang } from './i18n';
+import { CORPUS } from './corpus';
+import { t, lang, type Lang } from './i18n';
 import type { Profile } from './profiles';
 
 let model: NgramModel | null = null;
-let modelLang: 'en' | 'ru' | null = null;
-function ensureModel(L: 'en' | 'ru') {
+let modelLang: Lang | null = null;
+// клавиатурный алфавит: ru — кириллица, остальные 6 языков — латиница (QWERTY-схема)
+function kbLang(): 'en' | 'ru' { return lang() === 'ru' ? 'ru' : 'en'; }
+function ensureModel(L: Lang) {
   if (model && modelLang === L) return;
-  model = buildModel(L === 'ru' ? CORPUS_RU : CORPUS_EN, L, 3);
+  model = buildModel(CORPUS[L] ?? CORPUS.en, L === 'ru' ? 'ru' : 'en', 3);
   modelLang = L;
 }
 
@@ -31,21 +33,20 @@ let hand: 'both' | 'left' | 'right' = 'both'; // однорукие режимы
 let root: HTMLElement | null = null;
 let onExit: (() => void) | null = null;
 
-function curLang(): 'en' | 'ru' { return lang() === 'ru' ? 'ru' : 'en'; }
-
 function genLine(): string {
-  const L = curLang();
+  const L = lang();              // корпус — по языку интерфейса (7 языков)
+  const KL = kbLang();           // алфавит клавиш — ru или латиница
   const chars = prof === 'kids' ? 24 : prof === 'f' ? 40 : 50;
   const maxWord = prof === 'kids' ? 5 : 8;
   if (hand === 'both') {
     ensureModel(L);
-    return generate(model!, { chars, weight: letterWeights(L), maxWord });
+    return generate(model!, { chars, weight: letterWeights(KL), maxWord });
   }
   // одна рука: слоги из букв этой руки, слабые буквы — чаще (осмысленных слов
   // одной рукой почти нет, цель — досягаемость и сила пальцев конкретной руки)
-  const w = letterWeights(L);
+  const w = letterWeights(KL);
   const bag: string[] = [];
-  for (const ch of handLetters(L, hand)) {
+  for (const ch of handLetters(KL, hand)) {
     const rep = Math.max(1, Math.round(w[ch] ?? 1));
     for (let i = 0; i < rep; i++) bag.push(ch);
   }

@@ -6,7 +6,10 @@ export const LANG_LABEL: Record<Lang, string> = { ru: '🇷🇺 RU', en: '🇬�
 
 let current: Lang = (() => {
   const v = localStorage.getItem('tr_lang');
-  return (LANGS as string[]).includes(v ?? '') ? (v as Lang) : 'ru';
+  if ((LANGS as string[]).includes(v ?? '')) return v as Lang; // явный выбор пользователя
+  // автоопределение по языку системы (первый запуск)
+  const sys = ((typeof navigator !== 'undefined' && (navigator.language || (navigator.languages && navigator.languages[0]))) || 'en').slice(0, 2).toLowerCase();
+  return (LANGS as string[]).includes(sys) ? (sys as Lang) : 'en';
 })();
 
 export function lang(): Lang { return current; }

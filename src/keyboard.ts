@@ -121,6 +121,15 @@ const GEO: Record<string, KeyGeo> = {};
   delete GEO['enterpad3'];
 }
 
+// ── Раскладка Ё зависит от ОС ──
+// Windows/Linux ЙЦУКЕН: Ё — грейв-клавиша слева вверху (tilde).
+// macOS «Русская»: Ё — на клавише \ справа, в конце буквенного ряда (backslash).
+const IS_MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/i.test((navigator.platform || '') + ' ' + (navigator.userAgent || ''));
+if (IS_MAC) {
+  if (GEO['tilde']) GEO['tilde'].ru = undefined;
+  if (GEO['backslash']) GEO['backslash'].ru = 'Ё';
+}
+
 // ── Маппинг символ → клавиша ──
 interface KeyHit { id: string; shift: boolean }
 const EN_MAP: Record<string, KeyHit> = {};

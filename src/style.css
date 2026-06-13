@@ -76,6 +76,14 @@ header { display: flex; align-items: center; justify-content: space-between; gap
 .settings-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; }
 .nav-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
 
+/* ── Единая шапка режимов (Курс / AI / Соревнование / Тест / Дети) ── */
+.mode-head { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+.mode-head h1 { font-size: 23px; font-weight: 800; margin: 0; flex: 1; letter-spacing: -.4px; }
+.mode-head .mode-actions { display: flex; gap: 8px; }
+.mode-back { background: var(--surface); border: 1.5px solid var(--border); border-radius: 11px;
+  padding: 10px 18px; font-size: 15px; font-weight: 650; cursor: pointer; color: var(--text); white-space: nowrap; }
+.mode-back:hover { border-color: var(--accent); }
+
 /* ── Стартовый хаб «С чего начать?» ── */
 .hub-q { font-size: 17px; color: var(--muted); margin: 12px 0 24px; }
 .hub-q .streak { color: var(--accent); }

@@ -1,6 +1,6 @@
 [package]
 name = "typerighting"
-version = "2.13.1"
+version = "2.14.0"
 description = "TypeRIGHTing — touch typing trainer (EN + RU), desktop build"
 authors = ["Denis Onosov (ODV999)"]
 edition = "2021"

@@ -159,9 +159,9 @@ function learnRender() {
   const kids = prof === 'kids';
   root.innerHTML = `
     <div class="wrap learn">
-      <header class="c-head">
+      <header class="mode-head">
+        <button id="ai-exit" class="mode-back">${t('nav.back')}</button>
         <h1>🤖 ${t('learn.title')}</h1>
-        <button id="ai-exit" class="ghost">${t('course.exit')}</button>
       </header>
       <p class="c-intro">${kids ? t('learn.intro.kids') : t('learn.intro')}</p>
       ${kids ? '' : `<div class="hand-row">

@@ -142,9 +142,9 @@ function renderMenu() {
   const L = curLang();
   root!.innerHTML = `
     <div class="wrap compete">
-      <header class="c-head">
+      <header class="mode-head">
+        <button id="cp-exit" class="mode-back">${t('nav.back')}</button>
         <h1>🏆 ${t('compete.title')}</h1>
-        <button id="cp-exit" class="ghost">${t('course.exit')}</button>
       </header>
       <p class="c-intro">${t('compete.intro')}</p>
       <div class="cp-grid">
@@ -166,8 +166,8 @@ function renderRun() {
   const showRu = lang() === 'ru' || rc;
   root!.innerHTML = `
     <div class="wrap compete">
-      <header class="c-head">
-        <button id="cp-back" class="ghost">${t('k.back')}</button>
+      <header class="mode-head">
+        <button id="cp-back" class="mode-back">${t('nav.tomap')}</button>
         <span class="c-progress">🏆 ${t('comp.' + disc)}</span>
         <span class="c-acc">${t('comp.hint')}</span>
       </header>
@@ -215,9 +215,9 @@ function renderBoard() {
   const L = curLang();
   root!.innerHTML = `
     <div class="wrap compete">
-      <header class="c-head">
+      <header class="mode-head">
+        <button id="cp-bback" class="mode-back">${t('nav.back')}</button>
         <h1>🌐 ${t('comp.leaderboard')}</h1>
-        <button id="cp-bback" class="ghost">${t('k.back')}</button>
       </header>
       <p class="c-intro">${t('comp.' + disc)} · ${L.toUpperCase()}</p>
       ${boardLoading ? `<p class="hint2">${t('comp.loading')}</p>` : boardRows.length === 0 ? `<p class="hint2">${t('comp.empty')}</p>` : `

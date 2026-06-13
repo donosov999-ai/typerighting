@@ -59,6 +59,8 @@ const DICT: Record<string, { ru: string; en: string }> = {
   'hub.exam.d': { ru: 'Тест на время с сертификатом', en: 'Timed test with a certificate' },
   'hub.progress.d': { ru: 'График скорости и рекорды', en: 'Speed chart and records' },
   'hub.streak': { ru: 'дней подряд', en: 'day streak' },
+  'nav.back': { ru: '← Назад', en: '← Back' },
+  'nav.tomap': { ru: '← К списку', en: '← To list' },
   // соревновательный режим
   'compete.title': { ru: 'Тест-соревнование', en: 'Typing Compete' },
   'compete.intro': { ru: 'Выбери дисциплину и поставь рекорд. Результат можно опубликовать в онлайн-таблице.', en: 'Pick a discipline and set a record. Publish your result to the online leaderboard.' },

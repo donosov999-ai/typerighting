@@ -201,9 +201,9 @@ function renderMap() {
   const passed = Object.values(prog.stars).filter((s) => s > 0).length;
   root!.innerHTML = `
     <div class="wrap course">
-      <header class="c-head">
+      <header class="mode-head">
+        <button id="c-exit" class="mode-back">${t('nav.back')}</button>
         <h1>📚 ${t('course.title')}</h1>
-        <button id="c-exit" class="ghost">${t('course.exit')}</button>
       </header>
       <p class="c-intro">${t('course.intro')} · ${t('st.done')} <b>${passed}/${lessons.length}</b></p>
       <div class="c-map">
@@ -242,8 +242,8 @@ function renderLesson() {
   const s = stats(st);
   root!.innerHTML = `
     <div class="wrap course">
-      <header class="c-head">
-        <button id="c-back" class="ghost">${t('k.back')}</button>
+      <header class="mode-head">
+        <button id="c-back" class="mode-back">${t('nav.tomap')}</button>
         <span class="c-progress">${t('course.lesson')} ${l.id} · ${esc(lessonTitle(l))} · ${t('course.line')} ${lineIdx + 1}/${lines.length}</span>
         <span class="c-acc">${s.wpm} ${t('st.wpm')} · ${s.accuracy}%</span>
       </header>

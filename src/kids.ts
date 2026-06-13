@@ -167,12 +167,10 @@ function renderMap() {
     ? `<div class="k-rest">${t('k.rest')}</div>` : '';
   root!.innerHTML = `
     <div class="wrap kids">
-      <header class="k-head">
+      <header class="mode-head">
+        <button id="k-exit" class="mode-back">${t('nav.back')}</button>
         <h1>${t('k.title')}</h1>
-        <div style="display:flex;gap:8px">
-          ${onAI ? `<button id="k-ai" class="ghost">${t('learn.title')} 🤖</button>` : ''}
-          <button id="k-exit" class="ghost" title="Profile">⚙</button>
-        </div>
+        <div class="mode-actions">${onAI ? `<button id="k-ai" class="ghost">${t('learn.title')} 🤖</button>` : ''}</div>
       </header>
       <p class="k-hello">${t('k.hello')}</p>
       ${rest}
@@ -213,8 +211,8 @@ function renderLevel() {
   const showRu = lang() === 'ru' || l.lang === 'ru';
   root!.innerHTML = `
     <div class="wrap kids">
-      <header class="k-head">
-        <button id="k-back" class="ghost">${t('k.back')}</button>
+      <header class="mode-head">
+        <button id="k-back" class="mode-back">${t('nav.tomap')}</button>
         <span class="k-progress">${t('k.level')} ${l.title} · ${t('k.word')} ${wordIdx + 1} / ${l.words.length}</span>
         <span class="k-acc">${levelErrors === 0 ? t('k.noerr') : `${t('k.errors')}: ${levelErrors}`}</span>
       </header>

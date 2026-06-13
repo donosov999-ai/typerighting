@@ -553,7 +553,7 @@ function downloadCertificate(s: ReturnType<typeof examStats>, pass: boolean) {
 // ── Спец-режимы ──
 function startWeak() {
   special = 'weak'; exam = null;
-  weakLines = weakDrill(lang() === 'ru' ? 'ru' : 'en');
+  weakLines = weakDrill(lang());
   weakNoData = !hasKeyData(3);
   st = createState(flowMode ? [weakLines.join(' ')] : weakLines);
   if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }

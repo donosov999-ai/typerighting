@@ -3,6 +3,9 @@
 //  • история сессий → график прогресса по дням
 // Всё в localStorage, без сервера.
 import { letterKeys } from './keyboard';
+import { buildModel, generate } from './ngram';
+import { CORPUS } from './corpus';
+import type { Lang } from './i18n';
 
 // ── Per-key: keyId → {ok, err} ──
 type KeyStat = { ok: number; err: number };
@@ -70,26 +73,25 @@ export function letterWeights(lang: 'en' | 'ru', boost = 6): Record<string, numb
   return w;
 }
 
-/** Сгенерировать адаптивные строки из слабых букв + домашнего ряда. */
-export function weakDrill(lang: 'en' | 'ru', lines = 5): string[] {
-  let weak = weakKeys(lang, 6);
-  const home = lang === 'en' ? ['a', 's', 'd', 'f', 'j', 'k', 'l'] : ['ф', 'ы', 'в', 'а', 'о', 'л', 'д'];
-  if (weak.length === 0) weak = home.slice(0, 4); // нет данных — тренируем домашний ряд
-  const pool = [...weak, ...weak, ...home]; // слабые встречаются чаще
-  // детерминированный псевдослучай (Math.random есть в браузере, не в воркфлоу)
-  const pick = () => pool[Math.floor(Math.random() * pool.length)];
-  const out: string[] = [];
-  for (let l = 0; l < lines; l++) {
-    const words: string[] = [];
-    for (let w = 0; w < 6; w++) {
-      const len = 3 + Math.floor(Math.random() * 3);
-      let s = '';
-      for (let i = 0; i < len; i++) s += pick();
-      words.push(s);
-    }
-    out.push(words.join(' '));
+// модель n-грамм кэшируется по языку (как в AI-режиме)
+let weakModel: ReturnType<typeof buildModel> | null = null;
+let weakModelLang: Lang | null = null;
+
+/**
+ * Адаптивные строки для режима «Слабые клавиши» (усилено 13.06.2026):
+ * n-граммная генерация СВЯЗНЫХ слов языка с сильным упором на слабые буквы —
+ * вместо прежней случайной абракадабры. Если данных мало — обычные слова языка.
+ */
+export function weakDrill(L: Lang, lines = 5): string[] {
+  const kb: 'en' | 'ru' = L === 'ru' ? 'ru' : 'en';
+  if (!weakModel || weakModelLang !== L) {
+    weakModel = buildModel(CORPUS[L] ?? CORPUS.en, kb, 3);
+    weakModelLang = L;
   }
-  return out;
+  const weight = letterWeights(kb, 12); // сильнее, чем в AI (×12), — это прицельная тренировка слабых
+  const out: string[] = [];
+  for (let l = 0; l < lines; l++) out.push(generate(weakModel, { chars: 44, weight, maxWord: 8 }));
+  return out.filter((s) => s.length > 0);
 }
 
 // ── История сессий: график прогресса ──

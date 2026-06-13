@@ -178,7 +178,35 @@ function curExercise(): Exercise | null {
 let weakLines: string[] = [];
 let customLines: string[] = [];
 
+// ── Глобальная панель (тема/поток/язык/профиль) — доступна в ЛЮБОМ режиме ──
+let chromeEl: HTMLElement | null = null;
+function renderChrome() {
+  if (!chromeEl) { chromeEl = document.createElement('div'); chromeEl.id = 'chrome'; document.body.appendChild(chromeEl); }
+  if (profile === null) { chromeEl.innerHTML = ''; return; } // на онбординге не нужна
+  chromeEl.innerHTML = `
+    <select id="g-profile" title="${t('hub.settings')}">
+      ${(Object.keys(PROFILE_EMOJI) as Profile[]).map((p) => `<option value="${p}" ${p === profile ? 'selected' : ''}>${PROFILE_EMOJI[p]}</option>`).join('')}
+    </select>
+    <button id="g-flow" class="chrome-btn ${flowMode ? 'on' : ''}" title="${t('tb.flow')}">🌊</button>
+    <button id="g-dark" class="chrome-btn" title="${t('tb.dark')}">${dark ? '☀️' : '🌙'}</button>
+    <select id="g-lang" title="Language"><option value="ru" ${lang() === 'ru' ? 'selected' : ''}>RU</option><option value="en" ${lang() === 'en' ? 'selected' : ''}>EN</option></select>`;
+  const gp = document.getElementById('g-profile') as HTMLSelectElement;
+  gp.onchange = () => { profile = gp.value as Profile; saveProfile(profile); reapplyGlobal(); };
+  (document.getElementById('g-dark') as HTMLButtonElement).onclick = () => { dark = !dark; try { localStorage.setItem('tr_dark', dark ? '1' : '0'); } catch { /* */ } applyDark(); renderChrome(); };
+  (document.getElementById('g-flow') as HTMLButtonElement).onclick = () => { flowMode = !flowMode; try { localStorage.setItem('tr_flow', flowMode ? '1' : '0'); } catch { /* */ } flowReset(); reapplyGlobal(); };
+  const gl = document.getElementById('g-lang') as HTMLSelectElement;
+  gl.onchange = () => { setLang(gl.value as Lang); reapplyGlobal(); };
+}
+// перерисовать активный режим (язык/поток/профиль сменились) — рестартует текущий режим
+function reapplyGlobal() {
+  aiInit = false; courseInit = false; compInit = false; kidsActive = false;
+  if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
+  if (!hubMode && !aiMode && !compMode && !courseMode && !exam && profile !== 'kids') { if (special) { special === 'weak' ? startWeak() : startCustom(customText); } else reset(); }
+  render();
+}
+
 function render() {
+  renderChrome();
   if (profile === null) { kidsActive = false; renderOnboarding(); return; }
   if (aiMode) {
     if (!aiInit) { aiInit = true; learnEnter(app, profile ?? 'm', () => { aiMode = false; aiInit = false; render(); }); }
@@ -219,7 +247,6 @@ function render() {
             ${BANKS.map((b) => `<option value="${b}" ${b === bank && !inSpecial ? 'selected' : ''}>${t('bank.' + b)}</option>`).join('')}
           </select>
           <button id="settings" class="iconbtn" title="${t('hub.settings')}">⚙</button>
-          <button id="dark" class="iconbtn" title="${t('tb.dark')}">${dark ? '☀️' : '🌙'}</button>
         </div>
       </header>
       <p class="bankdesc">${inSpecial ? (special === 'weak' ? t('weak.hint') : '') : t('bank.' + bank + '.desc')} ${inSpecial ? '' : `· <b>${pool.length}</b> ${t('st.exercises')} · ${t('st.done')} <b>${prog.done.length}</b>${prog.bestWpm > 0 ? ` · ${t('st.record')} <b>${prog.bestWpm}</b> ${t('st.wpm')} · <b>${prog.bestAcc}%</b>` : ''}`}</p>
@@ -541,16 +568,7 @@ function renderHub() {
   ];
   app.innerHTML = `
     <div class="wrap hub">
-      <header>
-        <h1>Type<span>RIGHT</span>ing</h1>
-        <div class="headctl">
-          <select id="profile" title="Profile">
-            ${(Object.keys(PROFILE_EMOJI) as Profile[]).map((p) => `<option value="${p}" ${p === profile ? 'selected' : ''}>${PROFILE_EMOJI[p]} ${t('profile.' + p)}</option>`).join('')}
-          </select>
-          <button id="dark" class="iconbtn" title="${t('tb.dark')}">${dark ? '☀️' : '🌙'}</button>
-          ${langSwitcherHtml()}
-        </div>
-      </header>
+      <header><h1>Type<span>RIGHT</span>ing</h1></header>
       <p class="hub-q">${t('hub.q')}${streak >= 2 ? ` &nbsp;·&nbsp; <b class="streak">🔥 ${streak} ${t('hub.streak')}</b>` : ''}</p>
       <div class="hub-cards">
         ${cards.map(([go, ic, name, desc], i) => `

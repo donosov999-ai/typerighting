@@ -71,6 +71,17 @@ html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
 
 header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .headctl { display: flex; gap: 8px; align-items: center; }
+/* ── Глобальная панель (тема/поток/язык/профиль) — поверх всех режимов ── */
+#chrome { position: fixed; top: 12px; right: 14px; z-index: 100; display: flex; gap: 6px; align-items: center;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 5px 7px;
+  box-shadow: 0 3px 14px rgba(0,0,0,.12); }
+#chrome select, #chrome .chrome-btn { background: var(--surface2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 8px; font-size: 15px; cursor: pointer; line-height: 1; }
+#chrome .chrome-btn:hover { border-color: var(--accent); }
+#chrome .chrome-btn.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+/* чтобы панель не наезжала на правый верх контента */
+.wrap { padding-right: max(20px, 0px); }
+
 .home-btn { background: transparent; border: none; font-size: 22px; cursor: pointer; padding: 0 6px 0 0; line-height: 1; }
 .home-btn:hover { filter: brightness(1.2); transform: scale(1.1); }
 .settings-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; }

@@ -94,8 +94,9 @@ function sndLevel() { try { ctx ??= new AudioContext(); [523.25, 587.33, 659.25,
 function sndOops() { try { ctx ??= new AudioContext(); tone(196, 0, 0.12, 0.05); } catch { /* no audio */ } }
 
 // ── API для main.ts ──
-export function kidsEnter(container: HTMLElement, exitToProfile: () => void) {
-  root = container; onExit = exitToProfile;
+let onAI: (() => void) | null = null;
+export function kidsEnter(container: HTMLElement, exitToProfile: () => void, aiCb?: () => void) {
+  root = container; onExit = exitToProfile; onAI = aiCb ?? null;
   loadProg();
   screen = 'map';
   kidsRender();
@@ -168,7 +169,10 @@ function renderMap() {
     <div class="wrap kids">
       <header class="k-head">
         <h1>${t('k.title')}</h1>
-        <button id="k-exit" class="ghost" title="Profile">⚙</button>
+        <div style="display:flex;gap:8px">
+          ${onAI ? `<button id="k-ai" class="ghost">${t('learn.title')} 🤖</button>` : ''}
+          <button id="k-exit" class="ghost" title="Profile">⚙</button>
+        </div>
       </header>
       <p class="k-hello">${t('k.hello')}</p>
       ${rest}
@@ -189,6 +193,8 @@ function renderMap() {
     b.onclick = () => { const l = KIDS_LEVELS.find((x) => x.id === Number(b.dataset.level)); if (l) startLevel(l); };
   });
   (root!.querySelector('#k-exit') as HTMLButtonElement).onclick = () => onExit?.();
+  const aiBtn = root!.querySelector('#k-ai') as HTMLButtonElement | null;
+  if (aiBtn) aiBtn.onclick = () => onAI?.();
 }
 
 function renderWord(): string {

@@ -228,6 +228,13 @@ button:hover { filter: brightness(1.1); }
 .ob-lang { position: absolute; top: 18px; right: 22px; }
 .onboard { position: relative; }
 
+/* ── AI-режим обучения ── */
+.learn .c-head h1 { font-size: 24px; margin: 0; }
+.learn-stats div { position: relative; }
+.learn-stats i { display: block; font-size: 10px; color: var(--muted); font-style: normal; margin-top: 2px; }
+.learn-kids { text-align: center; font-size: 22px; margin-top: 16px; }
+.learn-kids .k-cat { font-size: 40px; vertical-align: middle; }
+
 /* ── Структурированный курс ── */
 .course .c-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .course .c-head h1 { font-size: 24px; margin: 0; }

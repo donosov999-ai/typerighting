@@ -5,6 +5,7 @@ import { keyboardSVG, bridgeChar, keyIdFor } from './keyboard';
 import { type Profile, PROFILE_EMOJI, loadProfile, saveProfile, applyProfile } from './profiles';
 import { kidsEnter, kidsHandleKey } from './kids';
 import { courseEnter, courseHandleKey } from './course';
+import { learnEnter, learnHandleKey } from './learn';
 import { t, lang, setLang, type Lang } from './i18n';
 import { recordKey, heatMap, hasKeyData, weakDrill, pushHistory, progressSVG } from './stats-store';
 
@@ -137,6 +138,8 @@ const app = document.getElementById('app')!;
 let kidsActive = false;
 let courseMode = false;  // пользователь открыл курс
 let courseInit = false;  // courseEnter уже вызван (курс рисует себя сам)
+let aiMode = false;      // пользователь открыл AI-обучение
+let aiInit = false;
 
 function ruCtx(): boolean { return /[а-яё]/i.test(st.pattern); }
 function kbShowRu(rc: boolean): boolean { return lang() === 'ru' || rc; }
@@ -168,10 +171,17 @@ let customLines: string[] = [];
 
 function render() {
   if (profile === null) { kidsActive = false; renderOnboarding(); return; }
+  if (aiMode) {
+    if (!aiInit) { aiInit = true; learnEnter(app, profile ?? 'm', () => { aiMode = false; aiInit = false; render(); }); }
+    return; // AI-режим рисует себя сам (учитывает профиль, в т.ч. детский)
+  }
+  aiInit = false;
   if (profile === 'kids') {
     if (!kidsActive) {
       kidsActive = true;
-      kidsEnter(app, () => { kidsActive = false; profile = null; applyProfile(null); render(); });
+      kidsEnter(app,
+        () => { kidsActive = false; profile = null; applyProfile(null); render(); },
+        () => { kidsActive = false; aiMode = true; render(); });
     }
     return;
   }
@@ -216,6 +226,7 @@ function render() {
       </div>
 
       <div class="toolbar toolbar2">
+        <button id="learn" class="ghost">${t('tb.learn')}</button>
         <button id="course" class="ghost">${t('tb.course')}</button>
         <button id="weak" class="ghost ${special === 'weak' ? 'on' : ''}">${t('tb.weak')}</button>
         <button id="custom" class="ghost ${special === 'custom' ? 'on' : ''}">${t('tb.custom')}</button>
@@ -487,6 +498,7 @@ function bindControls() {
     flowReset();
     if (special) { special === 'weak' ? startWeak() : startCustom(customText); } else reset();
   };
+  document.getElementById('learn')!.onclick = () => { special = null; exam = null; aiMode = true; if (statsTimer) { clearInterval(statsTimer); statsTimer = null; } render(); };
   document.getElementById('course')!.onclick = () => { special = null; exam = null; courseMode = true; if (statsTimer) { clearInterval(statsTimer); statsTimer = null; } render(); };
   document.getElementById('weak')!.onclick = () => { special === 'weak' ? exitSpecial() : startWeak(); };
   document.getElementById('custom')!.onclick = () => { modal = 'custom'; render(); };
@@ -541,6 +553,7 @@ document.addEventListener('keydown', (e) => {
   if (tag === 'SELECT' || tag === 'INPUT' || tag === 'TEXTAREA') return;
   if (modal) { if (e.key === 'Escape') { modal = null; render(); } return; }
   if (courseMode) { courseHandleKey(e); return; }
+  if (aiMode) { learnHandleKey(e); return; }
   if (profile === 'kids') { kidsHandleKey(e); return; }
   if (exam && exam.phase !== 'run') return;
   if (st.finishedAt !== null) return;

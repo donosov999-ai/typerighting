@@ -59,6 +59,17 @@ export function weakKeys(lang: 'en' | 'ru', count = 6): string[] {
   return scored.slice(0, count).map((x) => x.ch);
 }
 
+/** Веса букв для n-граммного генератора: слабые (по errRate) встречаются чаще. */
+export function letterWeights(lang: 'en' | 'ru', boost = 6): Record<string, number> {
+  const heat = heatMap(4);
+  const w: Record<string, number> = {};
+  for (const { id, ch } of letterKeys(lang)) {
+    const rate = heat[id]; // errRate 0..1 или undefined
+    if (rate !== undefined && rate > 0) w[ch] = 1 + rate * boost;
+  }
+  return w;
+}
+
 /** Сгенерировать адаптивные строки из слабых букв + домашнего ряда. */
 export function weakDrill(lang: 'en' | 'ru', lines = 5): string[] {
   let weak = weakKeys(lang, 6);

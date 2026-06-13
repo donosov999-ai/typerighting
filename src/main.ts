@@ -32,7 +32,7 @@ let statsTimer: number | null = null;
 // Спец-режимы: 'weak' (адаптив по слабым клавишам) / 'custom' (свой текст)
 let special: null | 'weak' | 'custom' = null;
 let customText = '';
-let modal: null | 'custom' | 'progress' = null;
+let modal: null | 'custom' | 'progress' | 'settings' = null;
 
 // ── Режим «Поток» (как Stamina) ──
 let flowMode = localStorage.getItem('tr_flow') === '1';
@@ -148,7 +148,6 @@ let aiInit = false;
 let compMode = false;    // пользователь открыл соревнование
 let compInit = false;
 let hubMode = true;      // стартовый экран «С чего начать?» (главное меню режимов)
-let settingsOpen = false; // панель настроек (чекбоксы) свёрнута по умолчанию
 
 function ruCtx(): boolean { return /[а-яё]/i.test(st.pattern); }
 function kbShowRu(rc: boolean): boolean { return lang() === 'ru' || rc; }
@@ -178,24 +177,64 @@ function curExercise(): Exercise | null {
 let weakLines: string[] = [];
 let customLines: string[] = [];
 
-// ── Глобальная панель (тема/поток/язык/профиль) — доступна в ЛЮБОМ режиме ──
+// ── Верхняя панель: режимы (видны и переключаются ВЕЗДЕ) + Поток + настройки ──
 let chromeEl: HTMLElement | null = null;
-function renderChrome() {
-  if (!chromeEl) { chromeEl = document.createElement('div'); chromeEl.id = 'chrome'; document.body.appendChild(chromeEl); }
-  if (profile === null) { chromeEl.innerHTML = ''; return; } // на онбординге не нужна
+function activeMode(): string {
+  if (hubMode) return 'hub';
+  if (exam) return 'exam';
+  if (aiMode) return 'learn';
+  if (compMode) return 'compete';
+  if (courseMode) return 'course';
+  if (profile === 'kids') return 'kids';
+  return 'train';
+}
+function renderTopbar() {
+  if (!chromeEl) { chromeEl = document.createElement('div'); chromeEl.id = 'topbar'; document.body.prepend(chromeEl); }
+  if (profile === null) { chromeEl.innerHTML = ''; return; } // на онбординге скрыта
+  const act = activeMode();
+  const modes: Array<[string, string]> = [
+    ['train', '⌨️ ' + t('hub.train')], ['course', '📚 ' + t('course.title')],
+    ['learn', '🤖 ' + t('learn.title')], ['compete', '🏆 ' + t('compete.title')], ['exam', '⏱ ' + t('ex.title')],
+  ];
   chromeEl.innerHTML = `
-    <select id="g-profile" title="${t('hub.settings')}">
+    <button id="tb-home" class="tb-icon" title="${t('hub.home')}">🏠</button>
+    <div class="tb-modes">
+      ${modes.map(([g, label]) => `<button class="tb-mode ${act === g ? 'active' : ''}" data-goto="${g}">${label}</button>`).join('')}
+    </div>
+    <span class="tb-sp"></span>
+    <button id="tb-flow" class="tb-btn ${flowMode ? 'on' : ''}" title="${t('hint.flow')}">🌊 ${t('tb.flow')}</button>
+    <button id="tb-settings" class="tb-icon" title="${t('hub.settings')}">⚙</button>
+    <button id="tb-dark" class="tb-icon" title="${t('tb.dark')}">${dark ? '☀️' : '🌙'}</button>
+    <select id="tb-profile" title="Profile">
       ${(Object.keys(PROFILE_EMOJI) as Profile[]).map((p) => `<option value="${p}" ${p === profile ? 'selected' : ''}>${PROFILE_EMOJI[p]}</option>`).join('')}
     </select>
-    <button id="g-flow" class="chrome-btn ${flowMode ? 'on' : ''}" title="${t('tb.flow')}">🌊</button>
-    <button id="g-dark" class="chrome-btn" title="${t('tb.dark')}">${dark ? '☀️' : '🌙'}</button>
-    <select id="g-lang" title="Language"><option value="ru" ${lang() === 'ru' ? 'selected' : ''}>RU</option><option value="en" ${lang() === 'en' ? 'selected' : ''}>EN</option></select>`;
-  const gp = document.getElementById('g-profile') as HTMLSelectElement;
-  gp.onchange = () => { profile = gp.value as Profile; saveProfile(profile); reapplyGlobal(); };
-  (document.getElementById('g-dark') as HTMLButtonElement).onclick = () => { dark = !dark; try { localStorage.setItem('tr_dark', dark ? '1' : '0'); } catch { /* */ } applyDark(); renderChrome(); };
-  (document.getElementById('g-flow') as HTMLButtonElement).onclick = () => { flowMode = !flowMode; try { localStorage.setItem('tr_flow', flowMode ? '1' : '0'); } catch { /* */ } flowReset(); reapplyGlobal(); };
-  const gl = document.getElementById('g-lang') as HTMLSelectElement;
-  gl.onchange = () => { setLang(gl.value as Lang); reapplyGlobal(); };
+    <select id="tb-lang" title="Language"><option value="ru" ${lang() === 'ru' ? 'selected' : ''}>RU</option><option value="en" ${lang() === 'en' ? 'selected' : ''}>EN</option></select>`;
+  chromeEl.querySelectorAll<HTMLButtonElement>('[data-goto]').forEach((b) => { b.onclick = () => goTo(b.dataset.goto!); });
+  (document.getElementById('tb-home') as HTMLButtonElement).onclick = () => goTo('hub');
+  (document.getElementById('tb-flow') as HTMLButtonElement).onclick = () => { flowMode = !flowMode; try { localStorage.setItem('tr_flow', flowMode ? '1' : '0'); } catch { /* */ } flowReset(); reapplyGlobal(); };
+  (document.getElementById('tb-settings') as HTMLButtonElement).onclick = () => { modal = 'settings'; render(); };
+  (document.getElementById('tb-dark') as HTMLButtonElement).onclick = () => { dark = !dark; try { localStorage.setItem('tr_dark', dark ? '1' : '0'); } catch { /* */ } applyDark(); renderTopbar(); };
+  const tp = document.getElementById('tb-profile') as HTMLSelectElement;
+  tp.onchange = () => { profile = tp.value as Profile; saveProfile(profile); reapplyGlobal(); };
+  const tl = document.getElementById('tb-lang') as HTMLSelectElement;
+  tl.onchange = () => { setLang(tl.value as Lang); reapplyGlobal(); };
+}
+
+// прямой переход в любой режим из любого (одним кликом по верхней панели)
+function goTo(target: string) {
+  special = null;
+  if (exam?.timer) clearInterval(exam.timer);
+  exam = null; aiMode = false; compMode = false; courseMode = false;
+  aiInit = false; compInit = false; courseInit = false; kidsActive = false;
+  hubMode = false;
+  if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
+  if (target === 'hub') hubMode = true;
+  else if (target === 'train') { /* основной экран; банк уже загружен */ }
+  else if (target === 'course') courseMode = true;
+  else if (target === 'learn') aiMode = true;
+  else if (target === 'compete') compMode = true;
+  else if (target === 'exam') exam = { phase: 'setup', durMin: 10, target: 35, name: '', endAt: 0, typed: 0, errors: 0, count: 0, pool: [], pi: 0, timer: null };
+  if (target === 'train') reset(); else render();
 }
 // перерисовать активный режим (язык/поток/профиль сменились) — рестартует текущий режим
 function reapplyGlobal() {
@@ -205,8 +244,28 @@ function reapplyGlobal() {
   render();
 }
 
+// модалки (настройки/прогресс/свой текст) — поверх ЛЮБОГО режима
+let modalEl: HTMLElement | null = null;
+function renderModalGlobal() {
+  if (!modalEl) { modalEl = document.createElement('div'); modalEl.id = 'modal-root'; document.body.appendChild(modalEl); }
+  if (!modal) { modalEl.innerHTML = ''; return; }
+  modalEl.innerHTML = renderModal();
+  const close = () => { modal = null; renderModalGlobal(); };
+  const mb = document.getElementById('modal-bg'); if (mb) mb.onclick = (e) => { if (e.target === mb) close(); };
+  onClick('set-close', close); onClick('prog-close', close); onClick('custom-cancel', close);
+  onClick('custom-go', () => startCustom((document.getElementById('custom-ta') as HTMLTextAreaElement).value));
+  // настройки применяются сразу к активному экрану
+  const cb = (id: string, fn: (v: boolean) => void) => onChange(id, (el) => { fn(el.checked); reapplyGlobal(); });
+  cb('hide', (v) => { hidePattern = v; });
+  cb('sound', (v) => { soundOn = v; });
+  cb('block', (v) => { blockOnError = v; });
+  cb('keyb', (v) => { showKeyb = v; });
+  cb('heat', (v) => { showHeat = v; try { localStorage.setItem('tr_heat', showHeat ? '1' : '0'); } catch { /* */ } });
+}
+
 function render() {
-  renderChrome();
+  renderTopbar();
+  renderModalGlobal();
   if (profile === null) { kidsActive = false; renderOnboarding(); return; }
   if (aiMode) {
     if (!aiInit) { aiInit = true; learnEnter(app, profile ?? 'm', () => { aiMode = false; aiInit = false; render(); }); }
@@ -241,24 +300,12 @@ function render() {
   app.innerHTML = `
     <div class="wrap">
       <header>
-        <h1><button id="home" class="home-btn" title="${t('hub.home')}">🏠</button> Type<span>RIGHT</span>ing</h1>
-        <div class="headctl">
-          <select id="bank">
-            ${BANKS.map((b) => `<option value="${b}" ${b === bank && !inSpecial ? 'selected' : ''}>${t('bank.' + b)}</option>`).join('')}
-          </select>
-          <button id="settings" class="iconbtn" title="${t('hub.settings')}">⚙</button>
-        </div>
+        <h1>Type<span>RIGHT</span>ing</h1>
+        <select id="bank" class="bank-sel">
+          ${BANKS.map((b) => `<option value="${b}" ${b === bank && !inSpecial ? 'selected' : ''}>${t('bank.' + b)}</option>`).join('')}
+        </select>
       </header>
       <p class="bankdesc">${inSpecial ? (special === 'weak' ? t('weak.hint') : '') : t('bank.' + bank + '.desc')} ${inSpecial ? '' : `· <b>${pool.length}</b> ${t('st.exercises')} · ${t('st.done')} <b>${prog.done.length}</b>${prog.bestWpm > 0 ? ` · ${t('st.record')} <b>${prog.bestWpm}</b> ${t('st.wpm')} · <b>${prog.bestAcc}%</b>` : ''}`}</p>
-
-      ${settingsOpen ? `<div class="toolbar settings-panel">
-        <label><input type="checkbox" id="hide" ${hidePattern ? 'checked' : ''}/> ${t('tb.hide')}</label>
-        <label><input type="checkbox" id="sound" ${soundOn ? 'checked' : ''}/> ${t('tb.sound')}</label>
-        <label><input type="checkbox" id="block" ${blockOnError ? 'checked' : ''}/> ${t('tb.block')}</label>
-        <label><input type="checkbox" id="keyb" ${showKeyb ? 'checked' : ''}/> ${t('tb.keyb')}</label>
-        <label title="errRate"><input type="checkbox" id="heat" ${showHeat ? 'checked' : ''}/> ${t('tb.heat')}</label>
-        <label title="Stamina-style"><input type="checkbox" id="flow" ${flowMode ? 'checked' : ''}/> ${t('tb.flow')}</label>
-      </div>` : ''}
 
       <div class="nav-row">
         <div class="modes-tools">
@@ -285,7 +332,6 @@ function render() {
 
       ${st.finishedAt !== null ? renderDone(s) : `<p class="hint2">${special === 'weak' && weakLines.length && weakNoData ? t('weak.none') : flowMode ? t('hint.flow') : t('hint.type')} ${blockOnError ? t('hint.block') : t('hint.bs')}</p>`}
     </div>
-    ${modal ? renderModal() : ''}
   `;
   bindControls();
 }
@@ -327,6 +373,19 @@ function renderPattern(): string {
 }
 
 function renderModal(): string {
+  if (modal === 'settings') {
+    return `<div class="modal-bg" id="modal-bg"><div class="modal">
+      <h2>⚙ ${t('hub.settings')}</h2>
+      <div class="settings-list">
+        <label><input type="checkbox" id="hide" ${hidePattern ? 'checked' : ''}/> ${t('tb.hide')}</label>
+        <label><input type="checkbox" id="sound" ${soundOn ? 'checked' : ''}/> ${t('tb.sound')}</label>
+        <label><input type="checkbox" id="block" ${blockOnError ? 'checked' : ''}/> ${t('tb.block')}</label>
+        <label><input type="checkbox" id="keyb" ${showKeyb ? 'checked' : ''}/> ${t('tb.keyb')}</label>
+        <label><input type="checkbox" id="heat" ${showHeat ? 'checked' : ''}/> ${t('tb.heat')}</label>
+      </div>
+      <div class="donebtns"><button id="set-close" class="primary">${t('prog.close')}</button></div>
+    </div></div>`;
+  }
   if (modal === 'custom') {
     return `<div class="modal-bg" id="modal-bg"><div class="modal">
       <h2>${t('custom.title')}</h2>
@@ -512,47 +571,18 @@ function startCustom(text: string) {
 }
 function exitSpecial() { special = null; loadBank(); }
 
-// хелперы для опциональных элементов (часть кнопок есть только на хабе/в настройках)
+// хелперы для опциональных элементов (часть кнопок есть только на отдельных экранах)
 function onClick(id: string, fn: () => void) { const el = document.getElementById(id); if (el) (el as HTMLButtonElement).onclick = fn; }
 function onChange(id: string, fn: (el: HTMLInputElement) => void) { const el = document.getElementById(id) as HTMLInputElement | null; if (el) el.onchange = () => fn(el); }
-function goMode(set: () => void) { special = null; exam = null; if (statsTimer) { clearInterval(statsTimer); statsTimer = null; } set(); render(); }
-
-function bindHubChrome() {
-  // профиль / тема / язык — общие для хаба и основного
-  const ps = document.getElementById('profile') as HTMLSelectElement | null;
-  if (ps) ps.onchange = () => { profile = ps.value as Profile; saveProfile(profile); render(); };
-  onClick('dark', () => { dark = !dark; try { localStorage.setItem('tr_dark', dark ? '1' : '0'); } catch { /* */ } applyDark(); render(); });
-  bindLang(() => render());
-}
 
 function bindControls() {
-  bindHubChrome();
   onChange('bank', (el) => { special = null; bank = el.value as Bank; loadBank(); });
-  onClick('home', () => { hubMode = true; special = null; if (statsTimer) { clearInterval(statsTimer); statsTimer = null; } render(); });
-  onClick('settings', () => { settingsOpen = !settingsOpen; render(); });
-  onChange('hide', (el) => { hidePattern = el.checked; render(); });
-  onChange('sound', (el) => { soundOn = el.checked; });
-  onChange('block', (el) => { blockOnError = el.checked; });
-  onChange('keyb', (el) => { showKeyb = el.checked; render(); });
-  onChange('heat', (el) => { showHeat = el.checked; try { localStorage.setItem('tr_heat', showHeat ? '1' : '0'); } catch { /* */ } render(); });
-  onChange('flow', (el) => {
-    flowMode = el.checked;
-    try { localStorage.setItem('tr_flow', flowMode ? '1' : '0'); } catch { /* */ }
-    flowReset();
-    if (special) { special === 'weak' ? startWeak() : startCustom(customText); } else reset();
-  });
   onClick('weak', () => { special === 'weak' ? exitSpecial() : startWeak(); });
   onClick('custom', () => { modal = 'custom'; render(); });
   onClick('prev', () => { if (special) { nextSpecial(); return; } idx = (idx - 1 + pool.length) % pool.length; reset(); });
   onClick('next', () => { if (special) { nextSpecial(); return; } idx = (idx + 1) % pool.length; reset(); });
   onClick('again', () => { special ? nextSpecial(true) : reset(); });
   onClick('nextdone', () => { if (special) { nextSpecial(); return; } idx = (idx + 1) % pool.length; reset(); });
-  // модалки
-  const mb = document.getElementById('modal-bg');
-  if (mb) mb.onclick = (e) => { if (e.target === mb) { modal = null; render(); } };
-  onClick('custom-go', () => startCustom((document.getElementById('custom-ta') as HTMLTextAreaElement).value));
-  onClick('custom-cancel', () => { modal = null; render(); });
-  onClick('prog-close', () => { modal = null; render(); });
 }
 
 // ── Стартовый хаб «С чего начать?» ──
@@ -578,23 +608,14 @@ function renderHub() {
             <span class="hub-desc">${esc(desc)}</span>
           </button>`).join('')}
       </div>
-    </div>
-    ${modal ? renderModal() : ''}`;
-  bindHubChrome();
+    </div>`;
   app.querySelectorAll<HTMLButtonElement>('[data-go]').forEach((b) => {
     b.onclick = () => {
       const go = b.dataset.go!;
-      if (go === 'train') goMode(() => { hubMode = false; });
-      else if (go === 'course') goMode(() => { courseMode = true; });
-      else if (go === 'learn') goMode(() => { aiMode = true; });
-      else if (go === 'compete') goMode(() => { compMode = true; });
-      else if (go === 'exam') goMode(() => { exam = { phase: 'setup', durMin: 10, target: 35, name: '', endAt: 0, typed: 0, errors: 0, count: 0, pool: [], pi: 0, timer: null }; });
-      else if (go === 'progress') { modal = 'progress'; render(); }
+      if (go === 'progress') { modal = 'progress'; render(); }
+      else goTo(go);
     };
   });
-  const mb = document.getElementById('modal-bg');
-  if (mb) mb.onclick = (e) => { if (e.target === mb) { modal = null; render(); } };
-  onClick('prog-close', () => { modal = null; render(); });
 }
 
 function nextSpecial(repeat = false) {

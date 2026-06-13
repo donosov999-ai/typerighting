@@ -1,6 +1,7 @@
 import './style.css';
 import { loadExercises, exercisesOfBank, BANKS, type Bank, type Exercise } from './content';
 import { ravenExercises } from './raven';
+import { classicExercises } from './classic';
 import { createState, pressChar, backspace, stats, MARK, type TypingState } from './typing';
 import { keyboardSVG, bridgeChar, keyIdFor } from './keyboard';
 import { type Profile, PROFILE_EMOJI, loadProfile, saveProfile, applyProfile } from './profiles';
@@ -240,7 +241,7 @@ function goTo(target: string) {
 function reapplyGlobal() {
   aiInit = false; courseInit = false; compInit = false; kidsActive = false;
   if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
-  if (!hubMode && !aiMode && !compMode && !courseMode && !exam && profile !== 'kids') { if (special) { special === 'weak' ? startWeak() : startCustom(customText); } else if (bank === 'poemHymn') loadBank(); else reset(); }
+  if (!hubMode && !aiMode && !compMode && !courseMode && !exam && profile !== 'kids') { if (special) { special === 'weak' ? startWeak() : startCustom(customText); } else if (bank === 'poemHymn' || bank === 'classic') loadBank(); else reset(); }
   render();
 }
 
@@ -627,8 +628,10 @@ function nextSpecial(repeat = false) {
 }
 
 function loadBank() {
-  // банк стихов — «Ворон» По на языке интерфейса (готовые тексты, мультиязык)
-  pool = bank === 'poemHymn' ? ravenExercises(lang()) : exercisesOfBank(all, bank);
+  // мультиязычные банки готовых текстов на языке интерфейса
+  pool = bank === 'poemHymn' ? ravenExercises(lang())
+       : bank === 'classic' ? classicExercises(lang())
+       : exercisesOfBank(all, bank);
   prog = loadProgress(bank);
   idx = Math.min(Math.max(prog.lastIdx, 0), Math.max(pool.length - 1, 0));
   reset();

@@ -97,6 +97,25 @@ const LEFT_HAND = new Set([
   'lshift', 'z', 'x', 'c', 'v', 'b',
 ]);
 
+// ── Зоны пальцев (классическая раскраска слепой печати) ──
+// lp/lr/lm/li — левые мизинец/безымянный/средний/указательный; r* — правые; thumb — большие.
+const FINGER: Record<string, string> = {
+  tilde: 'lp', d1: 'lp', tab: 'lp', q: 'lp', caps: 'lp', a: 'lp', lshift: 'lp', z: 'lp',
+  d2: 'lr', w: 'lr', s: 'lr', x: 'lr',
+  d3: 'lm', e: 'lm', d: 'lm', c: 'lm',
+  d4: 'li', d5: 'li', r: 'li', t: 'li', f: 'li', g: 'li', v: 'li', b: 'li',
+  d6: 'ri', d7: 'ri', y: 'ri', u: 'ri', h: 'ri', j: 'ri', n: 'ri', m: 'ri',
+  d8: 'rm', i: 'rm', k: 'rm', comma: 'rm',
+  d9: 'rr', o: 'rr', l: 'rr', period: 'rr',
+  d0: 'rp', minus: 'rp', equal: 'rp', backslash: 'rp', p: 'rp', lbracket: 'rp', rbracket: 'rp',
+  semi: 'rp', quote: 'rp', slash: 'rp', enter: 'rp', backspace: 'rp', rshift: 'rp', rept: 'rp',
+  space: 'thumb',
+};
+const FINGER_COLOR: Record<string, string> = {
+  lp: '244,114,182', lr: '251,146,60', lm: '250,204,21', li: '74,222,128',
+  ri: '34,211,238', rm: '96,165,250', rr: '167,139,250', rp: '236,72,153', thumb: '148,163,184',
+};
+
 // ── Геометрия (viewBox 920×380, как оригинал) ──
 const W = 920, H = 380, PAD = 12, GAP = 6, KEY_H = 60, PITCH = 70, TOP = 14;
 
@@ -224,7 +243,7 @@ function arrowPath(from: KeyGeo, to: KeyGeo): string {
  * ruContext — упражнение русское (для неоднозначных . и ,),
  * showRu — рисовать ли русский слой букв (false = чистая QWERTY для EN-рынка).
  */
-export function keyboardSVG(nextChar: string | null, ruContext: boolean, showRu = true, heat: Record<string, number> | null = null): string {
+export function keyboardSVG(nextChar: string | null, ruContext: boolean, showRu = true, heat: Record<string, number> | null = null, handZone: 'left' | 'right' | null = null): string {
   const hit = nextChar !== null ? findKey(nextChar, ruContext) : null;
   const targetId = hit?.id ?? null;
   const homeId = targetId ? (HOME_OF[targetId] ?? null) : null;
@@ -238,10 +257,18 @@ export function keyboardSVG(nextChar: string | null, ruContext: boolean, showRu 
     if (g.id === targetId) cls.push('key-next');
     if (g.id === shiftId) cls.push('key-shift');
     if (g.id === homeId) cls.push('key-home');
+    // зоны рук/пальцев: своя рука — раскрасить по пальцу, чужая — приглушить
+    const fing = FINGER[g.id];
+    const fingerSide = fing ? (fing[0] === 'l' ? 'left' : fing[0] === 'r' ? 'right' : 'thumb') : null;
+    if (handZone && fingerSide && fingerSide !== 'thumb' && fingerSide !== handZone) cls.push('key-dim');
     const fx = (g.x + 4).toFixed(1), fy = g.y + 3, fw = (g.w - 8).toFixed(1), fh = g.h - 10;
     parts.push(`<g class="${cls.join(' ')}" data-key="${g.id}">`,
       `<rect class="key-base" x="${g.x}" y="${g.y}" width="${g.w.toFixed(1)}" height="${g.h}" rx="9"/>`,
       `<rect class="key-face" x="${fx}" y="${fy}" width="${fw}" height="${fh}" rx="6"/>`);
+    // раскраска под палец (для зоны выбранной руки)
+    if (handZone && fing && fingerSide === handZone) {
+      parts.push(`<rect x="${fx}" y="${fy}" width="${fw}" height="${fh}" rx="6" fill="rgb(${FINGER_COLOR[fing]})" opacity="0.4"/>`);
+    }
     // тепловая карта: errRate 0 = освоено (зелёный), >0 = слабая (красный по величине)
     if (heat && g.id in heat) {
       const sev = heat[g.id];

@@ -247,6 +247,7 @@ button:hover { filter: brightness(1.1); }
 .key-shift .key-face { fill: var(--kb-shift); }
 .key-shift .key-fn { fill: #fff; }
 .key-home .key-face { stroke: var(--kb-arrow); stroke-width: 2.5; }
+.kbsvg .key-dim { opacity: 0.28; } /* приглушаем клавиши неактивной руки */
 
 .statsbar { display: flex; gap: 10px; margin: 12px 0 10px; }
 .statsbar div { flex: 1; background: var(--surface); border: 1px solid var(--border);

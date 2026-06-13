@@ -169,7 +169,7 @@ function learnRender() {
         ${(['both', 'left', 'right'] as const).map((h) => `<button class="hand-btn ${hand === h ? 'on' : ''}" data-hand="${h}">${t('learn.hand.' + h)}</button>`).join('')}
       </div>`}
       <div class="card"><div class="pattern" id="pattern">${renderPattern()}</div></div>
-      <div class="keyb">${keyboardSVG(st.finishedAt === null ? st.pattern[st.pos] ?? null : null, rc, showRu)}</div>
+      <div class="keyb">${keyboardSVG(st.finishedAt === null ? st.pattern[st.pos] ?? null : null, rc, showRu, null, hand === 'both' ? null : hand)}</div>
       ${kids ? `
         <div class="learn-kids"><span class="k-cat">😺</span> <b>${m.accuracy}%</b> ${t('st.accuracy')} · ${acc.lines} ${t('learn.lines')}</div>
       ` : `

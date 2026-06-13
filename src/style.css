@@ -228,6 +228,29 @@ button:hover { filter: brightness(1.1); }
 .ob-lang { position: absolute; top: 18px; right: 22px; }
 .onboard { position: relative; }
 
+/* ── Соревнование ── */
+.compete .c-head h1 { font-size: 24px; margin: 0; }
+.cp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+.cp-disc { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; text-align: left;
+  padding: 20px; border-radius: 16px; background: var(--surface); border: 1px solid var(--border);
+  cursor: pointer; transition: transform .12s, border-color .12s; }
+.cp-disc:hover { transform: translateY(-3px); border-color: var(--accent); }
+.cp-name { font-size: 17px; font-weight: 700; }
+.cp-best { font-size: 13px; color: var(--muted); }
+.pattern-big { font-size: 28px; letter-spacing: 2px; }
+.cp-result { text-align: center; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 22px; padding: 30px 20px; margin-top: 4vh; }
+.cp-medal { font-size: 72px; }
+.cp-result h2 { margin: 4px 0 10px; }
+.cp-record { color: var(--ok); font-weight: 700; margin-bottom: 10px; }
+.cp-publish { display: flex; gap: 10px; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
+.cp-publish input { background: var(--surface2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 10px; padding: 10px 12px; font-size: 14px; width: 200px; }
+.cp-board { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.cp-board th, .cp-board td { padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px; }
+.cp-board th { color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; }
+.cp-board tbody tr:hover { background: var(--surface2); }
+
 /* ── AI-режим обучения ── */
 .learn .c-head h1 { font-size: 24px; margin: 0; }
 .learn-stats div { position: relative; }

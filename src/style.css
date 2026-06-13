@@ -94,6 +94,11 @@ select { background: var(--surface2); color: var(--text); border: 1px solid var(
 .bankdesc b { color: var(--text); }
 
 .toolbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
+.toolbar2 { gap: 10px; margin-top: -4px; }
+.iconbtn { background: transparent; border: 1px solid var(--border); border-radius: 9px;
+  padding: 7px 10px; font-size: 15px; cursor: pointer; line-height: 1; }
+.iconbtn:hover { border-color: var(--accent); }
+button.ghost.on { background: var(--accent); color: #fff; border-color: var(--accent); }
 .toolbar label { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); cursor: pointer; }
 .toolbar input { accent-color: var(--accent); }
 .spacer { flex: 1; }
@@ -125,6 +130,48 @@ button:hover { filter: brightness(1.1); }
 .keyb { margin-top: 12px; background: var(--surface); border: 1px solid var(--border);
   border-radius: 16px; padding: 8px 10px; }
 .keyb .kbsvg { max-width: 840px; margin: 0 auto; }
+
+/* ── Тёмная тема (опция, переключатель 🌙 — поверх любого профиля) ── */
+[data-theme="dark"] {
+  --bg: #0f1419;
+  --surface: #1a2029;
+  --surface2: #232b36;
+  --border: #2e3744;
+  --text: #e6edf3;
+  --muted: #8b97a6;
+  --accent: #4f9cf9;
+  --ok: #3fb950;
+  --bad: #f85149;
+  --cur-bg: #4f9cf9;
+  /* клавиатуру в тёмной теме чуть приглушаем */
+  --kb-bg: #2a3340;
+  --kb-key-base: #3a4553;
+  --kb-key-face: #e9edf2;
+}
+
+/* ── График прогресса (спарклайн WPM) ── */
+.spark { width: 100%; height: 140px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 8px; }
+.spark-area { fill: var(--accent); opacity: .12; }
+.spark-line { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.spark-dot { fill: var(--accent); }
+.spark-meta { display: flex; gap: 18px; justify-content: center; margin-top: 12px; color: var(--muted); font-size: 13px; }
+.spark-meta b { color: var(--text); }
+
+/* ── Модалка (свой текст / прогресс) ── */
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,.45); display: flex;
+  align-items: center; justify-content: center; z-index: 50; padding: 20px; }
+.modal { background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
+  padding: 24px; max-width: 680px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+.modal h2 { margin: 0 0 14px; font-size: 20px; }
+.modal textarea { width: 100%; min-height: 160px; resize: vertical; font-family: inherit;
+  font-size: 15px; padding: 12px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface2); color: var(--text); }
+.modal .donebtns { margin-top: 16px; }
+.heat-legend { font-size: 12px; color: var(--muted); margin-top: 8px; text-align: center; }
+.heat-legend i { font-style: normal; padding: 1px 7px; border-radius: 4px; }
+.heat-legend .g { background: rgba(34,197,94,.3); }
+.heat-legend .r { background: rgba(217,58,58,.45); }
 
 /* ── Интерактивная SVG-клавиатура (схема оригинала) ── */
 .kbsvg { display: block; width: 100%; height: auto; user-select: none; }

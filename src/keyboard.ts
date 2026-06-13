@@ -170,6 +170,21 @@ export function findKey(ch: string, ruContext: boolean): KeyHit | null {
   return (ruContext ? RU_MAP[ch] : EN_MAP[ch]) ?? (ruContext ? EN_MAP[ch] : RU_MAP[ch]) ?? null;
 }
 
+/** Буквенные клавиши (для адаптивного режима «слабые клавиши»). */
+export function letterKeys(lang: 'en' | 'ru'): Array<{ id: string; ch: string }> {
+  const out: Array<{ id: string; ch: string }> = [];
+  for (const g of Object.values(GEO)) {
+    const ch = lang === 'en' ? g.en : g.ru;
+    if (ch && /^[A-Za-zА-Яа-яЁё]$/.test(ch)) out.push({ id: g.id, ch: ch.toLowerCase() });
+  }
+  return out;
+}
+
+/** id физической клавиши для символа (для сбора per-key статистики). */
+export function keyIdFor(ch: string, ruContext: boolean): string | null {
+  return findKey(ch, ruContext)?.id ?? null;
+}
+
 // ── Рендер ──
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
 const cx = (g: KeyGeo) => g.x + g.w / 2;
@@ -193,7 +208,7 @@ function arrowPath(from: KeyGeo, to: KeyGeo): string {
  * ruContext — упражнение русское (для неоднозначных . и ,),
  * showRu — рисовать ли русский слой букв (false = чистая QWERTY для EN-рынка).
  */
-export function keyboardSVG(nextChar: string | null, ruContext: boolean, showRu = true): string {
+export function keyboardSVG(nextChar: string | null, ruContext: boolean, showRu = true, heat: Record<string, number> | null = null): string {
   const hit = nextChar !== null ? findKey(nextChar, ruContext) : null;
   const targetId = hit?.id ?? null;
   const homeId = targetId ? (HOME_OF[targetId] ?? null) : null;
@@ -207,9 +222,17 @@ export function keyboardSVG(nextChar: string | null, ruContext: boolean, showRu 
     if (g.id === targetId) cls.push('key-next');
     if (g.id === shiftId) cls.push('key-shift');
     if (g.id === homeId) cls.push('key-home');
+    const fx = (g.x + 4).toFixed(1), fy = g.y + 3, fw = (g.w - 8).toFixed(1), fh = g.h - 10;
     parts.push(`<g class="${cls.join(' ')}" data-key="${g.id}">`,
       `<rect class="key-base" x="${g.x}" y="${g.y}" width="${g.w.toFixed(1)}" height="${g.h}" rx="9"/>`,
-      `<rect class="key-face" x="${(g.x + 4).toFixed(1)}" y="${g.y + 3}" width="${(g.w - 8).toFixed(1)}" height="${g.h - 10}" rx="6"/>`);
+      `<rect class="key-face" x="${fx}" y="${fy}" width="${fw}" height="${fh}" rx="6"/>`);
+    // тепловая карта: errRate 0 = освоено (зелёный), >0 = слабая (красный по величине)
+    if (heat && g.id in heat) {
+      const sev = heat[g.id];
+      const fill = sev <= 0 ? '34,197,94' : '217,58,58';
+      const op = sev <= 0 ? 0.22 : (0.2 + 0.6 * Math.min(sev, 1)).toFixed(2);
+      parts.push(`<rect x="${fx}" y="${fy}" width="${fw}" height="${fh}" rx="6" fill="rgb(${fill})" opacity="${op}"/>`);
+    }
     if (g.label !== undefined) {
       parts.push(`<text class="key-fn" x="${cx(g).toFixed(1)}" y="${(cy(g) + 4).toFixed(1)}" text-anchor="middle">${esc(g.label)}</text>`);
     } else {

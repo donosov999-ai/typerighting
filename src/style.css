@@ -71,6 +71,23 @@ html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text);
 
 header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .headctl { display: flex; gap: 8px; align-items: center; }
+.home-btn { background: transparent; border: none; font-size: 22px; cursor: pointer; padding: 0 6px 0 0; line-height: 1; }
+.home-btn:hover { filter: brightness(1.2); transform: scale(1.1); }
+.settings-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; }
+.nav-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+
+/* ── Стартовый хаб «С чего начать?» ── */
+.hub-q { font-size: 17px; color: var(--muted); margin: 12px 0 24px; }
+.hub-q .streak { color: var(--accent); }
+.hub-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+.hub-card { display: flex; flex-direction: column; align-items: flex-start; gap: 7px; text-align: left;
+  padding: 24px; border-radius: 18px; background: var(--surface); border: 2px solid var(--border);
+  cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,.05); transition: transform .12s, border-color .12s, box-shadow .12s; }
+.hub-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 8px 22px rgba(0,0,0,.1); }
+.hub-card.hub-primary { border-color: var(--accent); background: linear-gradient(160deg, var(--surface2), var(--surface)); }
+.hub-ic { font-size: 40px; line-height: 1; }
+.hub-name { font-size: 20px; font-weight: 750; }
+.hub-desc { font-size: 14px; color: var(--muted); line-height: 1.4; }
 
 /* ── Онбординг: выбор профиля ── */
 .onboard { text-align: center; padding-top: 9vh; }
@@ -136,7 +153,8 @@ button:hover { filter: brightness(1.1); }
 .pattern .pend { color: var(--muted); }
 .pattern .ok { color: var(--ok); }
 .pattern .bad { color: #fff; background: var(--bad); }
-.pattern .cur { background: var(--cur-bg); color: #fff; animation: blink 1s steps(2,start) infinite; }
+.pattern .cur { background: var(--cur-bg); color: #fff; border-radius: 4px;
+  box-shadow: 0 0 0 2px var(--cur-bg), 0 0 10px var(--cur-bg); animation: blink 1s steps(2,start) infinite; }
 .pattern .nl { opacity: 0.35; font-size: 16px; }
 @keyframes blink { 50% { opacity: 0.55; } }
 .hidden-note { color: var(--muted); font-style: italic; font-size: 16px; }
@@ -256,7 +274,13 @@ button:hover { filter: brightness(1.1); }
   border-radius: 22px; padding: 30px 20px; margin-top: 4vh; }
 .cp-medal { font-size: 72px; }
 .cp-result h2 { margin: 4px 0 10px; }
-.cp-record { color: var(--ok); font-weight: 700; margin-bottom: 10px; }
+.cp-record { color: var(--ok); font-weight: 800; font-size: 18px; margin-bottom: 10px;
+  animation: pop 0.5s cubic-bezier(.2,1.4,.4,1) 1; }
+.cp-medal { animation: pop 0.5s cubic-bezier(.2,1.4,.4,1) 1; }
+.k-stars-big, .cp-medal { display: inline-block; }
+@keyframes pop { 0% { transform: scale(0.3); opacity: 0; } 60% { transform: scale(1.25); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes celebrate { 0%,100% { transform: rotate(0) scale(1); } 25% { transform: rotate(-8deg) scale(1.15); } 75% { transform: rotate(8deg) scale(1.15); } }
+.k-stars-big { animation: celebrate 0.7s ease 1; }
 .cp-publish { display: flex; gap: 10px; justify-content: center; margin: 16px 0; flex-wrap: wrap; }
 .cp-publish input { background: var(--surface2); color: var(--text); border: 1px solid var(--border);
   border-radius: 10px; padding: 10px 12px; font-size: 14px; width: 200px; }

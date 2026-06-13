@@ -8,7 +8,7 @@ import { courseEnter, courseHandleKey } from './course';
 import { learnEnter, learnHandleKey } from './learn';
 import { competeEnter, competeHandleKey } from './compete';
 import { t, lang, setLang, type Lang } from './i18n';
-import { recordKey, heatMap, hasKeyData, weakDrill, pushHistory, progressSVG } from './stats-store';
+import { recordKey, heatMap, hasKeyData, weakDrill, pushHistory, progressSVG, streakDays } from './stats-store';
 
 // ── Состояние сессии ──
 let profile: Profile | null = loadProfile();
@@ -22,7 +22,11 @@ let soundOn = true;
 let blockOnError = true;
 let showKeyb = true; // схема клавиатуры из оригинального TypeRIGHTing
 let showHeat = localStorage.getItem('tr_heat') === '1'; // тепловая карта клавиш
-let dark = localStorage.getItem('tr_dark') === '1';      // тёмная тема (опция)
+let dark = (() => {                                       // тёмная тема: выбор юзера, иначе по системе
+  const v = localStorage.getItem('tr_dark');
+  if (v === '1') return true; if (v === '0') return false;
+  return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+})();
 let statsTimer: number | null = null;
 
 // Спец-режимы: 'weak' (адаптив по слабым клавишам) / 'custom' (свой текст)
@@ -143,6 +147,8 @@ let aiMode = false;      // пользователь открыл AI-обуче�
 let aiInit = false;
 let compMode = false;    // пользователь открыл соревнование
 let compInit = false;
+let hubMode = true;      // стартовый экран «С чего начать?» (главное меню режимов)
+let settingsOpen = false; // панель настроек (чекбоксы) свёрнута по умолчанию
 
 function ruCtx(): boolean { return /[а-яё]/i.test(st.pattern); }
 function kbShowRu(rc: boolean): boolean { return lang() === 'ru' || rc; }
@@ -200,49 +206,42 @@ function render() {
   }
   courseInit = false;
   if (exam) { renderExam(); return; }
+  if (hubMode) { renderHub(); return; }
   const ex = curExercise();
   const s = viewStats();
   const inSpecial = special !== null;
   app.innerHTML = `
     <div class="wrap">
       <header>
-        <h1>Type<span>RIGHT</span>ing</h1>
+        <h1><button id="home" class="home-btn" title="${t('hub.home')}">🏠</button> Type<span>RIGHT</span>ing</h1>
         <div class="headctl">
           <select id="bank">
             ${BANKS.map((b) => `<option value="${b}" ${b === bank && !inSpecial ? 'selected' : ''}>${t('bank.' + b)}</option>`).join('')}
           </select>
-          <select id="profile" title="Profile">
-            ${(Object.keys(PROFILE_EMOJI) as Profile[]).map((p) => `<option value="${p}" ${p === profile ? 'selected' : ''}>${PROFILE_EMOJI[p]} ${t('profile.' + p)}</option>`).join('')}
-          </select>
+          <button id="settings" class="iconbtn" title="${t('hub.settings')}">⚙</button>
           <button id="dark" class="iconbtn" title="${t('tb.dark')}">${dark ? '☀️' : '🌙'}</button>
-          ${langSwitcherHtml()}
         </div>
       </header>
       <p class="bankdesc">${inSpecial ? (special === 'weak' ? t('weak.hint') : '') : t('bank.' + bank + '.desc')} ${inSpecial ? '' : `· <b>${pool.length}</b> ${t('st.exercises')} · ${t('st.done')} <b>${prog.done.length}</b>${prog.bestWpm > 0 ? ` · ${t('st.record')} <b>${prog.bestWpm}</b> ${t('st.wpm')} · <b>${prog.bestAcc}%</b>` : ''}`}</p>
 
-      <div class="toolbar">
+      ${settingsOpen ? `<div class="toolbar settings-panel">
         <label><input type="checkbox" id="hide" ${hidePattern ? 'checked' : ''}/> ${t('tb.hide')}</label>
         <label><input type="checkbox" id="sound" ${soundOn ? 'checked' : ''}/> ${t('tb.sound')}</label>
         <label><input type="checkbox" id="block" ${blockOnError ? 'checked' : ''}/> ${t('tb.block')}</label>
         <label><input type="checkbox" id="keyb" ${showKeyb ? 'checked' : ''}/> ${t('tb.keyb')}</label>
         <label title="errRate"><input type="checkbox" id="heat" ${showHeat ? 'checked' : ''}/> ${t('tb.heat')}</label>
         <label title="Stamina-style"><input type="checkbox" id="flow" ${flowMode ? 'checked' : ''}/> ${t('tb.flow')}</label>
+      </div>` : ''}
+
+      <div class="nav-row">
+        <div class="modes-tools">
+          <button id="weak" class="tool-btn ${special === 'weak' ? 'on' : ''}">${t('tb.weak')}</button>
+          <button id="custom" class="tool-btn ${special === 'custom' ? 'on' : ''}">${t('tb.custom')}</button>
+        </div>
         <span class="spacer"></span>
         <button id="prev" class="ghost">${t('tb.prev')}</button>
         <span class="counter">${inSpecial ? '•' : `${idx + 1} / ${pool.length}`}</span>
         <button id="next" class="ghost">${t('tb.next')}</button>
-      </div>
-
-      <div class="modes-main">
-        <button id="learn" class="mode-btn">${t('tb.learn')}</button>
-        <button id="compete" class="mode-btn">${t('tb.compete')}</button>
-        <button id="course" class="mode-btn">${t('tb.course')}</button>
-        <button id="exam" class="mode-btn">⏱ ${t('tb.exam')}</button>
-      </div>
-      <div class="modes-tools">
-        <button id="weak" class="tool-btn ${special === 'weak' ? 'on' : ''}">${t('tb.weak')}</button>
-        <button id="custom" class="tool-btn ${special === 'custom' ? 'on' : ''}">${t('tb.custom')}</button>
-        <button id="progress" class="tool-btn">${t('tb.progress')}</button>
       </div>
 
       <div class="card">
@@ -486,51 +485,98 @@ function startCustom(text: string) {
 }
 function exitSpecial() { special = null; loadBank(); }
 
-function bindControls() {
-  (document.getElementById('bank') as HTMLSelectElement).onchange = (e) => {
-    special = null; bank = (e.target as HTMLSelectElement).value as Bank; loadBank();
-  };
-  (document.getElementById('profile') as HTMLSelectElement).onchange = (e) => {
-    profile = (e.target as HTMLSelectElement).value as Profile; saveProfile(profile); render();
-  };
-  (document.getElementById('dark') as HTMLButtonElement).onclick = () => {
-    dark = !dark; try { localStorage.setItem('tr_dark', dark ? '1' : '0'); } catch { /* quota */ }
-    applyDark(); render();
-  };
+// хелперы для опциональных элементов (часть кнопок есть только на хабе/в настройках)
+function onClick(id: string, fn: () => void) { const el = document.getElementById(id); if (el) (el as HTMLButtonElement).onclick = fn; }
+function onChange(id: string, fn: (el: HTMLInputElement) => void) { const el = document.getElementById(id) as HTMLInputElement | null; if (el) el.onchange = () => fn(el); }
+function goMode(set: () => void) { special = null; exam = null; if (statsTimer) { clearInterval(statsTimer); statsTimer = null; } set(); render(); }
+
+function bindHubChrome() {
+  // профиль / тема / язык — общие для хаба и основного
+  const ps = document.getElementById('profile') as HTMLSelectElement | null;
+  if (ps) ps.onchange = () => { profile = ps.value as Profile; saveProfile(profile); render(); };
+  onClick('dark', () => { dark = !dark; try { localStorage.setItem('tr_dark', dark ? '1' : '0'); } catch { /* */ } applyDark(); render(); });
   bindLang(() => render());
-  document.getElementById('hide')!.onchange = (e) => { hidePattern = (e.target as HTMLInputElement).checked; render(); };
-  document.getElementById('sound')!.onchange = (e) => { soundOn = (e.target as HTMLInputElement).checked; };
-  document.getElementById('block')!.onchange = (e) => { blockOnError = (e.target as HTMLInputElement).checked; };
-  document.getElementById('keyb')!.onchange = (e) => { showKeyb = (e.target as HTMLInputElement).checked; render(); };
-  document.getElementById('heat')!.onchange = (e) => { showHeat = (e.target as HTMLInputElement).checked; try { localStorage.setItem('tr_heat', showHeat ? '1' : '0'); } catch { /* */ } render(); };
-  document.getElementById('flow')!.onchange = (e) => {
-    flowMode = (e.target as HTMLInputElement).checked;
-    try { localStorage.setItem('tr_flow', flowMode ? '1' : '0'); } catch { /* quota */ }
+}
+
+function bindControls() {
+  bindHubChrome();
+  onChange('bank', (el) => { special = null; bank = el.value as Bank; loadBank(); });
+  onClick('home', () => { hubMode = true; special = null; if (statsTimer) { clearInterval(statsTimer); statsTimer = null; } render(); });
+  onClick('settings', () => { settingsOpen = !settingsOpen; render(); });
+  onChange('hide', (el) => { hidePattern = el.checked; render(); });
+  onChange('sound', (el) => { soundOn = el.checked; });
+  onChange('block', (el) => { blockOnError = el.checked; });
+  onChange('keyb', (el) => { showKeyb = el.checked; render(); });
+  onChange('heat', (el) => { showHeat = el.checked; try { localStorage.setItem('tr_heat', showHeat ? '1' : '0'); } catch { /* */ } render(); });
+  onChange('flow', (el) => {
+    flowMode = el.checked;
+    try { localStorage.setItem('tr_flow', flowMode ? '1' : '0'); } catch { /* */ }
     flowReset();
     if (special) { special === 'weak' ? startWeak() : startCustom(customText); } else reset();
-  };
-  document.getElementById('learn')!.onclick = () => { special = null; exam = null; aiMode = true; if (statsTimer) { clearInterval(statsTimer); statsTimer = null; } render(); };
-  document.getElementById('compete')!.onclick = () => { special = null; exam = null; compMode = true; if (statsTimer) { clearInterval(statsTimer); statsTimer = null; } render(); };
-  document.getElementById('course')!.onclick = () => { special = null; exam = null; courseMode = true; if (statsTimer) { clearInterval(statsTimer); statsTimer = null; } render(); };
-  document.getElementById('weak')!.onclick = () => { special === 'weak' ? exitSpecial() : startWeak(); };
-  document.getElementById('custom')!.onclick = () => { modal = 'custom'; render(); };
-  document.getElementById('progress')!.onclick = () => { modal = 'progress'; render(); };
-  document.getElementById('exam')!.onclick = () => {
-    special = null;
-    exam = { phase: 'setup', durMin: 10, target: 35, name: '', endAt: 0, typed: 0, errors: 0, count: 0, pool: [], pi: 0, timer: null };
-    if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
-    render();
-  };
-  document.getElementById('prev')!.onclick = () => { if (special) { nextSpecial(); return; } idx = (idx - 1 + pool.length) % pool.length; reset(); };
-  document.getElementById('next')!.onclick = () => { if (special) { nextSpecial(); return; } idx = (idx + 1) % pool.length; reset(); };
-  const again = document.getElementById('again'); if (again) again.onclick = () => { special ? nextSpecial(true) : reset(); };
-  const nd = document.getElementById('nextdone'); if (nd) nd.onclick = () => { if (special) { nextSpecial(); return; } idx = (idx + 1) % pool.length; reset(); };
+  });
+  onClick('weak', () => { special === 'weak' ? exitSpecial() : startWeak(); });
+  onClick('custom', () => { modal = 'custom'; render(); });
+  onClick('prev', () => { if (special) { nextSpecial(); return; } idx = (idx - 1 + pool.length) % pool.length; reset(); });
+  onClick('next', () => { if (special) { nextSpecial(); return; } idx = (idx + 1) % pool.length; reset(); });
+  onClick('again', () => { special ? nextSpecial(true) : reset(); });
+  onClick('nextdone', () => { if (special) { nextSpecial(); return; } idx = (idx + 1) % pool.length; reset(); });
   // модалки
   const mb = document.getElementById('modal-bg');
   if (mb) mb.onclick = (e) => { if (e.target === mb) { modal = null; render(); } };
-  const cg = document.getElementById('custom-go'); if (cg) cg.onclick = () => startCustom((document.getElementById('custom-ta') as HTMLTextAreaElement).value);
-  const cc = document.getElementById('custom-cancel'); if (cc) cc.onclick = () => { modal = null; render(); };
-  const pc = document.getElementById('prog-close'); if (pc) pc.onclick = () => { modal = null; render(); };
+  onClick('custom-go', () => startCustom((document.getElementById('custom-ta') as HTMLTextAreaElement).value));
+  onClick('custom-cancel', () => { modal = null; render(); });
+  onClick('prog-close', () => { modal = null; render(); });
+}
+
+// ── Стартовый хаб «С чего начать?» ──
+function renderHub() {
+  const streak = streakDays(Date.now());
+  const cards: Array<[string, string, string, string]> = [
+    ['train', '⌨️', t('hub.train'), t('hub.train.d')],
+    ['course', '📚', t('course.title'), t('hub.course.d')],
+    ['learn', '🤖', t('learn.title'), t('hub.learn.d')],
+    ['compete', '🏆', t('compete.title'), t('hub.compete.d')],
+    ['exam', '⏱', t('ex.title'), t('hub.exam.d')],
+    ['progress', '📈', t('prog.title'), t('hub.progress.d')],
+  ];
+  app.innerHTML = `
+    <div class="wrap hub">
+      <header>
+        <h1>Type<span>RIGHT</span>ing</h1>
+        <div class="headctl">
+          <select id="profile" title="Profile">
+            ${(Object.keys(PROFILE_EMOJI) as Profile[]).map((p) => `<option value="${p}" ${p === profile ? 'selected' : ''}>${PROFILE_EMOJI[p]} ${t('profile.' + p)}</option>`).join('')}
+          </select>
+          <button id="dark" class="iconbtn" title="${t('tb.dark')}">${dark ? '☀️' : '🌙'}</button>
+          ${langSwitcherHtml()}
+        </div>
+      </header>
+      <p class="hub-q">${t('hub.q')}${streak >= 2 ? ` &nbsp;·&nbsp; <b class="streak">🔥 ${streak} ${t('hub.streak')}</b>` : ''}</p>
+      <div class="hub-cards">
+        ${cards.map(([go, ic, name, desc], i) => `
+          <button class="hub-card ${i === 0 ? 'hub-primary' : ''}" data-go="${go}">
+            <span class="hub-ic">${ic}</span>
+            <span class="hub-name">${esc(name)}</span>
+            <span class="hub-desc">${esc(desc)}</span>
+          </button>`).join('')}
+      </div>
+    </div>
+    ${modal ? renderModal() : ''}`;
+  bindHubChrome();
+  app.querySelectorAll<HTMLButtonElement>('[data-go]').forEach((b) => {
+    b.onclick = () => {
+      const go = b.dataset.go!;
+      if (go === 'train') goMode(() => { hubMode = false; });
+      else if (go === 'course') goMode(() => { courseMode = true; });
+      else if (go === 'learn') goMode(() => { aiMode = true; });
+      else if (go === 'compete') goMode(() => { compMode = true; });
+      else if (go === 'exam') goMode(() => { exam = { phase: 'setup', durMin: 10, target: 35, name: '', endAt: 0, typed: 0, errors: 0, count: 0, pool: [], pi: 0, timer: null }; });
+      else if (go === 'progress') { modal = 'progress'; render(); }
+    };
+  });
+  const mb = document.getElementById('modal-bg');
+  if (mb) mb.onclick = (e) => { if (e.target === mb) { modal = null; render(); } };
+  onClick('prog-close', () => { modal = null; render(); });
 }
 
 function nextSpecial(repeat = false) {

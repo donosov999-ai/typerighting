@@ -113,7 +113,20 @@ export function history(): HistPoint[] {
   } catch { return []; }
 }
 
-/** SVG-спарклайн WPM по последним N сессиям. */
+/** Дней подряд с активностью (стрик, как в Duolingo). now — Date.now(). */
+export function streakDays(now: number): number {
+  const h = history();
+  if (!h.length) return 0;
+  const days = new Set(h.map((p) => Math.floor(p.t / 86400000)));
+  const today = Math.floor(now / 86400000);
+  let d = today;
+  if (!days.has(d)) { if (days.has(d - 1)) d -= 1; else return 0; } // сегодня ещё не занимался — считаем со вчера
+  let streak = 0;
+  while (days.has(d)) { streak++; d -= 1; }
+  return streak;
+}
+
+/** SVG-спарклайн WPM по последним N сесс(ms). */
 export function progressSVG(maxPoints = 40): string {
   const h = history().slice(-maxPoints);
   if (h.length < 2) return '';

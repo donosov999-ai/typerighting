@@ -47,6 +47,18 @@ const DICT: Record<string, { ru: string; en: string }> = {
   'tb.course': { ru: '📚 Курс', en: '📚 Course' },
   'tb.learn': { ru: '🤖 AI-обучение', en: '🤖 AI training' },
   'tb.compete': { ru: '🏆 Соревнование', en: '🏆 Compete' },
+  // хаб (стартовый экран «С чего начать»)
+  'hub.q': { ru: 'С чего начнём?', en: 'Where to start?' },
+  'hub.home': { ru: 'Главная', en: 'Home' },
+  'hub.settings': { ru: 'Настройки', en: 'Settings' },
+  'hub.train': { ru: 'Тренировка', en: 'Practice' },
+  'hub.train.d': { ru: 'Упражнения по банкам: слова, тексты, стихи', en: 'Exercise banks: words, texts, poems' },
+  'hub.course.d': { ru: 'Уроки с нуля до текста, по шагам', en: 'Lessons from scratch to text, step by step' },
+  'hub.learn.d': { ru: 'Умный поток, подстраивается под ошибки', en: 'Smart stream, adapts to your mistakes' },
+  'hub.compete.d': { ru: 'Дисциплины на скорость + онлайн-таблица', en: 'Speed disciplines + online board' },
+  'hub.exam.d': { ru: 'Тест на время с сертификатом', en: 'Timed test with a certificate' },
+  'hub.progress.d': { ru: 'График скорости и рекорды', en: 'Speed chart and records' },
+  'hub.streak': { ru: 'дней подряд', en: 'day streak' },
   // соревновательный режим
   'compete.title': { ru: 'Тест-соревнование', en: 'Typing Compete' },
   'compete.intro': { ru: 'Выбери дисциплину и поставь рекорд. Результат можно опубликовать в онлайн-таблице.', en: 'Pick a discipline and set a record. Publish your result to the online leaderboard.' },

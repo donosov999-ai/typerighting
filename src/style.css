@@ -228,6 +228,26 @@ button:hover { filter: brightness(1.1); }
 .ob-lang { position: absolute; top: 18px; right: 22px; }
 .onboard { position: relative; }
 
+/* ── Структурированный курс ── */
+.course .c-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.course .c-head h1 { font-size: 24px; margin: 0; }
+.c-intro { color: var(--muted); font-size: 14px; margin: 6px 0 18px; }
+.c-map { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+.c-les { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left;
+  padding: 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border);
+  cursor: pointer; transition: transform .12s, border-color .12s; min-height: 84px; }
+.c-les.open:hover { transform: translateY(-3px); border-color: var(--accent); }
+.c-les.passed { border-color: var(--ok); }
+.c-les.locked { opacity: .5; cursor: default; }
+.c-les .c-num { font-size: 13px; font-weight: 800; color: var(--accent); }
+.c-les .c-name { font-size: 13.5px; font-weight: 600; line-height: 1.25; }
+.c-les .c-stars { font-size: 12px; }
+.c-progress { font-weight: 700; font-size: 14px; }
+.c-acc { color: var(--muted); font-size: 14px; }
+.c-done { text-align: center; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 20px; padding: 32px 20px; margin-top: 5vh; }
+.c-done h2 { margin: 0 0 8px; }
+
 /* ── Детский режим ── */
 .kids .k-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .kids .k-head h1 { font-size: 26px; margin: 0; }

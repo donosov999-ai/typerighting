@@ -4,6 +4,7 @@ import { createState, pressChar, backspace, stats, MARK, type TypingState } from
 import { keyboardSVG, bridgeChar, keyIdFor } from './keyboard';
 import { type Profile, PROFILE_EMOJI, loadProfile, saveProfile, applyProfile } from './profiles';
 import { kidsEnter, kidsHandleKey } from './kids';
+import { courseEnter, courseHandleKey } from './course';
 import { t, lang, setLang, type Lang } from './i18n';
 import { recordKey, heatMap, hasKeyData, weakDrill, pushHistory, progressSVG } from './stats-store';
 
@@ -134,6 +135,8 @@ function beep() {
 
 const app = document.getElementById('app')!;
 let kidsActive = false;
+let courseMode = false;  // пользователь открыл курс
+let courseInit = false;  // courseEnter уже вызван (курс рисует себя сам)
 
 function ruCtx(): boolean { return /[а-яё]/i.test(st.pattern); }
 function kbShowRu(rc: boolean): boolean { return lang() === 'ru' || rc; }
@@ -173,6 +176,11 @@ function render() {
     return;
   }
   kidsActive = false;
+  if (courseMode) {
+    if (!courseInit) { courseInit = true; courseEnter(app, () => { courseMode = false; courseInit = false; render(); }); }
+    return; // курс рисует себя сам
+  }
+  courseInit = false;
   if (exam) { renderExam(); return; }
   const ex = curExercise();
   const s = viewStats();
@@ -208,6 +216,7 @@ function render() {
       </div>
 
       <div class="toolbar toolbar2">
+        <button id="course" class="ghost">${t('tb.course')}</button>
         <button id="weak" class="ghost ${special === 'weak' ? 'on' : ''}">${t('tb.weak')}</button>
         <button id="custom" class="ghost ${special === 'custom' ? 'on' : ''}">${t('tb.custom')}</button>
         <button id="progress" class="ghost">${t('tb.progress')}</button>
@@ -478,6 +487,7 @@ function bindControls() {
     flowReset();
     if (special) { special === 'weak' ? startWeak() : startCustom(customText); } else reset();
   };
+  document.getElementById('course')!.onclick = () => { special = null; exam = null; courseMode = true; if (statsTimer) { clearInterval(statsTimer); statsTimer = null; } render(); };
   document.getElementById('weak')!.onclick = () => { special === 'weak' ? exitSpecial() : startWeak(); };
   document.getElementById('custom')!.onclick = () => { modal = 'custom'; render(); };
   document.getElementById('progress')!.onclick = () => { modal = 'progress'; render(); };
@@ -530,6 +540,7 @@ document.addEventListener('keydown', (e) => {
   const tag = (e.target as HTMLElement)?.tagName;
   if (tag === 'SELECT' || tag === 'INPUT' || tag === 'TEXTAREA') return;
   if (modal) { if (e.key === 'Escape') { modal = null; render(); } return; }
+  if (courseMode) { courseHandleKey(e); return; }
   if (profile === 'kids') { kidsHandleKey(e); return; }
   if (exam && exam.phase !== 'run') return;
   if (st.finishedAt !== null) return;

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TypeRIGHTing — бесплатный тренажёр слепой печати на 7 языках</title>
+<meta name="description" content="TypeRIGHTing — бесплатный тренажёр слепой печати на 7 языках (RU·EN·ES·DE·FR·IT·PT): структурированный курс с нуля, AI-обучение по слабым клавишам, соревнование с онлайн-рейтингом, тест скорости с сертификатом, литература (По, Пушкин, Шекспир, Данте). Офлайн на Windows, macOS, Linux и в браузере." />
+<link rel="canonical" href="https://donosov999-ai.github.io/ODV999/typerighting/landing.html" />
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="TypeRIGHTing — тренажёр слепой печати на 7 языках" />
+<meta property="og:description" content="Курс с нуля, AI-обучение по слабым клавишам, соревнование с онлайн-рейтингом, тест с сертификатом, литература на 7 языках. Бесплатно, офлайн, для всех платформ." />
+<meta property="og:url" content="https://donosov999-ai.github.io/ODV999/typerighting/landing.html" />
+<meta property="og:image" content="https://donosov999-ai.github.io/ODV999/typerighting/images/keyboard.jpg" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="icon" href="./favicon.ico" />
+<style>
+  :root{
+    --bg:#f4f6f9; --surface:#ffffff; --surface2:#eef2f7; --border:#dbe3ee;
+    --text:#1f2a37; --muted:#5d6b7d; --accent:#2f6fed; --accent2:#1f9d57;
+    --shadow:0 10px 30px rgba(31,42,55,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+    background:var(--bg);color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+
+  /* nav */
+  nav{position:sticky;top:0;z-index:10;background:rgba(244,246,249,.85);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+  .nav-in{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .logo{font-size:21px;font-weight:800;letter-spacing:-.5px}
+  .logo span{color:var(--accent)}
+  .nav-cta{background:var(--accent);color:#fff;padding:9px 18px;border-radius:10px;
+    font-weight:700;font-size:14px;transition:transform .12s,filter .12s}
+  .nav-cta:hover{filter:brightness(1.08);transform:translateY(-1px)}
+
+  /* hero */
+  .hero{text-align:center;padding:72px 0 40px}
+  .badge{display:inline-block;background:var(--surface2);color:var(--accent);
+    border:1px solid var(--border);border-radius:999px;padding:6px 16px;
+    font-size:13px;font-weight:700;margin-bottom:22px}
+  h1{font-size:clamp(34px,6vw,58px);font-weight:850;letter-spacing:-1.5px;line-height:1.05}
+  h1 .grad{background:linear-gradient(90deg,var(--accent),#5b8def);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .lead{font-size:clamp(16px,2.4vw,20px);color:var(--muted);max-width:660px;
+    margin:20px auto 0}
+  .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:34px}
+  .btn{padding:15px 30px;border-radius:13px;font-weight:750;font-size:16px;
+    transition:transform .12s,filter .12s,box-shadow .12s;border:2px solid transparent;cursor:pointer}
+  .btn-primary{background:var(--accent);color:#fff;box-shadow:var(--shadow)}
+  .btn-primary:hover{filter:brightness(1.08);transform:translateY(-2px)}
+  .btn-ghost{background:var(--surface);color:var(--text);border-color:var(--border)}
+  .btn-ghost:hover{border-color:var(--accent);transform:translateY(-2px)}
+
+  /* lang chips */
+  .langs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:30px}
+  .chip{background:var(--surface);border:1px solid var(--border);border-radius:999px;
+    padding:7px 15px;font-size:14px;font-weight:650;box-shadow:var(--shadow)}
+  .chip .fl{margin-right:6px}
+
+  /* stats */
+  .stats{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:42px}
+  .stat{background:var(--surface);border:1px solid var(--border);border-radius:16px;
+    padding:18px 26px;min-width:128px;box-shadow:var(--shadow)}
+  .stat b{display:block;font-size:30px;font-weight:850;color:var(--accent)}
+  .stat span{font-size:13px;color:var(--muted)}
+
+  /* hero shot */
+  .shot{margin:46px auto 0;max-width:880px;border-radius:18px;overflow:hidden;
+    border:1px solid var(--border);box-shadow:var(--shadow)}
+  .shot img{display:block;width:100%;height:auto}
+  .shot-cap{font-size:13px;color:var(--muted);text-align:center;margin-top:12px}
+
+  /* sections */
+  section{padding:64px 0}
+  .sec-head{text-align:center;margin-bottom:42px}
+  .sec-head h2{font-size:clamp(26px,4vw,38px);font-weight:820;letter-spacing:-.8px}
+  .sec-head p{color:var(--muted);margin-top:10px;font-size:16px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:18px;
+    padding:26px;box-shadow:var(--shadow);transition:transform .14s,border-color .14s}
+  .card:hover{transform:translateY(-4px);border-color:var(--accent)}
+  .card .ic{font-size:34px;margin-bottom:14px}
+  .card h3{font-size:19px;font-weight:780;margin-bottom:8px}
+  .card p{font-size:14.5px;color:var(--muted)}
+
+  /* profiles */
+  .profiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+  .prof{border-radius:18px;padding:28px;text-align:center;border:1px solid var(--border);box-shadow:var(--shadow)}
+  .prof.m{background:linear-gradient(160deg,#eef3fb,#fff)}
+  .prof.f{background:linear-gradient(160deg,#fceef2,#fff)}
+  .prof.kids{background:linear-gradient(160deg,#eafaf6,#fff)}
+  .prof .ic{font-size:46px}
+  .prof h3{font-size:20px;font-weight:800;margin:10px 0 6px}
+  .prof p{font-size:14px;color:var(--muted)}
+
+  /* download */
+  .dl{background:var(--surface);border:1px solid var(--border);border-radius:22px;
+    padding:48px 28px;text-align:center;box-shadow:var(--shadow)}
+  .dl h2{font-size:clamp(24px,4vw,34px);font-weight:820;letter-spacing:-.6px}
+  .dl p{color:var(--muted);margin:10px 0 28px}
+  .dl-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .dl-btn{display:flex;align-items:center;gap:10px;background:var(--surface2);
+    border:1px solid var(--border);border-radius:14px;padding:15px 24px;font-weight:700;
+    transition:transform .12s,border-color .12s}
+  .dl-btn:hover{border-color:var(--accent);transform:translateY(-2px)}
+  .dl-btn .os{font-size:24px}
+  .dl-note{font-size:13px;color:var(--muted);margin-top:22px}
+
+  footer{border-top:1px solid var(--border);padding:38px 0;text-align:center;
+    color:var(--muted);font-size:13.5px;margin-top:40px}
+  footer b{color:var(--text)}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav-in">
+  <div class="logo">Type<span>RIGHT</span>ing</div>
+  <a class="nav-cta" href="./index.html">▶ Открыть тренажёр</a>
+</div></nav>
+
+<header class="hero"><div class="wrap">
+  <div class="badge">Бесплатно · Офлайн · 7 языков</div>
+  <h1>Научись печатать<br><span class="grad">вслепую</span> — на 7 языках</h1>
+  <p class="lead">Структурированный курс с нуля, AI-обучение, которое находит твои слабые клавиши, соревнование с онлайн-рейтингом и тест скорости с сертификатом. Интерфейс и упражнения на семи языках — программа сама определяет язык твоей системы. Работает в браузере и офлайн на компьютере.</p>
+  <div class="cta-row">
+    <a class="btn btn-primary" href="./index.html">▶ Открыть в браузере</a>
+    <a class="btn btn-ghost" href="#download">⬇ Скачать на компьютер</a>
+  </div>
+
+  <div class="langs">
+    <span class="chip"><span class="fl">🇷🇺</span>Русский</span>
+    <span class="chip"><span class="fl">🇬🇧</span>English</span>
+    <span class="chip"><span class="fl">🇪🇸</span>Español</span>
+    <span class="chip"><span class="fl">🇩🇪</span>Deutsch</span>
+    <span class="chip"><span class="fl">🇫🇷</span>Français</span>
+    <span class="chip"><span class="fl">🇮🇹</span>Italiano</span>
+    <span class="chip"><span class="fl">🇵🇹</span>Português</span>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b>7</b><span>языков</span></div>
+    <div class="stat"><b>4846</b><span>упражнений</span></div>
+    <div class="stat"><b>6</b><span>режимов</span></div>
+    <div class="stat"><b>★</b><span>онлайн-рейтинг</span></div>
+    <div class="stat"><b>0 ₽</b><span>навсегда</span></div>
+  </div>
+
+  <div class="shot">
+    <img src="./images/keyboard.jpg" alt="Интерактивная клавиатура TypeRIGHTing: раскладка QWERTY/ЙЦУКЕН со стрелками правильного движения пальцев" loading="lazy" />
+  </div>
+  <p class="shot-cap">Та самая клавиатурная схема со стрелками движения пальцев — теперь подсвечивает следующую клавишу и зоны пальцев в реальном времени</p>
+</div></header>
+
+<section><div class="wrap">
+  <div class="sec-head">
+    <h2>Что внутри</h2>
+    <p>От первого нажатия до беглого набора сложных литературных текстов</p>
+  </div>
+  <div class="grid">
+    <div class="card"><div class="ic">🌍</div><h3>Семь языков</h3>
+      <p>Интерфейс и упражнения на русском, английском, испанском, немецком, французском, итальянском и португальском. Язык определяется по системе автоматически.</p></div>
+    <div class="card"><div class="ic">⌨️</div><h3>Интерактивная клавиатура</h3>
+      <p>Подсвечивает следующую клавишу, нужный Shift, зоны пальцев и стрелку движения от домашнего ряда. Буква Ё стоит там, где она реально на Mac и Windows.</p></div>
+    <div class="card"><div class="ic">📚</div><h3>Курс с нуля</h3>
+      <p>Уроки по нарастающей: от домашнего ряда (fj dk sl) до заглавных, цифр, знаков и целых предложений. Карта с замками и звёздами за точность.</p></div>
+    <div class="card"><div class="ic">🤖</div><h3>AI-обучение</h3>
+      <p>Генерирует связные слова, насыщенные именно теми буквами, что тебе даются хуже всего. Метрики: Мастерство, Темп и Ритмичность нажатий.</p></div>
+    <div class="card"><div class="ic">🎯</div><h3>Слабые клавиши + карта тепла</h3>
+      <p>Программа сама находит проблемные клавиши по статистике ошибок, раскрашивает их на схеме и даёт прицельную тренировку именно по ним.</p></div>
+    <div class="card"><div class="ic">🏆</div><h3>Соревнование и онлайн-рейтинг</h3>
+      <p>Пять дисциплин — алфавит, слова, цифры, спринт — с медалями и таблицей лучших результатов в реальном времени.</p></div>
+    <div class="card"><div class="ic">⏱️</div><h3>Тест скорости + сертификат</h3>
+      <p>Таймер на 1, 5 или 10 минут, цель по Net WPM, честный подсчёт Gross/Net и точности. В конце — PNG-сертификат с именем и результатом.</p></div>
+    <div class="card"><div class="ic">📖</div><h3>Литература на 7 языках</h3>
+      <p>Два банка готовых текстов: «Ворон» Эдгара По на всех языках и «Классика» — Пушкин, Шекспир, Сервантес, Кафка, Пруст, Данте, Машаду де Ассис.</p></div>
+    <div class="card"><div class="ic">🌊</div><h3>Поток и одна рука</h3>
+      <p>Режим без пауз и экранов «готово» — темп не сбивается, как в классической «Стамине». Плюс одноручные режимы для реабилитации или слабой руки.</p></div>
+  </div>
+</div></section>
+
+<section style="background:var(--surface2)"><div class="wrap">
+  <div class="sec-head">
+    <h2>Три версии в одном</h2>
+    <p>Выбери оформление под себя — настройки, прогресс и язык сохраняются</p>
+  </div>
+  <div class="profiles">
+    <div class="prof m"><div class="ic">⌨️</div><h3>Классический</h3><p>Светлая деловая тема, акцент на скорости, рекордах и соревновании. Светлая и тёмная темы.</p></div>
+    <div class="prof f"><div class="ic">🌸</div><h3>Мягкий</h3><p>Тёплая светлая палитра и спокойный темп без давления секундомера.</p></div>
+    <div class="prof kids"><div class="ic">🐱</div><h3>Детский</h3><p>Игра с уровнями, звёздами и котиком-помощником. Точность важнее скорости.</p></div>
+  </div>
+</div></section>
+
+<section id="download"><div class="wrap">
+  <div class="dl">
+    <h2>Скачать TypeRIGHTing</h2>
+    <p>Версия 2.24.0 · бесплатно · без рекламы · ~2 МБ</p>
+    <div class="dl-row">
+      <a class="dl-btn" href="https://github.com/donosov999-ai/typerighting/releases/latest"><span class="os">🍎</span> macOS</a>
+      <a class="dl-btn" href="https://github.com/donosov999-ai/typerighting/releases/latest"><span class="os">🪟</span> Windows</a>
+      <a class="dl-btn" href="https://github.com/donosov999-ai/typerighting/releases/latest"><span class="os">🐧</span> Linux</a>
+      <a class="dl-btn" href="./index.html"><span class="os">🌐</span> В браузере</a>
+    </div>
+    <p class="dl-note">Самый быстрый способ попробовать — <a href="./index.html" style="color:var(--accent);font-weight:700">открыть в браузере</a>, ничего устанавливать не нужно. Работает офлайн на Windows, macOS и Linux.</p>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <p>Сделано на базе классического тренажёра <b>TypeRIGHTing</b> — переписан с .NET на современный веб + desktop.</p>
+  <p style="margin-top:6px">Автор: <b>Denis Onosov (ODV999)</b></p>
+</div></footer>
+
+</body>
+</html>

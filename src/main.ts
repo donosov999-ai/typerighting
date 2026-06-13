@@ -233,14 +233,16 @@ function render() {
         <button id="next" class="ghost">${t('tb.next')}</button>
       </div>
 
-      <div class="toolbar toolbar2">
-        <button id="learn" class="ghost">${t('tb.learn')}</button>
-        <button id="compete" class="ghost">${t('tb.compete')}</button>
-        <button id="course" class="ghost">${t('tb.course')}</button>
-        <button id="weak" class="ghost ${special === 'weak' ? 'on' : ''}">${t('tb.weak')}</button>
-        <button id="custom" class="ghost ${special === 'custom' ? 'on' : ''}">${t('tb.custom')}</button>
-        <button id="progress" class="ghost">${t('tb.progress')}</button>
-        <button id="exam" class="ghost">⏱ ${t('tb.exam')}</button>
+      <div class="modes-main">
+        <button id="learn" class="mode-btn">${t('tb.learn')}</button>
+        <button id="compete" class="mode-btn">${t('tb.compete')}</button>
+        <button id="course" class="mode-btn">${t('tb.course')}</button>
+        <button id="exam" class="mode-btn">⏱ ${t('tb.exam')}</button>
+      </div>
+      <div class="modes-tools">
+        <button id="weak" class="tool-btn ${special === 'weak' ? 'on' : ''}">${t('tb.weak')}</button>
+        <button id="custom" class="tool-btn ${special === 'custom' ? 'on' : ''}">${t('tb.custom')}</button>
+        <button id="progress" class="tool-btn">${t('tb.progress')}</button>
       </div>
 
       <div class="card">

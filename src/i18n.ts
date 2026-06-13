@@ -21,7 +21,7 @@ const DICT: Record<string, { ru: string; en: string }> = {
   'profile.m': { ru: 'Мужской', en: 'Classic' },
   'profile.f': { ru: 'Женский', en: 'Soft' },
   'profile.kids': { ru: 'Детский', en: 'Kids' },
-  'profile.m.desc': { ru: 'Тёмная тема, скорость и рекорды', en: 'Dark theme, speed and records' },
+  'profile.m.desc': { ru: 'Светлая тема, скорость и рекорды', en: 'Light theme, speed and records' },
   'profile.f.desc': { ru: 'Светлая тёплая тема, мягкий темп', en: 'Warm light theme, gentle pace' },
   'profile.kids.desc': { ru: 'Игра: уровни, звёзды и котик', en: 'Game: levels, stars and a cat' },
   // банки

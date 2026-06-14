@@ -9,6 +9,7 @@ import { kidsEnter, kidsHandleKey } from './kids';
 import { courseEnter, courseHandleKey } from './course';
 import { learnEnter, learnHandleKey } from './learn';
 import { competeEnter, competeHandleKey } from './compete';
+import { memorizeEnter, memorizeHandleKey } from './memorize';
 import { t, lang, setLang, LANGS, LANG_LABEL, type Lang } from './i18n';
 import { recordKey, heatMap, hasKeyData, weakDrill, pushHistory, progressSVG, streakDays } from './stats-store';
 
@@ -149,6 +150,8 @@ let aiMode = false;      // пользователь открыл AI-обуче�
 let aiInit = false;
 let compMode = false;    // пользователь открыл соревнование
 let compInit = false;
+let memMode = false;     // пользователь открыл режим «Наизусть»
+let memInit = false;
 let hubMode = true;      // стартовый экран «С чего начать?» (главное меню режимов)
 
 function ruCtx(): boolean { return /[а-яё]/i.test(st.pattern); }
@@ -183,6 +186,7 @@ function activeMode(): string {
   if (exam) return 'exam';
   if (aiMode) return 'learn';
   if (compMode) return 'compete';
+  if (memMode) return 'memorize';
   if (courseMode) return 'course';
   if (profile === 'kids') return 'kids';
   return 'train';
@@ -193,7 +197,8 @@ function renderTopbar() {
   const act = activeMode();
   const modes: Array<[string, string]> = [
     ['train', '⌨️ ' + t('hub.train')], ['course', '📚 ' + t('course.title')],
-    ['learn', '🤖 ' + t('learn.title')], ['compete', '🏆 ' + t('compete.title')], ['exam', '⏱ ' + t('ex.title')],
+    ['learn', '🤖 ' + t('learn.title')], ['compete', '🏆 ' + t('compete.title')],
+    ['memorize', '🧠 ' + t('mem.title')], ['exam', '⏱ ' + t('ex.title')],
   ];
   chromeEl.innerHTML = `
     <button id="tb-home" class="tb-icon" title="${t('hub.home')}">🏠</button>
@@ -225,8 +230,8 @@ function renderTopbar() {
 function goTo(target: string) {
   special = null;
   if (exam?.timer) clearInterval(exam.timer);
-  exam = null; aiMode = false; compMode = false; courseMode = false;
-  aiInit = false; compInit = false; courseInit = false; kidsActive = false;
+  exam = null; aiMode = false; compMode = false; memMode = false; courseMode = false;
+  aiInit = false; compInit = false; memInit = false; courseInit = false; kidsActive = false;
   hubMode = false;
   if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
   if (target === 'hub') hubMode = true;
@@ -234,14 +239,15 @@ function goTo(target: string) {
   else if (target === 'course') courseMode = true;
   else if (target === 'learn') aiMode = true;
   else if (target === 'compete') compMode = true;
+  else if (target === 'memorize') memMode = true;
   else if (target === 'exam') exam = { phase: 'setup', durMin: 10, target: 35, name: '', endAt: 0, typed: 0, errors: 0, count: 0, pool: [], pi: 0, timer: null };
   if (target === 'train') reset(); else render();
 }
 // перерисовать активный режим (язык/поток/профиль сменились) — рестартует текущий режим
 function reapplyGlobal() {
-  aiInit = false; courseInit = false; compInit = false; kidsActive = false;
+  aiInit = false; courseInit = false; compInit = false; memInit = false; kidsActive = false;
   if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
-  if (!hubMode && !aiMode && !compMode && !courseMode && !exam && profile !== 'kids') { if (special) { special === 'weak' ? startWeak() : startCustom(customText); } else if (bank === 'poemHymn' || bank === 'classic') loadBank(); else reset(); }
+  if (!hubMode && !aiMode && !compMode && !memMode && !courseMode && !exam && profile !== 'kids') { if (special) { special === 'weak' ? startWeak() : startCustom(customText); } else if (bank === 'poemHymn' || bank === 'classic') loadBank(); else reset(); }
   render();
 }
 
@@ -278,6 +284,11 @@ function render() {
     return; // соревнование рисует себя сам
   }
   compInit = false;
+  if (memMode) {
+    if (!memInit) { memInit = true; memorizeEnter(app, profile ?? 'm', () => { memMode = false; memInit = false; render(); }); }
+    return; // режим «Наизусть» рисует себя сам
+  }
+  memInit = false;
   if (profile === 'kids') {
     if (!kidsActive) {
       kidsActive = true;
@@ -656,6 +667,7 @@ document.addEventListener('keydown', (e) => {
   if (courseMode) { courseHandleKey(e); return; }
   if (aiMode) { learnHandleKey(e); return; }
   if (compMode) { competeHandleKey(e); return; }
+  if (memMode) { memorizeHandleKey(e); return; }
   if (profile === 'kids') { kidsHandleKey(e); return; }
   if (exam && exam.phase !== 'run') return;
   if (st.finishedAt !== null) return;

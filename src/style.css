@@ -392,3 +392,15 @@ button:hover { filter: brightness(1.1); }
 .donestats b { color: var(--text); font-size: 18px; }
 .donebtns { display: flex; gap: 10px; justify-content: center; }
 .err { color: var(--bad); }
+
+/* ── Режим «Наизусть» (печать по памяти с затуханием опоры) ── */
+.mz-tabs { display: flex; gap: 10px; justify-content: center; margin: 2px 0 18px; flex-wrap: wrap; }
+.mz-tab { padding: 9px 18px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border);
+  font-weight: 700; font-size: 14px; cursor: pointer; transition: border-color .12s, transform .12s; }
+.mz-tab:hover { transform: translateY(-1px); border-color: var(--accent); }
+.mz-tab.on { background: var(--accent); color: #fff; border-color: var(--accent); }
+.mz-bar { display: flex; gap: 8px; justify-content: center; margin: 0 0 16px; }
+.mz-dot { width: 30px; height: 6px; border-radius: 3px; background: var(--border); transition: background .25s; }
+.mz-dot.cur { background: var(--accent); }
+.mz-dot.done { background: var(--ok); }
+.pattern .mask { color: var(--border); }

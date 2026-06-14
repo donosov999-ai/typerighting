@@ -404,3 +404,10 @@ button:hover { filter: brightness(1.1); }
 .mz-dot.cur { background: var(--accent); }
 .mz-dot.done { background: var(--ok); }
 .pattern .mask { color: var(--border); }
+.mz-len { text-align: center; color: var(--muted); font-size: 14px; margin: 0 0 14px; }
+.mz-len b { color: var(--accent); }
+
+/* ── Режим «Память» (списки слов на span) ── */
+.span-words { font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
+  font-size: clamp(22px, 4vw, 34px); font-weight: 700; line-height: 1.6; text-align: center;
+  letter-spacing: 1px; word-spacing: 8px; padding: 18px 8px; }

@@ -45,8 +45,14 @@ let prof: Profile = 'm';
 let root: HTMLElement | null = null;
 let onExit: (() => void) | null = null;
 
-const SPAN = 5;        // слов в отрывке — учим короткими кусками, не строфой целиком
-let curText = '';      // выбранный отрывок (≤ SPAN слов, без пунктуации)
+const LENS = [5, 7, 10, 0]; // длина отрывка в словах; 0 = вся строфа. Растёт по мере успеха.
+let lenIdx = ((): number => { const n = +(localStorage.getItem('tr_mem_len') ?? '0'); return n >= 0 && n < 4 ? n : 0; })();
+function saveLen() { try { localStorage.setItem('tr_mem_len', String(lenIdx)); } catch { /* */ } }
+function curLen(): number { return LENS[lenIdx]; }
+function lenLabel(): string { return curLen() === 0 ? t('mem.len.full') : `${curLen()} ${t('mem.len.words')}`; }
+let curText = '';      // выбранный отрывок (без пунктуации)
+let lastRecall = 0;    // recall последнего слепого прохода (для прогрессии длины)
+let lenUp = false;     // на этом отрывке длина повысилась
 function L(): string { return lang(); }
 function rawStanzas(): string[][] { return (src === 'raven' ? RAVEN[L()] : CLASSIC[L()]) ?? (src === 'raven' ? RAVEN.en : CLASSIC.en); }
 // чистый поток слов: знаки препинания убраны (по памяти они только мешают)
@@ -54,12 +60,16 @@ function cleanWords(lines: string[]): string[] {
   const t = lines.join(' ').replace(/[-–—]/g, ' ').replace(/[^\p{L}\p{N}\s]/gu, '');
   return t.split(/\s+/).filter(Boolean);
 }
-// весь источник нарезан на короткие отрывки по SPAN слов
+// весь источник нарезан на отрывки текущей длины (curLen слов; 0 = строфа целиком)
 function pieces(): string[] {
+  const len = curLen();
+  if (len === 0) { // вся строфа как один отрывок
+    return rawStanzas().map((st) => cleanWords(st).join(' ')).filter((s) => s.split(' ').length >= 3);
+  }
   const words = rawStanzas().flatMap((st) => cleanWords(st));
   const segs: string[] = [];
-  for (let i = 0; i < words.length; i += SPAN) {
-    const seg = words.slice(i, i + SPAN);
+  for (let i = 0; i < words.length; i += len) {
+    const seg = words.slice(i, i + len);
     if (seg.length >= 3) segs.push(seg.join(' ')); // хвостовой огрызок <3 слов отбрасываем
   }
   return segs;
@@ -128,8 +138,13 @@ function finishLevel() {
   const chars = st.pattern.replace(/\s/g, '').length;
   passWpm[level] = min > 0 ? Math.round((chars / 5) / min) : 0;
   pushHistory(passWpm[level], accNow(), Date.now());
-  if (level >= LEVELS.length - 1) { screen = 'result'; }
-  else { screen = 'between'; }
+  if (level >= LEVELS.length - 1) {
+    screen = 'result';
+    lastRecall = accNow();
+    lenUp = false;
+    // отрывок выучен на ≥85% по памяти → удлиняем (5→7→10→строфа)
+    if (lastRecall >= 85 && lenIdx < LENS.length - 1) { lenIdx++; saveLen(); lenUp = true; }
+  } else { screen = 'between'; }
   render();
 }
 
@@ -140,6 +155,11 @@ function accNow(): number {
 }
 
 function nextLevel() { level++; beginLevel(); }
+function startNext() {
+  const list = pieces();
+  if (!list.length) { screen = 'menu'; render(); return; }
+  startPiece(src, (pieceIdx + 1) % list.length); // следующий отрывок (уже текущей длины)
+}
 
 // ── Рендер ──
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
@@ -187,6 +207,7 @@ function renderMenu() {
         <button class="mz-tab ${src === 'raven' ? 'on' : ''}" data-src="raven">📜 ${RAVEN_TITLE[L()] ?? 'The Raven'}</button>
         <button class="mz-tab ${src === 'classic' ? 'on' : ''}" data-src="classic">${t('bank.classic')}</button>
       </div>
+      <div class="mz-len">📏 ${t('mem.len.label')}: <b>${esc(lenLabel())}</b></div>
       <div class="cp-grid">
         ${list.slice(0, 12).map((seg, i) => `<button class="cp-disc" data-i="${i}">
           <span class="cp-name">${esc(pieceTitle())} — ${i + 1}</span>
@@ -250,7 +271,7 @@ function renderResult() {
       <div class="cp-result">
         <div class="cp-medal">${medal}</div>
         <h2>🧠 ${esc(pieceTitle())} — ${pieceIdx + 1}</h2>
-        <div class="cp-record">${t('mem.done')}</div>
+        <div class="cp-record">${lenUp ? `🔼 ${t('mem.lenup')} <b>${esc(lenLabel())}</b>` : t('mem.done')}</div>
         <div class="statsbar">
           <div><b>${recall}%</b><span>${t('mem.recall')}</span></div>
           <div><b>${blind}</b><span>${t('mem.blind.wpm')}</span></div>
@@ -263,6 +284,6 @@ function renderResult() {
         </div>
       </div>
     </div>`;
-  (root!.querySelector('#mz-again') as HTMLButtonElement).onclick = () => startPiece(src, pieceIdx);
+  (root!.querySelector('#mz-again') as HTMLButtonElement).onclick = () => startNext();
   (root!.querySelector('#mz-menu') as HTMLButtonElement).onclick = () => { screen = 'menu'; render(); };
 }

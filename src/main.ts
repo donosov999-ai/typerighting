@@ -10,6 +10,7 @@ import { courseEnter, courseHandleKey } from './course';
 import { learnEnter, learnHandleKey } from './learn';
 import { competeEnter, competeHandleKey } from './compete';
 import { memorizeEnter, memorizeHandleKey } from './memorize';
+import { recallEnter, recallHandleKey } from './recall';
 import { t, lang, setLang, LANGS, LANG_LABEL, type Lang } from './i18n';
 import { recordKey, heatMap, hasKeyData, weakDrill, pushHistory, progressSVG, streakDays } from './stats-store';
 
@@ -152,6 +153,8 @@ let compMode = false;    // пользователь открыл соревно
 let compInit = false;
 let memMode = false;     // пользователь открыл режим «Наизусть»
 let memInit = false;
+let spanMode = false;    // пользователь открыл режим «Память» (списки слов)
+let spanInit = false;
 let hubMode = true;      // стартовый экран «С чего начать?» (главное меню режимов)
 
 function ruCtx(): boolean { return /[а-яё]/i.test(st.pattern); }
@@ -187,6 +190,7 @@ function activeMode(): string {
   if (aiMode) return 'learn';
   if (compMode) return 'compete';
   if (memMode) return 'memorize';
+  if (spanMode) return 'span';
   if (courseMode) return 'course';
   if (profile === 'kids') return 'kids';
   return 'train';
@@ -198,7 +202,7 @@ function renderTopbar() {
   const modes: Array<[string, string]> = [
     ['train', '⌨️ ' + t('hub.train')], ['course', '📚 ' + t('course.title')],
     ['learn', '🤖 ' + t('learn.title')], ['compete', '🏆 ' + t('compete.title')],
-    ['memorize', '🧠 ' + t('mem.title')], ['exam', '⏱ ' + t('ex.title')],
+    ['memorize', '🧠 ' + t('mem.title')], ['span', '🧩 ' + t('span.title')], ['exam', '⏱ ' + t('ex.title')],
   ];
   chromeEl.innerHTML = `
     <button id="tb-home" class="tb-icon" title="${t('hub.home')}">🏠</button>
@@ -230,8 +234,8 @@ function renderTopbar() {
 function goTo(target: string) {
   special = null;
   if (exam?.timer) clearInterval(exam.timer);
-  exam = null; aiMode = false; compMode = false; memMode = false; courseMode = false;
-  aiInit = false; compInit = false; memInit = false; courseInit = false; kidsActive = false;
+  exam = null; aiMode = false; compMode = false; memMode = false; spanMode = false; courseMode = false;
+  aiInit = false; compInit = false; memInit = false; spanInit = false; courseInit = false; kidsActive = false;
   hubMode = false;
   if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
   if (target === 'hub') hubMode = true;
@@ -240,14 +244,15 @@ function goTo(target: string) {
   else if (target === 'learn') aiMode = true;
   else if (target === 'compete') compMode = true;
   else if (target === 'memorize') memMode = true;
+  else if (target === 'span') spanMode = true;
   else if (target === 'exam') exam = { phase: 'setup', durMin: 10, target: 35, name: '', endAt: 0, typed: 0, errors: 0, count: 0, pool: [], pi: 0, timer: null };
   if (target === 'train') reset(); else render();
 }
 // перерисовать активный режим (язык/поток/профиль сменились) — рестартует текущий режим
 function reapplyGlobal() {
-  aiInit = false; courseInit = false; compInit = false; memInit = false; kidsActive = false;
+  aiInit = false; courseInit = false; compInit = false; memInit = false; spanInit = false; kidsActive = false;
   if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
-  if (!hubMode && !aiMode && !compMode && !memMode && !courseMode && !exam && profile !== 'kids') { if (special) { special === 'weak' ? startWeak() : startCustom(customText); } else if (bank === 'poemHymn' || bank === 'classic') loadBank(); else reset(); }
+  if (!hubMode && !aiMode && !compMode && !memMode && !spanMode && !courseMode && !exam && profile !== 'kids') { if (special) { special === 'weak' ? startWeak() : startCustom(customText); } else if (bank === 'poemHymn' || bank === 'classic') loadBank(); else reset(); }
   render();
 }
 
@@ -289,6 +294,11 @@ function render() {
     return; // режим «Наизусть» рисует себя сам
   }
   memInit = false;
+  if (spanMode) {
+    if (!spanInit) { spanInit = true; recallEnter(app, profile ?? 'm', () => { spanMode = false; spanInit = false; render(); }); }
+    return; // режим «Память» рисует себя сам
+  }
+  spanInit = false;
   if (profile === 'kids') {
     if (!kidsActive) {
       kidsActive = true;
@@ -668,6 +678,7 @@ document.addEventListener('keydown', (e) => {
   if (aiMode) { learnHandleKey(e); return; }
   if (compMode) { competeHandleKey(e); return; }
   if (memMode) { memorizeHandleKey(e); return; }
+  if (spanMode) { recallHandleKey(e); return; }
   if (profile === 'kids') { kidsHandleKey(e); return; }
   if (exam && exam.phase !== 'run') return;
   if (st.finishedAt !== null) return;

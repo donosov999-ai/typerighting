@@ -198,7 +198,8 @@ jobs:
   # ─── Create GitHub Release if tagged (vX.Y.Z) ─────────────────────────
   release:
     needs: [macos-arm, windows-x64, linux-x64]
-    if: startsWith(github.ref, 'refs/tags/v')
+    # релиз создаётся, если собрались Mac+Windows — флак Linux (AppImage часто нестабилен) его НЕ блокирует
+    if: ${{ always() && startsWith(github.ref, 'refs/tags/v') && needs.macos-arm.result == 'success' && needs.windows-x64.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -222,3 +223,4 @@ jobs:
             artifacts/TypeRIGHTing-linux-x64-deb/*.deb
             artifacts/TypeRIGHTing-linux-x64-rpm/*.rpm
           generate_release_notes: true
+          fail_on_unmatched_files: false   # Linux-файлы могут отсутствовать, если его job упал — это ок

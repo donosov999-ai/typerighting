@@ -45,8 +45,25 @@ let prof: Profile = 'm';
 let root: HTMLElement | null = null;
 let onExit: (() => void) | null = null;
 
+const SPAN = 5;        // слов в отрывке — учим короткими кусками, не строфой целиком
+let curText = '';      // выбранный отрывок (≤ SPAN слов, без пунктуации)
 function L(): string { return lang(); }
-function pieces(): string[][] { return (src === 'raven' ? RAVEN[L()] : CLASSIC[L()]) ?? (src === 'raven' ? RAVEN.en : CLASSIC.en); }
+function rawStanzas(): string[][] { return (src === 'raven' ? RAVEN[L()] : CLASSIC[L()]) ?? (src === 'raven' ? RAVEN.en : CLASSIC.en); }
+// чистый поток слов: знаки препинания убраны (по памяти они только мешают)
+function cleanWords(lines: string[]): string[] {
+  const t = lines.join(' ').replace(/[-–—]/g, ' ').replace(/[^\p{L}\p{N}\s]/gu, '');
+  return t.split(/\s+/).filter(Boolean);
+}
+// весь источник нарезан на короткие отрывки по SPAN слов
+function pieces(): string[] {
+  const words = rawStanzas().flatMap((st) => cleanWords(st));
+  const segs: string[] = [];
+  for (let i = 0; i < words.length; i += SPAN) {
+    const seg = words.slice(i, i + SPAN);
+    if (seg.length >= 3) segs.push(seg.join(' ')); // хвостовой огрызок <3 слов отбрасываем
+  }
+  return segs;
+}
 function pieceTitle(): string { return (src === 'raven' ? RAVEN_TITLE[L()] : CLASSIC_TITLE[L()]) ?? ''; }
 
 export function memorizeEnter(container: HTMLElement, profile: Profile, exit: () => void) {
@@ -73,11 +90,12 @@ function buildMaps(lines: string[]) {
 
 function startPiece(s: Src, idx: number) {
   src = s; pieceIdx = idx; level = 0; passWpm = [];
+  curText = pieces()[idx] ?? '';
   beginLevel();
 }
 
 function beginLevel() {
-  const lines = pieces()[pieceIdx] ?? [''];
+  const lines = [curText];
   buildMaps(lines);
   st = createState(lines);
   startedAt = 0; errs = 0;
@@ -170,9 +188,9 @@ function renderMenu() {
         <button class="mz-tab ${src === 'classic' ? 'on' : ''}" data-src="classic">${t('bank.classic')}</button>
       </div>
       <div class="cp-grid">
-        ${list.map((p, i) => `<button class="cp-disc" data-i="${i}">
+        ${list.slice(0, 12).map((seg, i) => `<button class="cp-disc" data-i="${i}">
           <span class="cp-name">${esc(pieceTitle())} — ${i + 1}</span>
-          <span class="cp-best">${esc((p[0] ?? '').slice(0, 38))}…</span>
+          <span class="cp-best">${esc(seg)}</span>
         </button>`).join('')}
       </div>
     </div>`;

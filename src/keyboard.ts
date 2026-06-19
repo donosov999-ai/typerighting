@@ -238,7 +238,7 @@ function arrowPath(from: KeyGeo, to: KeyGeo): string {
   // лёгкий изгиб перпендикулярно направлению (как нарисовано в оригинале)
   const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
   const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy) || 1;
-  const bend = Math.min(18, len * 0.18) * (dx >= 0 ? 1 : -1);
+  const bend = Math.min(34, len * 0.30) * (dx >= 0 ? 1 : -1);
   const qx = mx - (dy / len) * bend, qy = my + (dx / len) * bend;
   // не доводим до центра целевой клавиши, чтобы остриё было видно
   const t = 1 - 16 / len;
@@ -294,10 +294,11 @@ export function keyboardSVG(nextChar: string | null, ruContext: boolean, showRu 
     parts.push('</g>');
   }
 
-  const arrows = ARROWS.map(([from, to]) => {
-    const active = to === targetId && from === (homeId ?? '');
-    return `<path class="arr${active ? ' arr-active' : ''}" d="${arrowPath(GEO[from], GEO[to])}" marker-end="url(#arrhead${active ? '-a' : ''})"/>`;
-  }).join('');
+  // ТОЛЬКО одна дуга-траектория к текущей клавише (от домашней позиции пальца).
+  // Никакой каши из всех 29 стрелок — показываем движение лишь для нужной клавиши.
+  const arrows = (targetId && homeId && GEO[homeId] && GEO[targetId])
+    ? `<path class="arr arr-active" d="${arrowPath(GEO[homeId], GEO[targetId])}" marker-end="url(#arrhead-a)"/>`
+    : '';
 
   return `<svg class="kbsvg${targetId ? ' has-target' : ''}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Схема клавиатуры: красные стрелки — правильное направление движения пальцев от домашнего ряда">
     <defs>

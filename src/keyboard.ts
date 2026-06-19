@@ -201,8 +201,8 @@ export function bridgeChar(input: string, expected: string): string {
 }
 
 export function findKey(ch: string, ruContext: boolean): KeyHit | null {
-  if (/[а-яё]/i.test(ch)) return RU_MAP[ch] ?? null;
-  if (/[a-z]/i.test(ch)) return EN_MAP[ch] ?? null;
+  if (/[а-яё]/i.test(ch)) return RU_MAP[ch] ?? RU_MAP[ch.toLowerCase()] ?? RU_MAP[ch.toUpperCase()] ?? null;
+  if (/[a-z]/i.test(ch)) return EN_MAP[ch] ?? EN_MAP[ch.toLowerCase()] ?? EN_MAP[ch.toUpperCase()] ?? null;
   return (ruContext ? RU_MAP[ch] : EN_MAP[ch]) ?? (ruContext ? EN_MAP[ch] : RU_MAP[ch]) ?? null;
 }
 
@@ -294,14 +294,11 @@ export function keyboardSVG(nextChar: string | null, ruContext: boolean, showRu 
     parts.push('</g>');
   }
 
-  // В покое (до печати) — все стрелки обзором (общая схема аппликатуры).
-  // При печати — ОДНА чёткая дуга-движение к текущей клавише от домашней позиции пальца
-  // (остальные гаснут — см. .has-target .arr в CSS), с анимацией прорисовки = видимое движение кистью.
-  const arrows = targetId
-    ? ((homeId && GEO[homeId] && GEO[targetId])
-        ? `<path class="arr arr-active" d="${arrowPath(GEO[homeId], GEO[targetId])}" marker-end="url(#arrhead-a)"/>`
-        : '')
-    : ARROWS.map(([from, to]) => `<path class="arr" d="${arrowPath(GEO[from], GEO[to])}" marker-end="url(#arrhead)"/>`).join('');
+  // ТОЛЬКО одна дуга-движение к текущей клавише от домашней позиции пальца — без каши.
+  // Анимация прорисовки (CSS .arr-active) = видимое движение кистью к клавише.
+  const arrows = (targetId && homeId && GEO[homeId] && GEO[targetId])
+    ? `<path class="arr arr-active" d="${arrowPath(GEO[homeId], GEO[targetId])}" marker-end="url(#arrhead-a)"/>`
+    : '';
 
   return `<svg class="kbsvg${targetId ? ' has-target' : ''}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Схема клавиатуры: красные стрелки — правильное направление движения пальцев от домашнего ряда">
     <defs>

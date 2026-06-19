@@ -228,7 +228,7 @@ function renderDone() {
   root!.innerHTML = `
     <div class="wrap kids">
       <div class="k-done">
-        <div class="k-cat-big">${lastStars === 3 ? '😻' : '😺'}</div>
+        <div class="k-cat-big"><img src="images/mascot.jpg" alt="" class="k-mascot-img"/></div>
         <h2>${t('k.level')} ${l.title} ${t('k.passed')}</h2>
         <div class="k-stars-big">${'⭐'.repeat(lastStars)}${'☆'.repeat(3 - lastStars)}</div>
         <p class="k-done-note">${lastStars === 3 ? t('k.note3') : lastStars === 2 ? t('k.note2') : t('k.note1')}</p>

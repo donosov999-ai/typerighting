@@ -24,10 +24,10 @@ jobs:
     runs-on: macos-latest  # github-hosted M-runner, native arm64
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -38,7 +38,7 @@ jobs:
           targets: aarch64-apple-darwin
 
       - name: Cache Cargo target
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry/index/
@@ -64,14 +64,14 @@ jobs:
           ls -la
 
       - name: Upload .app artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: TypeRIGHTing-macos-arm64-app
           path: src-tauri/target/aarch64-apple-darwin/release/bundle/macos/TypeRIGHTing-macos-arm64.tar.gz
           retention-days: 30
 
       - name: Upload .dmg artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: TypeRIGHTing-macos-arm64-dmg
           path: src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg
@@ -83,10 +83,10 @@ jobs:
     runs-on: windows-latest
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -97,7 +97,7 @@ jobs:
           targets: x86_64-pc-windows-msvc
 
       - name: Cache Cargo target
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry/index/
@@ -117,14 +117,14 @@ jobs:
         run: npx tauri build --target x86_64-pc-windows-msvc
 
       - name: Upload .exe artifact (NSIS setup)
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: TypeRIGHTing-windows-x64-exe
           path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
           retention-days: 30
 
       - name: Upload .msi artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: TypeRIGHTing-windows-x64-msi
           path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/msi/*.msi
@@ -137,7 +137,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Install system deps (webkit2gtk etc.)
         run: |
@@ -146,7 +146,7 @@ jobs:
             libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev patchelf
 
       - name: Setup Node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -155,7 +155,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Cache Cargo target
-        uses: actions/cache@v5
+        uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry/index/
@@ -174,21 +174,21 @@ jobs:
         run: npx tauri build
 
       - name: Upload .AppImage artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: TypeRIGHTing-linux-x64-appimage
           path: src-tauri/target/release/bundle/appimage/*.AppImage
           retention-days: 30
 
       - name: Upload .deb artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: TypeRIGHTing-linux-x64-deb
           path: src-tauri/target/release/bundle/deb/*.deb
           retention-days: 30
 
       - name: Upload .rpm artifact
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         with:
           name: TypeRIGHTing-linux-x64-rpm
           path: src-tauri/target/release/bundle/rpm/*.rpm
@@ -204,7 +204,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@v4
         with:
           path: artifacts/
 

@@ -195,19 +195,21 @@ function activeMode(): string {
   if (profile === 'kids') return 'kids';
   return 'train';
 }
+const MODE_ICON: Record<string, string> = { train: 'train', course: 'course', learn: 'ai', compete: 'compete', memorize: 'memorize', span: 'span', exam: 'exam', progress: 'progress' };
+function modeIcon(g: string, cls = 'mode-ic'): string { return `<img class="${cls}" src="images/icons/mode-${MODE_ICON[g] ?? g}.jpg" alt=""/>`; }
 function renderTopbar() {
   if (!chromeEl) { chromeEl = document.createElement('div'); chromeEl.id = 'topbar'; document.body.prepend(chromeEl); }
   if (profile === null) { chromeEl.innerHTML = ''; return; } // на онбординге скрыта
   const act = activeMode();
   const modes: Array<[string, string]> = [
-    ['train', '⌨️ ' + t('hub.train')], ['course', '📚 ' + t('course.title')],
-    ['learn', '🤖 ' + t('learn.title')], ['compete', '🏆 ' + t('compete.title')],
-    ['memorize', '🧠 ' + t('mem.title')], ['span', '🧩 ' + t('span.title')], ['exam', '⏱ ' + t('ex.title')],
+    ['train', t('hub.train')], ['course', t('course.title')],
+    ['learn', t('learn.title')], ['compete', t('compete.title')],
+    ['memorize', t('mem.title')], ['span', t('span.title')], ['exam', t('ex.title')],
   ];
   chromeEl.innerHTML = `
     <button id="tb-home" class="tb-icon" title="${t('hub.home')}">🏠</button>
     <div class="tb-modes">
-      ${modes.map(([g, label]) => `<button class="tb-mode ${act === g ? 'active' : ''}" data-goto="${g}">${label}</button>`).join('')}
+      ${modes.map(([g, label]) => `<button class="tb-mode ${act === g ? 'active' : ''}" data-goto="${g}">${modeIcon(g)}<span>${label}</span></button>`).join('')}
     </div>
     <span class="tb-sp"></span>
     <button id="tb-flow" class="tb-btn ${flowMode ? 'on' : ''}" title="${t('hint.flow')}">🌊 ${t('tb.flow')}</button>
@@ -610,22 +612,22 @@ function bindControls() {
 // ── Стартовый хаб «С чего начать?» ──
 function renderHub() {
   const streak = streakDays(Date.now());
-  const cards: Array<[string, string, string, string]> = [
-    ['train', '⌨️', t('hub.train'), t('hub.train.d')],
-    ['course', '📚', t('course.title'), t('hub.course.d')],
-    ['learn', '🤖', t('learn.title'), t('hub.learn.d')],
-    ['compete', '🏆', t('compete.title'), t('hub.compete.d')],
-    ['exam', '⏱', t('ex.title'), t('hub.exam.d')],
-    ['progress', '📈', t('prog.title'), t('hub.progress.d')],
+  const cards: Array<[string, string, string]> = [
+    ['train', t('hub.train'), t('hub.train.d')],
+    ['course', t('course.title'), t('hub.course.d')],
+    ['learn', t('learn.title'), t('hub.learn.d')],
+    ['compete', t('compete.title'), t('hub.compete.d')],
+    ['exam', t('ex.title'), t('hub.exam.d')],
+    ['progress', t('prog.title'), t('hub.progress.d')],
   ];
   app.innerHTML = `
     <div class="wrap hub">
       <header><h1>Type<span>RIGHT</span>ing</h1></header>
       <p class="hub-q">${t('hub.q')}${streak >= 2 ? ` &nbsp;·&nbsp; <b class="streak">🔥 ${streak} ${t('hub.streak')}</b>` : ''}</p>
       <div class="hub-cards">
-        ${cards.map(([go, ic, name, desc], i) => `
+        ${cards.map(([go, name, desc], i) => `
           <button class="hub-card ${i === 0 ? 'hub-primary' : ''}" data-go="${go}">
-            <span class="hub-ic">${ic}</span>
+            ${modeIcon(go, 'hub-ic')}
             <span class="hub-name">${esc(name)}</span>
             <span class="hub-desc">${esc(desc)}</span>
           </button>`).join('')}

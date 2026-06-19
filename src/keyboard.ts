@@ -233,14 +233,17 @@ const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 const cx = (g: KeyGeo) => g.x + g.w / 2;
 const cy = (g: KeyGeo) => g.y + g.h / 2;
 
-function arrowPath(from: KeyGeo, to: KeyGeo): string {
+function arrowPath(from: KeyGeo, to: KeyGeo, hand: 'left' | 'right'): string {
   const x1 = cx(from), y1 = cy(from), x2 = cx(to), y2 = cy(to);
-  // лёгкий изгиб перпендикулярно направлению (как нарисовано в оригинале)
-  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
   const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy) || 1;
-  const bend = Math.min(34, len * 0.30) * (dx >= 0 ? 1 : -1);
-  const qx = mx - (dy / len) * bend, qy = my + (dx / len) * bend;
-  // не доводим до центра целевой клавиши, чтобы остриё было видно
+  // Палец «приклеен» к домашней клавише (А для левой указат., О для правой),
+  // кисть ведёт по дуге В СТОРОНУ своей руки: левая → выгиб ВЛЕВО, правая → ВПРАВО.
+  const side = hand === 'left' ? -1 : 1;
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+  const bend = Math.max(28, len * 0.55);
+  const qx = mx + side * bend;                 // контрольная точка уведена в сторону руки
+  const qy = my - Math.min(22, len * 0.18);    // и чуть приподнята — дуга, а не прямая
+  // остриё не доводим до центра целевой клавиши
   const t = 1 - 16 / len;
   const ex = x1 + dx * t, ey = y1 + dy * t;
   return `M ${x1.toFixed(1)} ${y1.toFixed(1)} Q ${qx.toFixed(1)} ${qy.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}`;
@@ -295,9 +298,10 @@ export function keyboardSVG(nextChar: string | null, ruContext: boolean, showRu 
   }
 
   // ТОЛЬКО одна дуга-движение к текущей клавише от домашней позиции пальца — без каши.
-  // Анимация прорисовки (CSS .arr-active) = видимое движение кистью к клавише.
+  // Выгиб в сторону руки (левая → влево, правая → вправо), анимация прорисовки = движение кистью.
+  const arrHand: 'left' | 'right' = targetId && LEFT_HAND.has(targetId) ? 'left' : 'right';
   const arrows = (targetId && homeId && GEO[homeId] && GEO[targetId])
-    ? `<path class="arr arr-active" d="${arrowPath(GEO[homeId], GEO[targetId])}" marker-end="url(#arrhead-a)"/>`
+    ? `<path class="arr arr-active" d="${arrowPath(GEO[homeId], GEO[targetId], arrHand)}" marker-end="url(#arrhead-a)"/>`
     : '';
 
   return `<svg class="kbsvg${targetId ? ' has-target' : ''}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Схема клавиатуры: красные стрелки — правильное направление движения пальцев от домашнего ряда">

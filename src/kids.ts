@@ -216,7 +216,7 @@ function renderLevel() {
         <span class="k-progress">${t('k.level')} ${l.title} · ${t('k.word')} ${wordIdx + 1} / ${l.words.length}</span>
         <span class="k-acc">${levelErrors === 0 ? t('k.noerr') : `${t('k.errors')}: ${levelErrors}`}</span>
       </header>
-      <div class="k-mascot"><span class="k-cat">${levelErrors > 0 && mascotSay && OOPS().includes(mascotSay) ? '🙀' : '😺'}</span> <span class="k-say">${esc(mascotSay)}</span></div>
+      <div class="k-mascot"><img class="k-cat-img${levelErrors > 0 && mascotSay && OOPS().includes(mascotSay) ? ' oops' : ''}" src="images/mascot.jpg" alt=""/> <span class="k-say">${esc(mascotSay)}</span></div>
       <div class="k-word">${renderWord()}</div>
       <div class="keyb">${keyboardSVG(nextCh, l.lang === 'ru', showRu)}</div>
     </div>`;

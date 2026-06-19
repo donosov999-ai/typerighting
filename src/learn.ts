@@ -33,11 +33,39 @@ let hand: 'both' | 'left' | 'right' = 'both'; // однорукие режимы
 let root: HTMLElement | null = null;
 let onExit: (() => void) | null = null;
 
+// Детская «лесенка» букв: старт — домашний ряд (ФЫВА ОЛДЖ / ASDF JKL), медленно
+// расширяется по успеху. Сложные буквы (Ё Ъ Э Щ Ц Х) исключены вообще.
+const KIDS_LADDER_RU = ['фываолдж', 'пр', 'ен', 'кт', 'уи', 'мс', 'гб', 'шй', 'зю', 'ч'];
+const KIDS_LADDER_EN = ['asdfjkl', 'ei', 'rn', 'to', 'hu', 'mc', 'gb', 'wy', 'vp', 'qz'];
+const VOWELS = new Set('аоыуиеэюяaeiou'.split(''));
+let kidsLvl = Math.max(0, +(localStorage.getItem('tr_kids_ai_lvl') ?? '0') || 0);
+function kidsLadder(KL: 'en' | 'ru') { return KL === 'ru' ? KIDS_LADDER_RU : KIDS_LADDER_EN; }
+function kidsCap(KL: 'en' | 'ru') { return kidsLadder(KL).length - 1; }
+function kidsPool(KL: 'en' | 'ru') { const L = kidsLadder(KL); return L.slice(0, Math.min(kidsLvl, L.length - 1) + 1).join(''); }
+function kidsGenLine(): string {
+  const pool = kidsPool(kbLang()).split('');
+  const vow = pool.filter((c) => VOWELS.has(c));
+  const con = pool.filter((c) => !VOWELS.has(c));
+  const rnd = (a: string[]) => a[Math.floor(Math.random() * a.length)];
+  const out: string[] = [];
+  let guard = 0;
+  while (out.join(' ').length < 20 && guard++ < 40) {
+    const len = 2 + Math.floor(Math.random() * 3); // короткие слова 2–4 буквы
+    let w = '';
+    for (let i = 0; i < len; i++) {
+      w += (vow.length && con.length) ? (i % 2 === 1 ? rnd(vow) : rnd(con)) : rnd(pool);
+    }
+    out.push(w);
+  }
+  return out.join(' ');
+}
+
 function genLine(): string {
+  if (prof === 'kids') return kidsGenLine();   // детям — только лёгкие буквы по лесенке
   const L = lang();              // корпус — по языку интерфейса (7 языков)
   const KL = kbLang();           // алфавит клавиш — ru или латиница
-  const chars = prof === 'kids' ? 24 : prof === 'f' ? 40 : 50;
-  const maxWord = prof === 'kids' ? 5 : 8;
+  const chars = prof === 'f' ? 40 : 50;     // kids уже обработан выше (kidsGenLine)
+  const maxWord = 8;
   if (hand === 'both') {
     ensureModel(L);
     return generate(model!, { chars, weight: letterWeights(KL), maxWord });
@@ -111,6 +139,11 @@ export function learnHandleKey(e: KeyboardEvent) {
   if (r.finished) {
     acc.ms += now - lineStart;
     acc.lines++;
+    // детская «лесенка»: при хорошей точности раз в 3 строки добавляем буквы
+    if (prof === 'kids' && acc.lines % 3 === 0 && metrics().accuracy >= 85 && kidsLvl < kidsCap(kbLang())) {
+      kidsLvl++;
+      try { localStorage.setItem('tr_kids_ai_lvl', String(kidsLvl)); } catch { /* */ }
+    }
     nextLine();
   }
   learnRender();

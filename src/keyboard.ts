@@ -294,11 +294,14 @@ export function keyboardSVG(nextChar: string | null, ruContext: boolean, showRu 
     parts.push('</g>');
   }
 
-  // ТОЛЬКО одна дуга-траектория к текущей клавише (от домашней позиции пальца).
-  // Никакой каши из всех 29 стрелок — показываем движение лишь для нужной клавиши.
-  const arrows = (targetId && homeId && GEO[homeId] && GEO[targetId])
-    ? `<path class="arr arr-active" d="${arrowPath(GEO[homeId], GEO[targetId])}" marker-end="url(#arrhead-a)"/>`
-    : '';
+  // В покое (до печати) — все стрелки обзором (общая схема аппликатуры).
+  // При печати — ОДНА чёткая дуга-движение к текущей клавише от домашней позиции пальца
+  // (остальные гаснут — см. .has-target .arr в CSS), с анимацией прорисовки = видимое движение кистью.
+  const arrows = targetId
+    ? ((homeId && GEO[homeId] && GEO[targetId])
+        ? `<path class="arr arr-active" d="${arrowPath(GEO[homeId], GEO[targetId])}" marker-end="url(#arrhead-a)"/>`
+        : '')
+    : ARROWS.map(([from, to]) => `<path class="arr" d="${arrowPath(GEO[from], GEO[to])}" marker-end="url(#arrhead)"/>`).join('');
 
   return `<svg class="kbsvg${targetId ? ' has-target' : ''}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Схема клавиатуры: красные стрелки — правильное направление движения пальцев от домашнего ряда">
     <defs>

@@ -246,9 +246,17 @@ button:hover { filter: brightness(1.1); }
 .arrhead, .arrhead-a { fill: var(--kb-arrow); }
 /* активная цель: прочие стрелки пригасить, маршрутную — оживить */
 .kbsvg.has-target .arr { opacity: .15; }
-.kbsvg.has-target .arr-active { opacity: 1; stroke-width: 3.6;
-  stroke-dasharray: 10 6; animation: arrflow .45s linear infinite; }
-@keyframes arrflow { to { stroke-dashoffset: -16; } }
+.kbsvg.has-target .arr-active { opacity: 1; stroke-width: 4.6; stroke-linecap: round;
+  stroke-dasharray: 200; stroke-dashoffset: 200;
+  filter: drop-shadow(0 1px 2px rgba(217,58,58,.45));
+  animation: arrdraw 1.05s ease-out infinite; }
+/* дуга циклично прорисовывается от домашней клавиши к цели — видимое движение кистью */
+@keyframes arrdraw {
+  0%   { stroke-dashoffset: 200; opacity: .25; }
+  45%  { opacity: 1; }
+  70%  { stroke-dashoffset: 0;   opacity: 1; }
+  100% { stroke-dashoffset: 0;   opacity: 1; }
+}
 .key-next .key-face { fill: var(--kb-next); }
 .key-next .key-en, .key-next .key-en2, .key-next .key-ru, .key-next .key-fn { fill: #fff; }
 .key-next { animation: keypulse 1s ease-in-out infinite; }

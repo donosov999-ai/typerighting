@@ -14,6 +14,7 @@ import { memorizeEnter, memorizeHandleKey } from './memorize';
 import { recallEnter, recallHandleKey } from './recall';
 import { t, lang, setLang, LANGS, LANG_LABEL, type Lang } from './i18n';
 import { recordKey, heatMap, hasKeyData, weakDrill, pushHistory, progressSVG, streakDays } from './stats-store';
+import { linkAccount, autoSync, pushSync, loadSession, clearSession, trSync, collectLocal } from './account';
 
 // ── Состояние сессии ──
 let profile: Profile | null = loadProfile();
@@ -45,7 +46,19 @@ let statsTimer: number | null = null;
 // Спец-режимы: 'weak' (адаптив по слабым клавишам) / 'custom' (свой текст)
 let special: null | 'weak' | 'custom' = null;
 let customText = '';
-let modal: null | 'custom' | 'progress' | 'settings' = null;
+let modal: null | 'custom' | 'progress' | 'settings' | 'account' = null;
+let accMsg = '';        // статус-сообщение формы аккаунта
+let accBusy = false;    // идёт сетевой запрос (блокирует кнопки)
+function accErr(err: string | undefined, ru: boolean): string {
+  switch (err) {
+    case 'nick_taken': return ru ? 'Ник занят' : 'Nick taken';
+    case 'no_user': return ru ? 'Ник не найден' : 'No such nick';
+    case 'bad_pin': return ru ? 'Неверный PIN' : 'Wrong PIN';
+    case 'nick_short': return ru ? 'Ник слишком короткий' : 'Nick too short';
+    case 'pin_short': return ru ? 'PIN слишком короткий (мин. 4)' : 'PIN too short (min 4)';
+    default: return ru ? 'Ошибка сети' : 'Network error';
+  }
+}
 
 // ── Режим «Поток» (как Stamina) ──
 let flowMode = localStorage.getItem('tr_flow') === '1';
@@ -127,6 +140,7 @@ function recordFinish(ex: Exercise) {
   if (!prog.done.includes(ex.id)) prog.done.push(ex.id);
   saveProgress();
   if (isRecord) sfx.record(); else sfx.success();   // звук завершения / рекорда
+  void pushSync();   // тихий облачный синк прогресса (если вошёл в аккаунт)
 }
 
 function viewStats() {
@@ -227,6 +241,7 @@ function renderTopbar() {
     <span class="tb-sp"></span>
     <button id="tb-flow" class="tb-btn ${flowMode ? 'on' : ''}" title="${t('hint.flow')}">${uiIcon('ui-flow')} ${t('tb.flow')}</button>
     <button id="tb-progress" class="tb-icon" title="${t('prog.title')}">${uiIcon('ui-progress')}</button>
+    <button id="tb-account" class="tb-icon" title="${lang() === 'ru' ? 'Аккаунт' : 'Account'}">${loadSession() ? '👤' : '☁️'}</button>
     <button id="tb-settings" class="tb-icon" title="${t('hub.settings')}">${uiIcon('ui-settings')}</button>
     <button id="tb-dark" class="tb-icon" title="${t('tb.dark')}">${uiIcon('ui-dark')}</button>
     <select id="tb-profile" title="Profile">
@@ -238,6 +253,7 @@ function renderTopbar() {
   (document.getElementById('tb-flow') as HTMLButtonElement).onclick = () => { flowMode = !flowMode; try { localStorage.setItem('tr_flow', flowMode ? '1' : '0'); } catch { /* */ } flowReset(); reapplyGlobal(); };
   (document.getElementById('tb-progress') as HTMLButtonElement).onclick = () => { modal = 'progress'; render(); };
   (document.getElementById('tb-settings') as HTMLButtonElement).onclick = () => { modal = 'settings'; render(); };
+  (document.getElementById('tb-account') as HTMLButtonElement).onclick = () => { modal = 'account'; accMsg = ''; render(); };
   (document.getElementById('tb-dark') as HTMLButtonElement).onclick = () => { dark = !dark; try { localStorage.setItem('tr_dark', dark ? '1' : '0'); } catch { /* */ } applyDark(); renderTopbar(); };
   const tp = document.getElementById('tb-profile') as HTMLSelectElement;
   tp.onchange = () => { profile = tp.value as Profile; saveProfile(profile); reapplyGlobal(); };
@@ -282,6 +298,29 @@ function renderModalGlobal() {
   onClick('set-close', close); onClick('prog-close', close); onClick('custom-cancel', close);
   onClick('sound-test', () => sfx.record());   // явная проверка звука (клик = жест, разблокирует аудио)
   onClick('custom-go', () => startCustom((document.getElementById('custom-ta') as HTMLTextAreaElement).value));
+  // аккаунт: вход / создание / синк / выход
+  const accDo = async (mode: 'login' | 'register') => {
+    const nick = (document.getElementById('acc-nick') as HTMLInputElement)?.value.trim() ?? '';
+    const pin = (document.getElementById('acc-pin') as HTMLInputElement)?.value ?? '';
+    const ru = lang() === 'ru';
+    if (nick.length < 2) { accMsg = ru ? 'Ник минимум 2 символа' : 'Nick min 2 chars'; renderModalGlobal(); return; }
+    if (pin.length < 4) { accMsg = ru ? 'PIN минимум 4 цифры' : 'PIN min 4 digits'; renderModalGlobal(); return; }
+    accBusy = true; accMsg = ru ? 'Связь…' : 'Connecting…'; renderModalGlobal();
+    const r = await linkAccount(nick, pin, mode);
+    accBusy = false;
+    if (r.ok) { accMsg = ru ? 'Прогресс синхронизирован ✓' : 'Progress synced ✓'; renderTopbar(); renderModalGlobal(); }
+    else { accMsg = accErr(r.err, ru); renderModalGlobal(); }
+  };
+  onClick('acc-login', () => void accDo('login'));
+  onClick('acc-register', () => void accDo('register'));
+  onClick('acc-logout', () => { clearSession(); accMsg = ''; renderTopbar(); renderModalGlobal(); });
+  onClick('acc-sync', () => void (async () => {
+    const sess = loadSession(); if (!sess) return;
+    const ru = lang() === 'ru';
+    accBusy = true; accMsg = ru ? 'Синхронизация…' : 'Syncing…'; renderModalGlobal();
+    const r = await trSync(sess.nick, sess.pin, collectLocal());
+    accBusy = false; accMsg = r.ok ? (ru ? 'Готово ✓' : 'Done ✓') : (ru ? 'Ошибка сети' : 'Network error'); renderModalGlobal();
+  })());
   // настройки применяются сразу к активному экрану
   const cb = (id: string, fn: (v: boolean) => void) => onChange(id, (el) => { fn(el.checked); reapplyGlobal(); });
   cb('hide', (v) => { hidePattern = v; });
@@ -421,6 +460,29 @@ function renderPattern(): string {
 }
 
 function renderModal(): string {
+  if (modal === 'account') {
+    const sess = loadSession();
+    const ru = lang() === 'ru';
+    const body = sess ? `
+      <p class="acc-in">${ru ? 'Вы вошли как' : 'Signed in as'} <b>${esc(sess.nick)}</b></p>
+      <p class="hint2">${ru ? 'Прогресс синхронизируется между устройствами под этим ником.' : 'Progress syncs across devices under this nick.'}</p>
+      ${accMsg ? `<p class="acc-msg">${esc(accMsg)}</p>` : ''}
+      <div class="donebtns">
+        <button id="acc-logout" class="ghost">${ru ? 'Выйти' : 'Sign out'}</button>
+        <button id="acc-sync" class="primary" ${accBusy ? 'disabled' : ''}>${accBusy ? '…' : (ru ? 'Синхронизировать' : 'Sync now')}</button>
+      </div>` : `
+      <p class="hint2">${ru ? 'Ник + короткий PIN — и прогресс будет на любом устройстве. Без почты.' : 'Nick + short PIN — your progress on any device. No email.'}</p>
+      <input id="acc-nick" class="acc-inp" placeholder="${ru ? 'Ник' : 'Nick'}" maxlength="24" autocomplete="off"/>
+      <input id="acc-pin" class="acc-inp" type="password" inputmode="numeric" placeholder="PIN" maxlength="12" autocomplete="off"/>
+      ${accMsg ? `<p class="acc-msg">${esc(accMsg)}</p>` : ''}
+      <div class="donebtns">
+        <button id="acc-login" class="ghost" ${accBusy ? 'disabled' : ''}>${ru ? 'Войти' : 'Sign in'}</button>
+        <button id="acc-register" class="primary" ${accBusy ? 'disabled' : ''}>${ru ? 'Создать' : 'Create'}</button>
+      </div>`;
+    return `<div class="modal-bg" id="modal-bg"><div class="modal">
+      <h2>${sess ? '👤' : '☁️'} ${ru ? 'Аккаунт' : 'Account'}</h2>${body}
+    </div></div>`;
+  }
   if (modal === 'settings') {
     return `<div class="modal-bg" id="modal-bg"><div class="modal">
       <h2>⚙ ${t('hub.settings')}</h2>
@@ -794,3 +856,5 @@ applyDark();
 loadExercises().then((data) => { all = data; loadBank(); }).catch((err) => {
   app.innerHTML = `<div class="wrap"><p class="err">${t('err.load')}: ${esc(String(err))}</p></div>`;
 });
+// тихо подтянуть облачный прогресс при старте, если вошёл в аккаунт
+void autoSync().then((ok) => { if (ok) { reapplyGlobal(); renderTopbar(); } });

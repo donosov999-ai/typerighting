@@ -460,3 +460,13 @@ button:hover { filter: brightness(1.1); }
 @keyframes sptimer { from { transform: scaleX(1); } to { transform: scaleX(0); } }
 .pattern .reveal { color: var(--text); }   /* фаза показа — слова видны в самом поле ввода */
 .sp-stars { font-size: 46px; color: #f5b301; letter-spacing: 6px; line-height: 1.1; }
+
+/* ── Аккаунт (ник + PIN, облачный синк) ── */
+.acc-inp { display: block; width: 100%; box-sizing: border-box; margin: 8px 0; padding: 11px 13px;
+  font-size: 16px; border: 2px solid var(--line, #d8d4cc); border-radius: 9px;
+  background: var(--surface, #fff); color: var(--text, #1a1a18); }
+.acc-inp:focus { outline: none; border-color: var(--accent, #1D9E75); }
+.acc-in { font-size: 17px; margin: 4px 0 2px; }
+.acc-msg { margin: 6px 0 0; padding: 7px 10px; border-radius: 8px; font-size: 14px;
+  background: var(--surface2, #f1efe8); color: var(--text, #1a1a18); }
+#tb-account { font-size: 18px; }

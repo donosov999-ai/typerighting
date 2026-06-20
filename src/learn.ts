@@ -50,6 +50,7 @@ let kidsLinesOnLvl = 0;                  // строк отыграно на т�
 let kidsEasyNext = false;                // детям: следующую строку проще (передышка)
 let adultDiff = 0;                       // взрослый AI: уровень сложности 0..6 (растёт по успеху)
 let adultEasyNext = false;               // взрослым: следующую строку проще
+let kidsScore = 0;                       // детям: очки (+ за верную букву, − за ошибку)
 function saveKidsLvl() { try { localStorage.setItem('tr_kids_ai_lvl', String(kidsLvl)); } catch { /* */ } }
 // ё/ъ по умолчанию выключены (редкие, навыка почти не дают); галочка в настройках включает.
 export function hardKeysOn(): boolean { try { return localStorage.getItem('tr_hardkeys') === '1'; } catch { return false; } }
@@ -175,6 +176,7 @@ function nextLine() {
 export function learnEnter(container: HTMLElement, profile: Profile, exit: () => void) {
   root = container; onExit = exit; prof = profile;
   acc = blank();
+  kidsScore = 0;
   nextLine();
   learnRender();
 }
@@ -213,7 +215,11 @@ export function learnHandleKey(e: KeyboardEvent) {
   if (expected && expected !== ' ' && expected !== '\n') { const id = keyIdFor(expected, rc); if (id) recordKey(id, !r.wrong); }
   if (r.wrong) acc.errors++;
   // адаптив: считаем нажатия/ошибки текущей строки (окно — для kids и взрослых)
-  if (expected && expected !== ' ' && expected !== '\n') { lineKeysCnt++; if (r.wrong) lineErrCnt++; }
+  if (expected && expected !== ' ' && expected !== '\n') {
+    lineKeysCnt++;
+    if (r.wrong) { lineErrCnt++; if (prof === 'kids') kidsScore = Math.max(0, kidsScore - 5); }   // ошибка − очки
+    else if (prof === 'kids') kidsScore += 10;                                                     // верно + очки
+  }
 
   if (r.finished) {
     acc.ms += now - lineStart;
@@ -281,7 +287,13 @@ function learnRender() {
       <div class="card"><div class="pattern" id="pattern">${renderPattern()}</div></div>
       <div class="keyb">${keyboardSVG(st.finishedAt === null ? st.pattern[st.pos] ?? null : null, rc, showRu, null, hand === 'both' ? null : hand)}</div>
       ${kids ? `
-        <div class="learn-kids"><span class="k-cat">😺</span> <b>${m.accuracy}%</b> ${t('st.accuracy')} · ${acc.lines} ${t('learn.lines')}</div>
+        <div class="learn-kids">
+          <span class="k-cat">😺</span>
+          <div class="k-game">
+            <div class="k-score">⭐ ${kidsScore}</div>
+            <div class="k-sub"><b>${m.accuracy}%</b> ${t('st.accuracy')} · ${t('span.level')} ${kidsLvl + 1}</div>
+          </div>
+        </div>
       ` : `
         <div class="statsbar learn-stats">
           <div><b>${m.mastery}</b><span>${t('learn.mastery')}</span><i>${masteryLabel(m.mastery)}</i></div>

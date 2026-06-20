@@ -337,7 +337,11 @@ button:hover { filter: brightness(1.1); }
 .learn .c-head h1 { font-size: 24px; margin: 0; }
 .learn-stats div { position: relative; }
 .learn-stats i { display: block; font-size: 10px; color: var(--muted); font-style: normal; margin-top: 2px; }
-.learn-kids { text-align: center; font-size: 22px; margin-top: 16px; }
+.learn-kids { text-align: center; font-size: 22px; margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 16px; }
+.learn-kids .k-game { text-align: left; }
+.learn-kids .k-score { font-size: 40px; font-weight: 850; color: #f5b301; line-height: 1.1; }
+.learn-kids .k-sub { font-size: 16px; color: var(--muted); }
+.learn-kids .k-sub b { color: var(--accent); }
 .hand-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
 .hand-lbl { font-size: 15px; font-weight: 600; color: var(--muted); }
 .hand-btn { background: transparent; border: 1.5px solid var(--border); border-radius: 10px;

@@ -317,6 +317,8 @@ button:hover { filter: brightness(1.1); }
 .cp-result { text-align: center; background: var(--surface); border: 1px solid var(--border);
   border-radius: 22px; padding: 30px 20px; margin-top: 4vh; }
 .cp-medal { font-size: 72px; }
+.medal-img { width: 96px; height: 96px; object-fit: contain; }
+.k-num-img { width: 48px; height: 48px; object-fit: contain; display: block; }
 .cp-result h2 { margin: 4px 0 10px; }
 .cp-record { color: var(--ok); font-weight: 800; font-size: 18px; margin-bottom: 10px;
   animation: pop 0.5s cubic-bezier(.2,1.4,.4,1) 1; }

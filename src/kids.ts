@@ -181,7 +181,7 @@ function renderMap() {
             const open = unlocked(l.id);
             const s = prog.stars[l.id] ?? 0;
             return `<button class="k-lvl ${open ? 'open' : 'locked'} ${s > 0 ? 'passed' : ''}" data-level="${l.id}" ${open ? '' : 'disabled'}>
-              <span class="k-num">${open ? l.id : '🔒'}</span>
+              <span class="k-num">${open ? (l.id <= 9 ? `<img class="k-num-img" src="images/icons/num/num-${l.id}.jpg" alt="${l.id}"/>` : String(l.id)) : '🔒'}</span>
               <span class="k-stars">${starsStr(s)}</span>
             </button>`;
           }).join('')}

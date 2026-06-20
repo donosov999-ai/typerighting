@@ -93,7 +93,7 @@ function finish() {
   const wpm = min > 0 ? Math.round((chars / 5) / min) : 0;
   const total = chars + errs;
   const acc = total > 0 ? Math.round((chars / total) * 100) : 100;
-  const medal = acc === 100 ? (wpm >= 60 ? '🥇' : wpm >= 40 ? '🥈' : '🥉') : (wpm >= 50 && acc >= 95 ? '🥈' : '🎖');
+  const medal = acc === 100 ? (wpm >= 60 ? 'gold' : wpm >= 40 ? 'silver' : 'bronze') : (wpm >= 50 && acc >= 95 ? 'silver' : 'ribbon');
   const k = bestKey(disc, curLang());
   const isRecord = wpm > (best[k] ?? 0) && acc >= 90;
   if (isRecord) { best[k] = wpm; saveBest(); }
@@ -184,7 +184,7 @@ function renderResult() {
   root!.innerHTML = `
     <div class="wrap compete">
       <div class="cp-result">
-        <div class="cp-medal">${r.medal}</div>
+        <div class="cp-medal"><img class="medal-img" src="images/icons/medal-${r.medal}.jpg" alt=""/></div>
         <h2>${t('comp.' + disc)}</h2>
         ${r.isRecord ? `<div class="cp-record">⭐ ${t('comp.record')}</div>` : ''}
         <div class="statsbar">

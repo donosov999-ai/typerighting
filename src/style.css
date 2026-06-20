@@ -339,6 +339,10 @@ button:hover { filter: brightness(1.1); }
 .learn-stats i { display: block; font-size: 10px; color: var(--muted); font-style: normal; margin-top: 2px; }
 .learn-kids { text-align: center; font-size: 22px; margin-top: 16px; display: flex; align-items: center; justify-content: center; gap: 16px; }
 .learn-kids .k-game { text-align: left; }
+.k-avatar { position: relative; width: 90px; height: 90px; flex: none; }
+.k-avatar .k-frame { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain;
+  opacity: 0; transition: opacity .45s ease; }
+.k-avatar .k-frame.on { opacity: 1; }
 .learn-kids .k-score { font-size: 40px; font-weight: 850; color: #f5b301; line-height: 1.1; }
 .learn-kids .k-sub { font-size: 16px; color: var(--muted); }
 .learn-kids .k-sub b { color: var(--accent); }

@@ -267,6 +267,15 @@ function masteryLabel(v: number): string {
   return t('learn.lvl.start');
 }
 
+// Кадр эмоции котика (0 грустный … 8 восторг) по точности + бонус за очки
+function kidsMood(): number {
+  if (acc.correct + acc.errors === 0) return 4; // старт — нейтральный
+  const a = metrics().accuracy;
+  let m = a >= 99 ? 8 : a >= 95 ? 7 : a >= 90 ? 6 : a >= 84 ? 5 : a >= 76 ? 4 : a >= 66 ? 3 : a >= 55 ? 2 : a >= 45 ? 1 : 0;
+  if (kidsScore >= 300 && m < 8) m++;   // много очков — котик ещё счастливее
+  return Math.max(0, Math.min(8, m));
+}
+
 function learnRender() {
   if (!root) return;
   const m = metrics();
@@ -288,7 +297,7 @@ function learnRender() {
       <div class="keyb">${keyboardSVG(st.finishedAt === null ? st.pattern[st.pos] ?? null : null, rc, showRu, null, hand === 'both' ? null : hand)}</div>
       ${kids ? `
         <div class="learn-kids">
-          <span class="k-cat">😺</span>
+          <div class="k-avatar">${Array.from({ length: 9 }, (_, i) => `<img class="k-frame ${i === kidsMood() ? 'on' : ''}" src="images/icons/kids-cat-${i}.jpg" alt=""/>`).join('')}</div>
           <div class="k-game">
             <div class="k-score">⭐ ${kidsScore}</div>
             <div class="k-sub"><b>${m.accuracy}%</b> ${t('st.accuracy')} · ${t('span.level')} ${kidsLvl + 1}</div>

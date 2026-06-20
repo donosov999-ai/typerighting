@@ -48,26 +48,29 @@ Quien mucho abarca poco aprieta y mas vale tarde que nunca por eso conviene tene
 Las estrellas brillan sobre el bosque silencioso donde el viento mueve las hojas y un buho canta en la noche oscura.
 `;
 
+// DE/FR содержат диакритику (ä ö ü ß / é è à ê ç …). При QWERTY-раскладке
+// learn.ts приводит её к ASCII (sanitizeDiacritics); при QWERTZ/AZERTY — оставляет
+// для тренировки спецбукв на нативной нац. клавиатуре.
 export const CORPUS_DE = `
-Wer reisen will der schweige fein geh stets zu fuss und nehme seinen guten mut und ein paar feste schuhe mit sich.
-Am morgen trinken wir kaffee mit milch und essen frisches brot bevor wir zur arbeit durch die lauten strassen gehen.
-Das kind lief durch den park und jagte einem bunten ball nach waehrend die mutter ruhig auf der bank ein buch las.
-Unser team arbeitet jeden tag hart um bessere software zu bauen die menschen hilft neue faehigkeiten zu lernen.
-Das wasser fliesst vom berg durch graue steine und sammelt sich in einem stillen see unter der alten gruenen eiche.
-Uebung macht den meister also tippe jeden tag ein wenig und bald tanzen deine finger ohne muehe ueber die tasten.
-Helle sterne fuellen den nachthimmel ueber dem stillen wald wo eine eule ruft und der wind die blaetter bewegt.
-Kleine schritte die man stetig macht fuehren mit der zeit zu grossen ergebnissen also sei geduldig und vertraue.
+Wer reisen will der schweige fein geh stets zu fuß und nehme seinen guten mut und ein paar feste schuhe mit sich.
+Am morgen trinken wir kaffee mit milch und essen frisches brot bevor wir zur arbeit durch die lauten straßen gehen.
+Das kind lief durch den park und jagte einem bunten ball nach während die mutter ruhig auf der bank ein buch las.
+Unser team arbeitet jeden tag hart um bessere software zu bauen die menschen hilft neue fähigkeiten zu lernen.
+Das wasser fließt vom berg durch graue steine und sammelt sich in einem stillen see unter der alten grünen eiche.
+Übung macht den meister also tippe jeden tag ein wenig und bald tanzen deine finger ohne mühe über die tasten.
+Helle sterne füllen den nachthimmel über dem stillen wald wo eine eule ruft und der wind die blätter bewegt.
+Kleine schritte die man stetig macht führen mit der zeit zu großen ergebnissen also sei geduldig und vertraue.
 `;
 
 export const CORPUS_FR = `
-Il etait une fois dans un village tranquille une jeune fille qui aimait lire des livres sur des pays lointains.
-Chaque matin nous prenons un cafe au lait et du pain grille avant de sortir travailler dans les rues bruyantes.
-L enfant courait dans le parc en poursuivant un ballon tandis que sa mere lisait un livre assise pres de la fontaine.
-Notre equipe travaille chaque jour pour creer un meilleur logiciel qui aide les gens a apprendre de nouvelles choses.
-L eau de la riviere descend de la montagne entre les pierres grises et se rassemble dans un lac calme sous le chene.
+Il était une fois dans un village tranquille une jeune fille qui aimait lire des livres sur des pays lointains.
+Chaque matin nous prenons un café au lait et du pain grillé avant de sortir travailler dans les rues bruyantes.
+L enfant courait dans le parc en poursuivant un ballon tandis que sa mère lisait un livre assise près de la fontaine.
+Notre équipe travaille chaque jour pour créer un meilleur logiciel qui aide les gens à apprendre de nouvelles choses.
+L eau de la rivière descend de la montagne entre les pierres grises et se rassemble dans un lac calme sous le chêne.
 C est en forgeant que l on devient forgeron alors tape un peu chaque jour et tes doigts danseront sur le clavier.
-Les etoiles brillent sur la foret silencieuse ou le vent agite les feuilles et un hibou chante dans la nuit noire.
-Petit a petit l oiseau fait son nid et de petits pas reguliers menent avec le temps a de grands resultats heureux.
+Les étoiles brillent sur la forêt silencieuse où le vent agite les feuilles et un hibou chante dans la nuit noire.
+Petit à petit l oiseau fait son nid et de petits pas réguliers mènent avec le temps à de grands résultats heureux.
 `;
 
 export const CORPUS_IT = `

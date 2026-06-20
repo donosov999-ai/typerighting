@@ -28,4 +28,11 @@ describe('генератор псевдослов ngram.ts', () => {
     const out = generate(m, { chars: 20, weight: { а: 5 } });
     expect(out.length).toBeGreaterThan(0);
   });
+
+  it('латинская модель сохраняет диакритику в алфавите (é ü ç для нац. раскладок)', () => {
+    const m = buildModel('café créer égalité déjà séance présent', 'en', 3);
+    expect(m.alphabet).toContain('é');
+    const out = generate(m, { chars: 20 });
+    expect(out.length).toBeGreaterThan(0);
+  });
 });

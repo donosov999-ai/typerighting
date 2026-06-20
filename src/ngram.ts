@@ -18,7 +18,7 @@ function normalize(text: string, letters: RegExp): string {
 
 /** Построить модель порядка `order` (по умолчанию 3 = триграммы). */
 export function buildModel(text: string, lang: 'en' | 'ru', order = 3): NgramModel {
-  const letters = lang === 'ru' ? /[а-яё]/ : /[a-z]/;
+  const letters = lang === 'ru' ? /[а-яё]/ : /[a-zà-ÿœæ]/; // латиница + диакритика (é ü ç ß ñ …)
   const norm = SPACE.repeat(order - 1) + normalize(text, letters) + SPACE;
   const table = new Map<string, Record<string, number>>();
   const startsSet = new Set<string>();

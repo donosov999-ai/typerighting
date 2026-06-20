@@ -3,7 +3,7 @@
 // подмешивающих слабые буквы пользователя, с метриками Мастерство / Ритмичность
 // / Темп. Адаптируется под профиль (м/ж/дети). Прогресс/статистика — общие.
 import { createState, pressChar, MARK, type TypingState } from './typing';
-import { keyboardSVG, bridgeChar, keyIdFor, handLetters } from './keyboard';
+import { keyboardSVG, bridgeChar, keyIdFor, handLetters, getLayout } from './keyboard';
 import { recordKey, pushHistory, letterWeights, heatMap } from './stats-store';
 import { buildModel, generate, type NgramModel } from './ngram';
 import { CORPUS } from './corpus';
@@ -59,6 +59,14 @@ function sanitizeHard(line: string): string {
   if (hardKeysOn() || kbLang() !== 'ru') return line;
   return line.replace(/[ёЁ]/g, (c) => (c === 'Ё' ? 'Е' : 'е')).replace(/[ъЪ]/g, '');
 }
+// Спецбуквы (é ü ç ß …) оставляем только при активной нац. раскладке (AZERTY/QWERTZ),
+// где они вводятся нативно; на QWERTY приводим к ASCII — иначе их не набрать (выбор A, 20.06).
+function sanitizeDiacritics(line: string): string {
+  if (getLayout() !== 'qwerty') return line;
+  return line.normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/ß/g, 'ss').replace(/œ/g, 'oe').replace(/æ/g, 'ae');
+}
+function cleanLine(line: string): string { return sanitizeDiacritics(sanitizeHard(line)); }
 
 // Генерация детской строки: упор на новые буквы уровня и на те, где ошибаешься.
 // easy=true — строка-передышка (без новых букв, только освоенное).
@@ -69,7 +77,7 @@ function kidsGenLine(easy = false): string {
   if (kidsLvl >= kidsCap(KL)) {
     ensureModel(lang());
     const line = generate(model!, { chars: 22, weight: letterWeights(KL, easy ? 2 : 5), maxWord: easy ? 4 : 6 });
-    return sanitizeHard(line); // ё/ъ убраны, если не включены в настройках
+    return cleanLine(line); // ё/ъ + спецбуквы по раскладке
   }
   // ФАЗА 1 — лесенка клавиш: случайные слоги из освоенных букв (постановка пальцев)
   const pool = kidsPool(KL).split('');
@@ -143,7 +151,7 @@ function genLine(easy = false): string {
     // адаптивно: освоил — длиннее слова и сильнее упор на слабые; передышка (easy) — проще
     const mw = easy ? 5 : Math.min(12, 6 + adultDiff);
     const boost = easy ? 3 : 4 + adultDiff;
-    return sanitizeHard(generate(model!, { chars, weight: letterWeights(KL, boost), maxWord: mw }));
+    return cleanLine(generate(model!, { chars, weight: letterWeights(KL, boost), maxWord: mw }));
   }
   const maxWord = 8;
   // одна рука: слоги из букв этой руки, слабые буквы — чаще (осмысленных слов

@@ -280,6 +280,7 @@ function renderModalGlobal() {
   const close = () => { modal = null; renderModalGlobal(); };
   const mb = document.getElementById('modal-bg'); if (mb) mb.onclick = (e) => { if (e.target === mb) close(); };
   onClick('set-close', close); onClick('prog-close', close); onClick('custom-cancel', close);
+  onClick('sound-test', () => sfx.record());   // явная проверка звука (клик = жест, разблокирует аудио)
   onClick('custom-go', () => startCustom((document.getElementById('custom-ta') as HTMLTextAreaElement).value));
   // настройки применяются сразу к активному экрану
   const cb = (id: string, fn: (v: boolean) => void) => onChange(id, (el) => { fn(el.checked); reapplyGlobal(); });
@@ -433,6 +434,7 @@ function renderModal(): string {
         <label><input type="checkbox" id="metro" ${metroOn ? 'checked' : ''}/> ${t('set.metro')}</label>
         <label class="set-range">${t('set.metro.bpm')}: <input type="range" id="metrobpm" min="60" max="200" step="10" value="${metroBpm}"/> <b id="metrobpmval">${metroBpm}</b></label>
         <label><input type="checkbox" id="bridge" ${localStorage.getItem('tr_bridge') !== '0' ? 'checked' : ''}/> ${t('set.bridge')}</label>
+        <button id="sound-test" class="ghost" style="margin-top:6px">🔊 ${t('set.soundtest')}</button>
       </div>
       <div class="donebtns"><button id="set-close" class="primary">${t('prog.close')}</button></div>
     </div></div>`;

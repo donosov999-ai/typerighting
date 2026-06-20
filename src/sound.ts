@@ -12,11 +12,23 @@ function ensureCtx(): AudioContext {
   if (ctx.state === 'suspended') void ctx.resume();
   return ctx;
 }
-// разблокировать звук на ПЕРВОЕ взаимодействие (печать/клик) — иначе тишина
+// разблокировать звук на взаимодействие. Safari/WKWebView (= Tauri macOS) требует
+// «разогрева» — проиграть пустой буфер от жеста, иначе AudioContext молчит.
+let warmed = false;
+function unlock() {
+  try {
+    const c = ensureCtx();
+    const buf = c.createBuffer(1, 1, 22050);
+    const src = c.createBufferSource();
+    src.buffer = buf; src.connect(c.destination); src.start(0);
+    if (c.state === 'suspended') void c.resume();
+    warmed = true;
+  } catch { /* */ }
+}
 if (typeof document !== 'undefined') {
-  const unlock = () => { try { ensureCtx(); } catch { /* */ } };
   (['keydown', 'pointerdown', 'touchstart'] as const).forEach((e) => document.addEventListener(e, unlock, { passive: true }));
 }
+export function isAudioWarmed(): boolean { return warmed; }
 
 function tone(freq: number, start: number, dur: number, vol = VOL, type: OscillatorType = 'sine') {
   try {

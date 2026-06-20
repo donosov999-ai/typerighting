@@ -192,6 +192,7 @@ for (const row of ROWS) for (const k of row) {
 /** Перевести введённый символ в алфавит ожидаемого по физической клавише. */
 export function bridgeChar(input: string, expected: string): string {
   if (input.length !== 1 || expected.length !== 1) return input;
+  try { if (localStorage.getItem('tr_bridge') === '0') return input; } catch { /* */ } // мост выключен галочкой
   const lower = input.toLowerCase();
   let mapped: string | undefined;
   if (/[а-яё]/i.test(expected) && /[a-z]/.test(lower)) mapped = EN_TO_RU[lower];

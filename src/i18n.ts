@@ -50,6 +50,7 @@ const DICT: Record<string, Entry> = {
   'set.hardkeys': { ru: 'Учить редкие Ё и Ъ', en: 'Practice rare Ё, Ъ (RU)', es: 'Practicar Ё, Ъ raras (RU)', de: 'Seltene Ё, Ъ üben (RU)', fr: 'Travailler Ё, Ъ rares (RU)', it: 'Allenare Ё, Ъ rare (RU)', pt: 'Treinar Ё, Ъ raras (RU)' },
   'set.metro': { ru: 'Метроном (ритм печати)', en: 'Metronome (typing rhythm)', es: 'Metrónomo (ritmo)', de: 'Metronom (Tipprhythmus)', fr: 'Métronome (rythme)', it: 'Metronomo (ritmo)', pt: 'Metrônomo (ritmo)' },
   'set.metro.bpm': { ru: 'Темп, уд/мин', en: 'Tempo, BPM', es: 'Tempo, BPM', de: 'Tempo, BPM', fr: 'Tempo, BPM', it: 'Tempo, BPM', pt: 'Tempo, BPM' },
+  'set.bridge': { ru: 'Любая раскладка (не переключать)', en: 'Any keyboard layout (no switching)', es: 'Cualquier distribución (sin cambiar)', de: 'Beliebiges Layout (kein Umschalten)', fr: 'Toute disposition (sans changer)', it: 'Qualsiasi layout (senza cambiare)', pt: 'Qualquer layout (sem trocar)' },
   'tb.exam': { ru: 'Тест', en: 'Test', es: 'Prueba', de: 'Test', fr: 'Test', it: 'Test', pt: 'Teste' },
   'tb.weak': { ru: '🎯 Слабые клавиши', en: '🎯 Weak keys', es: '🎯 Teclas débiles', de: '🎯 Schwache Tasten', fr: '🎯 Touches faibles', it: '🎯 Tasti deboli', pt: '🎯 Teclas fracas' },
   'tb.custom': { ru: '✎ Свой текст', en: '✎ Custom text', es: '✎ Texto propio', de: '✎ Eigener Text', fr: '✎ Texte perso', it: '✎ Testo tuo', pt: '✎ Texto próprio' },

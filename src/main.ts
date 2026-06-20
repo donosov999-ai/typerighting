@@ -290,6 +290,7 @@ function renderModalGlobal() {
   cb('heat', (v) => { showHeat = v; try { localStorage.setItem('tr_heat', showHeat ? '1' : '0'); } catch { /* */ } });
   cb('hardkeys', (v) => { try { localStorage.setItem('tr_hardkeys', v ? '1' : '0'); } catch { /* */ } });
   cb('metro', (v) => { metroOn = v; try { localStorage.setItem('tr_metro', v ? '1' : '0'); } catch { /* */ } });
+  cb('bridge', (v) => { try { localStorage.setItem('tr_bridge', v ? '1' : '0'); } catch { /* */ } });
   onChange('metrobpm', (el) => {
     metroBpm = +el.value || 120;
     try { localStorage.setItem('tr_metro_bpm', String(metroBpm)); } catch { /* */ }
@@ -431,6 +432,7 @@ function renderModal(): string {
         <label><input type="checkbox" id="hardkeys" ${localStorage.getItem('tr_hardkeys') === '1' ? 'checked' : ''}/> ${t('set.hardkeys')}</label>
         <label><input type="checkbox" id="metro" ${metroOn ? 'checked' : ''}/> ${t('set.metro')}</label>
         <label class="set-range">${t('set.metro.bpm')}: <input type="range" id="metrobpm" min="60" max="200" step="10" value="${metroBpm}"/> <b id="metrobpmval">${metroBpm}</b></label>
+        <label><input type="checkbox" id="bridge" ${localStorage.getItem('tr_bridge') !== '0' ? 'checked' : ''}/> ${t('set.bridge')}</label>
       </div>
       <div class="donebtns"><button id="set-close" class="primary">${t('prog.close')}</button></div>
     </div></div>`;

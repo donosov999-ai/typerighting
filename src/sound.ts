@@ -6,13 +6,25 @@ export function setSoundEnabled(fn: () => boolean) { enabled = fn; }
 
 const VOL = 0.05; // тихо
 
+// AudioContext создаётся suspended (политика автоплея) — нужен resume() после жеста.
+function ensureCtx(): AudioContext {
+  ctx ??= new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+  if (ctx.state === 'suspended') void ctx.resume();
+  return ctx;
+}
+// разблокировать звук на ПЕРВОЕ взаимодействие (печать/клик) — иначе тишина
+if (typeof document !== 'undefined') {
+  const unlock = () => { try { ensureCtx(); } catch { /* */ } };
+  (['keydown', 'pointerdown', 'touchstart'] as const).forEach((e) => document.addEventListener(e, unlock, { passive: true }));
+}
+
 function tone(freq: number, start: number, dur: number, vol = VOL, type: OscillatorType = 'sine') {
   try {
-    ctx ??= new AudioContext();
-    const o = ctx.createOscillator(), g = ctx.createGain();
+    const c = ensureCtx();
+    const o = c.createOscillator(), g = c.createGain();
     o.type = type; o.frequency.value = freq;
-    o.connect(g); g.connect(ctx.destination);
-    const t0 = ctx.currentTime + start;
+    o.connect(g); g.connect(c.destination);
+    const t0 = c.currentTime + start;
     g.gain.setValueAtTime(0.0001, t0);
     g.gain.linearRampToValueAtTime(vol, t0 + 0.012);
     g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
@@ -42,11 +54,11 @@ export const sfx = {
 // ── Метроном (опция): ровный тик для удержания темпа печати ──
 function tick() {
   try {
-    ctx ??= new AudioContext();
-    const o = ctx.createOscillator(), g = ctx.createGain();
+    ensureCtx();
+    const o = ctx!.createOscillator(), g = ctx!.createGain();
     o.type = 'square'; o.frequency.value = 1600;
-    o.connect(g); g.connect(ctx.destination);
-    const t0 = ctx.currentTime;
+    o.connect(g); g.connect(ctx!.destination);
+    const t0 = ctx!.currentTime;
     g.gain.setValueAtTime(0.0001, t0);
     g.gain.linearRampToValueAtTime(0.05, t0 + 0.004);
     g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.05);

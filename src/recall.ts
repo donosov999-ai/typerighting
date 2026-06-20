@@ -36,8 +36,10 @@ function pickWords(n: number): string {
   return out.join(' ');
 }
 
-type Screen = 'menu' | 'show' | 'recall' | 'result';
+type Screen = 'menu' | 'play' | 'result';
 let screen: Screen = 'menu';
+let revealMode = false;   // true — фаза показа слов, false — печать по памяти (один экран, без дёрганья)
+function levelNo(n = span): number { return n - MIN_SPAN + 1; }
 let words = '';
 let st: TypingState = createState(['']);
 let errs = 0;
@@ -60,22 +62,24 @@ export function recallEnter(container: HTMLElement, profile: Profile, exit: () =
 function startRound() {
   clearTimer();
   words = pickWords(span);
-  screen = 'show';
+  st = createState([words]);   // состояние создаём сразу — слова появятся в самом поле ввода
+  errs = 0; startedAt = 0;
+  revealMode = true;
+  screen = 'play';
   render();
-  // авто-переход к набору: ~1.2 c на слово (плюс есть кнопка «Запомнил»)
-  timer = window.setTimeout(toRecall, Math.max(2500, span * 1200));
+  // авто-скрытие ~1.2 c на слово (плюс кнопка «Запомнил»)
+  timer = window.setTimeout(toType, Math.max(2500, span * 1200));
 }
 
-function toRecall() {
+function toType() {
   clearTimer();
-  st = createState([words]);
-  errs = 0; startedAt = 0;
-  screen = 'recall';
-  render();
+  revealMode = false;
+  startedAt = 0;
+  render();   // ТОТ ЖЕ экран — только слова гаснут (буквы → ·), без смены окна
 }
 
 export function recallHandleKey(e: KeyboardEvent) {
-  if (screen !== 'recall' || st.finishedAt !== null) return;
+  if (screen !== 'play' || revealMode || st.finishedAt !== null) return;
   if (e.key === 'Backspace') { e.preventDefault(); return; }
   let ch: string | null = null;
   if (e.key.length === 1) ch = e.key;
@@ -113,11 +117,13 @@ function finishRound() {
 // ── Рендер ──
 const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
 
-// в фазе recall будущие буквы скрыты (печать по памяти), напечатанное — видно
-function renderRecallPattern(): string {
+// reveal — слова видны (запоминаешь); type — будущие буквы скрыты (печать по памяти).
+// И то и другое в ОДНОМ поле, поэтому переход без смены окна.
+function renderPlayPattern(): string {
   let html = '';
   for (let i = 0; i < st.pattern.length; i++) {
     const ch = st.pattern[i];
+    if (revealMode) { html += ch === ' ' ? '<span class="pend"> </span>' : `<span class="reveal">${esc(ch)}</span>`; continue; }
     const m = st.marks[i];
     if (i < st.pos) html += `<span class="${m === MARK.WRONG ? 'bad' : 'ok'}">${esc(ch)}</span>`;
     else if (ch === ' ') html += '<span class="pend"> </span>';
@@ -130,8 +136,7 @@ function renderRecallPattern(): string {
 function render() {
   if (!root) return;
   if (screen === 'menu') renderMenu();
-  else if (screen === 'show') renderShow();
-  else if (screen === 'recall') renderRecall();
+  else if (screen === 'play') renderPlay();
   else renderResult();
 }
 
@@ -156,50 +161,45 @@ function renderMenu() {
   (root!.querySelector('#sp-start') as HTMLButtonElement).onclick = () => startRound();
 }
 
-function renderShow() {
-  root!.innerHTML = `
-    <div class="wrap compete">
-      <header class="mode-head">
-        <button id="sp-back" class="mode-back">${t('nav.back')}</button>
-        <span class="c-progress">🧩 ${t('span.show')}</span>
-        <span class="c-acc">${span} ${t('span.words')}</span>
-      </header>
-      <div class="card"><div class="span-words">${esc(words)}</div></div>
-      <div class="donebtns"><button id="sp-ready" class="primary">${t('span.ready')} →</button></div>
-    </div>`;
-  (root!.querySelector('#sp-back') as HTMLButtonElement).onclick = () => { clearTimer(); screen = 'menu'; render(); };
-  (root!.querySelector('#sp-ready') as HTMLButtonElement).onclick = () => toRecall();
-}
-
-function renderRecall() {
+// Единый экран: показ слов и печать по памяти — одно поле, клавиатура всегда на месте.
+function renderPlay() {
   const rc = /[а-яё]/i.test(st.pattern);
   const showRu = lang() === 'ru' || rc;
+  const showMs = Math.max(2500, span * 1200);
   root!.innerHTML = `
     <div class="wrap compete">
       <header class="mode-head">
         <button id="sp-back" class="mode-back">${t('nav.back')}</button>
-        <span class="c-progress">🧩 ${t('span.recall')}</span>
-        <span class="c-acc">${span} ${t('span.words')}</span>
+        <span class="c-progress">🧩 ${t('span.level')} ${levelNo()}</span>
+        <span class="c-acc">${span} ${t('span.words')} · ★${levelNo(bestSpan)}</span>
       </header>
-      <div class="card"><div class="pattern pattern-big" id="pattern">${renderRecallPattern()}</div></div>
-      <div class="keyb">${keyboardSVG(st.finishedAt === null ? st.pattern[st.pos] ?? null : null, rc, showRu)}</div>
+      <div class="sp-phase ${revealMode ? 'reveal' : 'type'}">
+        ${revealMode
+          ? `<span class="sp-tag">👀 ${t('span.show')}</span><div class="sp-timer"><i style="animation-duration:${showMs}ms"></i></div>`
+          : `<span class="sp-tag">⌨️ ${t('span.recall')}</span>`}
+      </div>
+      <div class="card"><div class="pattern pattern-big" id="pattern">${renderPlayPattern()}</div></div>
+      <div class="keyb">${keyboardSVG(!revealMode && st.finishedAt === null ? st.pattern[st.pos] ?? null : null, rc, showRu)}</div>
+      ${revealMode ? `<div class="donebtns"><button id="sp-ready" class="primary">${t('span.ready')} →</button></div>` : ''}
     </div>`;
-  (root!.querySelector('#sp-back') as HTMLButtonElement).onclick = () => { screen = 'menu'; render(); };
+  (root!.querySelector('#sp-back') as HTMLButtonElement).onclick = () => { clearTimer(); screen = 'menu'; render(); };
+  const rb = root!.querySelector('#sp-ready') as HTMLButtonElement | null;
+  if (rb) rb.onclick = () => toType();
 }
 
 function renderResult() {
-  const medal = lastRecall === 100 ? '🥇' : lastRecall >= 90 ? '🥈' : lastRecall >= 70 ? '🥉' : '🎖';
+  const stars = lastRecall === 100 ? 3 : lastRecall >= 90 ? 2 : lastRecall >= 70 ? 1 : 0;
   void prof;
   root!.innerHTML = `
     <div class="wrap compete">
       <div class="cp-result">
-        <div class="cp-medal">${medal}</div>
-        <h2>🧩 ${t('span.title')}</h2>
+        <div class="sp-stars">${'★'.repeat(stars)}${'☆'.repeat(3 - stars)}</div>
+        <h2>🧩 ${t('span.level')} ${levelNo()}</h2>
         <div class="cp-record">${lastUp ? t('span.up') : t('span.down')}</div>
         <div class="statsbar">
           <div><b>${lastRecall}%</b><span>${t('mem.recall')}</span></div>
-          <div><b>${span}</b><span>${t('span.words')}</span></div>
-          <div><b>${bestSpan}</b><span>${t('span.best')}</span></div>
+          <div><b>${levelNo()}</b><span>${t('span.level')}</span></div>
+          <div><b>${levelNo(bestSpan)}</b><span>${t('span.best')}</span></div>
         </div>
         <div class="donebtns">
           <button id="sp-next" class="primary">${t('span.next')} →</button>

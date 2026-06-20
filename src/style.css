@@ -431,3 +431,11 @@ button:hover { filter: brightness(1.1); }
 .span-words { font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, monospace;
   font-size: clamp(22px, 4vw, 34px); font-weight: 700; line-height: 1.6; text-align: center;
   letter-spacing: 1px; word-spacing: 8px; padding: 18px 8px; }
+/* режим «Память» — единый экран показ/печать, без дёрганья */
+.sp-phase { text-align: center; margin: 10px 0 4px; min-height: 26px; }
+.sp-tag { font-weight: 700; color: var(--muted); font-size: 15px; }
+.sp-timer { height: 6px; background: var(--surface2); border-radius: 4px; overflow: hidden; max-width: 420px; margin: 8px auto 0; }
+.sp-timer i { display: block; height: 100%; background: var(--accent); transform-origin: left; animation: sptimer linear forwards; }
+@keyframes sptimer { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+.pattern .reveal { color: var(--text); }   /* фаза показа — слова видны в самом поле ввода */
+.sp-stars { font-size: 46px; color: #f5b301; letter-spacing: 6px; line-height: 1.1; }

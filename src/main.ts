@@ -4,7 +4,7 @@ import { ravenExercises } from './raven';
 import { classicExercises } from './classic';
 import { createState, pressChar, backspace, stats, MARK, type TypingState } from './typing';
 import { keyboardSVG, bridgeChar, keyIdFor } from './keyboard';
-import { sfx, setSoundEnabled } from './sound';
+import { sfx, setSoundEnabled, metronome } from './sound';
 import { type Profile, PROFILE_EMOJI, loadProfile, saveProfile, applyProfile } from './profiles';
 import { kidsEnter, kidsHandleKey } from './kids';
 import { courseEnter, courseHandleKey } from './course';
@@ -25,6 +25,13 @@ let st: TypingState = createState(['']);
 let hidePattern = false;
 let soundOn = true;
 setSoundEnabled(() => soundOn);
+let metroOn = false, metroBpm = 120;   // метроном (опция): ритм для темпа печати
+try { metroOn = localStorage.getItem('tr_metro') === '1'; metroBpm = +(localStorage.getItem('tr_metro_bpm') ?? '120') || 120; } catch { /* */ }
+function updateMetronome() {
+  const active = metroOn && profile !== null && !hubMode && !modal && activeMode() === 'train';
+  if (active) { if (!metronome.running()) metronome.start(metroBpm); }
+  else metronome.stop();
+}
 let blockOnError = true;
 let showKeyb = true; // схема клавиатуры из оригинального TypeRIGHTing
 let showHeat = localStorage.getItem('tr_heat') === '1'; // тепловая карта клавиш
@@ -282,11 +289,19 @@ function renderModalGlobal() {
   cb('keyb', (v) => { showKeyb = v; });
   cb('heat', (v) => { showHeat = v; try { localStorage.setItem('tr_heat', showHeat ? '1' : '0'); } catch { /* */ } });
   cb('hardkeys', (v) => { try { localStorage.setItem('tr_hardkeys', v ? '1' : '0'); } catch { /* */ } });
+  cb('metro', (v) => { metroOn = v; try { localStorage.setItem('tr_metro', v ? '1' : '0'); } catch { /* */ } });
+  onChange('metrobpm', (el) => {
+    metroBpm = +el.value || 120;
+    try { localStorage.setItem('tr_metro_bpm', String(metroBpm)); } catch { /* */ }
+    const lbl = document.getElementById('metrobpmval'); if (lbl) lbl.textContent = String(metroBpm);
+    if (metronome.running()) metronome.start(metroBpm);
+  });
 }
 
 function render() {
   renderTopbar();
   renderModalGlobal();
+  updateMetronome();
   if (profile === null) { kidsActive = false; renderOnboarding(); return; }
   if (aiMode) {
     if (!aiInit) { aiInit = true; learnEnter(app, profile ?? 'm', () => { aiMode = false; aiInit = false; render(); }); }
@@ -414,6 +429,8 @@ function renderModal(): string {
         <label><input type="checkbox" id="keyb" ${showKeyb ? 'checked' : ''}/> ${t('tb.keyb')}</label>
         <label><input type="checkbox" id="heat" ${showHeat ? 'checked' : ''}/> ${t('tb.heat')}</label>
         <label><input type="checkbox" id="hardkeys" ${localStorage.getItem('tr_hardkeys') === '1' ? 'checked' : ''}/> ${t('set.hardkeys')}</label>
+        <label><input type="checkbox" id="metro" ${metroOn ? 'checked' : ''}/> ${t('set.metro')}</label>
+        <label class="set-range">${t('set.metro.bpm')}: <input type="range" id="metrobpm" min="60" max="200" step="10" value="${metroBpm}"/> <b id="metrobpmval">${metroBpm}</b></label>
       </div>
       <div class="donebtns"><button id="set-close" class="primary">${t('prog.close')}</button></div>
     </div></div>`;

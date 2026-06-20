@@ -38,3 +38,29 @@ export const sfx = {
   catHappy: () => play(() => { tone(700, 0, 0.1, 0.05); tone(1000, 0.07, 0.14, 0.05); }),
   catSad: () => play(() => { tone(420, 0, 0.12, 0.05); tone(280, 0.09, 0.18, 0.05); }),
 };
+
+// ── Метроном (опция): ровный тик для удержания темпа печати ──
+function tick() {
+  try {
+    ctx ??= new AudioContext();
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = 'square'; o.frequency.value = 1600;
+    o.connect(g); g.connect(ctx.destination);
+    const t0 = ctx.currentTime;
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.linearRampToValueAtTime(0.05, t0 + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.05);
+    o.start(t0); o.stop(t0 + 0.06);
+  } catch { /* нет аудио */ }
+}
+let metroTimer: number | null = null;
+export const metronome = {
+  start(bpm: number) {
+    this.stop();
+    const ms = 60000 / Math.max(40, Math.min(240, bpm));
+    tick();
+    metroTimer = window.setInterval(tick, ms);
+  },
+  stop() { if (metroTimer) { clearInterval(metroTimer); metroTimer = null; } },
+  running(): boolean { return metroTimer !== null; },
+};

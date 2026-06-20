@@ -151,6 +151,7 @@ function renderMenu() {
         ${DISCIPLINES.map((d) => {
           const b = best[bestKey(d, L)] ?? 0;
           return `<button class="cp-disc" data-d="${d}">
+            <img class="disc-ic" src="images/icons/disc-${d}.jpg" alt=""/>
             <span class="cp-name">${t('comp.' + d)}</span>
             <span class="cp-best">${b > 0 ? `${t('comp.best')}: ${b} ${t('st.wpm')}` : '—'}</span>
           </button>`;

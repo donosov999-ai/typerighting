@@ -275,6 +275,7 @@ function renderModalGlobal() {
   cb('block', (v) => { blockOnError = v; });
   cb('keyb', (v) => { showKeyb = v; });
   cb('heat', (v) => { showHeat = v; try { localStorage.setItem('tr_heat', showHeat ? '1' : '0'); } catch { /* */ } });
+  cb('hardkeys', (v) => { try { localStorage.setItem('tr_hardkeys', v ? '1' : '0'); } catch { /* */ } });
 }
 
 function render() {
@@ -406,6 +407,7 @@ function renderModal(): string {
         <label><input type="checkbox" id="block" ${blockOnError ? 'checked' : ''}/> ${t('tb.block')}</label>
         <label><input type="checkbox" id="keyb" ${showKeyb ? 'checked' : ''}/> ${t('tb.keyb')}</label>
         <label><input type="checkbox" id="heat" ${showHeat ? 'checked' : ''}/> ${t('tb.heat')}</label>
+        <label><input type="checkbox" id="hardkeys" ${localStorage.getItem('tr_hardkeys') === '1' ? 'checked' : ''}/> ${t('set.hardkeys')}</label>
       </div>
       <div class="donebtns"><button id="set-close" class="primary">${t('prog.close')}</button></div>
     </div></div>`;

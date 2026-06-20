@@ -183,9 +183,9 @@ button:hover { filter: brightness(1.1); }
 .exhint { font-size: 15px; color: var(--muted); }
 
 .pattern { font-family: 'SF Mono', 'JetBrains Mono', ui-monospace, 'Cascadia Code', monospace;
-  font-size: 21px; line-height: 1.75; letter-spacing: 0.5px; white-space: pre-wrap; word-break: break-word; min-height: 56px; }
+  font-size: 27px; line-height: 1.7; letter-spacing: 0.5px; font-weight: 600; white-space: pre-wrap; word-break: break-word; min-height: 62px; }
 .pattern span { border-radius: 3px; }
-.pattern .pend { color: var(--muted); }
+.pattern .pend { color: var(--text); opacity: 0.9; }   /* непечатанные буквы — контрастные, не бледные */
 .pattern .ok { color: var(--ok); }
 .pattern .bad { color: #fff; background: var(--bad); }
 .pattern .cur { background: var(--cur-bg); color: #fff; border-radius: 4px;
@@ -313,7 +313,7 @@ button:hover { filter: brightness(1.1); }
 .cp-disc:hover { transform: translateY(-3px); border-color: var(--accent); }
 .cp-name { font-size: 17px; font-weight: 700; }
 .cp-best { font-size: 13px; color: var(--muted); }
-.pattern-big { font-size: 28px; letter-spacing: 2px; }
+.pattern-big { font-size: 33px; letter-spacing: 2px; }
 .cp-result { text-align: center; background: var(--surface); border: 1px solid var(--border);
   border-radius: 22px; padding: 30px 20px; margin-top: 4vh; }
 .cp-medal { font-size: 72px; }

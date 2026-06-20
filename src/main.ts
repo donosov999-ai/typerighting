@@ -608,9 +608,19 @@ function bindControls() {
   onClick('weak', () => { special === 'weak' ? exitSpecial() : startWeak(); });
   onClick('custom', () => { modal = 'custom'; render(); });
   onClick('prev', () => { if (special) { nextSpecial(); return; } idx = (idx - 1 + pool.length) % pool.length; reset(); });
-  onClick('next', () => { if (special) { nextSpecial(); return; } idx = (idx + 1) % pool.length; reset(); });
+  onClick('next', () => { if (special) { nextSpecial(); return; } idx = advanceIdx(); reset(); });
   onClick('again', () => { special ? nextSpecial(true) : reset(); });
-  onClick('nextdone', () => { if (special) { nextSpecial(); return; } idx = (idx + 1) % pool.length; reset(); });
+  onClick('nextdone', () => { if (special) { nextSpecial(); return; } idx = advanceIdx(); reset(); });
+}
+
+// Словесные банки (равная сложность) — случайный порядок; связные тексты (стихи/проза) — последовательно.
+const SHUFFLE_BANKS = new Set<Bank>(['abandon', 'engRus']);
+function advanceIdx(): number {
+  if (SHUFFLE_BANKS.has(bank) && pool.length > 1) {
+    let n = idx; while (n === idx) n = Math.floor(Math.random() * pool.length);
+    return n;
+  }
+  return (idx + 1) % pool.length;   // poemHymn/classic/letterByLetter — по порядку (место остановки в lastIdx)
 }
 
 // ── Стартовый хаб «С чего начать?» ──

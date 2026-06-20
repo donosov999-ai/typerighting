@@ -79,6 +79,10 @@ function toType() {
 }
 
 export function recallHandleKey(e: KeyboardEvent) {
+  if (screen === 'result') {   // на результате — Enter/пробел сразу следующий раунд
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); startRound(); }
+    return;
+  }
   if (screen !== 'play' || revealMode || st.finishedAt !== null) return;
   if (e.key === 'Backspace') { e.preventDefault(); return; }
   let ch: string | null = null;
@@ -205,8 +209,11 @@ function renderResult() {
           <button id="sp-next" class="primary">${t('span.next')} →</button>
           <button id="sp-menu" class="ghost">${t('k.map')}</button>
         </div>
+        <p class="k-autonext">${t('k.autonext')}</p>
       </div>
     </div>`;
-  (root!.querySelector('#sp-next') as HTMLButtonElement).onclick = () => startRound();
-  (root!.querySelector('#sp-menu') as HTMLButtonElement).onclick = () => { screen = 'menu'; render(); };
+  (root!.querySelector('#sp-next') as HTMLButtonElement).onclick = () => { clearTimer(); startRound(); };
+  (root!.querySelector('#sp-menu') as HTMLButtonElement).onclick = () => { clearTimer(); screen = 'menu'; render(); };
+  clearTimer();
+  timer = window.setTimeout(startRound, 3500);   // игровой поток: следующий раунд сам через 3.5 с
 }

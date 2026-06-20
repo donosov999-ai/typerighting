@@ -415,6 +415,8 @@ button:hover { filter: brightness(1.1); }
 @keyframes bounce { to { transform: translateY(-8px); } }
 .k-stars-big { font-size: 44px; margin: 10px 0; letter-spacing: 6px; }
 .k-done-note { color: var(--muted); font-size: 15px; margin-bottom: 18px; }
+.k-autonext { color: var(--muted); font-size: 13px; margin-top: 12px; opacity: .85; animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
 .done { background: var(--surface); border: 1px solid var(--ok); border-radius: 16px; padding: 20px; text-align: center; }
 .done h2 { color: var(--ok); margin: 0 0 12px; }
 .donestats { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; color: var(--muted); }

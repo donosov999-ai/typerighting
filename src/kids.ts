@@ -103,6 +103,10 @@ export function kidsEnter(container: HTMLElement, exitToProfile: () => void, aiC
 }
 
 export function kidsHandleKey(e: KeyboardEvent): void {
+  if (screen === 'done') {   // на экране «уровень пройден» — Enter/пробел запускает следующий
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); goNextLevel(); }
+    return;
+  }
   if (screen !== 'level' || !level || st.finishedAt !== null) return;
   if (e.key === 'Backspace') { e.preventDefault(); return; } // блок всегда вкл
   let ch: string | null = null;
@@ -139,6 +143,7 @@ function finishLevel() {
 }
 
 function startLevel(l: KidsLevel) {
+  clearDoneTimer();
   level = l; wordIdx = 0; levelErrors = 0; levelChars = 0;
   mascotSay = l.lang === 'ru' ? t('k.startRu') : t('k.startEn');
   st = createState([l.words[0]]);
@@ -223,8 +228,18 @@ function renderLevel() {
   (root!.querySelector('#k-back') as HTMLButtonElement).onclick = () => { screen = 'map'; kidsRender(); };
 }
 
+let doneTimer: number | null = null;
+function clearDoneTimer() { if (doneTimer) { clearTimeout(doneTimer); doneTimer = null; } }
+// игровой поток: следующий уровень сам, без ожидания клика (или Enter/Space досрочно)
+function goNextLevel() {
+  clearDoneTimer();
+  const n = level ? KIDS_LEVELS.find((x) => x.id === level!.id + 1) : null;
+  if (n) startLevel(n); else { screen = 'map'; kidsRender(); }
+}
+
 function renderDone() {
   const l = level!;
+  const hasNext = !!KIDS_LEVELS.find((x) => x.id === l.id + 1);
   root!.innerHTML = `
     <div class="wrap kids">
       <div class="k-done">
@@ -235,12 +250,15 @@ function renderDone() {
         <div class="donebtns">
           <button id="k-again">${t('k.again')}</button>
           <button id="k-map2" class="ghost">${t('k.map')}</button>
-          ${KIDS_LEVELS.find((x) => x.id === l.id + 1) ? `<button id="k-next" class="primary">${t('k.next')}</button>` : ''}
+          ${hasNext ? `<button id="k-next" class="primary">${t('k.next')} →</button>` : ''}
         </div>
+        ${hasNext ? `<p class="k-autonext">${t('k.autonext')}</p>` : ''}
       </div>
     </div>`;
-  (root!.querySelector('#k-again') as HTMLButtonElement).onclick = () => startLevel(l);
-  (root!.querySelector('#k-map2') as HTMLButtonElement).onclick = () => { screen = 'map'; kidsRender(); };
+  (root!.querySelector('#k-again') as HTMLButtonElement).onclick = () => { clearDoneTimer(); startLevel(l); };
+  (root!.querySelector('#k-map2') as HTMLButtonElement).onclick = () => { clearDoneTimer(); screen = 'map'; kidsRender(); };
   const nx = root!.querySelector('#k-next') as HTMLButtonElement | null;
-  if (nx) nx.onclick = () => { const n = KIDS_LEVELS.find((x) => x.id === l.id + 1); if (n) startLevel(n); };
+  if (nx) nx.onclick = () => goNextLevel();
+  clearDoneTimer();
+  if (hasNext) doneTimer = window.setTimeout(goNextLevel, 3500);   // авто-переход через 3.5 с — это игра, без ожидания клика
 }

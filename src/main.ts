@@ -2,6 +2,7 @@ import './style.css';
 import { loadExercises, exercisesOfBank, BANKS, type Bank, type Exercise } from './content';
 import { ravenExercises } from './raven';
 import { classicExercises } from './classic';
+import { ruWordsExercises, ruPhrasesExercises } from './ru';
 import { createState, pressChar, backspace, stats, MARK, type TypingState } from './typing';
 import { keyboardSVG, bridgeChar, keyIdFor, setLayout, type Layout } from './keyboard';
 import { sfx, setSoundEnabled, metronome } from './sound';
@@ -722,7 +723,7 @@ function bindControls() {
 }
 
 // Словесные банки (равная сложность) — случайный порядок; связные тексты (стихи/проза) — последовательно.
-const SHUFFLE_BANKS = new Set<Bank>(['abandon', 'engRus']);
+const SHUFFLE_BANKS = new Set<Bank>(['abandon', 'engRus', 'ruWords']);
 function advanceIdx(): number {
   if (SHUFFLE_BANKS.has(bank) && pool.length > 1) {
     let n = idx; while (n === idx) n = Math.floor(Math.random() * pool.length);
@@ -776,6 +777,8 @@ function loadBank() {
   // мультиязычные банки готовых текстов на языке интерфейса
   pool = bank === 'poemHymn' ? ravenExercises(lang())
        : bank === 'classic' ? classicExercises(lang())
+       : bank === 'ruWords' ? ruWordsExercises()
+       : bank === 'ruPhrases' ? ruPhrasesExercises()
        : exercisesOfBank(all, bank);
   prog = loadProgress(bank);
   idx = Math.min(Math.max(prog.lastIdx, 0), Math.max(pool.length - 1, 0));

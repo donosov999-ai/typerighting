@@ -1,5 +1,5 @@
 // Модель упражнения (нормализована из 4 банков оригинального TypeRIGHTing).
-export type Bank = 'abandon' | 'engRus' | 'letterByLetter' | 'poemHymn' | 'classic';
+export type Bank = 'abandon' | 'engRus' | 'letterByLetter' | 'poemHymn' | 'classic' | 'ruWords' | 'ruPhrases';
 
 export interface Exercise {
   id: string;
@@ -10,7 +10,7 @@ export interface Exercise {
 }
 
 // Подписи банков — в i18n.ts (ключи bank.<id> / bank.<id>.desc)
-export const BANKS: Bank[] = ['abandon', 'engRus', 'letterByLetter', 'poemHymn', 'classic'];
+export const BANKS: Bank[] = ['abandon', 'engRus', 'letterByLetter', 'poemHymn', 'classic', 'ruWords', 'ruPhrases'];
 
 let cache: Exercise[] | null = null;
 

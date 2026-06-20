@@ -56,6 +56,14 @@ function saveKidsLvl() { try { localStorage.setItem('tr_kids_ai_lvl', String(kid
 // easy=true — строка-передышка (без новых букв, только освоенное).
 function kidsGenLine(easy = false): string {
   const KL = kbLang();
+  // ФАЗА 2 — алфавит освоен (лесенка дошла до конца): переходим на реальные
+  // сочетания/фонемы языка (ngram корпуса, как у взрослых), а не случайные слоги.
+  if (kidsLvl >= kidsCap(KL)) {
+    ensureModel(lang());
+    const line = generate(model!, { chars: 22, weight: letterWeights(KL, easy ? 2 : 5), maxWord: easy ? 4 : 6 });
+    return KL === 'ru' ? line.replace(/ё/g, 'е').replace(/ъ/g, '') : line; // детям без ё/ъ
+  }
+  // ФАЗА 1 — лесенка клавиш: случайные слоги из освоенных букв (постановка пальцев)
   const pool = kidsPool(KL).split('');
   const newest = easy ? '' : kidsLadder(KL)[Math.min(kidsLvl, kidsCap(KL))]; // буквы последнего уровня
   const heat = heatMap(3);               // errRate по клавишам (per-key)

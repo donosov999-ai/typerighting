@@ -157,6 +157,34 @@ if (IS_MAC) {
   if (GEO['backslash']) GEO['backslash'].ru = 'Ё';
 }
 
+// ── Национальные раскладки (переключатель: QWERTY / AZERTY фр / QWERTZ нем) ──
+// Геометрия физических клавиш одна; раскладка переопределяет ГРАВИРОВКУ (какая
+// буква на клавише) + добавляет спецбуквы. id клавиш — всегда латинские QWERTY-позиции.
+export type Layout = 'qwerty' | 'azerty' | 'qwertz';
+let curLayout: Layout = 'qwerty';
+export function getLayout(): Layout { return curLayout; }
+
+const LAYOUT_OVERRIDE: Record<Layout, Record<string, { en?: string; en2?: string }>> = {
+  qwerty: {},
+  // AZERTY (FR): верх AZERTYUIOP, середина QSDFGHJKLM, низ WXCVBN, + é è ç à ù
+  azerty: {
+    q: { en: 'A' }, w: { en: 'Z' },                 // верхний ряд swap
+    a: { en: 'Q' }, semi: { en: 'M' },              // M уезжает в конец среднего ряда
+    z: { en: 'W' }, m: { en: ',', en2: '?' },       // нижний ряд: W вначале, запятая в конце
+    d2: { en: 'é', en2: '2' }, d7: { en: 'è', en2: '7' },
+    d9: { en: 'ç', en2: '9' }, d0: { en: 'à', en2: '0' },
+    quote: { en: 'ù', en2: '%' },                   // ù на физ '
+  },
+  // QWERTZ (DE): Y↔Z swap + умляуты Ü Ö Ä ß
+  qwertz: {
+    y: { en: 'Z' }, z: { en: 'Y' },
+    lbracket: { en: 'ü' }, semi: { en: 'ö' }, quote: { en: 'ä' }, minus: { en: 'ß', en2: '?' },
+  },
+};
+function engraving(g: { id: string; en?: string; en2?: string }): { en?: string; en2?: string } {
+  return LAYOUT_OVERRIDE[curLayout][g.id] ?? { en: g.en, en2: g.en2 };
+}
+
 // ── Маппинг символ → клавиша ──
 interface KeyHit { id: string; shift: boolean }
 const EN_MAP: Record<string, KeyHit> = {};
@@ -176,6 +204,23 @@ const RU_MAP: Record<string, KeyHit> = {};
   // Цифры и общие символы работают в обоих раскладках
   for (const [ch, hit] of Object.entries(EN_MAP)) if (!(ch in RU_MAP) && !/[a-zA-Z.,]/.test(ch)) RU_MAP[ch] = hit;
 }
+
+// карта символ→клавиша для активной нац. раскладки (лат., вкл. é/ü/ç/ß);
+// пересобирается при setLayout
+let LAYOUT_MAP: Record<string, KeyHit> = {};
+function rebuildLayoutMap() {
+  LAYOUT_MAP = {};
+  const add = (ch: string, id: string, shift: boolean) => { LAYOUT_MAP[ch] = { id, shift }; };
+  for (const g of Object.values(GEO)) {
+    const e = engraving(g);
+    if (!e.en) continue;
+    const isLetter = e.en.length === 1 && e.en.toLowerCase() !== e.en.toUpperCase();
+    if (isLetter) { add(e.en.toLowerCase(), g.id, false); add(e.en.toUpperCase(), g.id, true); }
+    else { add(e.en, g.id, false); if (e.en2) add(e.en2, g.id, true); }
+  }
+  add(' ', 'space', false); add('\n', 'enter', false);
+}
+export function setLayout(l: Layout) { curLayout = l; rebuildLayoutMap(); }
 
 // ── Мост раскладок: одна физическая клавиша — две буквы (EN↔RU) ──
 // Если ожидается кириллица, а раскладка ОС латинская (или наоборот),
@@ -203,6 +248,11 @@ export function bridgeChar(input: string, expected: string): string {
 
 export function findKey(ch: string, ruContext: boolean): KeyHit | null {
   if (/[а-яё]/i.test(ch)) return RU_MAP[ch] ?? RU_MAP[ch.toLowerCase()] ?? RU_MAP[ch.toUpperCase()] ?? null;
+  // активна нац. раскладка → её карта (вкл. спецбуквы é/ü/ç/ß и переставленные буквы)
+  if (curLayout !== 'qwerty') {
+    const m = LAYOUT_MAP[ch] ?? LAYOUT_MAP[ch.toLowerCase()] ?? LAYOUT_MAP[ch.toUpperCase()];
+    if (m) return m;
+  }
   if (/[a-z]/i.test(ch)) return EN_MAP[ch] ?? EN_MAP[ch.toLowerCase()] ?? EN_MAP[ch.toUpperCase()] ?? null;
   return (ruContext ? RU_MAP[ch] : EN_MAP[ch]) ?? (ruContext ? EN_MAP[ch] : RU_MAP[ch]) ?? null;
 }
@@ -291,9 +341,10 @@ export function keyboardSVG(nextChar: string | null, ruContext: boolean, showRu 
     if (g.label !== undefined) {
       parts.push(`<text class="key-fn" x="${cx(g).toFixed(1)}" y="${(cy(g) + 4).toFixed(1)}" text-anchor="middle">${esc(g.label)}</text>`);
     } else {
-      if (g.en2) parts.push(`<text class="key-en2" x="${(g.x + 12).toFixed(1)}" y="${g.y + 22}">${esc(g.en2)}</text>`);
-      if (g.en) parts.push(`<text class="key-en" x="${(g.x + 12).toFixed(1)}" y="${g.y + (g.en2 ? 46 : 38)}">${esc(g.en)}</text>`);
-      if (g.ru && showRu) parts.push(`<text class="key-ru" x="${(g.x + g.w - 12).toFixed(1)}" y="${g.y + g.h - 14}" text-anchor="end">${esc(g.ru)}</text>`);
+      const e = engraving(g);
+      if (e.en2) parts.push(`<text class="key-en2" x="${(g.x + 12).toFixed(1)}" y="${g.y + 22}">${esc(e.en2)}</text>`);
+      if (e.en) parts.push(`<text class="key-en" x="${(g.x + 12).toFixed(1)}" y="${g.y + (e.en2 ? 46 : 38)}">${esc(e.en)}</text>`);
+      if (g.ru && showRu && curLayout === 'qwerty') parts.push(`<text class="key-ru" x="${(g.x + g.w - 12).toFixed(1)}" y="${g.y + g.h - 14}" text-anchor="end">${esc(g.ru)}</text>`);
     }
     parts.push('</g>');
   }

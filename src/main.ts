@@ -3,7 +3,7 @@ import { loadExercises, exercisesOfBank, BANKS, type Bank, type Exercise } from 
 import { ravenExercises } from './raven';
 import { classicExercises } from './classic';
 import { createState, pressChar, backspace, stats, MARK, type TypingState } from './typing';
-import { keyboardSVG, bridgeChar, keyIdFor } from './keyboard';
+import { keyboardSVG, bridgeChar, keyIdFor, setLayout, type Layout } from './keyboard';
 import { sfx, setSoundEnabled, metronome } from './sound';
 import { type Profile, PROFILE_EMOJI, loadProfile, saveProfile, applyProfile } from './profiles';
 import { kidsEnter, kidsHandleKey } from './kids';
@@ -33,6 +33,15 @@ function updateMetronome() {
   if (active) { if (!metronome.running()) metronome.start(metroBpm); }
   else metronome.stop();
 }
+// ── Раскладка клавиатуры (нац.: авто по языку интерфейса / ручной выбор) ──
+let layoutPref: 'auto' | Layout = (localStorage.getItem('tr_layout') as 'auto' | Layout) || 'auto';
+function resolveLayout(): Layout {
+  if (layoutPref !== 'auto') return layoutPref;
+  const l = lang();
+  return l === 'fr' ? 'azerty' : l === 'de' ? 'qwertz' : 'qwerty';
+}
+function applyLayout() { setLayout(resolveLayout()); }
+applyLayout();
 let blockOnError = true;
 let showKeyb = true; // схема клавиатуры из оригинального TypeRIGHTing
 let showHeat = localStorage.getItem('tr_heat') === '1'; // тепловая карта клавиш
@@ -281,6 +290,7 @@ function goTo(target: string) {
 }
 // перерисовать активный режим (язык/поток/профиль сменились) — рестартует текущий режим
 function reapplyGlobal() {
+  applyLayout();   // раскладка авто-следует за языком интерфейса (если pref=auto)
   aiInit = false; courseInit = false; compInit = false; memInit = false; spanInit = false; kidsActive = false;
   if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
   if (!hubMode && !aiMode && !compMode && !memMode && !spanMode && !courseMode && !exam && profile !== 'kids') { if (special) { special === 'weak' ? startWeak() : startCustom(customText); } else if (bank === 'poemHymn' || bank === 'classic') loadBank(); else reset(); }
@@ -331,6 +341,11 @@ function renderModalGlobal() {
   cb('hardkeys', (v) => { try { localStorage.setItem('tr_hardkeys', v ? '1' : '0'); } catch { /* */ } });
   cb('metro', (v) => { metroOn = v; try { localStorage.setItem('tr_metro', v ? '1' : '0'); } catch { /* */ } });
   cb('bridge', (v) => { try { localStorage.setItem('tr_bridge', v ? '1' : '0'); } catch { /* */ } });
+  onChange('layoutsel', (el) => {
+    layoutPref = el.value as 'auto' | Layout;
+    try { localStorage.setItem('tr_layout', layoutPref); } catch { /* */ }
+    applyLayout(); reapplyGlobal();
+  });
   onChange('metrobpm', (el) => {
     metroBpm = +el.value || 120;
     try { localStorage.setItem('tr_metro_bpm', String(metroBpm)); } catch { /* */ }
@@ -496,6 +511,12 @@ function renderModal(): string {
         <label><input type="checkbox" id="metro" ${metroOn ? 'checked' : ''}/> ${t('set.metro')}</label>
         <label class="set-range">${t('set.metro.bpm')}: <input type="range" id="metrobpm" min="60" max="200" step="10" value="${metroBpm}"/> <b id="metrobpmval">${metroBpm}</b></label>
         <label><input type="checkbox" id="bridge" ${localStorage.getItem('tr_bridge') !== '0' ? 'checked' : ''}/> ${t('set.bridge')}</label>
+        <label class="set-range">${lang() === 'ru' ? 'Раскладка' : 'Layout'}: <select id="layoutsel">
+          <option value="auto" ${layoutPref === 'auto' ? 'selected' : ''}>${lang() === 'ru' ? 'Авто (по языку)' : 'Auto (by language)'}</option>
+          <option value="qwerty" ${layoutPref === 'qwerty' ? 'selected' : ''}>QWERTY</option>
+          <option value="azerty" ${layoutPref === 'azerty' ? 'selected' : ''}>AZERTY · FR</option>
+          <option value="qwertz" ${layoutPref === 'qwertz' ? 'selected' : ''}>QWERTZ · DE</option>
+        </select></label>
         <button id="sound-test" class="ghost" style="margin-top:6px">🔊 ${t('set.soundtest')}</button>
       </div>
       <div class="donebtns"><button id="set-close" class="primary">${t('prog.close')}</button></div>

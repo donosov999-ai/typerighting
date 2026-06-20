@@ -76,8 +76,11 @@ header { display: flex; align-items: center; justify-content: space-between; gap
   background: var(--surface); border-bottom: 1px solid var(--border); padding: 9px 16px; flex-wrap: wrap;
   box-shadow: 0 2px 8px rgba(0,0,0,.05); }
 .tb-icon { background: var(--surface2); border: 1px solid var(--border); border-radius: 9px;
-  padding: 8px 11px; font-size: 16px; cursor: pointer; line-height: 1; }
+  padding: 6px 8px; font-size: 16px; cursor: pointer; line-height: 1; display: inline-flex; align-items: center; }
 .tb-icon:hover { border-color: var(--accent); }
+.tb-ic { width: 24px; height: 24px; border-radius: 6px; object-fit: cover; vertical-align: middle;
+  box-shadow: 0 1px 3px rgba(31,42,55,.16); }
+.tb-btn .tb-ic { margin-right: 5px; }
 .tb-modes { display: flex; gap: 8px; flex-wrap: wrap; }
 .tb-mode { display: inline-flex; align-items: center; gap: 8px; background: transparent;
   border: 1.5px solid transparent; border-radius: 12px;

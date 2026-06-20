@@ -207,15 +207,15 @@ function renderTopbar() {
     ['memorize', t('mem.title')], ['span', t('span.title')], ['exam', t('ex.title')],
   ];
   chromeEl.innerHTML = `
-    <button id="tb-home" class="tb-icon" title="${t('hub.home')}">🏠</button>
+    <button id="tb-home" class="tb-icon" title="${t('hub.home')}"><img class="tb-ic" src="images/icons/ui-home.jpg" alt=""/></button>
     <div class="tb-modes">
       ${modes.map(([g, label]) => `<button class="tb-mode ${act === g ? 'active' : ''}" data-goto="${g}">${modeIcon(g)}<span>${label}</span></button>`).join('')}
     </div>
     <span class="tb-sp"></span>
-    <button id="tb-flow" class="tb-btn ${flowMode ? 'on' : ''}" title="${t('hint.flow')}">🌊 ${t('tb.flow')}</button>
-    <button id="tb-progress" class="tb-icon" title="${t('prog.title')}">📈</button>
-    <button id="tb-settings" class="tb-icon" title="${t('hub.settings')}">⚙</button>
-    <button id="tb-dark" class="tb-icon" title="${t('tb.dark')}">${dark ? '☀️' : '🌙'}</button>
+    <button id="tb-flow" class="tb-btn ${flowMode ? 'on' : ''}" title="${t('hint.flow')}"><img class="tb-ic" src="images/icons/ui-flow.jpg" alt=""/> ${t('tb.flow')}</button>
+    <button id="tb-progress" class="tb-icon" title="${t('prog.title')}"><img class="tb-ic" src="images/icons/ui-progress.jpg" alt=""/></button>
+    <button id="tb-settings" class="tb-icon" title="${t('hub.settings')}"><img class="tb-ic" src="images/icons/ui-settings.jpg" alt=""/></button>
+    <button id="tb-dark" class="tb-icon" title="${t('tb.dark')}"><img class="tb-ic" src="images/icons/ui-dark.jpg" alt=""/></button>
     <select id="tb-profile" title="Profile">
       ${(Object.keys(PROFILE_EMOJI) as Profile[]).map((p) => `<option value="${p}" ${p === profile ? 'selected' : ''}>${PROFILE_EMOJI[p]}</option>`).join('')}
     </select>

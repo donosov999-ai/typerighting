@@ -1,7 +1,7 @@
 {
   "name": "typerighting",
   "private": true,
-  "version": "2.51.1",
+  "version": "2.51.2",
   "type": "module",
   "description": "TypeRIGHTing — тренажёр слепой печати (переписан с .NET WinForms на веб + Tauri)",
   "scripts": {
@@ -15,6 +15,6 @@
     "@tauri-apps/cli": "^2",
     "typescript": "^5.6.0",
     "vite": "^5.4.0",
-    "vitest": "^4.1.9"
+    "vitest": "^2.1.9"
   }
 }

@@ -196,7 +196,9 @@ function activeMode(): string {
   return 'train';
 }
 const MODE_ICON: Record<string, string> = { train: 'train', course: 'course', learn: 'ai', compete: 'compete', memorize: 'memorize', span: 'span', exam: 'exam', progress: 'progress' };
-function modeIcon(g: string, cls = 'mode-ic'): string { return `<img class="${cls}" src="images/icons/mode-${MODE_ICON[g] ?? g}.jpg" alt=""/>`; }
+function profDir(): string { return profile === 'f' ? 'f/' : profile === 'kids' ? 'kids/' : ''; } // иконки под профиль (М/Ж/дети)
+function modeIcon(g: string, cls = 'mode-ic'): string { return `<img class="${cls}" src="images/icons/${profDir()}mode-${MODE_ICON[g] ?? g}.jpg" alt=""/>`; }
+function uiIcon(name: string): string { return `<img class="tb-ic" src="images/icons/${profDir()}${name}.jpg" alt=""/>`; }
 function renderTopbar() {
   if (!chromeEl) { chromeEl = document.createElement('div'); chromeEl.id = 'topbar'; document.body.prepend(chromeEl); }
   if (profile === null) { chromeEl.innerHTML = ''; return; } // на онбординге скрыта
@@ -207,15 +209,15 @@ function renderTopbar() {
     ['memorize', t('mem.title')], ['span', t('span.title')], ['exam', t('ex.title')],
   ];
   chromeEl.innerHTML = `
-    <button id="tb-home" class="tb-icon" title="${t('hub.home')}"><img class="tb-ic" src="images/icons/ui-home.jpg" alt=""/></button>
+    <button id="tb-home" class="tb-icon" title="${t('hub.home')}">${uiIcon('ui-home')}</button>
     <div class="tb-modes">
       ${modes.map(([g, label]) => `<button class="tb-mode ${act === g ? 'active' : ''}" data-goto="${g}">${modeIcon(g)}<span>${label}</span></button>`).join('')}
     </div>
     <span class="tb-sp"></span>
-    <button id="tb-flow" class="tb-btn ${flowMode ? 'on' : ''}" title="${t('hint.flow')}"><img class="tb-ic" src="images/icons/ui-flow.jpg" alt=""/> ${t('tb.flow')}</button>
-    <button id="tb-progress" class="tb-icon" title="${t('prog.title')}"><img class="tb-ic" src="images/icons/ui-progress.jpg" alt=""/></button>
-    <button id="tb-settings" class="tb-icon" title="${t('hub.settings')}"><img class="tb-ic" src="images/icons/ui-settings.jpg" alt=""/></button>
-    <button id="tb-dark" class="tb-icon" title="${t('tb.dark')}"><img class="tb-ic" src="images/icons/ui-dark.jpg" alt=""/></button>
+    <button id="tb-flow" class="tb-btn ${flowMode ? 'on' : ''}" title="${t('hint.flow')}">${uiIcon('ui-flow')} ${t('tb.flow')}</button>
+    <button id="tb-progress" class="tb-icon" title="${t('prog.title')}">${uiIcon('ui-progress')}</button>
+    <button id="tb-settings" class="tb-icon" title="${t('hub.settings')}">${uiIcon('ui-settings')}</button>
+    <button id="tb-dark" class="tb-icon" title="${t('tb.dark')}">${uiIcon('ui-dark')}</button>
     <select id="tb-profile" title="Profile">
       ${(Object.keys(PROFILE_EMOJI) as Profile[]).map((p) => `<option value="${p}" ${p === profile ? 'selected' : ''}>${PROFILE_EMOJI[p]}</option>`).join('')}
     </select>

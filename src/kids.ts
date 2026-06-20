@@ -5,6 +5,7 @@
 import { createState, pressChar, MARK, type TypingState } from './typing';
 import { keyboardSVG, bridgeChar } from './keyboard';
 import { t, lang } from './i18n';
+import { sfx } from './sound';
 
 // ── Банк слов (3–5 букв, проверено тестом длины/дублей) ──
 const RU3 = ['кот', 'дом', 'сок', 'лес', 'мяч', 'сыр', 'нос', 'рот', 'лук', 'мак', 'жук', 'дым', 'сон', 'мир', 'кит'];
@@ -79,19 +80,7 @@ const OOPS = () => OOPS_L[lang()];
 const pick = (a: string[]) => a[Math.floor(Math.random() * a.length)];
 
 // ── Звук (Web Audio, весёлый) ──
-let ctx: AudioContext | null = null;
-function tone(freq: number, at: number, dur: number, gain = 0.07) {
-  if (!ctx) return;
-  const o = ctx.createOscillator(); const g = ctx.createGain();
-  o.type = 'triangle'; o.frequency.value = freq;
-  g.gain.setValueAtTime(gain, ctx.currentTime + at);
-  g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + at + dur);
-  o.connect(g); g.connect(ctx.destination);
-  o.start(ctx.currentTime + at); o.stop(ctx.currentTime + at + dur + 0.02);
-}
-function sndWord() { try { ctx ??= new AudioContext(); [523.25, 659.25, 783.99].forEach((f, i) => tone(f, i * 0.09, 0.18)); } catch { /* no audio */ } }
-function sndLevel() { try { ctx ??= new AudioContext(); [523.25, 587.33, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, i * 0.11, 0.22, 0.08)); } catch { /* no audio */ } }
-function sndOops() { try { ctx ??= new AudioContext(); tone(196, 0, 0.12, 0.05); } catch { /* no audio */ } }
+// звуки — общий модуль sound.ts (sfx): котик радуется/грустит, фанфары, звёзды
 
 // ── API для main.ts ──
 let onAI: (() => void) | null = null;
@@ -118,12 +107,12 @@ export function kidsHandleKey(e: KeyboardEvent): void {
   const expected = st.pattern[st.pos] ?? '';
   ch = bridgeChar(ch, expected); // раскладка ОС не мешает ребёнку
   const r = pressChar(st, ch, true);
-  if (r.wrong) { levelErrors++; mascotSay = pick(OOPS()); sndOops(); }
+  if (r.wrong) { levelErrors++; mascotSay = pick(OOPS()); sfx.catSad(); }   // котик грустит
   if (r.finished) {
     levelChars += st.pattern.length;
     mascotSay = pick(PRAISE());
     if (wordIdx + 1 < level.words.length) {
-      sndWord();
+      sfx.catHappy();   // котик радуется за слово
       wordIdx++;
       st = createState([level.words[wordIdx]]);
     } else {
@@ -135,8 +124,9 @@ export function kidsHandleKey(e: KeyboardEvent): void {
 
 function finishLevel() {
   if (!level) return;
-  sndLevel();
   lastStars = levelErrors === 0 ? 3 : (1 - levelErrors / Math.max(levelChars, 1)) >= 0.9 ? 2 : 1;
+  sfx.fanfare();                                          // уровень пройден
+  for (let i = 0; i < lastStars; i++) sfx.star();         // звон за каждую звезду (со сдвигом — см. tone start)
   if (lastStars > (prog.stars[level.id] ?? 0)) { prog.stars[level.id] = lastStars; saveProg(); }
   playedThisSession++;
   screen = 'done';

@@ -7,6 +7,7 @@ import { keyboardSVG, bridgeChar, keyIdFor } from './keyboard';
 import { recordKey, pushHistory } from './stats-store';
 import { t, lang } from './i18n';
 import { CORPUS } from './corpus';
+import { sfx } from './sound';
 import type { Profile } from './profiles';
 
 const MIN_SPAN = 3, MAX_SPAN = 9;
@@ -66,6 +67,7 @@ function startRound() {
   errs = 0; startedAt = 0;
   revealMode = true;
   screen = 'play';
+  sfx.start();   // старт раунда / показ слов
   render();
   // авто-скрытие ~1.2 c на слово (плюс кнопка «Запомнил»)
   timer = window.setTimeout(toType, Math.max(2500, span * 1200));
@@ -114,6 +116,9 @@ function finishRound() {
   if (lastRecall >= 90 && span < MAX_SPAN) { span++; lastUp = true; if (span > bestSpan) { bestSpan = span; saveBest(); } }
   else if (lastRecall < 90 && span > MIN_SPAN) { span--; lastUp = false; }
   else lastUp = lastRecall >= 90;
+  const stars = lastRecall === 100 ? 3 : lastRecall >= 90 ? 2 : lastRecall >= 70 ? 1 : 0;
+  sfx.fanfare();                                   // раунд пройден
+  for (let i = 0; i < stars; i++) sfx.star();      // звон по звёздам
   screen = 'result';
   render();
 }

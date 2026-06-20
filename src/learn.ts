@@ -7,6 +7,7 @@ import { keyboardSVG, bridgeChar, keyIdFor, handLetters } from './keyboard';
 import { recordKey, pushHistory, letterWeights, heatMap } from './stats-store';
 import { buildModel, generate, type NgramModel } from './ngram';
 import { CORPUS } from './corpus';
+import { sfx } from './sound';
 import { t, lang, type Lang } from './i18n';
 import type { Profile } from './profiles';
 
@@ -113,7 +114,7 @@ function kidsAdapt() {
   kidsLinesOnLvl++;
   if (avg === null || kidsLinesOnLvl < 2) return; // дать обжиться ≥2 строки на уровне
   if (avg < 0.10 && kidsLvl < kidsCap(kbLang())) {       // освоено → +пара букв
-    kidsLvl++; saveKidsLvl(); kidsLinesOnLvl = 0; errWin = []; kidsEasyNext = false;
+    kidsLvl++; saveKidsLvl(); kidsLinesOnLvl = 0; errWin = []; kidsEasyNext = false; sfx.upgrade();
   } else if (avg > 0.25) {                                // перегруз → передышка
     kidsEasyNext = true;
     if (avg > 0.35 && kidsLvl > 0) { kidsLvl--; saveKidsLvl(); } // совсем тяжело → шаг назад
@@ -124,7 +125,7 @@ function kidsAdapt() {
 function adultAdapt() {
   const avg = winAvg();
   if (avg === null) return;
-  if (avg < 0.06 && adultDiff < 6) { adultDiff++; errWin = []; adultEasyNext = false; }  // освоено → сложнее
+  if (avg < 0.06 && adultDiff < 6) { adultDiff++; errWin = []; adultEasyNext = false; sfx.upgrade(); }  // освоено → сложнее
   else if (avg > 0.18) {                                                                  // перегруз → передышка
     adultEasyNext = true;
     if (avg > 0.30 && adultDiff > 0) adultDiff--;                                          // тяжело → шаг назад

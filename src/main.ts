@@ -4,6 +4,7 @@ import { ravenExercises } from './raven';
 import { classicExercises } from './classic';
 import { createState, pressChar, backspace, stats, MARK, type TypingState } from './typing';
 import { keyboardSVG, bridgeChar, keyIdFor } from './keyboard';
+import { sfx, setSoundEnabled } from './sound';
 import { type Profile, PROFILE_EMOJI, loadProfile, saveProfile, applyProfile } from './profiles';
 import { kidsEnter, kidsHandleKey } from './kids';
 import { courseEnter, courseHandleKey } from './course';
@@ -23,6 +24,7 @@ let idx = 0;
 let st: TypingState = createState(['']);
 let hidePattern = false;
 let soundOn = true;
+setSoundEnabled(() => soundOn);
 let blockOnError = true;
 let showKeyb = true; // схема клавиатуры из оригинального TypeRIGHTing
 let showHeat = localStorage.getItem('tr_heat') === '1'; // тепловая карта клавиш
@@ -112,10 +114,12 @@ function saveProgress() {
 }
 function recordFinish(ex: Exercise) {
   const s = stats(st);
+  const isRecord = s.wpm > 0 && s.wpm > prog.bestWpm;
   if (s.wpm > prog.bestWpm) prog.bestWpm = s.wpm;
   if (s.accuracy > prog.bestAcc) prog.bestAcc = s.accuracy;
   if (!prog.done.includes(ex.id)) prog.done.push(ex.id);
   saveProgress();
+  if (isRecord) sfx.record(); else sfx.success();   // звук завершения / рекорда
 }
 
 function viewStats() {

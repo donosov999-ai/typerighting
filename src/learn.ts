@@ -43,11 +43,13 @@ let kidsLvl = Math.max(0, +(localStorage.getItem('tr_kids_ai_lvl') ?? '0') || 0)
 function kidsLadder(KL: 'en' | 'ru') { return KL === 'ru' ? KIDS_LADDER_RU : KIDS_LADDER_EN; }
 function kidsCap(KL: 'en' | 'ru') { return kidsLadder(KL).length - 1; }
 function kidsPool(KL: 'en' | 'ru') { const L = kidsLadder(KL); return L.slice(0, Math.min(kidsLvl, L.length - 1) + 1).join(''); }
-// Адаптивное состояние детской лесенки
-let kidsLineKeys = 0, kidsLineErr = 0;   // нажатий/ошибок в текущей строке
-let kidsWin: number[] = [];              // errRate последних строк (скользящее окно)
-let kidsLinesOnLvl = 0;                  // строк отыграно на текущем уровне
-let kidsEasyNext = false;                // следующую строку дать проще (передышка)
+// Адаптивное состояние (общее для всех профилей)
+let lineKeysCnt = 0, lineErrCnt = 0;     // нажатий/ошибок в текущей строке
+let errWin: number[] = [];               // errRate последних строк (скользящее окно)
+let kidsLinesOnLvl = 0;                  // строк отыграно на текущем уровне (дети)
+let kidsEasyNext = false;                // детям: следующую строку проще (передышка)
+let adultDiff = 0;                       // взрослый AI: уровень сложности 0..6 (растёт по успеху)
+let adultEasyNext = false;               // взрослым: следующую строку проще
 function saveKidsLvl() { try { localStorage.setItem('tr_kids_ai_lvl', String(kidsLvl)); } catch { /* */ } }
 
 // Генерация детской строки: упор на новые буквы уровня и на те, где ошибаешься.
@@ -83,19 +85,35 @@ function kidsGenLine(easy = false): string {
   return out.join(' ');
 }
 
-// Решение об уровне после строки: окно ошибок → повысить / передышка / откат.
+// errRate скользящего окна последних 3 строк (общая для kids/adult)
+function winAvg(): number | null {
+  const er = lineKeysCnt > 0 ? lineErrCnt / lineKeysCnt : 0;
+  errWin.push(er); if (errWin.length > 3) errWin.shift();
+  if (errWin.length < 2) return null;
+  return errWin.reduce((a, b) => a + b, 0) / errWin.length;
+}
+// Дети: окно ошибок → +пара букв / передышка / откат уровня.
 function kidsAdapt() {
-  const er = kidsLineKeys > 0 ? kidsLineErr / kidsLineKeys : 0;
-  kidsWin.push(er); if (kidsWin.length > 3) kidsWin.shift();
+  const avg = winAvg();
   kidsLinesOnLvl++;
-  if (kidsLinesOnLvl < 2 || kidsWin.length < 2) return; // дать обжиться ≥2 строки на уровне
-  const avg = kidsWin.reduce((a, b) => a + b, 0) / kidsWin.length;
+  if (avg === null || kidsLinesOnLvl < 2) return; // дать обжиться ≥2 строки на уровне
   if (avg < 0.10 && kidsLvl < kidsCap(kbLang())) {       // освоено → +пара букв
-    kidsLvl++; saveKidsLvl(); kidsLinesOnLvl = 0; kidsWin = []; kidsEasyNext = false;
+    kidsLvl++; saveKidsLvl(); kidsLinesOnLvl = 0; errWin = []; kidsEasyNext = false;
   } else if (avg > 0.25) {                                // перегруз → передышка
     kidsEasyNext = true;
     if (avg > 0.35 && kidsLvl > 0) { kidsLvl--; saveKidsLvl(); } // совсем тяжело → шаг назад
-    kidsLinesOnLvl = 0; kidsWin = [];
+    kidsLinesOnLvl = 0; errWin = [];
+  }
+}
+// Взрослые: окно ошибок → сложнее (длиннее слова, больше упор на слабые) / передышка.
+function adultAdapt() {
+  const avg = winAvg();
+  if (avg === null) return;
+  if (avg < 0.06 && adultDiff < 6) { adultDiff++; errWin = []; adultEasyNext = false; }  // освоено → сложнее
+  else if (avg > 0.18) {                                                                  // перегруз → передышка
+    adultEasyNext = true;
+    if (avg > 0.30 && adultDiff > 0) adultDiff--;                                          // тяжело → шаг назад
+    errWin = [];
   }
 }
 
@@ -104,11 +122,14 @@ function genLine(easy = false): string {
   const L = lang();              // корпус — по языку интерфейса (7 языков)
   const KL = kbLang();           // алфавит клавиш — ru или латиница
   const chars = prof === 'f' ? 40 : 50;     // kids уже обработан выше (kidsGenLine)
-  const maxWord = 8;
   if (hand === 'both') {
     ensureModel(L);
-    return generate(model!, { chars, weight: letterWeights(KL), maxWord });
+    // адаптивно: освоил — длиннее слова и сильнее упор на слабые; передышка (easy) — проще
+    const mw = easy ? 5 : Math.min(12, 6 + adultDiff);
+    const boost = easy ? 3 : 4 + adultDiff;
+    return generate(model!, { chars, weight: letterWeights(KL, boost), maxWord: mw });
   }
+  const maxWord = 8;
   // одна рука: слоги из букв этой руки, слабые буквы — чаще (осмысленных слов
   // одной рукой почти нет, цель — досягаемость и сила пальцев конкретной руки)
   const w = letterWeights(KL);
@@ -130,9 +151,10 @@ function genLine(easy = false): string {
 }
 
 function nextLine() {
-  st = createState([genLine(kidsEasyNext)]);
-  kidsEasyNext = false;
-  kidsLineKeys = 0; kidsLineErr = 0;
+  const easy = prof === 'kids' ? kidsEasyNext : adultEasyNext;
+  st = createState([genLine(easy)]);
+  kidsEasyNext = false; adultEasyNext = false;
+  lineKeysCnt = 0; lineErrCnt = 0;
   lineStart = 0; lastStroke = 0;
 }
 
@@ -176,13 +198,14 @@ export function learnHandleKey(e: KeyboardEvent) {
   }
   if (expected && expected !== ' ' && expected !== '\n') { const id = keyIdFor(expected, rc); if (id) recordKey(id, !r.wrong); }
   if (r.wrong) acc.errors++;
-  // детская лесенка: считаем нажатия/ошибки текущей строки (для адаптивного окна)
-  if (prof === 'kids' && expected && expected !== ' ' && expected !== '\n') { kidsLineKeys++; if (r.wrong) kidsLineErr++; }
+  // адаптив: считаем нажатия/ошибки текущей строки (окно — для kids и взрослых)
+  if (expected && expected !== ' ' && expected !== '\n') { lineKeysCnt++; if (r.wrong) lineErrCnt++; }
 
   if (r.finished) {
     acc.ms += now - lineStart;
     acc.lines++;
-    if (prof === 'kids') kidsAdapt();   // адаптивно: освоено → +буквы; перегруз → передышка/откат
+    if (prof === 'kids') kidsAdapt();          // дети: окно ошибок → +буквы/передышка/откат
+    else if (hand === 'both') adultAdapt();    // взрослые: окно ошибок → сложнее/проще
     nextLine();
   }
   learnRender();

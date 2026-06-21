@@ -15,6 +15,7 @@ import { memorizeEnter, memorizeHandleKey } from './memorize';
 import { recallEnter, recallHandleKey } from './recall';
 import { t, lang, setLang, LANGS, LANG_LABEL, type Lang } from './i18n';
 import { recordKey, heatMap, hasKeyData, weakDrill, pushHistory, progressSVG, streakDays } from './stats-store';
+import { checkNewBadges, BADGES, unlockedSet, type Badge } from './achievements';
 import { linkAccount, autoSync, pushSync, loadSession, clearSession, trSync, collectLocal } from './account';
 
 // ── Состояние сессии ──
@@ -56,7 +57,7 @@ let statsTimer: number | null = null;
 // Спец-режимы: 'weak' (адаптив по слабым клавишам) / 'custom' (свой текст)
 let special: null | 'weak' | 'custom' = null;
 let customText = '';
-let modal: null | 'custom' | 'progress' | 'settings' | 'account' = null;
+let modal: null | 'custom' | 'progress' | 'settings' | 'account' | 'ach' = null;
 let accMsg = '';        // статус-сообщение формы аккаунта
 let accBusy = false;    // идёт сетевой запрос (блокирует кнопки)
 function accErr(err: string | undefined, ru: boolean): string {
@@ -119,6 +120,7 @@ function finishExam() {
   exam.phase = 'result';
   const r = examStats();
   pushHistory(r.net, r.accuracy, Date.now());
+  notifyBadges();
   render();
 }
 
@@ -126,6 +128,19 @@ function exitExam() {
   if (exam?.timer) clearInterval(exam.timer);
   exam = null;
   reset();
+}
+
+// ── Достижения: проверка новых бейджей + награда-тост ──
+function notifyBadges() {
+  const fresh = checkNewBadges();
+  if (!fresh.length) return;
+  sfx.star();
+  let el = document.getElementById('badge-toast') as (HTMLElement & { _t?: number }) | null;
+  if (!el) { el = document.createElement('div') as HTMLElement & { _t?: number }; el.id = 'badge-toast'; el.className = 'badge-toast'; document.body.appendChild(el); }
+  el.innerHTML = fresh.map((b: Badge) => `<div class="bt-item"><span class="bt-ic">${b.icon}</span><span><b>${esc(t('ach.unlocked'))}</b><br>${esc(t('ach.' + b.id))}</span></div>`).join('');
+  el.classList.add('show');
+  window.clearTimeout(el._t);
+  el._t = window.setTimeout(() => el && el.classList.remove('show'), 4500);
 }
 
 // ── Прогресс по банку: ключ tr_progress_<bank> ──
@@ -251,6 +266,7 @@ function renderTopbar() {
     <span class="tb-sp"></span>
     <button id="tb-flow" class="tb-btn ${flowMode ? 'on' : ''}" title="${t('hint.flow')}">${uiIcon('ui-flow')} ${t('tb.flow')}</button>
     <button id="tb-progress" class="tb-icon" title="${t('prog.title')}">${uiIcon('ui-progress')}</button>
+    <button id="tb-ach" class="tb-icon" title="${t('ach.title')}">🏆</button>
     <button id="tb-account" class="tb-icon" title="${lang() === 'ru' ? 'Аккаунт' : 'Account'}">${loadSession() ? '👤' : '☁️'}</button>
     <button id="tb-settings" class="tb-icon" title="${t('hub.settings')}">${uiIcon('ui-settings')}</button>
     <button id="tb-dark" class="tb-icon" title="${t('tb.dark')}">${uiIcon('ui-dark')}</button>
@@ -262,6 +278,7 @@ function renderTopbar() {
   (document.getElementById('tb-home') as HTMLButtonElement).onclick = () => goTo('hub');
   (document.getElementById('tb-flow') as HTMLButtonElement).onclick = () => { flowMode = !flowMode; try { localStorage.setItem('tr_flow', flowMode ? '1' : '0'); } catch { /* */ } flowReset(); reapplyGlobal(); };
   (document.getElementById('tb-progress') as HTMLButtonElement).onclick = () => { modal = 'progress'; render(); };
+  (document.getElementById('tb-ach') as HTMLButtonElement).onclick = () => { modal = 'ach'; render(); };
   (document.getElementById('tb-settings') as HTMLButtonElement).onclick = () => { modal = 'settings'; render(); };
   (document.getElementById('tb-account') as HTMLButtonElement).onclick = () => { modal = 'account'; accMsg = ''; render(); };
   (document.getElementById('tb-dark') as HTMLButtonElement).onclick = () => { dark = !dark; try { localStorage.setItem('tr_dark', dark ? '1' : '0'); } catch { /* */ } applyDark(); renderTopbar(); };
@@ -306,7 +323,7 @@ function renderModalGlobal() {
   modalEl.innerHTML = renderModal();
   const close = () => { modal = null; renderModalGlobal(); };
   const mb = document.getElementById('modal-bg'); if (mb) mb.onclick = (e) => { if (e.target === mb) close(); };
-  onClick('set-close', close); onClick('prog-close', close); onClick('custom-cancel', close);
+  onClick('set-close', close); onClick('prog-close', close); onClick('custom-cancel', close); onClick('ach-close', close);
   onClick('sound-test', () => sfx.record());   // явная проверка звука (клик = жест, разблокирует аудио)
   onClick('custom-go', () => startCustom((document.getElementById('custom-ta') as HTMLTextAreaElement).value));
   // аккаунт: вход / создание / синк / выход
@@ -497,6 +514,17 @@ function renderModal(): string {
       </div>`;
     return `<div class="modal-bg" id="modal-bg"><div class="modal">
       <h2>${sess ? '👤' : '☁️'} ${ru ? 'Аккаунт' : 'Account'}</h2>${body}
+    </div></div>`;
+  }
+  if (modal === 'ach') {
+    const un = unlockedSet();
+    return `<div class="modal-bg" id="modal-bg"><div class="modal">
+      <h2>🏆 ${t('ach.title')}</h2>
+      <p class="hint2">${esc(t('ach.sub'))} — ${un.size}/${BADGES.length}</p>
+      <div class="ach-grid">
+        ${BADGES.map((b) => `<div class="ach-badge ${un.has(b.id) ? 'on' : ''}"><span class="ach-ic">${b.icon}</span><span class="ach-t">${esc(t('ach.' + b.id))}</span></div>`).join('')}
+      </div>
+      <div class="donebtns"><button id="ach-close" class="primary">${t('prog.close')}</button></div>
     </div></div>`;
   }
   if (modal === 'settings') {
@@ -855,7 +883,7 @@ document.addEventListener('keydown', (e) => {
       st = exState(pool[idx]);
     } else {
       if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
-      pushHistory(s.wpm, s.accuracy, Date.now());
+      pushHistory(s.wpm, s.accuracy, Date.now()); notifyBadges();
       if (!special) { const ex = pool[idx]; if (ex) recordFinish(ex); }
     }
   }

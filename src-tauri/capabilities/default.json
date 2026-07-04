@@ -1,6 +1,6 @@
 {
   "identifier": "default",
-  "description": "Базовые права окна, без плагинов.",
+  "description": "Базовые права окна + авто-апдейтер (проверка/установка) и перезапуск.",
   "windows": ["main"],
-  "permissions": ["core:default"]
+  "permissions": ["core:default", "updater:default", "process:default"]
 }

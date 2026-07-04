@@ -16,6 +16,10 @@ env:
   CARGO_HTTP_MULTIPLEXING: "false"
   CARGO_NET_GIT_FETCH_WITH_CLI: "true"
   NODE_VERSION: '22'
+  # Подпись апдейтов (tauri-plugin-updater). Приватный ключ в secret, пароль пустой.
+  # createUpdaterArtifacts=true → рядом с бандлами генерятся *.sig, из них собирается latest.json.
+  TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+  TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
 
 jobs:
   # ─── Тесты движка печати (vitest) — гейт: провал блокирует сборку ──────
@@ -35,10 +39,10 @@ jobs:
       - name: Run tests
         run: npm test
 
-  # ─── macOS Apple Silicon ──────────────────────────────────────────────
+  # ─── macOS universal (Intel + Apple Silicon) ──────────────────────────
   macos-arm:
     name: macOS universal (Intel + Apple Silicon)
-    runs-on: macos-latest  # github-hosted M-runner
+    runs-on: macos-latest
     needs: test
     timeout-minutes: 55
     steps:
@@ -53,7 +57,6 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          # оба таргета для universal-сборки (fat binary arm64 + x86_64 → работает на Intel-маках тоже)
           targets: aarch64-apple-darwin,x86_64-apple-darwin
 
       - name: Cache Cargo target
@@ -72,21 +75,17 @@ jobs:
       - name: Clean stale bundle (cached target)
         run: rm -rf src-tauri/target/universal-apple-darwin/release/bundle
 
-      # beforeBuildCommand в tauri.conf.json сам гоняет `npm run build` (tsc + vite)
-      - name: Build .app + .dmg (universal — arm64 + Intel)
+      # createUpdaterArtifacts → генерит TypeRIGHTing.app.tar.gz + .sig (подписанный updater-бандл)
+      - name: Build .app + .dmg + updater (universal)
         run: npx tauri build --target universal-apple-darwin
 
-      - name: Package .app → tar.gz
-        run: |
-          cd src-tauri/target/universal-apple-darwin/release/bundle/macos
-          tar -czf TypeRIGHTing-macos-universal.tar.gz TypeRIGHTing.app
-          ls -la
-
-      - name: Upload .app artifact
+      - name: Upload updater artifact (.app.tar.gz + .sig)
         uses: actions/upload-artifact@v4
         with:
-          name: TypeRIGHTing-macos-universal-app
-          path: src-tauri/target/universal-apple-darwin/release/bundle/macos/TypeRIGHTing-macos-universal.tar.gz
+          name: TypeRIGHTing-macos-universal-updater
+          path: |
+            src-tauri/target/universal-apple-darwin/release/bundle/macos/*.app.tar.gz
+            src-tauri/target/universal-apple-darwin/release/bundle/macos/*.app.tar.gz.sig
           retention-days: 30
 
       - name: Upload .dmg artifact
@@ -133,14 +132,17 @@ jobs:
         shell: bash
         run: rm -rf src-tauri/target/x86_64-pc-windows-msvc/release/bundle
 
-      - name: Build .exe + .msi
+      - name: Build .exe + .msi + updater
         run: npx tauri build --target x86_64-pc-windows-msvc
 
-      - name: Upload .exe artifact (NSIS setup)
+      # NSIS .exe — установщик для прямого скачивания И updater-цель (Tauri подписывает его .sig)
+      - name: Upload .exe artifact (NSIS setup + .sig)
         uses: actions/upload-artifact@v4
         with:
           name: TypeRIGHTing-windows-x64-exe
-          path: src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+          path: |
+            src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.exe
+            src-tauri/target/x86_64-pc-windows-msvc/release/bundle/nsis/*.sig
           retention-days: 30
 
       - name: Upload .msi artifact
@@ -191,14 +193,17 @@ jobs:
       - name: Clean stale bundle (cached target)
         run: rm -rf src-tauri/target/release/bundle
 
-      - name: Build .AppImage + .deb + .rpm
+      - name: Build .AppImage + .deb + .rpm + updater
         run: npx tauri build
 
-      - name: Upload .AppImage artifact
+      # AppImage — updater-цель для Linux (Tauri подписывает .sig)
+      - name: Upload .AppImage artifact (+ .sig)
         uses: actions/upload-artifact@v4
         with:
           name: TypeRIGHTing-linux-x64-appimage
-          path: src-tauri/target/release/bundle/appimage/*.AppImage
+          path: |
+            src-tauri/target/release/bundle/appimage/*.AppImage
+            src-tauri/target/release/bundle/appimage/*.AppImage.sig
           retention-days: 30
 
       - name: Upload .deb artifact
@@ -216,10 +221,9 @@ jobs:
           retention-days: 30
         continue-on-error: true
 
-  # ─── Create GitHub Release if tagged (vX.Y.Z) ─────────────────────────
+  # ─── Create GitHub Release + latest.json (updater manifest) ───────────
   release:
     needs: [macos-arm, windows-x64, linux-x64]
-    # релиз создаётся, если собрались Mac+Windows — флак Linux (AppImage часто нестабилен) его НЕ блокирует
     if: ${{ always() && startsWith(github.ref, 'refs/tags/v') && needs.macos-arm.result == 'success' && needs.windows-x64.result == 'success' }}
     runs-on: ubuntu-latest
     permissions:
@@ -232,16 +236,61 @@ jobs:
       - name: Show artifacts
         run: find artifacts -type f
 
+      # Собираем latest.json для tauri-plugin-updater из .sig-файлов и имён бандлов.
+      # url указывают на ассеты этого же релиза (releases/download/<tag>/<file>).
+      - name: Build updater manifest (latest.json)
+        run: |
+          node <<'EOF'
+          const fs = require('fs');
+          const cp = require('child_process');
+          const tag = process.env.GITHUB_REF_NAME;        // v2.56.4
+          const ver = tag.replace(/^v/, '');
+          const base = `https://github.com/donosov999-ai/typerighting/releases/download/${tag}`;
+          const find = (pat) => cp.execSync(`find artifacts -name '${pat}' | head -1`).toString().trim();
+          const sig = (p) => (p ? fs.readFileSync(p, 'utf8').trim() : '');
+          const name = (p) => (p ? p.split('/').pop() : '');
+
+          const macTgz = find('*.app.tar.gz');
+          const macSig = find('*.app.tar.gz.sig');
+          const winExe = find('*-setup.exe');
+          const winSig = find('*-setup.exe.sig');
+          const linAi  = find('*.AppImage');
+          const linSig = find('*.AppImage.sig');
+
+          const platforms = {};
+          if (macTgz && macSig) {
+            const p = { signature: sig(macSig), url: `${base}/${name(macTgz)}` };
+            platforms['darwin-x86_64'] = p;       // universal .app.tar.gz покрывает обе арки
+            platforms['darwin-aarch64'] = p;
+          }
+          if (winExe && winSig) platforms['windows-x86_64'] = { signature: sig(winSig), url: `${base}/${name(winExe)}` };
+          if (linAi && linSig)  platforms['linux-x86_64']   = { signature: sig(linSig), url: `${base}/${name(linAi)}` };
+
+          const manifest = {
+            version: ver,
+            notes: `TypeRIGHTing ${ver}. Подробнее — в описании релиза.`,
+            pub_date: new Date().toISOString(),
+            platforms,
+          };
+          fs.writeFileSync('latest.json', JSON.stringify(manifest, null, 2));
+          console.log('latest.json:\n', JSON.stringify(manifest, null, 2));
+          if (Object.keys(platforms).length === 0) { console.error('НЕТ платформ — .sig не найдены, апдейтер не заработает'); process.exit(1); }
+          EOF
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            artifacts/TypeRIGHTing-macos-universal-app/TypeRIGHTing-macos-universal.tar.gz
+            latest.json
+            artifacts/TypeRIGHTing-macos-universal-updater/*.app.tar.gz
+            artifacts/TypeRIGHTing-macos-universal-updater/*.app.tar.gz.sig
             artifacts/TypeRIGHTing-macos-universal-dmg/*.dmg
             artifacts/TypeRIGHTing-windows-x64-exe/*.exe
+            artifacts/TypeRIGHTing-windows-x64-exe/*.sig
             artifacts/TypeRIGHTing-windows-x64-msi/*.msi
             artifacts/TypeRIGHTing-linux-x64-appimage/*.AppImage
+            artifacts/TypeRIGHTing-linux-x64-appimage/*.AppImage.sig
             artifacts/TypeRIGHTing-linux-x64-deb/*.deb
             artifacts/TypeRIGHTing-linux-x64-rpm/*.rpm
           generate_release_notes: true
-          fail_on_unmatched_files: false   # Linux-файлы могут отсутствовать, если его job упал — это ок
+          fail_on_unmatched_files: false

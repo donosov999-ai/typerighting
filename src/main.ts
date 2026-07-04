@@ -17,6 +17,7 @@ import { t, lang, setLang, LANGS, LANG_LABEL, type Lang } from './i18n';
 import { recordKey, heatMap, hasKeyData, weakDrill, pushHistory, progressSVG, streakDays } from './stats-store';
 import { checkNewBadges, BADGES, unlockedSet, type Badge } from './achievements';
 import { linkAccount, autoSync, pushSync, loadSession, clearSession, trSync, collectLocal } from './account';
+import { checkForUpdate } from './updater';
 
 // ── Состояние сессии ──
 let profile: Profile | null = loadProfile();
@@ -910,3 +911,5 @@ loadExercises().then((data) => { all = data; loadBank(); }).catch((err) => {
 });
 // тихо подтянуть облачный прогресс при старте, если вошёл в аккаунт
 void autoSync().then((ok) => { if (ok) { reapplyGlobal(); renderTopbar(); } });
+// авто-проверка обновлений — только в нативном приложении (в браузере/PWA молча выходит)
+void checkForUpdate();

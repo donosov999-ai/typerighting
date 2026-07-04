@@ -37,10 +37,10 @@ jobs:
 
   # ─── macOS Apple Silicon ──────────────────────────────────────────────
   macos-arm:
-    name: macOS arm64 (.app + .dmg)
-    runs-on: macos-latest  # github-hosted M-runner, native arm64
+    name: macOS universal (Intel + Apple Silicon)
+    runs-on: macos-latest  # github-hosted M-runner
     needs: test
-    timeout-minutes: 40
+    timeout-minutes: 55
     steps:
       - uses: actions/checkout@v4
 
@@ -53,7 +53,8 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: aarch64-apple-darwin
+          # оба таргета для universal-сборки (fat binary arm64 + x86_64 → работает на Intel-маках тоже)
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
 
       - name: Cache Cargo target
         uses: actions/cache@v4
@@ -63,36 +64,36 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             src-tauri/target/
-          key: ${{ runner.os }}-arm-cargo-${{ hashFiles('src-tauri/Cargo.toml') }}
+          key: ${{ runner.os }}-universal-cargo-${{ hashFiles('src-tauri/Cargo.toml') }}
 
       - name: Install deps
         run: npm ci
 
       - name: Clean stale bundle (cached target)
-        run: rm -rf src-tauri/target/aarch64-apple-darwin/release/bundle
+        run: rm -rf src-tauri/target/universal-apple-darwin/release/bundle
 
       # beforeBuildCommand в tauri.conf.json сам гоняет `npm run build` (tsc + vite)
-      - name: Build .app + .dmg (arm64)
-        run: npx tauri build --target aarch64-apple-darwin
+      - name: Build .app + .dmg (universal — arm64 + Intel)
+        run: npx tauri build --target universal-apple-darwin
 
       - name: Package .app → tar.gz
         run: |
-          cd src-tauri/target/aarch64-apple-darwin/release/bundle/macos
-          tar -czf TypeRIGHTing-macos-arm64.tar.gz TypeRIGHTing.app
+          cd src-tauri/target/universal-apple-darwin/release/bundle/macos
+          tar -czf TypeRIGHTing-macos-universal.tar.gz TypeRIGHTing.app
           ls -la
 
       - name: Upload .app artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TypeRIGHTing-macos-arm64-app
-          path: src-tauri/target/aarch64-apple-darwin/release/bundle/macos/TypeRIGHTing-macos-arm64.tar.gz
+          name: TypeRIGHTing-macos-universal-app
+          path: src-tauri/target/universal-apple-darwin/release/bundle/macos/TypeRIGHTing-macos-universal.tar.gz
           retention-days: 30
 
       - name: Upload .dmg artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TypeRIGHTing-macos-arm64-dmg
-          path: src-tauri/target/aarch64-apple-darwin/release/bundle/dmg/*.dmg
+          name: TypeRIGHTing-macos-universal-dmg
+          path: src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
           retention-days: 30
 
   # ─── Windows x86_64 ────────────────────────────────────────────────────
@@ -235,8 +236,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            artifacts/TypeRIGHTing-macos-arm64-app/TypeRIGHTing-macos-arm64.tar.gz
-            artifacts/TypeRIGHTing-macos-arm64-dmg/*.dmg
+            artifacts/TypeRIGHTing-macos-universal-app/TypeRIGHTing-macos-universal.tar.gz
+            artifacts/TypeRIGHTing-macos-universal-dmg/*.dmg
             artifacts/TypeRIGHTing-windows-x64-exe/*.exe
             artifacts/TypeRIGHTing-windows-x64-msi/*.msi
             artifacts/TypeRIGHTing-linux-x64-appimage/*.AppImage

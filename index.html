@@ -4,11 +4,31 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TypeRIGHTing — тренажёр печати</title>
+    <meta name="theme-color" content="#0e1116" />
+    <meta name="description" content="Бесплатный тренажёр слепой печати: 7 языков, национальные раскладки, ИИ по слабым клавишам, курс с нуля, соревнования и сертификат." />
     <link rel="icon" type="image/png" href="./favicon.png" />
     <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <link rel="manifest" href="./manifest.webmanifest" />
   </head>
   <body>
     <div id="app"></div>
     <script type="module" src="/src/main.ts"></script>
+    <script>
+      // Аналитика (Rybbit) + PWA — ТОЛЬКО в браузере (веб-версия на typefree.pro/github.io),
+      // НЕ в нативном Tauri-приложении: там внешний трекер бесполезен офлайн + режется CSP,
+      // а service worker не нужен. Проверяем маркер Tauri.
+      if (!('__TAURI_INTERNALS__' in window) && !('__TAURI__' in window)) {
+        var a = document.createElement('script');
+        a.src = 'https://analytics.asibots.pro/api/script.js';
+        a.setAttribute('data-site-id', '3'); // ⚠️ создать сайт «typerighting-app» в Rybbit, сверить id
+        a.defer = true;
+        document.head.appendChild(a);
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', function () {
+            navigator.serviceWorker.register('./sw.js').catch(function () {});
+          });
+        }
+      }
+    </script>
   </body>
 </html>

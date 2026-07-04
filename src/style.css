@@ -487,3 +487,15 @@ button:hover { filter: brightness(1.1); }
   border-radius: 14px; padding: 13px 18px; box-shadow: 0 12px 40px rgba(0,0,0,.18); min-width: 220px; }
 .bt-ic { font-size: 30px; }
 .bt-item b { color: var(--accent); font-size: 13px; }
+
+/* P2 соревнование: вызовы + недельная лига */
+.cp-chal { margin: 10px auto; padding: 12px 18px; border-radius: 12px; font-size: 17px; font-weight: 600; max-width: 440px; }
+.cp-chal.won { background: color-mix(in srgb, #2ecc71 16%, transparent); color: #2ecc71; }
+.cp-chal.lost { background: color-mix(in srgb, #e8821e 15%, transparent); color: #e8821e; }
+.cp-chal small { opacity: .7; font-weight: 400; }
+.cp-sharebox { margin: 14px auto 6px; max-width: 470px; }
+.cp-sharebox .sh-row { display: flex; gap: 8px; margin-bottom: 8px; }
+.cp-sharebox .sh-row input { flex: 1; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--line, #39414f); background: var(--surface, #1a2233); color: inherit; font-size: 13px; }
+.cp-sharebox .sh-soc { display: flex; gap: 8px; justify-content: center; }
+.cp-sharebox .sh-soc a { padding: 8px 18px; border-radius: 8px; background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); text-decoration: none; font-weight: 600; font-size: 14px; }
+.cp-board tr.me { background: color-mix(in srgb, var(--accent) 13%, transparent); font-weight: 600; }

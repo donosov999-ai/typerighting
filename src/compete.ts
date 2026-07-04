@@ -7,6 +7,7 @@ import { recordKey, pushHistory } from './stats-store';
 import { t, lang } from './i18n';
 import type { Profile } from './profiles';
 import { submitScore, fetchTop, type LbRow } from './leaderboard';
+import { saveReplay, createChallenge, leagueSubmit, leagueBoard, CHALLENGE_BASE, type Tick, type ChallengeData, type LeagueRow } from './compete-net';
 
 type DiscKey = 'alpha_fwd' | 'alpha_rev' | 'words' | 'digits' | 'sprint';
 const DISCIPLINES: DiscKey[] = ['alpha_fwd', 'alpha_rev', 'words', 'digits', 'sprint'];
@@ -36,7 +37,7 @@ function loadBest() { try { best = JSON.parse(localStorage.getItem('tr_compete')
 function saveBest() { try { localStorage.setItem('tr_compete', JSON.stringify(best)); } catch { /* quota */ } }
 const bestKey = (d: DiscKey, L: string) => `${d}_${L}`;
 
-type Screen = 'menu' | 'run' | 'result' | 'board';
+type Screen = 'menu' | 'run' | 'result' | 'board' | 'league';
 let screen: Screen = 'menu';
 let disc: DiscKey = 'alpha_fwd';
 let st: TypingState = createState(['']);
@@ -49,18 +50,32 @@ let onExit: (() => void) | null = null;
 let boardRows: LbRow[] = [];
 let boardLoading = false;
 let published = false;
+// P2 соревнование
+let timeline: Tick[] = [];                    // тайминг нажатий текущего заезда (для ghost/челленджа)
+let activeChallenge: ChallengeData | null = null; // если вошли по ссылке-вызову «обгони X»
+let leagueRows: LeagueRow[] = [];
+let leagueLoading = false;
+let challengeShareUrl: string | null = null;  // ссылка на созданный вызов
 
 function curLang(): 'en' | 'ru' { return lang() === 'ru' ? 'ru' : 'en'; }
 
-export function competeEnter(container: HTMLElement, profile: Profile, exit: () => void) {
+export function competeEnter(container: HTMLElement, profile: Profile, exit: () => void, challenge?: ChallengeData | null) {
   root = container; onExit = exit; prof = profile;
   loadBest();
-  screen = 'menu';
-  render();
+  activeChallenge = challenge ?? null;
+  if (activeChallenge) {
+    // вошли по ссылке-вызову «обгони X» — сразу запускаем его дисциплину
+    const cd = activeChallenge.discipline as DiscKey;
+    startDisc(DISCIPLINES.includes(cd) ? cd : 'sprint');
+  } else {
+    screen = 'menu';
+    render();
+  }
 }
 
 function startDisc(d: DiscKey) {
   disc = d; errs = 0; startedAt = 0; published = false;
+  timeline = []; challengeShareUrl = null;
   st = createState([content(d, curLang())]);
   screen = 'run';
   render();
@@ -77,6 +92,7 @@ export function competeHandleKey(e: KeyboardEvent) {
   if (startedAt === 0) startedAt = Date.now();
   const expected = st.pattern[st.pos] ?? '';
   ch = bridgeChar(ch, expected);
+  if (timeline.length < 5000) timeline.push({ c: ch, t: Date.now() - startedAt }); // запись для ghost/челленджа
   const rc = /[а-яё]/i.test(st.pattern);
   const r = pressChar(st, ch, true); // блок — соревнование требует точности
   if (expected && expected !== ' ' && expected !== '\n') { const id = keyIdFor(expected, rc); if (id) recordKey(id, !r.wrong); }
@@ -100,6 +116,8 @@ function finish() {
   pushHistory(wpm, acc, Date.now());
   void s;
   lastResult = { wpm, acc, ms, medal, isRecord };
+  // недельная лига — записываем результат (async, не блокирует UI)
+  if (prof !== 'kids') void leagueSubmit(localStorage.getItem('tr_name') || 'Anon', disc, curLang(), wpm, acc);
   screen = 'result';
 }
 
@@ -135,6 +153,7 @@ function render() {
   if (screen === 'menu') renderMenu();
   else if (screen === 'run') renderRun();
   else if (screen === 'result') renderResult();
+  else if (screen === 'league') renderLeague();
   else renderBoard();
 }
 
@@ -170,7 +189,7 @@ function renderRun() {
       <header class="mode-head">
         <button id="cp-back" class="mode-back">${t('nav.tomap')}</button>
         <span class="c-progress">🏆 ${t('comp.' + disc)}</span>
-        <span class="c-acc">${t('comp.hint')}</span>
+        <span class="c-acc">${activeChallenge ? `🎯 ${curLang() === 'ru' ? 'Цель' : 'Target'}: ${activeChallenge.target_wpm} ${t('st.wpm')}` : t('comp.hint')}</span>
       </header>
       <div class="card"><div class="pattern pattern-big" id="pattern">${renderPattern()}</div></div>
       <div class="keyb">${keyboardSVG(st.finishedAt === null ? st.pattern[st.pos] ?? null : null, rc, showRu)}</div>
@@ -182,12 +201,33 @@ function renderResult() {
   const r = lastResult!;
   const savedName = localStorage.getItem('tr_name') ?? '';
   const kids = prof === 'kids';
+  const L = curLang() === 'ru';
+  // вердикт по вызову (если вошли по ссылке-челленджу)
+  let chVerdict = '';
+  if (activeChallenge) {
+    const won = r.wpm > activeChallenge.target_wpm;
+    const from = esc(activeChallenge.from_nick);
+    chVerdict = won
+      ? `<div class="cp-chal won">🎉 ${L ? `Обогнал ${from}!` : `You beat ${from}!`} <small>${activeChallenge.target_wpm} ${t('st.wpm')}</small></div>`
+      : `<div class="cp-chal lost">${L ? `Не хватило до ${from}` : `Short of ${from}`}: <b>${activeChallenge.target_wpm}</b> ${t('st.wpm')}</div>`;
+  }
+  // панель поделиться созданным вызовом
+  let shareBox = '';
+  if (challengeShareUrl) {
+    const enc = encodeURIComponent(challengeShareUrl);
+    const txt = encodeURIComponent(L ? `Обгони меня в TypeRIGHTing: ${r.wpm} зн/мин!` : `Beat me in TypeRIGHTing: ${r.wpm} WPM!`);
+    shareBox = `<div class="cp-sharebox">
+      <div class="sh-row"><input id="cp-shurl" readonly value="${esc(challengeShareUrl)}"/><button id="cp-shcopy">${L ? 'Копировать' : 'Copy'}</button></div>
+      <div class="sh-soc"><a href="https://t.me/share/url?url=${enc}&text=${txt}" target="_blank" rel="noopener">Telegram</a><a href="https://vk.com/share.php?url=${enc}" target="_blank" rel="noopener">ВКонтакте</a></div>
+    </div>`;
+  }
   root!.innerHTML = `
     <div class="wrap compete">
       <div class="cp-result">
         <div class="cp-medal"><img class="medal-img" src="images/icons/medal-${r.medal}.webp" alt=""/></div>
         <h2>${t('comp.' + disc)}</h2>
         ${r.isRecord ? `<div class="cp-record">⭐ ${t('comp.record')}</div>` : ''}
+        ${chVerdict}
         <div class="statsbar">
           <div><b>${r.wpm}</b><span>${t('st.wpm')}</span></div>
           <div><b>${r.acc}%</b><span>${t('st.accuracy')}</span></div>
@@ -197,7 +237,12 @@ function renderResult() {
         <div class="cp-publish">
           <input id="cp-name" type="text" value="${esc(savedName)}" placeholder="${t('comp.name')}" maxlength="24"/>
           <button id="cp-pub" class="primary" ${published ? 'disabled' : ''}>${published ? '✓' : '🌐 ' + t('comp.publish')}</button>
-        </div>`}
+        </div>
+        <div class="donebtns">
+          <button id="cp-challenge">🎯 ${L ? 'Бросить вызов' : 'Challenge a friend'}</button>
+          <button id="cp-league" class="ghost">🏆 ${L ? 'Лига недели' : 'Weekly league'}</button>
+        </div>
+        ${shareBox}`}
         <div class="donebtns">
           <button id="cp-again">${t('k.again')}</button>
           <button id="cp-board" class="ghost">🌐 ${t('comp.leaderboard')}</button>
@@ -206,10 +251,57 @@ function renderResult() {
       </div>
     </div>`;
   (root!.querySelector('#cp-again') as HTMLButtonElement).onclick = () => startDisc(disc);
-  (root!.querySelector('#cp-menu') as HTMLButtonElement).onclick = () => { screen = 'menu'; render(); };
+  (root!.querySelector('#cp-menu') as HTMLButtonElement).onclick = () => { activeChallenge = null; screen = 'menu'; render(); };
   (root!.querySelector('#cp-board') as HTMLButtonElement).onclick = () => openBoard();
   const pub = root!.querySelector('#cp-pub') as HTMLButtonElement | null;
   if (pub) pub.onclick = () => publish((root!.querySelector('#cp-name') as HTMLInputElement).value.trim() || '—');
+  const chBtn = root!.querySelector('#cp-challenge') as HTMLButtonElement | null;
+  if (chBtn) chBtn.onclick = () => challengeShare(chBtn);
+  const lgBtn = root!.querySelector('#cp-league') as HTMLButtonElement | null;
+  if (lgBtn) lgBtn.onclick = () => openLeague();
+  const shcopy = root!.querySelector('#cp-shcopy') as HTMLButtonElement | null;
+  if (shcopy) shcopy.onclick = () => {
+    const i = root!.querySelector('#cp-shurl') as HTMLInputElement; i.select();
+    navigator.clipboard?.writeText(i.value).then(() => { shcopy.textContent = L ? '✓' : '✓'; }).catch(() => {});
+  };
+}
+
+// P2: создать вызов из своего результата → ссылка + шеринг
+async function challengeShare(btn: HTMLButtonElement) {
+  if (!lastResult) return;
+  btn.disabled = true;
+  const nick = localStorage.getItem('tr_name') || 'Anon';
+  const replayId = await saveReplay(nick, disc, curLang(), lastResult.wpm, lastResult.acc, timeline);
+  const chId = await createChallenge(nick, disc, curLang(), lastResult.wpm, lastResult.acc, replayId);
+  btn.disabled = false;
+  if (chId) { challengeShareUrl = `${CHALLENGE_BASE}/${chId}`; render(); }
+  else { btn.textContent = curLang() === 'ru' ? 'Ошибка сети' : 'Network error'; }
+}
+
+// P2: недельная лига
+async function openLeague() {
+  screen = 'league'; leagueLoading = true; leagueRows = []; render();
+  leagueRows = (await leagueBoard(disc, curLang())) || [];
+  leagueLoading = false; render();
+}
+
+function renderLeague() {
+  const L = curLang() === 'ru';
+  const me = (localStorage.getItem('tr_name') || '').toLowerCase();
+  root!.innerHTML = `
+    <div class="wrap compete">
+      <header class="mode-head">
+        <button id="lg-back" class="mode-back">${t('nav.back')}</button>
+        <h1>🏆 ${L ? 'Лига недели' : 'Weekly league'}</h1>
+      </header>
+      <p class="c-intro">${t('comp.' + disc)} · ${curLang().toUpperCase()}</p>
+      ${leagueLoading ? `<p class="hint2">${t('comp.loading')}</p>` : leagueRows.length === 0 ? `<p class="hint2">${t('comp.empty')}</p>` : `
+        <table class="cp-board">
+          <thead><tr><th>#</th><th>${t('comp.player')}</th><th>${t('st.wpm')}</th><th>${t('st.accuracy')}</th></tr></thead>
+          <tbody>${leagueRows.map((row) => `<tr class="${row.nick.toLowerCase() === me ? 'me' : ''}"><td>${row.rank}</td><td>${esc(row.nick)}</td><td><b>${row.wpm}</b></td><td>${row.accuracy}%</td></tr>`).join('')}</tbody>
+        </table>`}
+    </div>`;
+  (root!.querySelector('#lg-back') as HTMLButtonElement).onclick = () => { screen = lastResult ? 'result' : 'menu'; render(); };
 }
 
 function renderBoard() {

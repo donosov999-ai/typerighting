@@ -176,7 +176,7 @@ function renderMap() {
             const open = unlocked(l.id);
             const s = prog.stars[l.id] ?? 0;
             return `<button class="k-lvl ${open ? 'open' : 'locked'} ${s > 0 ? 'passed' : ''}" data-level="${l.id}" ${open ? '' : 'disabled'}>
-              <span class="k-num">${open ? (l.id <= 9 ? `<img class="k-num-img" src="images/icons/num/num-${l.id}.jpg" alt="${l.id}"/>` : String(l.id)) : '🔒'}</span>
+              <span class="k-num">${open ? (l.id <= 9 ? `<img class="k-num-img" src="images/icons/num/num-${l.id}.webp" alt="${l.id}"/>` : String(l.id)) : '🔒'}</span>
               <span class="k-stars">${starsStr(s)}</span>
             </button>`;
           }).join('')}
@@ -211,7 +211,7 @@ function renderLevel() {
         <span class="k-progress">${t('k.level')} ${l.title} · ${t('k.word')} ${wordIdx + 1} / ${l.words.length}</span>
         <span class="k-acc">${levelErrors === 0 ? t('k.noerr') : `${t('k.errors')}: ${levelErrors}`}</span>
       </header>
-      <div class="k-mascot"><img class="k-cat-img${levelErrors > 0 && mascotSay && OOPS().includes(mascotSay) ? ' oops' : ''}" src="images/mascot.jpg" alt=""/> <span class="k-say">${esc(mascotSay)}</span></div>
+      <div class="k-mascot"><img class="k-cat-img${levelErrors > 0 && mascotSay && OOPS().includes(mascotSay) ? ' oops' : ''}" src="images/mascot.webp" alt=""/> <span class="k-say">${esc(mascotSay)}</span></div>
       <div class="k-word">${renderWord()}</div>
       <div class="keyb">${keyboardSVG(nextCh, l.lang === 'ru', showRu)}</div>
     </div>`;
@@ -233,7 +233,7 @@ function renderDone() {
   root!.innerHTML = `
     <div class="wrap kids">
       <div class="k-done">
-        <div class="k-cat-big"><img src="images/mascot.jpg" alt="" class="k-mascot-img"/></div>
+        <div class="k-cat-big"><img src="images/mascot.webp" alt="" class="k-mascot-img"/></div>
         <h2>${t('k.level')} ${l.title} ${t('k.passed')}</h2>
         <div class="k-stars-big">${'⭐'.repeat(lastStars)}${'☆'.repeat(3 - lastStars)}</div>
         <p class="k-done-note">${lastStars === 3 ? t('k.note3') : lastStars === 2 ? t('k.note2') : t('k.note1')}</p>

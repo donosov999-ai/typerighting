@@ -151,7 +151,7 @@ function renderMenu() {
         ${DISCIPLINES.map((d) => {
           const b = best[bestKey(d, L)] ?? 0;
           return `<button class="cp-disc" data-d="${d}">
-            <img class="disc-ic" src="images/icons/disc-${d}.jpg" alt=""/>
+            <img class="disc-ic" src="images/icons/disc-${d}.webp" alt=""/>
             <span class="cp-name">${t('comp.' + d)}</span>
             <span class="cp-best">${b > 0 ? `${t('comp.best')}: ${b} ${t('st.wpm')}` : '—'}</span>
           </button>`;
@@ -185,7 +185,7 @@ function renderResult() {
   root!.innerHTML = `
     <div class="wrap compete">
       <div class="cp-result">
-        <div class="cp-medal"><img class="medal-img" src="images/icons/medal-${r.medal}.jpg" alt=""/></div>
+        <div class="cp-medal"><img class="medal-img" src="images/icons/medal-${r.medal}.webp" alt=""/></div>
         <h2>${t('comp.' + disc)}</h2>
         ${r.isRecord ? `<div class="cp-record">⭐ ${t('comp.record')}</div>` : ''}
         <div class="statsbar">

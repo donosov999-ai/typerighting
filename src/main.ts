@@ -247,8 +247,8 @@ function activeMode(): string {
 }
 const MODE_ICON: Record<string, string> = { train: 'train', course: 'course', learn: 'ai', compete: 'compete', memorize: 'memorize', span: 'span', exam: 'exam', progress: 'progress' };
 function profDir(): string { return profile === 'f' ? 'f/' : profile === 'kids' ? 'kids/' : ''; } // иконки под профиль (М/Ж/дети)
-function modeIcon(g: string, cls = 'mode-ic'): string { return `<img class="${cls}" src="images/icons/${profDir()}mode-${MODE_ICON[g] ?? g}.jpg" alt=""/>`; }
-function uiIcon(name: string): string { return `<img class="tb-ic" src="images/icons/${profDir()}${name}.jpg" alt=""/>`; }
+function modeIcon(g: string, cls = 'mode-ic'): string { return `<img class="${cls}" src="images/icons/${profDir()}mode-${MODE_ICON[g] ?? g}.webp" alt=""/>`; }
+function uiIcon(name: string): string { return `<img class="tb-ic" src="images/icons/${profDir()}${name}.webp" alt=""/>`; }
 function renderTopbar() {
   if (!chromeEl) { chromeEl = document.createElement('div'); chromeEl.id = 'topbar'; document.body.prepend(chromeEl); }
   if (profile === null) { chromeEl.innerHTML = ''; return; } // на онбординге скрыта

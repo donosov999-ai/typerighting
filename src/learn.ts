@@ -306,7 +306,7 @@ function learnRender() {
       <div class="keyb">${keyboardSVG(st.finishedAt === null ? st.pattern[st.pos] ?? null : null, rc, showRu, null, hand === 'both' ? null : hand)}</div>
       ${kids ? `
         <div class="learn-kids">
-          <div class="k-avatar">${Array.from({ length: 9 }, (_, i) => `<img class="k-frame ${i === kidsMood() ? 'on' : ''}" src="images/icons/kids-cat-${i}.jpg" alt=""/>`).join('')}</div>
+          <div class="k-avatar">${Array.from({ length: 9 }, (_, i) => `<img class="k-frame ${i === kidsMood() ? 'on' : ''}" src="images/icons/kids-cat-${i}.webp" alt=""/>`).join('')}</div>
           <div class="k-game">
             <div class="k-score">⭐ ${kidsScore}</div>
             <div class="k-sub"><b>${m.accuracy}%</b> ${t('st.accuracy')} · ${t('span.level')} ${kidsLvl + 1}</div>

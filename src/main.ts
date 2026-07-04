@@ -18,6 +18,7 @@ import { recordKey, heatMap, hasKeyData, weakDrill, pushHistory, progressSVG, st
 import { checkNewBadges, BADGES, unlockedSet, type Badge } from './achievements';
 import { linkAccount, autoSync, pushSync, loadSession, clearSession, trSync, collectLocal } from './account';
 import { checkForUpdate } from './updater';
+import { registerCert } from './cert';
 
 // ── Состояние сессии ──
 let profile: Profile | null = loadProfile();
@@ -672,13 +673,55 @@ function renderExam() {
       </div>
       <div class="donebtns">
         <button id="ex-cert" class="primary">${t('ex.cert')}</button>
+        <button id="ex-share">${lang() === 'ru' ? '🔗 Поделиться' : '🔗 Share'}</button>
         <button id="ex-retry">${t('ex.again')}</button>
         <button id="ex-exit" class="ghost">${t('ex.cancel')}</button>
       </div>
+      <div id="ex-sharebox" hidden style="margin-top:14px"></div>
     </div></div>`;
   (document.getElementById('ex-cert') as HTMLButtonElement).onclick = () => downloadCertificate(s, pass);
+  bindShare(s);
   (document.getElementById('ex-retry') as HTMLButtonElement).onclick = () => { exam!.phase = 'setup'; render(); };
   (document.getElementById('ex-exit') as HTMLButtonElement).onclick = () => exitExam();
+}
+
+// P1 сертификат-виралка: регистрируем результат → показываем шеринг-ссылку + кнопки соцсетей.
+function bindShare(s: ReturnType<typeof examStats>) {
+  const btn = document.getElementById('ex-share') as HTMLButtonElement | null;
+  const box = document.getElementById('ex-sharebox');
+  if (!btn || !box || !exam) return;
+  const L = lang() === 'ru';
+  btn.onclick = async () => {
+    btn.disabled = true;
+    const orig = btn.textContent;
+    btn.textContent = '…';
+    const url = await registerCert(exam!.name, 'exam', lang(), s.net, s.accuracy);
+    btn.disabled = false;
+    btn.textContent = orig;
+    box.hidden = false;
+    if (!url) { box.textContent = L ? 'Не удалось создать ссылку (нет сети?)' : 'Could not create link (offline?)'; return; }
+    const enc = encodeURIComponent(url);
+    const txt = encodeURIComponent(
+      L ? `Моя скорость печати: ${s.net} зн/мин, точность ${s.accuracy}%! А ты сможешь быстрее?`
+        : `My typing speed: ${s.net} WPM, ${s.accuracy}% accuracy! Can you beat it?`
+    );
+    box.innerHTML =
+      `<div style="display:flex;gap:8px;margin-bottom:8px">
+         <input id="sh-url" readonly value="${esc(url)}" style="flex:1;padding:9px 11px;border-radius:8px;border:1px solid var(--line,#3a4152);background:var(--surface,#1a2233);color:inherit;font-size:13px"/>
+         <button id="sh-copy">${L ? 'Копировать' : 'Copy'}</button>
+       </div>
+       <div style="display:flex;gap:8px;flex-wrap:wrap">
+         <a class="sh-soc" href="https://t.me/share/url?url=${enc}&text=${txt}" target="_blank" rel="noopener">Telegram</a>
+         <a class="sh-soc" href="https://vk.com/share.php?url=${enc}" target="_blank" rel="noopener">ВКонтакте</a>
+       </div>`;
+    (document.getElementById('sh-copy') as HTMLButtonElement).onclick = () => {
+      const i = document.getElementById('sh-url') as HTMLInputElement;
+      i.select();
+      navigator.clipboard?.writeText(i.value).then(() => {
+        const b = document.getElementById('sh-copy'); if (b) b.textContent = L ? '✓ Скопировано' : '✓ Copied';
+      }).catch(() => {});
+    };
+  };
 }
 
 function fmtTime(ms: number): string {

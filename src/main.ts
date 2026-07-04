@@ -19,6 +19,10 @@ import { checkNewBadges, BADGES, unlockedSet, type Badge } from './achievements'
 import { linkAccount, autoSync, pushSync, loadSession, clearSession, trSync, collectLocal } from './account';
 import { checkForUpdate } from './updater';
 import { registerCert } from './cert';
+import { getChallenge, type ChallengeData } from './compete-net';
+
+// P2: вызов, по ссылке которого вошли (?challenge=<id>) — передаётся в competeEnter один раз
+let pendingChallenge: ChallengeData | null = null;
 
 // ── Состояние сессии ──
 let profile: Profile | null = loadProfile();
@@ -385,7 +389,7 @@ function render() {
   }
   aiInit = false;
   if (compMode) {
-    if (!compInit) { compInit = true; competeEnter(app, profile ?? 'm', () => { compMode = false; compInit = false; render(); }); }
+    if (!compInit) { compInit = true; const pc = pendingChallenge; pendingChallenge = null; competeEnter(app, profile ?? 'm', () => { compMode = false; compInit = false; render(); }, pc); }
     return; // соревнование рисует себя сам
   }
   compInit = false;
@@ -956,3 +960,10 @@ loadExercises().then((data) => { all = data; loadBank(); }).catch((err) => {
 void autoSync().then((ok) => { if (ok) { reapplyGlobal(); renderTopbar(); } });
 // авто-проверка обновлений — только в нативном приложении (в браузере/PWA молча выходит)
 void checkForUpdate();
+// P2: вход по ссылке-вызову ?challenge=<id> → грузим вызов и открываем соревнование
+void (async () => {
+  const cid = new URLSearchParams(location.search).get('challenge');
+  if (!cid || !/^[0-9a-f-]{36}$/i.test(cid)) return;
+  const ch = await getChallenge(cid);
+  if (ch) { pendingChallenge = ch; compMode = true; compInit = false; render(); }
+})();

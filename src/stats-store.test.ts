@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { letterKeys } from './keyboard';
-import { recordKey, weakKeys, letterWeights } from './stats-store';
+import { recordKey, weakKeys, letterWeights, recoveryKeys, pushHistory, history } from './stats-store';
 
 // Браузерные глобалы для узла: localStorage (persist) + window.setTimeout (батч записи).
 beforeAll(() => {
@@ -43,5 +43,30 @@ describe('единый скор слабости (ошибки + скорост�
     for (let i = 0; i < 5; i++) { t += 150; recordKey(errKey.id, true, t); }
     for (let i = 0; i < 5; i++) { t += 150; recordKey(errKey.id, false, t); }
     expect(weakKeys('en', 8)).toContain(errKey.ch);
+  });
+});
+
+describe('bestTime + восстановление + гейт сессии (keybr bestConfidence / Result.Filter)', () => {
+  it('клавиша, просевшая от своего рекорда, попадает в recoveryKeys', () => {
+    const key = letterKeys('en')[7];
+    let t = 700_000;
+    // разгон: быстро → рекорд bt ≈ 100 мс
+    for (let i = 0; i < 12; i++) { t += 100; recordKey(key.id, true, t); }
+    // деградация: те же ВЕРНЫЕ нажатия, но медленно → t уходит выше bt
+    for (let i = 0; i < 8; i++) { t += 600; recordKey(key.id, true, t); }
+    expect(recoveryKeys('en', 5)).toContain(key.ch);
+  });
+
+  it('микро-сессия (<10 нажатий) не пишется в историю', () => {
+    const id = letterKeys('en')[1].id;
+    let t = 900_000;
+    // валидная сессия → проходит и сбрасывает счётчик
+    for (let i = 0; i < 12; i++) { t += 100; recordKey(id, true, t); }
+    pushHistory(50, 0.99, 1000);
+    const before = history().length;
+    // микро-сессия: 3 нажатия → должна быть отброшена
+    for (let i = 0; i < 3; i++) { t += 100; recordKey(id, true, t); }
+    pushHistory(80, 1.0, 2000);
+    expect(history().length).toBe(before);
   });
 });

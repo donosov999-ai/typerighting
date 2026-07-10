@@ -6,6 +6,7 @@ import { ruWordsExercises, ruPhrasesExercises } from './ru';
 import { createState, pressChar, backspace, stats, MARK, type TypingState } from './typing';
 import { keyboardSVG, bridgeChar, keyIdFor, setLayout, type Layout } from './keyboard';
 import { sfx, setSoundEnabled, metronome } from './sound';
+import { voiceEnabled, setVoiceEnabled } from './voice';
 import { type Profile, PROFILE_EMOJI, loadProfile, saveProfile, applyProfile } from './profiles';
 import { kidsEnter, kidsHandleKey } from './kids';
 import { courseEnter, courseHandleKey } from './course';
@@ -365,6 +366,7 @@ function renderModalGlobal() {
   cb('hardkeys', (v) => { try { localStorage.setItem('tr_hardkeys', v ? '1' : '0'); } catch { /* */ } });
   cb('metro', (v) => { metroOn = v; try { localStorage.setItem('tr_metro', v ? '1' : '0'); } catch { /* */ } });
   cb('bridge', (v) => { try { localStorage.setItem('tr_bridge', v ? '1' : '0'); } catch { /* */ } });
+  cb('voice', (v) => setVoiceEnabled(v));
   onChange('layoutsel', (el) => {
     layoutPref = el.value as 'auto' | Layout;
     try { localStorage.setItem('tr_layout', layoutPref); } catch { /* */ }
@@ -539,6 +541,7 @@ function renderModal(): string {
       <div class="settings-list">
         <label><input type="checkbox" id="hide" ${hidePattern ? 'checked' : ''}/> ${t('tb.hide')}</label>
         <label><input type="checkbox" id="sound" ${soundOn ? 'checked' : ''}/> ${t('tb.sound')}</label>
+        <label><input type="checkbox" id="voice" ${voiceEnabled() ? 'checked' : ''}/> ${lang() === 'ru' ? '🔊 Озвучка букв' : '🔊 Letter voice (RU)'}</label>
         <label><input type="checkbox" id="block" ${blockOnError ? 'checked' : ''}/> ${t('tb.block')}</label>
         <label><input type="checkbox" id="keyb" ${showKeyb ? 'checked' : ''}/> ${t('tb.keyb')}</label>
         <label><input type="checkbox" id="heat" ${showHeat ? 'checked' : ''}/> ${t('tb.heat')}</label>

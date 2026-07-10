@@ -3,6 +3,7 @@
 // уровни со звёздами 1–3, котик-маскот, клавиатура всегда на экране,
 // мягкая пауза после 3 уровней подряд. Прогресс: localStorage `tr_kids`.
 import { createState, pressChar, MARK, type TypingState } from './typing';
+import { speak } from './voice';
 import { keyboardSVG, bridgeChar } from './keyboard';
 import { t, lang } from './i18n';
 import { sfx } from './sound';
@@ -107,6 +108,7 @@ export function kidsHandleKey(e: KeyboardEvent): void {
   const expected = st.pattern[st.pos] ?? '';
   ch = bridgeChar(ch, expected); // раскладка ОС не мешает ребёнку
   const r = pressChar(st, ch, true);
+  if (!r.wrong) speak(ch); // F1: озвучка верной буквы (Silero RU) — помогает ребёнку связать букву и звук
   if (r.wrong) { levelErrors++; mascotSay = pick(OOPS()); sfx.catSad(); }   // котик грустит
   if (r.finished) {
     levelChars += st.pattern.length;

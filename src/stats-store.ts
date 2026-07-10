@@ -12,10 +12,12 @@ import type { Lang } from './i18n';
 //  t  — EMA среднего межклавишного интервала (мс) ТОЛЬКО по ВЕРНЫМ нажатиям
 //       (как histogram.ts у keybr: опечатки из тайминга исключаются).
 //  nt — число валидных замеров времени (для доверия к t).
+//  bt — ЛУЧШЕЕ (мин) EMA-время за всю историю клавиши (keybr bestTimeToType):
+//       отличает «никогда не умел» от «умел, но просел» → режим восстановления.
 //  Зачем: раньше «слабость» считалась ТОЛЬКО по ошибкам — медленная-но-верная
 //  буква не попадала в дрилл. Теперь скорость и точность объединены в один скор
 //  (см. keyWeakness). keybr берёт только скорость, мы — только ошибки; берём оба.
-type KeyStat = { ok: number; err: number; t?: number; nt?: number };
+type KeyStat = { ok: number; err: number; t?: number; nt?: number; bt?: number };
 const KS_KEY = 'tr_keystats';
 let keystats: Record<string, KeyStat> = load();
 
@@ -28,6 +30,11 @@ const MIN_MS = 40, MAX_MS = 12000;
 // TypeRIGHTing — «RIGHT»); но скорость участвует. keybr игнорит точность вовсе.
 const ERR_W = 0.6, SPEED_W = 0.4;
 let lastKeyTs = 0;
+// Гейт валидности сессии (keybr Result.Filter minLength=10): микро-проходы в
+// 2-3 символа не должны пачкать график WPM / макс / стрик. Считаем нажатия с
+// прошлой записи в историю — правки 7 вызовов pushHistory не требуется.
+const MIN_SESSION_KEYS = 10;
+let keysSinceHist = 0;
 
 function load(): Record<string, KeyStat> {
   try {
@@ -49,17 +56,35 @@ export function recordKey(keyId: string, ok: boolean, now = Date.now()) {
   const s = keystats[keyId] ?? (keystats[keyId] = { ok: 0, err: 0 });
   const gap = now - lastKeyTs;
   lastKeyTs = now;
+  keysSinceHist++;
   if (ok) {
     s.ok++;
     // тайминг копим только по верным нажатиям и только валидный интервал
     if (gap >= MIN_MS && gap <= MAX_MS) {
       s.t = s.t === undefined ? gap : EMA_ALPHA * gap + (1 - EMA_ALPHA) * s.t;
       s.nt = (s.nt ?? 0) + 1;
+      s.bt = s.bt === undefined ? s.t : Math.min(s.bt, s.t); // рекорд клавиши
     }
   } else {
     s.err++;
   }
   persist();
+}
+
+/** Клавиши, которые ПРОСЕЛИ от своего рекорда (t хуже bt на >порог) — для
+ *  режима «восстановление». Отличается от weakKeys: клавиша может быть быстрее
+ *  медианы (не «слабая»), но заметно медленнее СЕБЯ-прошлой. keybr: bestConfidence. */
+export function recoveryKeys(lang: 'en' | 'ru', count = 3, drop = 0.25): string[] {
+  const scored = letterKeys(lang)
+    .map(({ id, ch }) => {
+      const s = keystats[id];
+      const reg = s && s.bt !== undefined && s.t !== undefined && (s.nt ?? 0) >= 3
+        ? (s.t - s.bt) / s.bt : 0;
+      return { ch, reg };
+    })
+    .filter((x) => x.reg > drop)
+    .sort((a, b) => b.reg - a.reg);
+  return scored.slice(0, count).map((x) => x.ch);
 }
 
 /** Референс скорости — медиана EMA-времён пользователя (порог «медленно»).
@@ -145,7 +170,8 @@ export function weakDrill(L: Lang, lines = 5): string[] {
     weakModelLang = L;
   }
   const weight = letterWeights(kb, 12); // сильнее, чем в AI (×12), — это прицельная тренировка слабых
-  const force = weakKeys(kb, 4);        // топ-4 слабых буквы форсим в каждое слово (гарантия плотности)
+  // форсим слабые (ошибки+скорость) + просевшие от рекорда (восстановление)
+  const force = [...new Set([...weakKeys(kb, 4), ...recoveryKeys(kb, 2)])];
   const out: string[] = [];
   for (let l = 0; l < lines; l++) out.push(generate(weakModel, { chars: 44, weight, maxWord: 8, force }));
   return out.filter((s) => s.length > 0);
@@ -157,6 +183,9 @@ const H_KEY = 'tr_history';
 
 export function pushHistory(wpm: number, acc: number, now: number) {
   if (wpm <= 0) return;
+  // микро-сессия (<10 нажатий с прошлой записи) — мусор, не пишем в график/стрик
+  if (keysSinceHist < MIN_SESSION_KEYS) { keysSinceHist = 0; return; }
+  keysSinceHist = 0;
   let h: HistPoint[] = [];
   try { h = JSON.parse(localStorage.getItem(H_KEY) ?? '[]'); } catch { h = []; }
   if (!Array.isArray(h)) h = [];

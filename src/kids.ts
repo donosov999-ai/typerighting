@@ -108,7 +108,7 @@ export function kidsHandleKey(e: KeyboardEvent): void {
   const expected = st.pattern[st.pos] ?? '';
   ch = bridgeChar(ch, expected); // раскладка ОС не мешает ребёнку
   const r = pressChar(st, ch, true);
-  if (!r.wrong) speak(ch); // F1: озвучка верной буквы (Silero RU) — помогает ребёнку связать букву и звук
+  if (!r.wrong) speak(ch); // F1: озвучка верной буквы (Silero, RU/EN) — помогает ребёнку связать букву и звук
   if (r.wrong) { levelErrors++; mascotSay = pick(OOPS()); sfx.catSad(); }   // котик грустит
   if (r.finished) {
     levelChars += st.pattern.length;

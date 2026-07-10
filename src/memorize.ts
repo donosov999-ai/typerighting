@@ -126,7 +126,8 @@ export function memorizeHandleKey(e: KeyboardEvent) {
   ch = bridgeChar(ch, expected);
   const rc = /[а-яё]/i.test(st.pattern);
   const r = pressChar(st, ch, true); // блок при ошибке — иначе слепой проход не имеет смысла
-  if (expected && expected !== ' ' && expected !== '\n') { const id = keyIdFor(expected, rc); if (id) recordKey(id, !r.wrong); }
+  // timed=false: режим заучивания — паузы на вспоминание не портят скоростную модель
+  if (expected && expected !== ' ' && expected !== '\n') { const id = keyIdFor(expected, rc); if (id) recordKey(id, !r.wrong, undefined, false); }
   if (r.wrong) errs++;
   if (r.finished) finishLevel();
   render();

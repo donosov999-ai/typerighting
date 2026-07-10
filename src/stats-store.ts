@@ -14,10 +14,11 @@ import type { Lang } from './i18n';
 //  nt — число валидных замеров времени (для доверия к t).
 //  bt — ЛУЧШЕЕ (мин) EMA-время за всю историю клавиши (keybr bestTimeToType):
 //       отличает «никогда не умел» от «умел, но просел» → режим восстановления.
+//  ts — метка времени последнего апдейта (для календарного time-decay, см. ниже).
 //  Зачем: раньше «слабость» считалась ТОЛЬКО по ошибкам — медленная-но-верная
 //  буква не попадала в дрилл. Теперь скорость и точность объединены в один скор
 //  (см. keyWeakness). keybr берёт только скорость, мы — только ошибки; берём оба.
-type KeyStat = { ok: number; err: number; t?: number; nt?: number; bt?: number };
+type KeyStat = { ok: number; err: number; t?: number; nt?: number; bt?: number; ts?: number };
 const KS_KEY = 'tr_keystats';
 let keystats: Record<string, KeyStat> = load();
 
@@ -30,11 +31,24 @@ const MIN_MS = 40, MAX_MS = 12000;
 // TypeRIGHTing — «RIGHT»); но скорость участвует. keybr игнорит точность вовсе.
 const ERR_W = 0.6, SPEED_W = 0.4;
 let lastKeyTs = 0;
+// D — календарный time-decay: доказательства «выцветают» со временем (период
+// полураспада 21 день). Свежая ошибка/скорость весит больше давней; забытая за
+// месяц клавиша снова требует данных. keybr ЭТОГО НЕ делает (их EMA — по счёту
+// нажатий, не по календарю); это наша идея, закрывает наш известный гэп.
+const HALFLIFE_DAYS = 21, DAY_MS = 86400000;
 // Гейт валидности сессии (keybr Result.Filter minLength=10): микро-проходы в
 // 2-3 символа не должны пачкать график WPM / макс / стрик. Считаем нажатия с
 // прошлой записи в историю — правки 7 вызовов pushHistory не требуется.
 const MIN_SESSION_KEYS = 10;
 let keysSinceHist = 0;
+// H — счётчики текущей сессии (для богатой истории len/ms/err без правки вызовов).
+let errsSinceHist = 0, sessionStartTs = 0;
+// Граница сессии: разрыв >5 мин между нажатиями = уход/новая сессия → чистим хвост
+// (страхует от брошенной сессии без pushHistory). 5 мин безопасно > любой паузы
+// внутри экзамена, поэтому реальный результат не разрежется.
+const SESSION_GAP_MS = 300000;
+// F — целевая скорость для прогноза «N сессий до цели».
+const TARGET_WPM_KEY = 'tr_target_wpm', DEFAULT_TARGET_WPM = 40;
 
 function load(): Record<string, KeyStat> {
   try {
@@ -52,21 +66,40 @@ function persist() {
   }, 800);
 }
 
-export function recordKey(keyId: string, ok: boolean, now = Date.now()) {
+// timed=false — режимы с обдумыванием (memorize/recall): паузы там законны и не
+// должны портить скоростную модель. Точность (ok/err) копим ВЕЗДЕ (кросс-режимно),
+// а тайминг — только в потоковых режимах. Это чище полного бакетирования по режиму:
+// не дробит данные о слабости (меньше данных на клавишу = хуже), но снимает
+// искажение самомедианы паузами. (Ответ M из чек-листа — минимальным средством.)
+export function recordKey(keyId: string, ok: boolean, now = Date.now(), timed = true) {
   const s = keystats[keyId] ?? (keystats[keyId] = { ok: 0, err: 0 });
+  // D — выцветание: при возврате к клавише спустя >0.5 дня гасим старые счётчики
+  // (ratio сохраняется, но объём падает → свежие нажатия начинают доминировать).
+  if (s.ts !== undefined) {
+    const days = (now - s.ts) / DAY_MS;
+    if (days > 0.5) {
+      const decay = Math.pow(0.5, days / HALFLIFE_DAYS);
+      s.ok *= decay; s.err *= decay; if (s.nt) s.nt *= decay;
+    }
+  }
+  s.ts = now;
   const gap = now - lastKeyTs;
+  // граница сессии: долгий простой → предыдущая сессия брошена, не тащим её хвост
+  if (lastKeyTs > 0 && gap > SESSION_GAP_MS) { keysSinceHist = 0; errsSinceHist = 0; sessionStartTs = 0; }
   lastKeyTs = now;
   keysSinceHist++;
+  if (sessionStartTs === 0) sessionStartTs = now; // H — старт сессии
   if (ok) {
     s.ok++;
-    // тайминг копим только по верным нажатиям и только валидный интервал
-    if (gap >= MIN_MS && gap <= MAX_MS) {
+    // тайминг: только верные, валидный интервал И потоковый режим (не паузный)
+    if (timed && gap >= MIN_MS && gap <= MAX_MS) {
       s.t = s.t === undefined ? gap : EMA_ALPHA * gap + (1 - EMA_ALPHA) * s.t;
       s.nt = (s.nt ?? 0) + 1;
       s.bt = s.bt === undefined ? s.t : Math.min(s.bt, s.t); // рекорд клавиши
     }
   } else {
     s.err++;
+    errsSinceHist++;
   }
   persist();
 }
@@ -178,20 +211,63 @@ export function weakDrill(L: Lang, lines = 5): string[] {
 }
 
 // ── История сессий: график прогресса ──
-export type HistPoint = { t: number; wpm: number; acc: number };
+// H — точка богаче: помимо wpm/acc пишем длину/время/ошибки сессии и composite-score
+// (keybr-стиль). len/ms/err берём из счётчиков сессии — вызовы pushHistory не тронуты.
+export type HistPoint = { t: number; wpm: number; acc: number; len?: number; ms?: number; err?: number; score?: number };
 const H_KEY = 'tr_history';
 
 export function pushHistory(wpm: number, acc: number, now: number) {
-  if (wpm <= 0) return;
-  // микро-сессия (<10 нажатий с прошлой записи) — мусор, не пишем в график/стрик
-  if (keysSinceHist < MIN_SESSION_KEYS) { keysSinceHist = 0; return; }
-  keysSinceHist = 0;
+  // Счётчики сессии читаем и СБРАСЫВАЕМ до любых ранних return — иначе хвост
+  // мусорной попытки (wpm=0 / микро-сессия) утечёт в следующую точку истории
+  // и протащит её мимо гейта (багфикс адверсариального ревью 11.07).
+  const len = keysSinceHist;
+  const ms = sessionStartTs && now - sessionStartTs < 3600000 ? now - sessionStartTs : 0; // >1ч = простой, игнор
+  const err = Math.round(errsSinceHist);
+  keysSinceHist = 0; errsSinceHist = 0; sessionStartTs = 0;
+  if (wpm <= 0 || len < MIN_SESSION_KEYS) return; // мусор/микро-сессия — счётчики уже сброшены
+  // composite-score: скорость × точность(доля) × фактор длины (короткие сессии дешевле)
+  const a = acc > 1 ? acc / 100 : acc; // acc в проде 0..100 → нормируем в долю
+  const score = Math.round(wpm * a * Math.min(1, len / 50));
   let h: HistPoint[] = [];
   try { h = JSON.parse(localStorage.getItem(H_KEY) ?? '[]'); } catch { h = []; }
   if (!Array.isArray(h)) h = [];
-  h.push({ t: now, wpm, acc });
+  h.push({ t: now, wpm, acc, len, ms, err, score });
   if (h.length > 300) h = h.slice(h.length - 300);
   try { localStorage.setItem(H_KEY, JSON.stringify(h)); } catch { /* quota */ }
+}
+
+// ── F — прогноз «≈N сессий до целевого WPM» ──
+export function getTargetWpm(): number {
+  const v = Number(localStorage.getItem(TARGET_WPM_KEY));
+  return Number.isFinite(v) && v > 0 ? v : DEFAULT_TARGET_WPM;
+}
+export function setTargetWpm(wpm: number) {
+  if (wpm > 0) { try { localStorage.setItem(TARGET_WPM_KEY, String(Math.round(wpm))); } catch { /* quota */ } }
+}
+
+/** Линейная регрессия wpm по последним сессиям → через сколько сессий достигнешь
+ *  цели (упрощённый keybr LearningRate, но по сессиям, не урокам). null если данных
+ *  мало / тренд не растёт / уже на цели / шум (R² низкий). certainty = R². */
+export function forecast(target = getTargetWpm()): { sessions: number; certainty: number; target: number } | null {
+  const ys = history().slice(-30).map((p) => p.wpm);
+  const n = ys.length;
+  if (n < 5) return null;
+  if (ys[n - 1] >= target) return null; // уже достигнуто
+  let sx = 0, sy = 0, sxx = 0, sxy = 0;
+  for (let i = 0; i < n; i++) { sx += i; sy += ys[i]; sxx += i * i; sxy += i * ys[i]; }
+  const denom = n * sxx - sx * sx;
+  if (denom === 0) return null;
+  const slope = (n * sxy - sx * sy) / denom;
+  const intercept = (sy - slope * sx) / n;
+  if (slope <= 0.05) return null; // не растёт — прогноз бессмысленен
+  const mean = sy / n;
+  let ssTot = 0, ssRes = 0;
+  for (let i = 0; i < n; i++) { const pred = intercept + slope * i; ssTot += (ys[i] - mean) ** 2; ssRes += (ys[i] - pred) ** 2; }
+  const r2 = ssTot > 0 ? 1 - ssRes / ssTot : 0;
+  if (r2 < 0.35) return null; // слишком шумно для честного прогноза
+  const sessions = Math.ceil((target - intercept) / slope - (n - 1));
+  if (sessions <= 0 || sessions > 200) return null;
+  return { sessions, certainty: Math.round(r2 * 100) / 100, target };
 }
 
 export function history(): HistPoint[] {
@@ -227,10 +303,12 @@ export function progressSVG(maxPoints = 40): string {
   const line = h.map((p, i) => `${i === 0 ? 'M' : 'L'} ${x(i).toFixed(1)} ${y(p.wpm).toFixed(1)}`).join(' ');
   const area = `${line} L ${x(h.length - 1).toFixed(1)} ${H - pad} L ${x(0).toFixed(1)} ${H - pad} Z`;
   const best = Math.max(...wpms), last = wpms[wpms.length - 1];
+  const fc = forecast();
+  const fcLine = fc ? `<span>до <b>${fc.target}</b> WPM ≈ <b>${fc.sessions}</b> сесс.</span>` : '';
   return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
     <path d="${area}" class="spark-area"/>
     <path d="${line}" class="spark-line"/>
     <circle cx="${x(h.length - 1).toFixed(1)}" cy="${y(last).toFixed(1)}" r="4" class="spark-dot"/>
   </svg>
-  <div class="spark-meta"><span>сессий: <b>${history().length}</b></span><span>макс: <b>${best}</b></span><span>последняя: <b>${last}</b> WPM</span></div>`;
+  <div class="spark-meta"><span>сессий: <b>${history().length}</b></span><span>макс: <b>${best}</b></span><span>последняя: <b>${last}</b> WPM</span>${fcLine}</div>`;
 }

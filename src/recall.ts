@@ -96,7 +96,8 @@ export function recallHandleKey(e: KeyboardEvent) {
   ch = bridgeChar(ch, expected);
   const rc = /[а-яё]/i.test(st.pattern);
   const r = pressChar(st, ch, true); // блок при ошибке
-  if (expected && expected !== ' ') { const id = keyIdFor(expected, rc); if (id) recordKey(id, !r.wrong); }
+  // timed=false: режим вспоминания — паузы на обдумывание не портят скоростную модель
+  if (expected && expected !== ' ') { const id = keyIdFor(expected, rc); if (id) recordKey(id, !r.wrong, undefined, false); }
   if (r.wrong) errs++;
   if (r.finished) finishRound();
   render();

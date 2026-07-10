@@ -7,10 +7,27 @@ import { buildModel, generate } from './ngram';
 import { CORPUS } from './corpus';
 import type { Lang } from './i18n';
 
-// ── Per-key: keyId → {ok, err} ──
-type KeyStat = { ok: number; err: number };
+// ── Per-key: keyId → {ok, err, t?, nt?} ──
+//  ok/err — счётчики точности (было).
+//  t  — EMA среднего межклавишного интервала (мс) ТОЛЬКО по ВЕРНЫМ нажатиям
+//       (как histogram.ts у keybr: опечатки из тайминга исключаются).
+//  nt — число валидных замеров времени (для доверия к t).
+//  Зачем: раньше «слабость» считалась ТОЛЬКО по ошибкам — медленная-но-верная
+//  буква не попадала в дрилл. Теперь скорость и точность объединены в один скор
+//  (см. keyWeakness). keybr берёт только скорость, мы — только ошибки; берём оба.
+type KeyStat = { ok: number; err: number; t?: number; nt?: number };
 const KS_KEY = 'tr_keystats';
 let keystats: Record<string, KeyStat> = load();
+
+// EMA-сглаживание тайминга (alpha=0.1 — свежие нажатия весят больше; рекуррентная
+// рецентность вместо голого кумулятивного среднего, как filter.ts у keybr).
+const EMA_ALPHA = 0.1;
+// Валидный межклавишный интервал: <40 мс = «прострел»/автоповтор, >12 с = пауза.
+const MIN_MS = 40, MAX_MS = 12000;
+// Вклад в единый скор слабости: точность важнее скорости (тренажёр называется
+// TypeRIGHTing — «RIGHT»); но скорость участвует. keybr игнорит точность вовсе.
+const ERR_W = 0.6, SPEED_W = 0.4;
+let lastKeyTs = 0;
 
 function load(): Record<string, KeyStat> {
   try {
@@ -28,10 +45,47 @@ function persist() {
   }, 800);
 }
 
-export function recordKey(keyId: string, ok: boolean) {
+export function recordKey(keyId: string, ok: boolean, now = Date.now()) {
   const s = keystats[keyId] ?? (keystats[keyId] = { ok: 0, err: 0 });
-  if (ok) s.ok++; else s.err++;
+  const gap = now - lastKeyTs;
+  lastKeyTs = now;
+  if (ok) {
+    s.ok++;
+    // тайминг копим только по верным нажатиям и только валидный интервал
+    if (gap >= MIN_MS && gap <= MAX_MS) {
+      s.t = s.t === undefined ? gap : EMA_ALPHA * gap + (1 - EMA_ALPHA) * s.t;
+      s.nt = (s.nt ?? 0) + 1;
+    }
+  } else {
+    s.err++;
+  }
   persist();
+}
+
+/** Референс скорости — медиана EMA-времён пользователя (порог «медленно»).
+ *  Самоотносительно: адаптируется к уровню (новичок/ребёнок vs про), в отличие
+ *  от фикс. 175 cpm у keybr, который для смешанной аудитории неадекватен. */
+function speedRef(): number {
+  const ts = Object.values(keystats)
+    .filter((s) => s.t !== undefined && (s.nt ?? 0) >= 3)
+    .map((s) => s.t as number)
+    .sort((a, b) => a - b);
+  if (ts.length < 3) return 0; // мало данных о скорости — скоростной сигнал выключен
+  return ts[Math.floor(ts.length / 2)];
+}
+
+/** Единый скор слабости клавиши 0..~1: ошибки + медленность.
+ *  speedWeak = насколько клавиша медленнее своей медианы (2× медианы = максимум).
+ *  При недостатке тайминга (ref=0 / nt<3) вырождается в чистый errRate — обратная
+ *  совместимость: порядок клавиш по ошибкам сохраняется. */
+function keyWeakness(s: KeyStat, ref: number): number {
+  const n = s.ok + s.err;
+  const errRate = n > 0 ? s.err / n : 0;
+  let speedWeak = 0;
+  if (ref > 0 && s.t !== undefined && (s.nt ?? 0) >= 3) {
+    speedWeak = Math.min(1, Math.max(0, (s.t - ref) / ref));
+  }
+  return ERR_W * errRate + SPEED_W * speedWeak;
 }
 
 /** errRate по клавишам с достаточными данными — для тепловой карты. */
@@ -48,27 +102,29 @@ export function hasKeyData(minSamples = 6): boolean {
   return Object.values(keystats).some((s) => s.ok + s.err >= minSamples);
 }
 
-/** Топ слабых клавиш (по errRate, затем по объёму) для адаптивного режима. */
+/** Топ слабых клавиш (по единому скору: ошибки + медленность) для адаптива. */
 export function weakKeys(lang: 'en' | 'ru', count = 6): string[] {
-  const letters = letterKeys(lang);
-  const scored = letters
+  const ref = speedRef();
+  const scored = letterKeys(lang)
     .map(({ id, ch }) => {
       const s = keystats[id]; const n = s ? s.ok + s.err : 0;
-      const rate = n >= 3 ? s!.err / n : 0;
-      return { ch, rate, n };
+      const weak = s && n >= 3 ? keyWeakness(s, ref) : 0;
+      return { ch, weak, n };
     })
-    .filter((x) => x.rate > 0)
-    .sort((a, b) => b.rate - a.rate || b.n - a.n);
+    .filter((x) => x.weak > 0)
+    .sort((a, b) => b.weak - a.weak || b.n - a.n);
   return scored.slice(0, count).map((x) => x.ch);
 }
 
-/** Веса букв для n-граммного генератора: слабые (по errRate) встречаются чаще. */
+/** Веса букв для n-граммного генератора: слабые (ошибки+скорость) встречаются чаще. */
 export function letterWeights(lang: 'en' | 'ru', boost = 6): Record<string, number> {
-  const heat = heatMap(4);
+  const ref = speedRef();
   const w: Record<string, number> = {};
   for (const { id, ch } of letterKeys(lang)) {
-    const rate = heat[id]; // errRate 0..1 или undefined
-    if (rate !== undefined && rate > 0) w[ch] = 1 + rate * boost;
+    const s = keystats[id];
+    if (!s || s.ok + s.err < 4) continue;
+    const weak = keyWeakness(s, ref); // 0..~1
+    if (weak > 0) w[ch] = 1 + weak * boost;
   }
   return w;
 }
@@ -89,8 +145,9 @@ export function weakDrill(L: Lang, lines = 5): string[] {
     weakModelLang = L;
   }
   const weight = letterWeights(kb, 12); // сильнее, чем в AI (×12), — это прицельная тренировка слабых
+  const force = weakKeys(kb, 4);        // топ-4 слабых буквы форсим в каждое слово (гарантия плотности)
   const out: string[] = [];
-  for (let l = 0; l < lines; l++) out.push(generate(weakModel, { chars: 44, weight, maxWord: 8 }));
+  for (let l = 0; l < lines; l++) out.push(generate(weakModel, { chars: 44, weight, maxWord: 8, force }));
   return out.filter((s) => s.length > 0);
 }
 

@@ -35,4 +35,17 @@ describe('генератор псевдослов ngram.ts', () => {
     const out = generate(m, { chars: 20 });
     expect(out.length).toBeGreaterThan(0);
   });
+
+  it('force: каждое слово содержит целевую слабую букву (как prefix-list keybr)', () => {
+    const m = buildModel('малина калина долина равнина осина машина', 'ru');
+    const out = generate(m, { chars: 40, force: ['а'] });
+    expect(out.length).toBeGreaterThan(0);
+    for (const w of out.split(' ')) expect(w).toContain('а');
+  });
+
+  it('force с редкой буквой не зацикливает (бюджет попыток)', () => {
+    const m = buildModel('the cat sat on the mat', 'en');
+    // 'z' в корпусе нет — генерация не виснет, просто вернёт мало/пусто
+    expect(() => generate(m, { chars: 30, force: ['z'] })).not.toThrow();
+  });
 });

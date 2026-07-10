@@ -48,14 +48,22 @@ function weightedPick(rec: Record<string, number>, weight: Record<string, number
 /**
  * Сгенерировать строку ~targetChars символов из «слов» 3–8 букв.
  * weight[буква] > 1 повышает её встречаемость (адаптив под слабые клавиши).
+ * force — набор «слабых» букв: каждое слово ОБЯЗАНО содержать хотя бы одну из них
+ *   (гарантия присутствия, как prefix-list у keybr; вес лишь повышает вероятность,
+ *   а force повышает плотность дрилла). Слова без нужной буквы отбрасываются в
+ *   пределах бюджета попыток — редкая буква не зациклит генерацию.
  */
-export function generate(m: NgramModel, opts: { chars?: number; weight?: Record<string, number>; maxWord?: number } = {}): string {
+export function generate(
+  m: NgramModel,
+  opts: { chars?: number; weight?: Record<string, number>; maxWord?: number; force?: string[] } = {},
+): string {
   const target = opts.chars ?? 48;
   const maxWord = opts.maxWord ?? 8;
+  const force = opts.force && opts.force.length ? new Set(opts.force) : null;
   if (m.starts.length === 0) return '';
   const out: string[] = [];
   let safety = 0;
-  while (out.join(' ').length < target && safety++ < 200) {
+  while (out.join(' ').length < target && safety++ < 400) {
     // начать слово со случайного стартового префикса
     let prefix = m.starts[Math.floor(Math.random() * m.starts.length)];
     let word = prefix.trim();
@@ -69,7 +77,10 @@ export function generate(m: NgramModel, opts: { chars?: number; weight?: Record<
       prefix = (prefix + next).slice(-(m.order - 1));
       if (word.length >= maxWord) break;
     }
-    if (word.length >= 2) out.push(word);
+    if (word.length < 2) continue;
+    // форс слабой буквы: слово без целевой буквы пропускаем (бюджет попыток = safety)
+    if (force && ![...word].some((c) => force.has(c))) continue;
+    out.push(word);
   }
   return out.join(' ');
 }

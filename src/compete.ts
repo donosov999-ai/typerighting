@@ -7,7 +7,7 @@ import { recordKey, pushHistory } from './stats-store';
 import { t, lang } from './i18n';
 import type { Profile } from './profiles';
 import { submitScore, fetchTop, type LbRow } from './leaderboard';
-import { saveReplay, createChallenge, leagueSubmit, leagueBoard, CHALLENGE_BASE, type Tick, type ChallengeData, type LeagueRow } from './compete-net';
+import { saveReplay, getReplay, createChallenge, leagueSubmit, leagueBoard, CHALLENGE_BASE, type Tick, type ChallengeData, type LeagueRow } from './compete-net';
 
 type DiscKey = 'alpha_fwd' | 'alpha_rev' | 'words' | 'digits' | 'sprint';
 const DISCIPLINES: DiscKey[] = ['alpha_fwd', 'alpha_rev', 'words', 'digits', 'sprint'];
@@ -56,6 +56,11 @@ let activeChallenge: ChallengeData | null = null; // если вошли по с
 let leagueRows: LeagueRow[] = [];
 let leagueLoading = false;
 let challengeShareUrl: string | null = null;  // ссылка на созданный вызов
+// P2.1 ghost-replay: призрак-соперник едет по СВОЕМУ timeline синхронно с гонкой
+let ghostTimeline: Tick[] | null = null;
+let ghostNick = '';
+let ghostRaf: number | null = null;
+let ghostPos = 0;
 
 function curLang(): 'en' | 'ru' { return lang() === 'ru' ? 'ru' : 'en'; }
 
@@ -63,6 +68,12 @@ export function competeEnter(container: HTMLElement, profile: Profile, exit: () 
   root = container; onExit = exit; prof = profile;
   loadBest();
   activeChallenge = challenge ?? null;
+  ghostTimeline = null; ghostNick = ''; ghostPos = 0;
+  if (activeChallenge?.replay_id) {
+    // подгружаем реплей соперника → его призрак поедет по своему timeline
+    ghostNick = activeChallenge.from_nick;
+    void getReplay(activeChallenge.replay_id).then((rep) => { if (rep?.timeline?.length) { ghostTimeline = rep.timeline; if (screen === 'run') render(); } });
+  }
   if (activeChallenge) {
     // вошли по ссылке-вызову «обгони X» — сразу запускаем его дисциплину
     const cd = activeChallenge.discipline as DiscKey;
@@ -76,6 +87,7 @@ export function competeEnter(container: HTMLElement, profile: Profile, exit: () 
 function startDisc(d: DiscKey) {
   disc = d; errs = 0; startedAt = 0; published = false;
   timeline = []; challengeShareUrl = null;
+  ghostPos = 0; if (ghostRaf !== null) { cancelAnimationFrame(ghostRaf); ghostRaf = null; }
   st = createState([content(d, curLang())]);
   screen = 'run';
   render();
@@ -116,6 +128,7 @@ function finish() {
   pushHistory(wpm, acc, Date.now());
   void s;
   lastResult = { wpm, acc, ms, medal, isRecord };
+  if (ghostRaf !== null) { cancelAnimationFrame(ghostRaf); ghostRaf = null; } // стоп призрак
   // недельная лига — записываем результат (async, не блокирует UI)
   if (prof !== 'kids') void leagueSubmit(localStorage.getItem('tr_name') || 'Anon', disc, curLang(), wpm, acc);
   screen = 'result';
@@ -184,17 +197,46 @@ function renderMenu() {
 function renderRun() {
   const rc = /[а-яё]/i.test(st.pattern);
   const showRu = lang() === 'ru' || rc;
+  const L = curLang() === 'ru';
+  // P2.1: дорожка призрака — «ты» и соперник 👻 едут по прогрессу текста
+  const ghostBar = ghostTimeline ? `
+      <div class="cp-ghost">
+        <div class="cp-track"><span class="cp-you" id="cp-you"></span><span class="cp-rival" id="cp-rival">👻</span></div>
+        <div class="cp-glbl"><span>${L ? 'Ты' : 'You'}</span><b id="cp-gap"></b><span>${esc(ghostNick)} 👻</span></div>
+      </div>` : '';
   root!.innerHTML = `
     <div class="wrap compete">
       <header class="mode-head">
         <button id="cp-back" class="mode-back">${t('nav.tomap')}</button>
         <span class="c-progress">🏆 ${t('comp.' + disc)}</span>
-        <span class="c-acc">${activeChallenge ? `🎯 ${curLang() === 'ru' ? 'Цель' : 'Target'}: ${activeChallenge.target_wpm} ${t('st.wpm')}` : t('comp.hint')}</span>
+        <span class="c-acc">${activeChallenge ? `🎯 ${L ? 'Цель' : 'Target'}: ${activeChallenge.target_wpm} ${t('st.wpm')}` : t('comp.hint')}</span>
       </header>
+      ${ghostBar}
       <div class="card"><div class="pattern pattern-big" id="pattern">${renderPattern()}</div></div>
       <div class="keyb">${keyboardSVG(st.finishedAt === null ? st.pattern[st.pos] ?? null : null, rc, showRu)}</div>
     </div>`;
   (root!.querySelector('#cp-back') as HTMLButtonElement).onclick = () => { screen = 'menu'; render(); };
+  if (ghostTimeline && ghostRaf === null && st.finishedAt === null) ghostRaf = requestAnimationFrame(ghostTick);
+}
+
+// Анимация призрака: по реальному времени продвигаем его позицию по своему timeline,
+// параллельно двигаем маркер юзера (st.pos) — гонка «ты vs соперник» в реальном темпе.
+function ghostTick() {
+  if (screen !== 'run' || !ghostTimeline || st.finishedAt !== null) { ghostRaf = null; return; }
+  const total = st.pattern.length || 1;
+  const elapsed = startedAt ? Date.now() - startedAt : 0;
+  while (ghostPos < ghostTimeline.length && ghostTimeline[ghostPos].t <= elapsed) ghostPos++;
+  const youEl = document.getElementById('cp-you');
+  const rivalEl = document.getElementById('cp-rival');
+  const gapEl = document.getElementById('cp-gap');
+  if (youEl) youEl.style.left = Math.min(100, (st.pos / total) * 100) + '%';
+  if (rivalEl) rivalEl.style.left = Math.min(100, (ghostPos / total) * 100) + '%';
+  if (gapEl) {
+    const d = st.pos - ghostPos; const L = curLang() === 'ru';
+    gapEl.textContent = d > 0 ? (L ? `+${d} впереди` : `+${d} ahead`) : d < 0 ? (L ? `${d} позади` : `${d} behind`) : (L ? 'вровень' : 'neck & neck');
+    gapEl.className = d >= 0 ? 'cp-ahead' : 'cp-behind';
+  }
+  ghostRaf = requestAnimationFrame(ghostTick);
 }
 
 function renderResult() {

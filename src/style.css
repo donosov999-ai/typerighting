@@ -493,6 +493,17 @@ button:hover { filter: brightness(1.1); }
 .cp-chal.won { background: color-mix(in srgb, #2ecc71 16%, transparent); color: #2ecc71; }
 .cp-chal.lost { background: color-mix(in srgb, #e8821e 15%, transparent); color: #e8821e; }
 .cp-chal small { opacity: .7; font-weight: 400; }
+
+/* P2.1 ghost-replay — дорожка «ты vs соперник» едет по прогрессу текста */
+.cp-ghost { max-width: 640px; margin: 4px auto 10px; }
+.cp-track { position: relative; height: 22px; border-radius: 11px; background: var(--card, #f0f0f3); border: 1px solid var(--line, #ddd); overflow: hidden; }
+.cp-you, .cp-rival { position: absolute; top: 50%; transform: translate(-50%, -50%); transition: left .12s linear; will-change: left; }
+.cp-you { width: 13px; height: 13px; border-radius: 50%; background: var(--accent, #4c7ef3); left: 0; box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent, #4c7ef3) 25%, transparent); }
+.cp-rival { font-size: 16px; left: 0; opacity: .85; filter: grayscale(.3); }
+.cp-glbl { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--muted, #888); margin-top: 5px; }
+.cp-glbl b { font-weight: 600; font-size: 13px; }
+.cp-ahead { color: #2ecc71; }
+.cp-behind { color: #e8821e; }
 .cp-sharebox { margin: 14px auto 6px; max-width: 470px; }
 .cp-sharebox .sh-row { display: flex; gap: 8px; margin-bottom: 8px; }
 .cp-sharebox .sh-row input { flex: 1; padding: 9px 11px; border-radius: 8px; border: 1px solid var(--line, #39414f); background: var(--surface, #1a2233); color: inherit; font-size: 13px; }

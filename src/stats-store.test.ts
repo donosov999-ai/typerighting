@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { letterKeys } from './keyboard';
-import { recordKey, weakKeys, letterWeights, recoveryKeys, pushHistory, history, forecast, setTargetWpm } from './stats-store';
+import { recordKey, weakKeys, letterWeights, recoveryKeys, pushHistory, history, forecast, setTargetWpm, weakDrill } from './stats-store';
 
 // Браузерные глобалы для узла: localStorage (persist) + window.setTimeout (батч записи).
 beforeAll(() => {
@@ -121,5 +121,14 @@ describe('F/D/H/M — прогноз, time-decay, богатая история,
     expect(fc).not.toBeNull();
     expect(fc!.sessions).toBeGreaterThan(0);
     expect(fc!.target).toBe(60);
+  });
+
+  it('repetition-дрилл: в weakDrill есть строка со словом, повторённым ×3', () => {
+    // тяжело нагружаем ошибками ЧАСТУЮ букву → она топ-слабая → генератор точно даст слово
+    const common = letterKeys('en').find((k) => ['e', 'a', 'o', 't'].includes(k.ch))!;
+    let t = 6_000_000;
+    for (let i = 0; i < 14; i++) { t += 200; recordKey(common.id, false, t); }
+    const lines = weakDrill('en', 3);
+    expect(lines.some((l) => /^(\S+) \1 \1$/.test(l))).toBe(true);
   });
 });

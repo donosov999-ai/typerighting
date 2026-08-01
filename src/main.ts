@@ -15,7 +15,7 @@ import { competeEnter, competeHandleKey } from './compete';
 import { memorizeEnter, memorizeHandleKey } from './memorize';
 import { recallEnter, recallHandleKey } from './recall';
 import { t, lang, setLang, LANGS, LANG_LABEL, type Lang } from './i18n';
-import { recordKey, heatMap, hasKeyData, weakDrill, pushHistory, progressSVG, streakDays } from './stats-store';
+import { recordKey, heatMap, hasKeyData, weakDrill, pushHistory, progressSVG, streakDays, getTargetWpm, setTargetWpm } from './stats-store';
 import { checkNewBadges, BADGES, unlockedSet, type Badge } from './achievements';
 import { linkAccount, autoSync, pushSync, loadSession, clearSession, trSync, collectLocal } from './account';
 import { checkForUpdate } from './updater';
@@ -378,6 +378,7 @@ function renderModalGlobal() {
     const lbl = document.getElementById('metrobpmval'); if (lbl) lbl.textContent = String(metroBpm);
     if (metronome.running()) metronome.start(metroBpm);
   });
+  onChange('targetwpm', (el) => { const v = +el.value; if (v >= 10 && v <= 200) setTargetWpm(v); }); // цель для forecast() в прогрессе
 }
 
 function render() {
@@ -555,6 +556,7 @@ function renderModal(): string {
           <option value="azerty" ${layoutPref === 'azerty' ? 'selected' : ''}>AZERTY · FR</option>
           <option value="qwertz" ${layoutPref === 'qwertz' ? 'selected' : ''}>QWERTZ · DE</option>
         </select></label>
+        <label class="set-range">🎯 ${lang() === 'ru' ? 'Целевой WPM (для прогноза)' : 'Target WPM (for forecast)'}: <input type="number" id="targetwpm" min="10" max="200" step="5" value="${getTargetWpm()}" style="width:62px"/></label>
         <button id="sound-test" class="ghost" style="margin-top:6px">🔊 ${t('set.soundtest')}</button>
       </div>
       <div class="donebtns"><button id="set-close" class="primary">${t('prog.close')}</button></div>

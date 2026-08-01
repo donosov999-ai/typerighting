@@ -206,6 +206,13 @@ export function weakDrill(L: Lang, lines = 5): string[] {
   // форсим слабые (ошибки+скорость) + просевшие от рекорда (восстановление)
   const force = [...new Set([...weakKeys(kb, 4), ...recoveryKeys(kb, 2)])];
   const out: string[] = [];
+  // repetition-дрилл (паттерн ngram-type): слово с САМОЙ слабой буквой ×3 подряд —
+  // мышечная память через повтор. Первой строкой, до связного текста.
+  const topWeak = weakKeys(kb, 1)[0];
+  if (topWeak) {
+    const w = generate(weakModel, { chars: 6, weight, maxWord: 6, force: [topWeak] }).split(' ')[0];
+    if (w && w.length >= 2) out.push(`${w} ${w} ${w}`);
+  }
   for (let l = 0; l < lines; l++) out.push(generate(weakModel, { chars: 44, weight, maxWord: 8, force }));
   return out.filter((s) => s.length > 0);
 }

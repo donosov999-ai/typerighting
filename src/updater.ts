@@ -12,7 +12,7 @@ export async function checkForUpdate(): Promise<void> {
 
     const notes = update.body ? `\n\nЧто нового:\n${update.body}` : '';
     const ok = window.confirm(
-      `Доступна новая версия TypeRIGHTing ${update.version}.${notes}\n\nОбновить сейчас?`
+      `Доступна новая версия TypeRIGHT ${update.version}.${notes}\n\nОбновить сейчас?`
     );
     if (!ok) return;
 

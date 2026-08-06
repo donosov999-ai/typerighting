@@ -1,4 +1,4 @@
-// Модель упражнения (нормализована из 4 банков оригинального TypeRIGHTing).
+// Модель упражнения (нормализована из 4 банков оригинального TypeRIGHT).
 export type Bank = 'abandon' | 'engRus' | 'letterByLetter' | 'poemHymn' | 'classic' | 'ruWords' | 'ruPhrases';
 
 export interface Exercise {

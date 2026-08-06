@@ -257,7 +257,7 @@ function renderResult() {
   let shareBox = '';
   if (challengeShareUrl) {
     const enc = encodeURIComponent(challengeShareUrl);
-    const txt = encodeURIComponent(L ? `Обгони меня в TypeRIGHTing: ${r.wpm} зн/мин!` : `Beat me in TypeRIGHTing: ${r.wpm} WPM!`);
+    const txt = encodeURIComponent(L ? `Обгони меня в TypeRIGHT: ${r.wpm} зн/мин!` : `Beat me in TypeRIGHT: ${r.wpm} WPM!`);
     shareBox = `<div class="cp-sharebox">
       <div class="sh-row"><input id="cp-shurl" readonly value="${esc(challengeShareUrl)}"/><button id="cp-shcopy">${L ? 'Копировать' : 'Copy'}</button></div>
       <div class="sh-soc"><a href="https://t.me/share/url?url=${enc}&text=${txt}" target="_blank" rel="noopener">Telegram</a><a href="https://vk.com/share.php?url=${enc}" target="_blank" rel="noopener">ВКонтакте</a></div>

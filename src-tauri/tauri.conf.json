@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "TypeRIGHTing — тренажёр слепой печати",
+        "title": "TypeRIGHT — тренажёр слепой печати",
         "width": 1080,
         "height": 940,
         "minWidth": 720,
@@ -33,7 +33,7 @@
     "homepage": "https://typefree.pro",
     "category": "Education",
     "shortDescription": "Touch typing trainer (English + Russian)",
-    "longDescription": "TypeRIGHTing 2.0 — touch typing trainer with 4800+ exercises in 4 banks: words in sentences, EN-RU with translation hints, letter-by-letter buildup, poems by stanza. Migrated from the original .NET WinForms app to web + Tauri.",
+    "longDescription": "TypeRIGHT 2.0 — touch typing trainer with 4800+ exercises in 4 banks: words in sentences, EN-RU with translation hints, letter-by-letter buildup, poems by stanza. Migrated from the original .NET WinForms app to web + Tauri.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

@@ -1,0 +1,7 @@
+{
+  "identifier": "updater-desktop",
+  "description": "Авто-апдейтер (проверка/установка) — только десктоп. На Android обновления идут через Google Play, плагин updater для мобилок не компилируется.",
+  "windows": ["main"],
+  "platforms": ["macOS", "windows", "linux"],
+  "permissions": ["updater:default"]
+}

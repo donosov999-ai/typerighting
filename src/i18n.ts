@@ -20,6 +20,14 @@ export function setLang(l: Lang) {
 
 type Entry = { ru: string; en: string; es?: string; de?: string; fr?: string; it?: string; pt?: string };
 const DICT: Record<string, Entry> = {
+  // адаптивный компаньон (телефон без клавиатуры) — префикс cpn.* (comp.* занят соревнованием)
+  'cpn.h1': { ru: 'Печатать вслепую — нужна клавиатура', en: 'Touch typing needs a keyboard' },
+  'cpn.sub': { ru: 'На экране телефона слепой печати не научиться. Подключи Bluetooth-клавиатуру к телефону или планшету — и полный тренажёр откроется сам.', en: "You can't learn touch typing on a phone screen. Connect a Bluetooth keyboard to your phone or tablet and the full trainer opens automatically." },
+  'cpn.train': { ru: 'Всё равно открыть тренажёр →', en: 'Open the trainer anyway →' },
+  'cpn.hint': { ru: 'А пока — что работает и без клавиатуры:', en: 'Meanwhile — what works without a keyboard:' },
+  'cpn.learnP': { ru: 'Метод слепой печати', en: 'The touch-typing method' },
+  'cpn.compP': { ru: 'Рейтинг и вызовы', en: 'Leaderboard & challenges' },
+  'cpn.progress': { ru: 'Твой прогресс', en: 'Your progress' },
   // онбординг
   'ob.sub': { ru: 'Тренажёр слепой печати. Для кого настроить?', en: 'Touch typing trainer. Who is it for?', es: 'Mecanografía al tacto. ¿Para quién es?', de: 'Tipptrainer. Für wen ist es?', fr: 'Dactylographie. Pour qui ?', it: 'Dattilografia. Per chi è?', pt: 'Treino de digitação. Para quem é?' },
   'ob.note': { ru: 'Профиль можно сменить в любой момент в шапке.', en: 'You can switch the profile any time in the header.', es: 'Puedes cambiar el perfil en cualquier momento arriba.', de: 'Profil jederzeit oben umschaltbar.', fr: 'Le profil est modifiable à tout moment en haut.', it: 'Puoi cambiare profilo in qualsiasi momento in alto.', pt: 'Pode trocar o perfil a qualquer momento no topo.' },

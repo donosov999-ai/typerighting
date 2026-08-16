@@ -510,3 +510,25 @@ button:hover { filter: brightness(1.1); }
 .cp-sharebox .sh-soc { display: flex; gap: 8px; justify-content: center; }
 .cp-sharebox .sh-soc a { padding: 8px 18px; border-radius: 8px; background: color-mix(in srgb, var(--accent) 15%, transparent); color: var(--accent); text-decoration: none; font-weight: 600; font-size: 14px; }
 .cp-board tr.me { background: color-mix(in srgb, var(--accent) 13%, transparent); font-weight: 600; }
+
+/* ─── Адаптивный компаньон (телефон без физической клавиатуры) ─── */
+.comp { max-width: 560px; margin: 0 auto; padding: 22px 16px 44px; }
+.comp-hero { text-align: center; padding: 28px 18px 22px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; }
+.comp-kbd { font-size: 50px; line-height: 1; margin-bottom: 6px; }
+.comp-hero h1 { font-size: 23px; font-weight: 800; margin: 6px 0 8px; color: var(--text); line-height: 1.22; }
+.comp-sub { color: var(--muted); font-size: 15px; line-height: 1.5; margin: 0 auto 18px; max-width: 430px; }
+.comp-cta { background: var(--accent); color: #fff; border: none; border-radius: 12px; padding: 13px 22px; font-size: 15px; font-weight: 700; cursor: pointer; }
+.comp-cta:active { transform: scale(.98); }
+.comp-hint { color: var(--muted); font-size: 13px; margin: 22px 0 8px; }
+.comp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.comp-card { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 15px; cursor: pointer; color: var(--text); }
+.comp-card:active { transform: scale(.98); }
+.comp-ic { font-size: 25px; margin-bottom: 3px; }
+.comp-card b { font-size: 15px; font-weight: 700; }
+.comp-card small { color: var(--muted); font-size: 12px; }
+.comp-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 15px; margin-top: 12px; }
+.comp-panel h3 { font-size: 14px; font-weight: 700; color: var(--text); margin: 0 0 10px; }
+.comp-chart svg { width: 100%; height: auto; display: block; }
+.comp-badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.comp-badge { font-size: 23px; opacity: .26; filter: grayscale(1); }
+.comp-badge.on { opacity: 1; filter: none; }

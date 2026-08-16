@@ -22,6 +22,17 @@ import { checkForUpdate } from './updater';
 import { registerCert } from './cert';
 import { getChallenge, type ChallengeData } from './compete-net';
 
+// Встроенный багфикс (webcheck bugfix-app.js, подключён в index.html ДО этого модуля,
+// вендорится локально ради CSP APK). Кнопка «Сообщить о баге» снизу-слева → пишет в единый
+// bug_reports → авто-задача TeamOps. enabled=true на бета/тест-фазу.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+(window as any).BugfixApp?.init({
+  project: 'typefree',
+  version: '2.59.0',
+  enabled: true,
+  lang: document.documentElement.getAttribute('lang') || 'ru',
+});
+
 // P2: вызов, по ссылке которого вошли (?challenge=<id>) — передаётся в competeEnter один раз
 let pendingChallenge: ChallengeData | null = null;
 

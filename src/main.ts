@@ -14,6 +14,7 @@ import { learnEnter, learnHandleKey } from './learn';
 import { competeEnter, competeHandleKey } from './compete';
 import { memorizeEnter, memorizeHandleKey } from './memorize';
 import { recallEnter, recallHandleKey } from './recall';
+import { companionEnter } from './companion';
 import { t, lang, setLang, LANGS, LANG_LABEL, type Lang } from './i18n';
 import { recordKey, heatMap, hasKeyData, weakDrill, pushHistory, progressSVG, streakDays, getTargetWpm, setTargetWpm } from './stats-store';
 import { checkNewBadges, BADGES, unlockedSet, type Badge } from './achievements';
@@ -224,6 +225,28 @@ let memInit = false;
 let spanMode = false;    // пользователь открыл режим «Память» (списки слов)
 let spanInit = false;
 let hubMode = true;      // стартовый экран «С чего начать?» (главное меню режимов)
+// Адаптивный компаньон: на телефоне без физической клавиатуры печати не научиться —
+// стартуем в компаньоне (прогресс/метод/рейтинг), тренажёр за кнопкой ИЛИ при детекте клавиатуры.
+let companionMode = false;
+let companionInit = false;
+
+// эвристика «телефон без клавиатуры»: тач + грубый указатель + нет hover + узкий экран.
+// планшет (широкий) и десктоп → тренажёр (модель Дениса). Ручной выбор запоминаем в tr_mode.
+function isPhoneNoKeyboard(): boolean {
+  try {
+    const mm = (q: string) => !!(window.matchMedia && window.matchMedia(q).matches);
+    const touch = (navigator.maxTouchPoints || 0) > 0;
+    // < 600 по меньшей стороне = телефон (портрет ~360–430); планшет (768+) → тренажёр (модель Дениса)
+    const phone = Math.min(window.innerWidth, window.innerHeight) < 600;
+    return touch && mm('(pointer: coarse)') && mm('(hover: none)') && phone;
+  } catch { return false; }
+}
+// уйти из компаньона в тренажёр (кнопка/детект клавиатуры), запомнить выбор
+function openTrainerFromCompanion(): void {
+  companionMode = false; companionInit = false; hubMode = true;
+  try { localStorage.setItem('tr_mode', 'trainer'); } catch { /* quota */ }
+  render();
+}
 
 function ruCtx(): boolean { return /[а-яё]/i.test(st.pattern); }
 function kbShowRu(rc: boolean): boolean { return lang() === 'ru' || rc; }
@@ -433,6 +456,18 @@ function render() {
   }
   courseInit = false;
   if (exam) { renderExam(); return; }
+  if (companionMode) {
+    if (!companionInit) {
+      companionInit = true;
+      companionEnter(app, {
+        openTrainer: openTrainerFromCompanion,
+        openLearn: () => { companionInit = false; aiMode = true; aiInit = false; render(); },
+        openCompete: () => { companionInit = false; compMode = true; compInit = false; render(); },
+      });
+    }
+    return; // компаньон рисует себя сам; learn/compete открываются поверх и возвращаются сюда
+  }
+  companionInit = false;
   if (hubMode) { renderHub(); return; }
   const ex = curExercise();
   const s = viewStats();
@@ -892,6 +927,14 @@ function reset() {
 document.addEventListener('keydown', (e) => {
   const tag = (e.target as HTMLElement)?.tagName;
   if (tag === 'SELECT' || tag === 'INPUT' || tag === 'TEXTAREA') return;
+  // Компаньон: первый реальный физ-keydown (печатный символ с реальным кодом, не IME 229) =
+  // подключена BT-клавиатура → открываем полный тренажёр. Tab/Enter (не length-1) не трогаем.
+  if (companionMode) {
+    if (e.key && e.key.length === 1 && e.keyCode !== 229 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      e.preventDefault(); openTrainerFromCompanion();
+    }
+    return;
+  }
   if (modal) { if (e.key === 'Escape') { modal = null; render(); } return; }
   if (courseMode) { courseHandleKey(e); return; }
   if (aiMode) { learnHandleKey(e); return; }
@@ -969,6 +1012,13 @@ function updateStatsOnly() {
 // ── Старт ──
 applyProfile(profile);
 applyDark();
+// Адаптивный старт: телефон без физ-клавиатуры → компаньон, если пользователь не выбрал тренажёр явно.
+try {
+  const savedMode = localStorage.getItem('tr_mode');
+  if (savedMode !== 'trainer' && (savedMode === 'companion' || isPhoneNoKeyboard())) {
+    companionMode = true; hubMode = false;
+  }
+} catch { /* localStorage off */ }
 loadExercises().then((data) => { all = data; loadBank(); }).catch((err) => {
   app.innerHTML = `<div class="wrap"><p class="err">${t('err.load')}: ${esc(String(err))}</p></div>`;
 });

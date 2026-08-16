@@ -16,8 +16,12 @@ tauri-build = { version = "2", features = [] }
 tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
-tauri-plugin-updater = "2.10.1"
 tauri-plugin-process = "2.3.1"
+
+# Updater — только десктоп: плагин не поддерживает Android/iOS, для них его не компилируем.
+# Обновления на Android — через Google Play (in-app updates), а не tauri-updater.
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-updater = "2.10.1"
 
 [profile.release]
 panic = "abort"

@@ -12,6 +12,8 @@
   </head>
   <body>
     <div id="app"></div>
+    <!-- Встроенный багфикс webcheck (вендорится локально, грузится из 'self' — бьёт CSP APK). init — в main.ts. -->
+    <script src="/bugfix-app.js"></script>
     <script type="module" src="/src/main.ts"></script>
     <script>
       // Аналитика (Rybbit) + PWA — ТОЛЬКО в браузере (веб-версия на typefree.pro/github.io),

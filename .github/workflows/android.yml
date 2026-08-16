@@ -20,6 +20,8 @@ jobs:
     name: Android debug APK
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    permissions:
+      contents: write   # публикация APK в rolling pre-release android-test
     env:
       ANDROID_HOME: /usr/local/lib/android/sdk
       NDK_HOME: /usr/local/lib/android/sdk/ndk/27.0.12077973
@@ -79,10 +81,27 @@ jobs:
           [ -z "$APK" ] && APK=$(find src-tauri/gen/android -name "*.apk" | head -1)
           if [ -z "$APK" ]; then echo "🔴 APK не собрался"; find src-tauri/gen/android -name "*.apk" -o -name "*.aab"; exit 1; fi
           echo "✅ APK: $APK ($(du -h "$APK" | cut -f1))"
+          # стабильное имя → стабильная ссылка на сайте
+          cp "$APK" TypeRIGHT-android.apk
 
-      - name: Upload APK artifact
+      - name: Upload APK artifact (Actions)
         uses: actions/upload-artifact@v4
         with:
           name: TypeRIGHT-android-debug-apk
-          path: src-tauri/gen/android/app/build/outputs/apk/**/*.apk
+          path: TypeRIGHT-android.apk
           retention-days: 30
+
+      # Публичный прямой линк для сайта: rolling pre-release с фиксированным тегом.
+      # Тег + имя файла стабильны → ссылка на typefree.pro не меняется между сборками.
+      - name: Publish APK to android-test pre-release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: android-test
+          name: "TypeRIGHT — Android (тестовая сборка)"
+          prerelease: true
+          fail_on_unmatched_files: true
+          files: TypeRIGHT-android.apk
+          body: |
+            Тестовая Android-сборка (debug, сайдлоад). Один APK для телефона и планшета.
+            ⚠️ Для тренажёра слепой печати нужна Bluetooth-клавиатура.
+            Обновляется автоматически при каждой сборке.

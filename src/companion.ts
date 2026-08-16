@@ -33,11 +33,11 @@ export function companionEnter(app: HTMLElement, cb: CompanionCbs): void {
       <div class="comp-grid">
         <button class="comp-card" id="comp-learn">
           <span class="comp-ic" aria-hidden="true">📖</span>
-          <b>${esc(t('learn.nav'))}</b><small>${esc(t('cpn.learnP'))}</small>
+          <b>${esc(t('cpn.learn'))}</b><small>${esc(t('cpn.learnP'))}</small>
         </button>
         <button class="comp-card" id="comp-compete">
           <span class="comp-ic" aria-hidden="true">🏆</span>
-          <b>${esc(t('rating.nav'))}</b><small>${esc(t('cpn.compP'))}</small>
+          <b>${esc(t('cpn.compete'))}</b><small>${esc(t('cpn.compP'))}</small>
         </button>
       </div>
 

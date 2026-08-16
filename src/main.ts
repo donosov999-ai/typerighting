@@ -292,6 +292,9 @@ function modeIcon(g: string, cls = 'mode-ic'): string { return `<img class="${cl
 function uiIcon(name: string): string { return `<img class="tb-ic" src="images/icons/${profDir()}${name}.webp" alt=""/>`; }
 function renderTopbar() {
   if (!chromeEl) { chromeEl = document.createElement('div'); chromeEl.id = 'topbar'; document.body.prepend(chromeEl); }
+  // В компаньоне (телефон без клавы) верхний бар режимов не нужен — они требуют клавиатуры.
+  chromeEl.style.display = companionMode ? 'none' : '';
+  if (companionMode) return;
   if (profile === null) { chromeEl.innerHTML = ''; return; } // на онбординге скрыта
   const act = activeMode();
   const modes: Array<[string, string]> = [

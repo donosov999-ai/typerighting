@@ -70,17 +70,53 @@ jobs:
       - name: Initialize Tauri Android project
         run: npx tauri android init
 
-      # beforeBuildCommand (npm run build) → dist (vite base './') упаковывается в APK.
-      # --debug → debug-подписанный APK, ставится сайдлоадом без релиз-ключа.
-      - name: Build debug APK
-        run: npx tauri android build --apk --debug
+      # Тест-ключ подписи (НЕ Play-релиз): генерим в CI, чтобы release-APK ставился
+      # сайдлоадом. ⚠️ Ключ новый на каждую сборку → обновление поверх требует
+      # переустановки. Стабильный Play-ключ — Фаза 3.
+      - name: Generate test signing key
+        run: |
+          keytool -genkeypair -v -keystore "$RUNNER_TEMP/typeright-test.jks" \
+            -storepass typeright -keypass typeright -alias typeright \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=TypeRIGHT Test, O=ODV999, C=RU"
+
+      - name: Patch build.gradle.kts (sign release with test key)
+        run: |
+          GRADLE=src-tauri/gen/android/app/build.gradle.kts
+          [ -f "$GRADLE" ] || { echo "🔴 нет $GRADLE после init"; find src-tauri/gen/android -name 'build.gradle*'; exit 1; }
+          cat >> "$GRADLE" <<'EOF'
+
+          android {
+              signingConfigs {
+                  create("release") {
+                      storeFile = file(System.getenv("ANDROID_KEYSTORE_PATH"))
+                      storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                      keyAlias = System.getenv("ANDROID_KEY_ALIAS")
+                      keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+                  }
+              }
+              buildTypes { getByName("release") { signingConfig = signingConfigs.getByName("release") } }
+          }
+          EOF
+
+      # RELEASE (strip=true, opt-level=s, lto из [profile.release]) → APK в разы меньше
+      # debug (433 МБ → ~30–70 МБ). beforeBuildCommand=npm run build даёт dist (vite base './').
+      - name: Build signed release APK
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/typeright-test.jks
+          ANDROID_KEYSTORE_PASSWORD: typeright
+          ANDROID_KEY_ALIAS: typeright
+          ANDROID_KEY_PASSWORD: typeright
+        run: npx tauri android build --apk
 
       - name: Locate + smoke-check APK
         run: |
-          APK=$(find src-tauri/gen/android -name "*.apk" -path "*debug*" | head -1)
-          [ -z "$APK" ] && APK=$(find src-tauri/gen/android -name "*.apk" | head -1)
-          if [ -z "$APK" ]; then echo "🔴 APK не собрался"; find src-tauri/gen/android -name "*.apk" -o -name "*.aab"; exit 1; fi
-          echo "✅ APK: $APK ($(du -h "$APK" | cut -f1))"
+          APK=$(find src-tauri/gen/android -name "*-release*.apk" ! -name "*unsigned*" | head -1)
+          [ -z "$APK" ] && APK=$(find src-tauri/gen/android -name "*.apk" ! -name "*unsigned*" | head -1)
+          if [ -z "$APK" ]; then echo "🔴 APK не собрался"; find src-tauri/gen/android -name "*.apk"; exit 1; fi
+          SZ=$(du -m "$APK" | cut -f1)
+          echo "✅ APK: $APK (${SZ} МБ)"
+          if [ "$SZ" -gt 200 ]; then echo "⚠️ APK ${SZ}МБ — подозрительно много для release (ждали <100)"; fi
           # стабильное имя → стабильная ссылка на сайте
           cp "$APK" TypeRIGHT-android.apk
 

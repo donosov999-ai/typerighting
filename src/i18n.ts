@@ -25,7 +25,9 @@ const DICT: Record<string, Entry> = {
   'cpn.sub': { ru: 'На экране телефона слепой печати не научиться. Подключи Bluetooth-клавиатуру к телефону или планшету — и полный тренажёр откроется сам.', en: "You can't learn touch typing on a phone screen. Connect a Bluetooth keyboard to your phone or tablet and the full trainer opens automatically." },
   'cpn.train': { ru: 'Всё равно открыть тренажёр →', en: 'Open the trainer anyway →' },
   'cpn.hint': { ru: 'А пока — что работает и без клавиатуры:', en: 'Meanwhile — what works without a keyboard:' },
+  'cpn.learn': { ru: 'Обучение', en: 'Learn' },
   'cpn.learnP': { ru: 'Метод слепой печати', en: 'The touch-typing method' },
+  'cpn.compete': { ru: 'Рейтинг', en: 'Leaderboard' },
   'cpn.compP': { ru: 'Рейтинг и вызовы', en: 'Leaderboard & challenges' },
   'cpn.progress': { ru: 'Твой прогресс', en: 'Your progress' },
   // онбординг

@@ -1,6 +1,6 @@
 {
   "identifier": "default",
-  "description": "Базовые права окна + авто-апдейтер (проверка/установка) и перезапуск.",
+  "description": "Базовые права окна + перезапуск (все платформы, включая Android).",
   "windows": ["main"],
-  "permissions": ["core:default", "updater:default", "process:default"]
+  "permissions": ["core:default", "process:default"]
 }

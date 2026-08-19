@@ -107,6 +107,8 @@ jobs:
           ANDROID_KEYSTORE_PASSWORD: typeright
           ANDROID_KEY_ALIAS: typeright
           ANDROID_KEY_PASSWORD: typeright
+          # тест-сборка → включает встроенный багфикс (кнопка «Сообщить о баге»); публичный веб-билд его не имеет
+          VITE_TEST_BUILD: '1'
         run: npx tauri android build --apk
 
       - name: Locate + smoke-check APK

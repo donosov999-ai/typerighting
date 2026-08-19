@@ -11,11 +11,16 @@ let current: Lang = (() => {
   const sys = ((typeof navigator !== 'undefined' && (navigator.language || (navigator.languages && navigator.languages[0]))) || 'en').slice(0, 2).toLowerCase();
   return (LANGS as string[]).includes(sys) ? (sys as Lang) : 'en';
 })();
+// синхронизируем <html lang> сразу на старте (index.html статично lang="ru") — до init багфикса,
+// чтобы форма багрепорта и скринридер взяли верный язык
+try { document.documentElement.lang = current; } catch { /* SSR */ }
 
 export function lang(): Lang { return current; }
 export function setLang(l: Lang) {
   current = l;
   try { localStorage.setItem('tr_lang', l); } catch { /* quota */ }
+  // <html lang> — иначе скринридер озвучивает весь UI как ru для 6 из 7 языков
+  try { document.documentElement.lang = l; } catch { /* SSR */ }
 }
 
 type Entry = { ru: string; en: string; es?: string; de?: string; fr?: string; it?: string; pt?: string };
@@ -126,6 +131,8 @@ const DICT: Record<string, Entry> = {
   'mem.lenup': { ru: 'Длина повышена — теперь', en: 'Length up — now', es: 'Más largo — ahora', de: 'Länger — jetzt', fr: 'Plus long — maintenant', it: 'Più lungo — ora', pt: 'Mais longo — agora' },
   // режим «Память» (списки слов на span рабочей памяти)
   'span.title': { ru: 'Память', en: 'Memory', es: 'Memoria', de: 'Gedächtnis', fr: 'Mémoire', it: 'Memoria', pt: 'Memória' },
+  'hub.mem.d': { ru: 'Печать по памяти — текст исчезает', en: 'Type from memory — the text hides' },
+  'hub.span.d': { ru: 'Запомни ряд слов и воспроизведи', en: 'Memorize a row of words and recall it' },
   'span.level': { ru: 'Уровень', en: 'Level', es: 'Nivel', de: 'Stufe', fr: 'Niveau', it: 'Livello', pt: 'Nível' },
   'span.intro': { ru: 'Запомни список слов, пока он на экране. Потом он исчезнет — набери по памяти. Справился — слов станет больше.', en: 'Memorize the word list while it shows. Then it disappears — type it from memory. Succeed and the list grows.', es: 'Memoriza la lista mientras se ve. Luego desaparece — escríbela de memoria. Si aciertas, crece.', de: 'Merke dir die Wortliste, solange sie zu sehen ist. Dann verschwindet sie — tippe aus dem Gedächtnis. Schaffst du es, wird sie länger.', fr: 'Mémorise la liste tant qu’elle s’affiche. Puis elle disparaît — tape-la de mémoire. Réussis et elle s’allonge.', it: 'Memorizza la lista finché è visibile. Poi sparisce — scrivila a memoria. Se ci riesci, cresce.', pt: 'Memoriza a lista enquanto aparece. Depois desaparece — escreve-a de memória. Se acertares, cresce.' },
   'span.show': { ru: 'Запоминай…', en: 'Memorize…', es: 'Memoriza…', de: 'Merken…', fr: 'Mémorise…', it: 'Memorizza…', pt: 'Memoriza…' },
@@ -247,6 +254,15 @@ const DICT: Record<string, Entry> = {
   'ex.name': { ru: 'Имя (для сертификата)', en: 'Name (for the certificate)', es: 'Nombre (para el certificado)', de: 'Name (für das Zertifikat)', fr: 'Nom (pour le certificat)', it: 'Nome (per il certificato)', pt: 'Nome (para o certificado)' },
   'ex.start': { ru: 'Начать тест', en: 'Start test', es: 'Empezar', de: 'Test starten', fr: 'Démarrer', it: 'Avvia test', pt: 'Iniciar teste' },
   'ex.cancel': { ru: 'Выйти', en: 'Exit', es: 'Salir', de: 'Beenden', fr: 'Quitter', it: 'Esci', pt: 'Sair' },
+  'ex.finish': { ru: 'Завершить и засчитать', en: 'Finish & submit', es: 'Terminar y contar', de: 'Beenden & werten', fr: 'Terminer et valider', it: 'Termina e conta', pt: 'Terminar e contar' },
+  // подписи графика прогресса (были захардкожены по-русски для всех языков)
+  'prog.sessions': { ru: 'сессий', en: 'sessions' },
+  'prog.max': { ru: 'макс', en: 'max' },
+  'prog.last': { ru: 'последняя', en: 'last' },
+  'prog.to': { ru: 'до', en: 'to' },
+  'prog.sess': { ru: 'сесс.', en: 'sess.' },
+  'heat.mastered': { ru: 'освоено', en: 'mastered' },
+  'heat.weak': { ru: 'слабые клавиши', en: 'weak keys' },
   'ex.left': { ru: 'осталось', en: 'left', es: 'restante', de: 'übrig', fr: 'restant', it: 'restante', pt: 'restante' },
   'ex.result': { ru: 'Результат теста', en: 'Test result', es: 'Resultado', de: 'Testergebnis', fr: 'Résultat', it: 'Risultato', pt: 'Resultado' },
   'ex.gross': { ru: 'Gross WPM', en: 'Gross WPM' },

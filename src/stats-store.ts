@@ -5,7 +5,7 @@
 import { letterKeys } from './keyboard';
 import { buildModel, generate } from './ngram';
 import { CORPUS } from './corpus';
-import type { Lang } from './i18n';
+import { t, type Lang } from './i18n';
 
 // ── Per-key: keyId → {ok, err, t?, nt?} ──
 //  ok/err — счётчики точности (было).
@@ -311,11 +311,11 @@ export function progressSVG(maxPoints = 40): string {
   const area = `${line} L ${x(h.length - 1).toFixed(1)} ${H - pad} L ${x(0).toFixed(1)} ${H - pad} Z`;
   const best = Math.max(...wpms), last = wpms[wpms.length - 1];
   const fc = forecast();
-  const fcLine = fc ? `<span>до <b>${fc.target}</b> WPM ≈ <b>${fc.sessions}</b> сесс.</span>` : '';
+  const fcLine = fc ? `<span>${t('prog.to')} <b>${fc.target}</b> WPM ≈ <b>${fc.sessions}</b> ${t('prog.sess')}</span>` : '';
   return `<svg class="spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
     <path d="${area}" class="spark-area"/>
     <path d="${line}" class="spark-line"/>
     <circle cx="${x(h.length - 1).toFixed(1)}" cy="${y(last).toFixed(1)}" r="4" class="spark-dot"/>
   </svg>
-  <div class="spark-meta"><span>сессий: <b>${history().length}</b></span><span>макс: <b>${best}</b></span><span>последняя: <b>${last}</b> WPM</span>${fcLine}</div>`;
+  <div class="spark-meta"><span>${t('prog.sessions')}: <b>${history().length}</b></span><span>${t('prog.max')}: <b>${best}</b></span><span>${t('prog.last')}: <b>${last}</b> WPM</span>${fcLine}</div>`;
 }

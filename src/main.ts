@@ -67,6 +67,13 @@ function applyLayout() { setLayout(resolveLayout()); }
 applyLayout();
 let blockOnError = true;
 let showKeyb = true; // схема клавиатуры из оригинального TypeRIGHT
+// эти 4 настройки раньше не сохранялись между запусками — загружаем сохранённое
+try {
+  if (localStorage.getItem('tr_hide') === '1') hidePattern = true;
+  if (localStorage.getItem('tr_sound') === '0') soundOn = false;
+  if (localStorage.getItem('tr_block') === '0') blockOnError = false;
+  if (localStorage.getItem('tr_keyb') === '0') showKeyb = false;
+} catch { /* localStorage off */ }
 let showHeat = localStorage.getItem('tr_heat') === '1'; // тепловая карта клавиш
 let dark = (() => {                                       // тёмная тема: выбор юзера, иначе по системе
   const v = localStorage.getItem('tr_dark');
@@ -122,6 +129,7 @@ function examStats() {
 function startExam(durMin: number, target: number, name: string) {
   const sentences = exercisesOfBank(all, 'abandon');
   const shuffled = [...sentences].sort(() => Math.random() - 0.5);
+  if (!shuffled.length) return;   // упражнения ещё не загрузились (офлайн-первый-запуск) — не стартуем, иначе краш на shuffled[0]
   exam = { phase: 'run', durMin, target, name, endAt: Date.now() + durMin * 60000, typed: 0, errors: 0, count: 0, pool: shuffled, pi: 0, timer: null };
   try { localStorage.setItem('tr_name', name); } catch { /* quota */ }
   st = createState([shuffled[0].lines.join(' ')]);
@@ -412,10 +420,11 @@ function renderModalGlobal() {
   // не reset(): иначе переключение тумблера посреди упражнения обнуляло набранное. Контент-настройки
   // (профиль/язык/раскладка) по-прежнему через reapplyGlobal ниже.
   const cb = (id: string, fn: (v: boolean) => void) => onChange(id, (el) => { fn(el.checked); render(); });
-  cb('hide', (v) => { hidePattern = v; });
-  cb('sound', (v) => { soundOn = v; });
-  cb('block', (v) => { blockOnError = v; });
-  cb('keyb', (v) => { showKeyb = v; });
+  const persist = (k: string, v: boolean) => { try { localStorage.setItem(k, v ? '1' : '0'); } catch { /* */ } };
+  cb('hide', (v) => { hidePattern = v; persist('tr_hide', v); });
+  cb('sound', (v) => { soundOn = v; persist('tr_sound', v); });
+  cb('block', (v) => { blockOnError = v; persist('tr_block', v); });
+  cb('keyb', (v) => { showKeyb = v; persist('tr_keyb', v); });
   cb('heat', (v) => { showHeat = v; try { localStorage.setItem('tr_heat', showHeat ? '1' : '0'); } catch { /* */ } });
   cb('hardkeys', (v) => { try { localStorage.setItem('tr_hardkeys', v ? '1' : '0'); } catch { /* */ } });
   cb('metro', (v) => { metroOn = v; try { localStorage.setItem('tr_metro', v ? '1' : '0'); } catch { /* */ } });
@@ -538,7 +547,7 @@ function keybBlock(): string {
   const rc = ruCtx();
   const heat = showHeat && hasKeyData() ? heatMap() : null;
   return `<div class="keyb">${keyboardSVG(st.finishedAt === null ? st.pattern[st.pos] ?? null : null, rc, kbShowRu(rc), heat)}</div>
-    ${heat ? `<p class="heat-legend"><i class="g">освоено</i> · <i class="r">слабые клавиши</i></p>` : ''}`;
+    ${heat ? `<p class="heat-legend"><i class="g">${t('heat.mastered')}</i> · <i class="r">${t('heat.weak')}</i></p>` : ''}`;
 }
 
 function statsCells(s: ReturnType<typeof viewStats>): string {
@@ -725,7 +734,7 @@ function renderExam() {
         <div class="exam-hud">
           <span class="ex-timer" id="ex-timer">${fmtTime(Math.max(0, exam.endAt - Date.now()))}</span>
           <span class="ex-hudstats" id="ex-hudstats">${t('ex.net')} <b>${s.net}</b> · ${t('st.accuracy')} <b>${s.accuracy}%</b> · ${t('ex.target.short')} ${exam.target}</span>
-          <button id="ex-stop" class="ghost">${t('ex.cancel')}</button>
+          <button id="ex-stop" class="ghost">${t('ex.finish')}</button>
         </div>
         <div class="card"><div class="exhead"><span class="extitle">${esc(ex?.title ?? '')}</span></div>
           <div class="pattern" id="pattern">${renderPattern()}</div></div>
@@ -873,6 +882,7 @@ function bindControls() {
 // Словесные банки (равная сложность) — случайный порядок; связные тексты (стихи/проза) — последовательно.
 const SHUFFLE_BANKS = new Set<Bank>(['abandon', 'engRus', 'ruWords']);
 function advanceIdx(): number {
+  if (pool.length === 0) return 0;   // пустой банк → иначе (idx+1)%0 = NaN, счётчик «NaN / 0» и сломанный next/prev
   if (SHUFFLE_BANKS.has(bank) && pool.length > 1) {
     let n = idx; while (n === idx) n = Math.floor(Math.random() * pool.length);
     return n;
@@ -888,6 +898,8 @@ function renderHub() {
     ['course', t('course.title'), t('hub.course.d')],
     ['learn', t('learn.title'), t('hub.learn.d')],
     ['compete', t('compete.title'), t('hub.compete.d')],
+    ['memorize', t('mem.title'), t('hub.mem.d')],
+    ['span', t('span.title'), t('hub.span.d')],
     ['exam', t('ex.title'), t('hub.exam.d')],
     ['progress', t('prog.title'), t('hub.progress.d')],
   ];

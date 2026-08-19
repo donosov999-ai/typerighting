@@ -145,9 +145,10 @@ async function openBoard() {
 
 async function publish(name: string) {
   if (!lastResult || published) return;
-  published = true;
+  published = true; render();   // оптимистично: блокирует дабл-клик + показывает нажатое
   try { localStorage.setItem('tr_name', name); } catch { /* */ }
-  await submitScore({ name, discipline: disc, lang: curLang(), wpm: lastResult.wpm, accuracy: lastResult.acc, ms: lastResult.ms });
+  const ok = await submitScore({ name, discipline: disc, lang: curLang(), wpm: lastResult.wpm, accuracy: lastResult.acc, ms: lastResult.ms });
+  if (!ok) { published = false; render(); return; }  // сбой сети — откат, кнопка снова активна (без ложного ✓)
   await openBoard();
 }
 

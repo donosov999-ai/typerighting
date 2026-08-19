@@ -29,7 +29,7 @@
   --surface2: #f7ece8;
   --border: #ecdcd4;
   --text: #3d3438;
-  --muted: #a08e93;
+  --muted: #7a6b70;
   --accent: #d4708b;
   --ok: #5fae84;
   --bad: #d9534f;
@@ -50,7 +50,7 @@
   --surface2: #fff3d6;
   --border: #cfe6f5;
   --text: #27415a;
-  --muted: #7c97ad;
+  --muted: #5f7185;
   --accent: #ff9f1c;
   --ok: #2ec4b6;
   --bad: #e76f51;
@@ -545,4 +545,11 @@ button:hover { filter: brightness(1.1); }
   /* тач-цели ≥44px (Apple HIG / WCAG 2.5.5) */
   .tb-icon, .tb-btn, .tb-mode, #topbar select { min-height: 44px; box-sizing: border-box; }
   .wrap { padding: 18px 14px; }
+}
+
+/* ─── Доступность: видимый фокус с клавиатуры + уважение prefers-reduced-motion ─── */
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important; scroll-behavior: auto !important; }
 }

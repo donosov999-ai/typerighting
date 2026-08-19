@@ -8,12 +8,12 @@ import { keyboardSVG, bridgeChar, keyIdFor, setLayout, type Layout } from './key
 import { sfx, setSoundEnabled, metronome } from './sound';
 import { voiceEnabled, setVoiceEnabled, VOICED_LANGS } from './voice';
 import { type Profile, PROFILE_EMOJI, loadProfile, saveProfile, applyProfile } from './profiles';
-import { kidsEnter, kidsHandleKey } from './kids';
+import { kidsEnter, kidsHandleKey, kidsCleanup } from './kids';
 import { courseEnter, courseHandleKey } from './course';
 import { learnEnter, learnHandleKey } from './learn';
-import { competeEnter, competeHandleKey } from './compete';
+import { competeEnter, competeHandleKey, competeCleanup } from './compete';
 import { memorizeEnter, memorizeHandleKey } from './memorize';
-import { recallEnter, recallHandleKey } from './recall';
+import { recallEnter, recallHandleKey, recallCleanup } from './recall';
 import { companionEnter } from './companion';
 import { t, lang, setLang, LANGS, LANG_LABEL, type Lang } from './i18n';
 import { recordKey, heatMap, hasKeyData, weakDrill, pushHistory, progressSVG, streakDays, getTargetWpm, setTargetWpm } from './stats-store';
@@ -30,7 +30,9 @@ import { getChallenge, type ChallengeData } from './compete-net';
 (window as any).BugfixApp?.init({
   project: 'typefree',
   version: '2.59.0',
-  enabled: true,
+  // Только dev + тест-сборки (Android CI ставит VITE_TEST_BUILD=1). На публичном вебе/стабиле
+  // кнопка выключена — иначе спам от случайных юзеров в TeamOps.
+  enabled: (import.meta as any).env?.DEV || (import.meta as any).env?.VITE_TEST_BUILD === '1',
   lang: document.documentElement.getAttribute('lang') || 'ru',
 });
 
@@ -241,10 +243,18 @@ function isPhoneNoKeyboard(): boolean {
     return touch && mm('(pointer: coarse)') && mm('(hover: none)') && phone;
   } catch { return false; }
 }
-// уйти из компаньона в тренажёр (кнопка/детект клавиатуры), запомнить выбор
-function openTrainerFromCompanion(): void {
+// уйти из компаньона в тренажёр. persist=true только по ЯВНОЙ кнопке — тогда запоминаем выбор.
+// Авто-детект клавиатуры persist=false: подключил BT на минуту → не должно НАВСЕГДА запирать
+// телефон в десктоп-тренажёре; при следующем старте телефон снова стартует компаньоном.
+function openTrainerFromCompanion(persist: boolean): void {
   companionMode = false; companionInit = false; hubMode = true;
-  try { localStorage.setItem('tr_mode', 'trainer'); } catch { /* quota */ }
+  if (persist) { try { localStorage.setItem('tr_mode', 'trainer'); } catch { /* quota */ } }
+  render();
+}
+// вернуться в компаньон вручную (тумблер в настройках) — снимает залипший выбор тренажёра
+function openCompanion(): void {
+  try { localStorage.setItem('tr_mode', 'companion'); } catch { /* quota */ }
+  companionMode = true; companionInit = false; hubMode = false;
   render();
 }
 
@@ -336,6 +346,9 @@ function renderTopbar() {
 function goTo(target: string) {
   special = null;
   if (exam?.timer) clearInterval(exam.timer);
+  // погасить таймеры/rAF покидаемых режимов (иначе setTimeout «Память»/kids перерисует поверх
+  // нового режима, а rAF призрака-гонки останется крутиться) — было утечкой при выходе через тулбар
+  recallCleanup(); kidsCleanup(); competeCleanup();
   exam = null; aiMode = false; compMode = false; memMode = false; spanMode = false; courseMode = false;
   aiInit = false; compInit = false; memInit = false; spanInit = false; courseInit = false; kidsActive = false;
   hubMode = false;
@@ -369,6 +382,7 @@ function renderModalGlobal() {
   const mb = document.getElementById('modal-bg'); if (mb) mb.onclick = (e) => { if (e.target === mb) close(); };
   onClick('set-close', close); onClick('prog-close', close); onClick('custom-cancel', close); onClick('ach-close', close);
   onClick('sound-test', () => sfx.record());   // явная проверка звука (клик = жест, разблокирует аудио)
+  onClick('set-companion', () => { modal = null; openCompanion(); });   // вернуться в компаньон (снять залипший тренажёр)
   onClick('custom-go', () => startCustom((document.getElementById('custom-ta') as HTMLTextAreaElement).value));
   // аккаунт: вход / создание / синк / выход
   const accDo = async (mode: 'login' | 'register') => {
@@ -394,7 +408,10 @@ function renderModalGlobal() {
     accBusy = false; accMsg = r.ok ? (ru ? 'Готово ✓' : 'Done ✓') : (ru ? 'Ошибка сети' : 'Network error'); renderModalGlobal();
   })());
   // настройки применяются сразу к активному экрану
-  const cb = (id: string, fn: (v: boolean) => void) => onChange(id, (el) => { fn(el.checked); reapplyGlobal(); });
+  // display-настройки (звук/скрыть/клавиатура/блок/тепло/метроном/мост/голос) только ПЕРЕРИСОВЫВАЮТ —
+  // не reset(): иначе переключение тумблера посреди упражнения обнуляло набранное. Контент-настройки
+  // (профиль/язык/раскладка) по-прежнему через reapplyGlobal ниже.
+  const cb = (id: string, fn: (v: boolean) => void) => onChange(id, (el) => { fn(el.checked); render(); });
   cb('hide', (v) => { hidePattern = v; });
   cb('sound', (v) => { soundOn = v; });
   cb('block', (v) => { blockOnError = v; });
@@ -463,7 +480,7 @@ function render() {
     if (!companionInit) {
       companionInit = true;
       companionEnter(app, {
-        openTrainer: openTrainerFromCompanion,
+        openTrainer: () => openTrainerFromCompanion(true),  // явная кнопка → запомнить выбор
         openLearn: () => { companionInit = false; aiMode = true; aiInit = false; render(); },
         openCompete: () => { companionInit = false; compMode = true; compInit = false; render(); },
       });
@@ -478,7 +495,7 @@ function render() {
   app.innerHTML = `
     <div class="wrap">
       <header>
-        <h1>Type<span>RIGHT</span>ing</h1>
+        <h1>Type<span>RIGHT</span></h1>
         <select id="bank" class="bank-sel">
           ${BANKS.map((b) => `<option value="${b}" ${b === bank && !inSpecial ? 'selected' : ''}>${t('bank.' + b)}</option>`).join('')}
         </select>
@@ -607,6 +624,7 @@ function renderModal(): string {
         </select></label>
         <label class="set-range">🎯 ${lang() === 'ru' ? 'Целевой WPM (для прогноза)' : 'Target WPM (for forecast)'}: <input type="number" id="targetwpm" min="10" max="200" step="5" value="${getTargetWpm()}" style="width:62px"/></label>
         <button id="sound-test" class="ghost" style="margin-top:6px">🔊 ${t('set.soundtest')}</button>
+        <button id="set-companion" class="ghost">📱 ${lang() === 'ru' ? 'Режим телефона (компаньон)' : 'Phone mode (companion)'}</button>
       </div>
       <div class="donebtns"><button id="set-close" class="primary">${t('prog.close')}</button></div>
     </div></div>`;
@@ -634,7 +652,7 @@ function renderOnboarding() {
   app.innerHTML = `
     <div class="wrap onboard">
       <div class="ob-lang">${langSwitcherHtml()}</div>
-      <h1 class="ob-title">Type<span>RIGHT</span>ing</h1>
+      <h1 class="ob-title">Type<span>RIGHT</span></h1>
       <p class="ob-sub">${t('ob.sub')}</p>
       <div class="ob-cards">
         ${(Object.keys(PROFILE_EMOJI) as Profile[]).map((p) => `
@@ -875,7 +893,7 @@ function renderHub() {
   ];
   app.innerHTML = `
     <div class="wrap hub">
-      <header><h1>Type<span>RIGHT</span>ing</h1></header>
+      <header><h1>Type<span>RIGHT</span></h1></header>
       <p class="hub-q">${t('hub.q')}${streak >= 2 ? ` &nbsp;·&nbsp; <b class="streak">🔥 ${streak} ${t('hub.streak')}</b>` : ''}</p>
       <div class="hub-cards">
         ${cards.map(([go, name, desc], i) => `
@@ -931,10 +949,12 @@ document.addEventListener('keydown', (e) => {
   const tag = (e.target as HTMLElement)?.tagName;
   if (tag === 'SELECT' || tag === 'INPUT' || tag === 'TEXTAREA') return;
   // Компаньон: первый реальный физ-keydown (печатный символ с реальным кодом, не IME 229) =
-  // подключена BT-клавиатура → открываем полный тренажёр. Tab/Enter (не length-1) не трогаем.
-  if (companionMode) {
+  // подключена BT-клавиатура → открываем полный тренажёр (persist=false — не запираем навсегда).
+  // ⚠️ Пропускаем, если из компаньона открыт под-режим (learn/compete/memorize/recall/exam):
+  // иначе первое нажатие внутри него катапультирует и убивает сессию.
+  if (companionMode && !courseMode && !aiMode && !compMode && !memMode && !spanMode && !exam) {
     if (e.key && e.key.length === 1 && e.keyCode !== 229 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      e.preventDefault(); openTrainerFromCompanion();
+      e.preventDefault(); openTrainerFromCompanion(false);
     }
     return;
   }
@@ -989,6 +1009,8 @@ document.addEventListener('keydown', (e) => {
       const ex = pool[idx];
       flow.typed += s.typed; flow.errors += s.errors; flow.ms += s.elapsedMs; flow.count++;
       if (ex && !prog.done.includes(ex.id)) prog.done.push(ex.id);
+      // Поток тоже пишет историю/стрик/ачивки — иначе тренирующийся только в Потоке имеет пустой прогресс
+      pushHistory(s.wpm, s.accuracy, Date.now()); notifyBadges();
       idx = (idx + 1) % pool.length; prog.lastIdx = idx; saveProgress();
       st = exState(pool[idx]);
     } else {
@@ -1022,6 +1044,9 @@ try {
     companionMode = true; hubMode = false;
   }
 } catch { /* localStorage off */ }
+// Синхронный первый кадр: онбординг/хаб/компаньон не зависят от упражнений — рисуем сразу,
+// не дожидаясь loadExercises() (иначе на медленной сети белый экран, выглядит как «сломалось»).
+render();
 loadExercises().then((data) => { all = data; loadBank(); }).catch((err) => {
   app.innerHTML = `<div class="wrap"><p class="err">${t('err.load')}: ${esc(String(err))}</p></div>`;
 });

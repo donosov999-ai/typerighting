@@ -53,6 +53,9 @@ let root: HTMLElement | null = null;
 let onExit: (() => void) | null = null;
 
 function clearTimer() { if (timer) { clearTimeout(timer); timer = null; } }
+// вызывается из main.ts goTo() при выходе через верхнюю панель — иначе setTimeout
+// перерисует экран «Память» поверх другого режима через 2.5–3.5 с
+export function recallCleanup() { clearTimer(); }
 
 export function recallEnter(container: HTMLElement, profile: Profile, exit: () => void) {
   root = container; onExit = exit; prof = profile;

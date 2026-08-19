@@ -532,3 +532,17 @@ button:hover { filter: brightness(1.1); }
 .comp-badges { display: flex; flex-wrap: wrap; gap: 8px; }
 .comp-badge { font-size: 23px; opacity: .26; filter: grayscale(1); }
 .comp-badge.on { opacity: 1; filter: none; }
+
+/* ─── Адаптив узких экранов (планшет-портрет/телефон-в-тренажёре) — раньше 0 @media ─── */
+@media (max-width: 720px) {
+  /* верхний бар: вместо развёртки в 3 строки — одна горизонтально-скроллимая полоса */
+  #topbar { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; gap: 6px; padding: 6px 10px;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  #topbar::-webkit-scrollbar { display: none; }
+  .tb-modes { flex-wrap: nowrap; }
+  .tb-mode { padding: 9px 12px; font-size: 14px; }
+  .tb-sp { display: none; }
+  /* тач-цели ≥44px (Apple HIG / WCAG 2.5.5) */
+  .tb-icon, .tb-btn, .tb-mode, #topbar select { min-height: 44px; box-sizing: border-box; }
+  .wrap { padding: 18px 14px; }
+}

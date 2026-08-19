@@ -54,22 +54,38 @@ export function applyLocal(snap: Snapshot): void {
 }
 
 // ── Слияние прогресса: рекорды/звёзды/уровни растут только вверх ──
-function deepMergeMax(a: unknown, b: unknown): unknown {
-  if (typeof a === 'number' && typeof b === 'number') return Math.max(a, b);
-  if (Array.isArray(a) && Array.isArray(b)) return a.length >= b.length ? a : b; // история — длиннее
+// ⚠️ key-aware: 'bt' (лучшее EMA-время клавиши, keystats) — это МИНИМУМ (рекорд), НЕ максимум,
+// иначе вход на 2-м устройстве портил адаптив-модель (слабые клавиши/восстановление/прогноз врали).
+// tr_history — ОБЪЕДИНЕНИЕ сессий по таймстампу t, а не «более длинный массив» (иначе сессии
+// второго устройства выбрасывались).
+function mergeHistoryByTs(a: unknown[], b: unknown[]): unknown[] {
+  const seen = new Set<number>();
+  const merged: unknown[] = [];
+  for (const rec of [...a, ...b]) {
+    const ts = rec && typeof rec === 'object' ? (rec as { t?: number }).t : undefined;
+    if (typeof ts === 'number') { if (seen.has(ts)) continue; seen.add(ts); }
+    merged.push(rec);
+  }
+  merged.sort((x, y) => ((x as { t?: number })?.t ?? 0) - ((y as { t?: number })?.t ?? 0));
+  return merged.length > 500 ? merged.slice(-500) : merged;
+}
+
+function deepMergeMax(a: unknown, b: unknown, key?: string): unknown {
+  if (typeof a === 'number' && typeof b === 'number') return key === 'bt' ? Math.min(a, b) : Math.max(a, b);
+  if (Array.isArray(a) && Array.isArray(b)) return key === 'tr_history' ? mergeHistoryByTs(a, b) : (a.length >= b.length ? a : b);
   if (a && b && typeof a === 'object' && typeof b === 'object') {
     const out: Record<string, unknown> = { ...(a as object) };
     for (const [k, vb] of Object.entries(b as Record<string, unknown>)) {
-      out[k] = k in out ? deepMergeMax((a as Record<string, unknown>)[k], vb) : vb;
+      out[k] = k in out ? deepMergeMax((a as Record<string, unknown>)[k], vb, k) : vb;
     }
     return out;
   }
   return b ?? a;
 }
 
-function mergeValue(a: string, b: string): string {
+function mergeValue(a: string, b: string, key?: string): string {
   try {
-    return JSON.stringify(deepMergeMax(JSON.parse(a), JSON.parse(b)));
+    return JSON.stringify(deepMergeMax(JSON.parse(a), JSON.parse(b), key));
   } catch {
     const na = Number(a), nb = Number(b);
     if (!Number.isNaN(na) && !Number.isNaN(nb)) return String(Math.max(na, nb));
@@ -81,7 +97,7 @@ function mergeValue(a: string, b: string): string {
 export function mergeProgress(server: Snapshot, local: Snapshot): Snapshot {
   const out: Snapshot = { ...server };
   for (const [k, lv] of Object.entries(local)) {
-    out[k] = k in out ? mergeValue(out[k], lv) : lv;
+    out[k] = k in out ? mergeValue(out[k], lv, k) : lv;
   }
   return out;
 }

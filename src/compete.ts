@@ -60,6 +60,9 @@ let challengeShareUrl: string | null = null;  // ссылка на создан�
 let ghostTimeline: Tick[] | null = null;
 let ghostNick = '';
 let ghostRaf: number | null = null;
+// вызывается из main.ts goTo() при выходе из соревнования через верхнюю панель —
+// иначе rAF призрака-гонки продолжает крутиться в фоне
+export function competeCleanup() { if (ghostRaf !== null) { cancelAnimationFrame(ghostRaf); ghostRaf = null; } }
 let ghostPos = 0;
 
 function curLang(): 'en' | 'ru' { return lang() === 'ru' ? 'ru' : 'en'; }

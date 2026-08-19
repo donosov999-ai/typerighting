@@ -222,6 +222,8 @@ function renderLevel() {
 
 let doneTimer: number | null = null;
 function clearDoneTimer() { if (doneTimer) { clearTimeout(doneTimer); doneTimer = null; } }
+// вызывается из main.ts при выходе — иначе авто-таймер уровня утащит ребёнка на след.уровень с карты
+export function kidsCleanup() { clearDoneTimer(); }
 // игровой поток: следующий уровень сам, без ожидания клика (или Enter/Space досрочно)
 function goNextLevel() {
   clearDoneTimer();

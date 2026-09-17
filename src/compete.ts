@@ -1,4 +1,4 @@
-/* typerighting-compete · VER 11 · 17.09.2026 */
+/* typerighting-compete · VER 12 · 17.09.2026 */
 // Режим «Тест-соревнование» (запрос Дениса 13.06.2026, по мотивам typinggames.zone):
 // несколько дисциплин на скорость (алфавит А→Я / Я→А, слова, цифры, спринт),
 // личные рекорды + онлайн-лидерборд (Supabase, см. src/leaderboard.ts).
@@ -202,19 +202,18 @@ function renderMenu() {
 function renderRun() {
   const rc = /[а-яё]/i.test(st.pattern);
   const showRu = lang() === 'ru' || rc;
-  const L = curLang() === 'ru';
   // P2.1: дорожка призрака — «ты» и соперник 👻 едут по прогрессу текста
   const ghostBar = ghostTimeline ? `
       <div class="cp-ghost">
         <div class="cp-track"><span class="cp-you" id="cp-you"></span><span class="cp-rival" id="cp-rival">👻</span></div>
-        <div class="cp-glbl"><span>${L ? 'Ты' : 'You'}</span><b id="cp-gap"></b><span>${esc(ghostNick)} 👻</span></div>
+        <div class="cp-glbl"><span>${t('comp.you')}</span><b id="cp-gap"></b><span>${esc(ghostNick)} 👻</span></div>
       </div>` : '';
   root!.innerHTML = `
     <div class="wrap compete">
       <header class="mode-head">
         <button id="cp-back" class="mode-back">${t('nav.tomap')}</button>
         <span class="c-progress">🏆 ${t('comp.' + disc)}</span>
-        <span class="c-acc">${activeChallenge ? `🎯 ${L ? 'Цель' : 'Target'}: ${activeChallenge.target_wpm} ${t('st.wpm')}` : t('comp.hint')}</span>
+        <span class="c-acc">${activeChallenge ? `🎯 ${t('comp.target')}: ${activeChallenge.target_wpm} ${t('st.wpm')}` : t('comp.hint')}</span>
       </header>
       ${ghostBar}
       <div class="card"><div class="pattern pattern-big" id="pattern">${renderPattern()}</div></div>
@@ -237,8 +236,8 @@ function ghostTick() {
   if (youEl) youEl.style.left = Math.min(100, (st.pos / total) * 100) + '%';
   if (rivalEl) rivalEl.style.left = Math.min(100, (ghostPos / total) * 100) + '%';
   if (gapEl) {
-    const d = st.pos - ghostPos; const L = curLang() === 'ru';
-    gapEl.textContent = d > 0 ? (L ? `+${d} впереди` : `+${d} ahead`) : d < 0 ? (L ? `${d} позади` : `${d} behind`) : (L ? 'вровень' : 'neck & neck');
+    const d = st.pos - ghostPos;
+    gapEl.textContent = d > 0 ? t('comp.ahead').replace('{n}', String(d)) : d < 0 ? t('comp.behind').replace('{n}', String(d)) : t('comp.even');
     gapEl.className = d >= 0 ? 'cp-ahead' : 'cp-behind';
   }
   ghostRaf = requestAnimationFrame(ghostTick);
@@ -248,23 +247,22 @@ function renderResult() {
   const r = lastResult!;
   const savedName = localStorage.getItem('tr_name') ?? '';
   const kids = prof === 'kids';
-  const L = curLang() === 'ru';
   // вердикт по вызову (если вошли по ссылке-челленджу)
   let chVerdict = '';
   if (activeChallenge) {
     const won = r.wpm > activeChallenge.target_wpm;
     const from = esc(activeChallenge.from_nick);
     chVerdict = won
-      ? `<div class="cp-chal won">🎉 ${L ? `Обогнал ${from}!` : `You beat ${from}!`} <small>${activeChallenge.target_wpm} ${t('st.wpm')}</small></div>`
-      : `<div class="cp-chal lost">${L ? `Не хватило до ${from}` : `Short of ${from}`}: <b>${activeChallenge.target_wpm}</b> ${t('st.wpm')}</div>`;
+      ? `<div class="cp-chal won">🎉 ${t('comp.beat').replace('{nick}', () => from)} <small>${activeChallenge.target_wpm} ${t('st.wpm')}</small></div>`
+      : `<div class="cp-chal lost">${t('comp.short').replace('{nick}', () => from)}: <b>${activeChallenge.target_wpm}</b> ${t('st.wpm')}</div>`;
   }
   // панель поделиться созданным вызовом
   let shareBox = '';
   if (challengeShareUrl) {
     const enc = encodeURIComponent(challengeShareUrl);
-    const txt = encodeURIComponent(L ? `Обгони меня в TypeRIGHT: ${r.wpm} зн/мин!` : `Beat me in TypeRIGHT: ${r.wpm} WPM!`);
+    const txt = encodeURIComponent(t('comp.sharetext').replace('{wpm}', String(r.wpm))) // было «зн/мин» при числе WPM;
     shareBox = `<div class="cp-sharebox">
-      <div class="sh-row"><input id="cp-shurl" readonly value="${esc(challengeShareUrl)}"/><button id="cp-shcopy">${L ? 'Копировать' : 'Copy'}</button></div>
+      <div class="sh-row"><input id="cp-shurl" readonly value="${esc(challengeShareUrl)}"/><button id="cp-shcopy">${t('share.copy')}</button></div>
       <div class="sh-soc"><a href="https://t.me/share/url?url=${enc}&text=${txt}" target="_blank" rel="noopener">Telegram</a><a href="https://vk.com/share.php?url=${enc}" target="_blank" rel="noopener">ВКонтакте</a></div>
     </div>`;
   }
@@ -286,8 +284,8 @@ function renderResult() {
           <button id="cp-pub" class="primary" ${published ? 'disabled' : ''}>${published ? '✓' : '🌐 ' + t('comp.publish')}</button>
         </div>
         <div class="donebtns">
-          <button id="cp-challenge">🎯 ${L ? 'Бросить вызов' : 'Challenge a friend'}</button>
-          <button id="cp-league" class="ghost">🏆 ${L ? 'Лига недели' : 'Weekly league'}</button>
+          <button id="cp-challenge">🎯 ${t('comp.challenge')}</button>
+          <button id="cp-league" class="ghost">🏆 ${t('comp.league')}</button>
         </div>
         ${shareBox}`}
         <div class="donebtns">
@@ -309,7 +307,7 @@ function renderResult() {
   const shcopy = root!.querySelector('#cp-shcopy') as HTMLButtonElement | null;
   if (shcopy) shcopy.onclick = () => {
     const i = root!.querySelector('#cp-shurl') as HTMLInputElement; i.select();
-    navigator.clipboard?.writeText(i.value).then(() => { shcopy.textContent = L ? '✓' : '✓'; }).catch(() => {});
+    navigator.clipboard?.writeText(i.value).then(() => { shcopy.textContent = '✓'; }).catch(() => {});
   };
 }
 
@@ -322,7 +320,7 @@ async function challengeShare(btn: HTMLButtonElement) {
   const chId = await createChallenge(nick, disc, curLang(), lastResult.wpm, lastResult.acc, replayId);
   btn.disabled = false;
   if (chId) { challengeShareUrl = `${CHALLENGE_BASE}/${chId}`; render(); }
-  else { btn.textContent = curLang() === 'ru' ? 'Ошибка сети' : 'Network error'; }
+  else { btn.textContent = t('err.net'); }
 }
 
 // P2: недельная лига
@@ -333,13 +331,12 @@ async function openLeague() {
 }
 
 function renderLeague() {
-  const L = curLang() === 'ru';
   const me = (localStorage.getItem('tr_name') || '').toLowerCase();
   root!.innerHTML = `
     <div class="wrap compete">
       <header class="mode-head">
         <button id="lg-back" class="mode-back">${t('nav.back')}</button>
-        <h1>🏆 ${L ? 'Лига недели' : 'Weekly league'}</h1>
+        <h1>🏆 ${t('comp.league')}</h1>
       </header>
       <p class="c-intro">${t('comp.' + disc)} · ${curLang().toUpperCase()}</p>
       ${leagueLoading ? `<p class="hint2">${t('comp.loading')}</p>` : leagueRows.length === 0 ? `<p class="hint2">${t('comp.empty')}</p>` : `

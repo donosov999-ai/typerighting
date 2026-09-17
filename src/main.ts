@@ -1,4 +1,4 @@
-/* typerighting-app · VER 54 · 17.09.2026 */
+/* typerighting-app · VER 55 · 17.09.2026 */
 import './style.css';
 import { loadExercises, exercisesOfBank, BANKS, type Bank, type Exercise } from './content';
 import { ravenExercises } from './raven';
@@ -115,14 +115,14 @@ let customText = '';
 let modal: null | 'custom' | 'progress' | 'settings' | 'account' | 'ach' = null;
 let accMsg = '';        // статус-сообщение формы аккаунта
 let accBusy = false;    // идёт сетевой запрос (блокирует кнопки)
-function accErr(err: string | undefined, ru: boolean): string {
+function accErr(err: string | undefined): string {
   switch (err) {
-    case 'nick_taken': return ru ? 'Ник занят' : 'Nick taken';
-    case 'no_user': return ru ? 'Ник не найден' : 'No such nick';
-    case 'bad_pin': return ru ? 'Неверный PIN' : 'Wrong PIN';
-    case 'nick_short': return ru ? 'Ник слишком короткий' : 'Nick too short';
-    case 'pin_short': return ru ? 'PIN слишком короткий (мин. 4)' : 'PIN too short (min 4)';
-    default: return ru ? 'Ошибка сети' : 'Network error';
+    case 'nick_taken': return t('acc.err.taken');
+    case 'no_user': return t('acc.err.nouser');
+    case 'bad_pin': return t('acc.err.pin');
+    case 'nick_short': return t('acc.err.nickshort');
+    case 'pin_short': return t('acc.err.pinshort');
+    default: return t('err.net');
   }
 }
 
@@ -356,10 +356,10 @@ function renderTopbar() {
     <button id="tb-flow" class="tb-btn ${flowMode ? 'on' : ''}" title="${t('hint.flow')}">${uiIcon('ui-flow')} ${t('tb.flow')}</button>
     <button id="tb-progress" class="tb-icon" title="${t('prog.title')}">${uiIcon('ui-progress')}</button>
     <button id="tb-ach" class="tb-icon" title="${t('ach.title')}">🏆</button>
-    <button id="tb-account" class="tb-icon" title="${lang() === 'ru' ? 'Аккаунт' : 'Account'}">${loadSession() ? '👤' : '☁️'}</button>
+    <button id="tb-account" class="tb-icon" title="${t('tb.account')}">${loadSession() ? '👤' : '☁️'}</button>
     <button id="tb-settings" class="tb-icon" title="${t('hub.settings')}">${uiIcon('ui-settings')}</button>
     <button id="tb-dark" class="tb-icon" title="${t('tb.dark')}">${uiIcon('ui-dark')}</button>
-    <select id="tb-profile" title="Profile">
+    <select id="tb-profile" title="${t('tb.profile')}">
       ${(Object.keys(PROFILE_EMOJI) as Profile[]).map((p) => `<option value="${p}" ${p === profile ? 'selected' : ''}>${PROFILE_EMOJI[p]}</option>`).join('')}
     </select>
     <select id="tb-lang" title="Language">${LANGS.map((l) => `<option value="${l}" ${lang() === l ? 'selected' : ''}>${LANG_LABEL[l]}</option>`).join('')}</select>`;
@@ -423,24 +423,22 @@ function renderModalGlobal() {
   const accDo = async (mode: 'login' | 'register') => {
     const nick = (document.getElementById('acc-nick') as HTMLInputElement)?.value.trim() ?? '';
     const pin = (document.getElementById('acc-pin') as HTMLInputElement)?.value ?? '';
-    const ru = lang() === 'ru';
-    if (nick.length < 2) { accMsg = ru ? 'Ник минимум 2 символа' : 'Nick min 2 chars'; renderModalGlobal(); return; }
-    if (pin.length < 4) { accMsg = ru ? 'PIN минимум 4 цифры' : 'PIN min 4 digits'; renderModalGlobal(); return; }
-    accBusy = true; accMsg = ru ? 'Связь…' : 'Connecting…'; renderModalGlobal();
+    if (nick.length < 2) { accMsg = t('acc.nickmin'); renderModalGlobal(); return; }
+    if (pin.length < 4) { accMsg = t('acc.pinmin'); renderModalGlobal(); return; }
+    accBusy = true; accMsg = t('acc.connecting'); renderModalGlobal();
     const r = await linkAccount(nick, pin, mode);
     accBusy = false;
-    if (r.ok) { accMsg = ru ? 'Прогресс синхронизирован ✓' : 'Progress synced ✓'; renderTopbar(); renderModalGlobal(); }
-    else { accMsg = accErr(r.err, ru); renderModalGlobal(); }
+    if (r.ok) { accMsg = t('acc.synced'); renderTopbar(); renderModalGlobal(); }
+    else { accMsg = accErr(r.err); renderModalGlobal(); }
   };
   onClick('acc-login', () => void accDo('login'));
   onClick('acc-register', () => void accDo('register'));
   onClick('acc-logout', () => { clearSession(); accMsg = ''; renderTopbar(); renderModalGlobal(); });
   onClick('acc-sync', () => void (async () => {
     const sess = loadSession(); if (!sess) return;
-    const ru = lang() === 'ru';
-    accBusy = true; accMsg = ru ? 'Синхронизация…' : 'Syncing…'; renderModalGlobal();
+    accBusy = true; accMsg = t('acc.syncing'); renderModalGlobal();
     const r = await trSync(sess.nick, sess.pin, collectLocal());
-    accBusy = false; accMsg = r.ok ? (ru ? 'Готово ✓' : 'Done ✓') : (ru ? 'Ошибка сети' : 'Network error'); renderModalGlobal();
+    accBusy = false; accMsg = r.ok ? t('acc.done') : t('err.net'); renderModalGlobal();
   })());
   // настройки применяются сразу к активному экрану
   // display-настройки (звук/скрыть/клавиатура/блок/тепло/метроном/мост/голос) только ПЕРЕРИСОВЫВАЮТ —
@@ -621,25 +619,24 @@ function renderPattern(): string {
 function renderModal(): string {
   if (modal === 'account') {
     const sess = loadSession();
-    const ru = lang() === 'ru';
     const body = sess ? `
-      <p class="acc-in">${ru ? 'Вы вошли как' : 'Signed in as'} <b>${esc(sess.nick)}</b></p>
-      <p class="hint2">${ru ? 'Прогресс синхронизируется между устройствами под этим ником.' : 'Progress syncs across devices under this nick.'}</p>
+      <p class="acc-in">${t('acc.signedin')} <b>${esc(sess.nick)}</b></p>
+      <p class="hint2">${t('acc.synchint')}</p>
       ${accMsg ? `<p class="acc-msg">${esc(accMsg)}</p>` : ''}
       <div class="donebtns">
-        <button id="acc-logout" class="ghost">${ru ? 'Выйти' : 'Sign out'}</button>
-        <button id="acc-sync" class="primary" ${accBusy ? 'disabled' : ''}>${accBusy ? '…' : (ru ? 'Синхронизировать' : 'Sync now')}</button>
+        <button id="acc-logout" class="ghost">${t('acc.logout')}</button>
+        <button id="acc-sync" class="primary" ${accBusy ? 'disabled' : ''}>${accBusy ? '…' : t('acc.sync')}</button>
       </div>` : `
-      <p class="hint2">${ru ? 'Ник + короткий PIN — и прогресс будет на любом устройстве. Без почты.' : 'Nick + short PIN — your progress on any device. No email.'}</p>
-      <input id="acc-nick" class="acc-inp" placeholder="${ru ? 'Ник' : 'Nick'}" maxlength="24" autocomplete="off"/>
+      <p class="hint2">${t('acc.pitch')}</p>
+      <input id="acc-nick" class="acc-inp" placeholder="${t('acc.nick')}" maxlength="24" autocomplete="off"/>
       <input id="acc-pin" class="acc-inp" type="password" inputmode="numeric" placeholder="PIN" maxlength="12" autocomplete="off"/>
       ${accMsg ? `<p class="acc-msg">${esc(accMsg)}</p>` : ''}
       <div class="donebtns">
-        <button id="acc-login" class="ghost" ${accBusy ? 'disabled' : ''}>${ru ? 'Войти' : 'Sign in'}</button>
-        <button id="acc-register" class="primary" ${accBusy ? 'disabled' : ''}>${ru ? 'Создать' : 'Create'}</button>
+        <button id="acc-login" class="ghost" ${accBusy ? 'disabled' : ''}>${t('acc.login')}</button>
+        <button id="acc-register" class="primary" ${accBusy ? 'disabled' : ''}>${t('acc.create')}</button>
       </div>`;
     return `<div class="modal-bg" id="modal-bg"><div class="modal">
-      <h2>${sess ? '👤' : '☁️'} ${ru ? 'Аккаунт' : 'Account'}</h2>${body}
+      <h2>${sess ? '👤' : '☁️'} ${t('tb.account')}</h2>${body}
     </div></div>`;
   }
   if (modal === 'ach') {
@@ -659,7 +656,7 @@ function renderModal(): string {
       <div class="settings-list">
         <label><input type="checkbox" id="hide" ${hidePattern ? 'checked' : ''}/> ${t('tb.hide')}</label>
         <label><input type="checkbox" id="sound" ${soundOn ? 'checked' : ''}/> ${t('tb.sound')}</label>
-        ${VOICED_LANGS.has(lang()) ? `<label><input type="checkbox" id="voice" ${voiceEnabled() ? 'checked' : ''}/> ${lang() === 'ru' ? '🔊 Озвучка букв' : '🔊 Letter voice'}</label>` : ''}
+        ${VOICED_LANGS.has(lang()) ? `<label><input type="checkbox" id="voice" ${voiceEnabled() ? 'checked' : ''}/> ${t('set.voice')}</label>` : ''}
         <label><input type="checkbox" id="block" ${blockOnError ? 'checked' : ''}/> ${t('tb.block')}</label>
         <label><input type="checkbox" id="keyb" ${showKeyb ? 'checked' : ''}/> ${t('tb.keyb')}</label>
         <label><input type="checkbox" id="heat" ${showHeat ? 'checked' : ''}/> ${t('tb.heat')}</label>
@@ -668,15 +665,15 @@ function renderModal(): string {
         <label><input type="checkbox" id="metro" ${metroOn ? 'checked' : ''}/> ${t('set.metro')}</label>
         <label class="set-range">${t('set.metro.bpm')}: <input type="range" id="metrobpm" min="60" max="200" step="10" value="${metroBpm}"/> <b id="metrobpmval">${metroBpm}</b></label>
         <label><input type="checkbox" id="bridge" ${localStorage.getItem('tr_bridge') !== '0' ? 'checked' : ''}/> ${t('set.bridge')}</label>
-        <label class="set-range">${lang() === 'ru' ? 'Раскладка' : 'Layout'}: <select id="layoutsel">
-          <option value="auto" ${layoutPref === 'auto' ? 'selected' : ''}>${lang() === 'ru' ? 'Авто (по языку)' : 'Auto (by language)'}</option>
+        <label class="set-range">${t('set.layout')}: <select id="layoutsel">
+          <option value="auto" ${layoutPref === 'auto' ? 'selected' : ''}>${t('set.layout.auto')}</option>
           <option value="qwerty" ${layoutPref === 'qwerty' ? 'selected' : ''}>QWERTY</option>
           <option value="azerty" ${layoutPref === 'azerty' ? 'selected' : ''}>AZERTY · FR</option>
           <option value="qwertz" ${layoutPref === 'qwertz' ? 'selected' : ''}>QWERTZ · DE</option>
         </select></label>
-        <label class="set-range">🎯 ${lang() === 'ru' ? 'Целевой WPM (для прогноза)' : 'Target WPM (for forecast)'}: <input type="number" id="targetwpm" min="10" max="200" step="5" value="${getTargetWpm()}" style="width:62px"/></label>
+        <label class="set-range">🎯 ${t('set.targetwpm')}: <input type="number" id="targetwpm" min="10" max="200" step="5" value="${getTargetWpm()}" style="width:62px"/></label>
         <button id="sound-test" class="ghost" style="margin-top:6px">🔊 ${t('set.soundtest')}</button>
-        <button id="set-companion" class="ghost">📱 ${lang() === 'ru' ? 'Режим телефона (компаньон)' : 'Phone mode (companion)'}</button>
+        <button id="set-companion" class="ghost">📱 ${t('set.companion')}</button>
       </div>
       <p class="hint2 app-version">TypeRIGHT v${pkg.version}</p>
       <div class="donebtns"><button id="set-close" class="primary">${t('prog.close')}</button></div>
@@ -802,7 +799,7 @@ function renderExam() {
       </div>
       <div class="donebtns">
         <button id="ex-cert" class="primary">${t('ex.cert')}</button>
-        <button id="ex-share">${lang() === 'ru' ? '🔗 Поделиться' : '🔗 Share'}</button>
+        <button id="ex-share">${t('share.btn')}</button>
         <button id="ex-retry">${t('ex.again')}</button>
         <button id="ex-exit" class="ghost">${t('ex.cancel')}</button>
       </div>
@@ -819,7 +816,6 @@ function bindShare(s: ReturnType<typeof examStats>) {
   const btn = document.getElementById('ex-share') as HTMLButtonElement | null;
   const box = document.getElementById('ex-sharebox');
   if (!btn || !box || !exam) return;
-  const L = lang() === 'ru';
   btn.onclick = async () => {
     btn.disabled = true;
     const orig = btn.textContent;
@@ -828,16 +824,14 @@ function bindShare(s: ReturnType<typeof examStats>) {
     btn.disabled = false;
     btn.textContent = orig;
     box.hidden = false;
-    if (!url) { box.textContent = L ? 'Не удалось создать ссылку (нет сети?)' : 'Could not create link (offline?)'; return; }
+    if (!url) { box.textContent = t('share.fail'); return; }
     const enc = encodeURIComponent(url);
-    const txt = encodeURIComponent(
-      L ? `Моя скорость печати: ${s.net} зн/мин, точность ${s.accuracy}%! А ты сможешь быстрее?`
-        : `My typing speed: ${s.net} WPM, ${s.accuracy}% accuracy! Can you beat it?`
-    );
+    // до 17.09.2026 в ru стояло «${s.net} зн/мин» — а это слова в минуту: скорость занижалась в 5 раз
+    const txt = encodeURIComponent(t('share.text').replace('{wpm}', String(s.net)).replace('{acc}', String(s.accuracy)));
     box.innerHTML =
       `<div style="display:flex;gap:8px;margin-bottom:8px">
          <input id="sh-url" readonly value="${esc(url)}" style="flex:1;padding:9px 11px;border-radius:8px;border:1px solid var(--line,#3a4152);background:var(--surface,#1a2233);color:inherit;font-size:13px"/>
-         <button id="sh-copy">${L ? 'Копировать' : 'Copy'}</button>
+         <button id="sh-copy">${t('share.copy')}</button>
        </div>
        <div style="display:flex;gap:8px;flex-wrap:wrap">
          <a class="sh-soc" href="https://t.me/share/url?url=${enc}&text=${txt}" target="_blank" rel="noopener">Telegram</a>
@@ -847,7 +841,7 @@ function bindShare(s: ReturnType<typeof examStats>) {
       const i = document.getElementById('sh-url') as HTMLInputElement;
       i.select();
       navigator.clipboard?.writeText(i.value).then(() => {
-        const b = document.getElementById('sh-copy'); if (b) b.textContent = L ? '✓ Скопировано' : '✓ Copied';
+        const b = document.getElementById('sh-copy'); if (b) b.textContent = t('share.copied');
       }).catch(() => {});
     };
   };

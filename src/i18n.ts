@@ -1,6 +1,9 @@
-/* typerighting-i18n · VER 31 · 17.09.2026 */
+/* typerighting-i18n · VER 32 · 17.09.2026 */
 // Интерфейс на 7 языках (заказ Дениса 13.06.2026). Язык в tr_lang, дефолт RU.
-// ru/en обязательны; es/de/fr/it/pt опциональны с fallback на en (t() ниже).
+// Все 7 языков обязательны — держит src/i18n.test.ts (до 17.09.2026 26 ключей жили только на ru/en
+// и на es/de/fr/it/pt молча показывали английский). Фолбэк t() на en — страховка, не норма.
+// ru для ex.gross/ex.net оставлен «Gross/Net WPM» намеренно: так метрика названа в ex.target/ex.desc
+// и на русских страницах typefree.pro, где объясняется разница.
 export type Lang = 'ru' | 'en' | 'es' | 'de' | 'fr' | 'it' | 'pt';
 export const LANGS: Lang[] = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
 export const LANG_LABEL: Record<Lang, string> = { ru: '🇷🇺 RU', en: '🇬🇧 EN', es: '🇪🇸 ES', de: '🇩🇪 DE', fr: '🇫🇷 FR', it: '🇮🇹 IT', pt: '🇵🇹 PT' };
@@ -30,7 +33,7 @@ export function setLang(l: Lang) {
 }
 
 type Entry = { ru: string; en: string; es?: string; de?: string; fr?: string; it?: string; pt?: string };
-const DICT: Record<string, Entry> = {
+export const DICT: Record<string, Entry> = {
   // адаптивный компаньон (телефон без клавиатуры) — префикс cpn.* (comp.* занят соревнованием)
   'cpn.h1': { ru: 'Печатать вслепую — нужна клавиатура', en: 'Touch typing needs a keyboard', es: 'La mecanografía al tacto necesita teclado', de: 'Tippen lernen braucht eine Tastatur', fr: 'La dactylographie exige un clavier', it: 'La dattilografia richiede una tastiera', pt: 'A digitação ao tato precisa de teclado' },
   'cpn.sub': { ru: 'На экране телефона слепой печати не научиться. Подключи Bluetooth-клавиатуру к телефону или планшету — и полный тренажёр откроется сам.', en: "You can't learn touch typing on a phone screen. Connect a Bluetooth keyboard to your phone or tablet and the full trainer opens automatically.", es: 'No se aprende mecanografía al tacto en la pantalla del teléfono. Conecta un teclado Bluetooth al teléfono o la tableta y el entrenador completo se abre solo.', de: 'Tippen lernt man nicht auf dem Handybildschirm. Verbinde eine Bluetooth-Tastatur mit Handy oder Tablet — der volle Trainer öffnet sich automatisch.', fr: 'On n’apprend pas la dactylographie sur un écran de téléphone. Connecte un clavier Bluetooth à ton téléphone ou ta tablette et l’entraîneur complet s’ouvre tout seul.', it: 'Non si impara a digitare sullo schermo del telefono. Collega una tastiera Bluetooth al telefono o al tablet e il trainer completo si apre da solo.', pt: 'Não dá para aprender digitação ao tato na tela do telefone. Conecta um teclado Bluetooth ao telefone ou tablet e o treinador completo abre sozinho.' },
@@ -153,8 +156,8 @@ const DICT: Record<string, Entry> = {
   'mem.lenup': { ru: 'Длина повышена — теперь', en: 'Length up — now', es: 'Más largo — ahora', de: 'Länger — jetzt', fr: 'Plus long — maintenant', it: 'Più lungo — ora', pt: 'Mais longo — agora' },
   // режим «Память» (списки слов на span рабочей памяти)
   'span.title': { ru: 'Память', en: 'Memory', es: 'Memoria', de: 'Gedächtnis', fr: 'Mémoire', it: 'Memoria', pt: 'Memória' },
-  'hub.mem.d': { ru: 'Печать по памяти — текст исчезает', en: 'Type from memory — the text hides' },
-  'hub.span.d': { ru: 'Запомни ряд слов и воспроизведи', en: 'Memorize a row of words and recall it' },
+  'hub.mem.d': { ru: 'Печать по памяти — текст исчезает', en: 'Type from memory — the text hides', es: 'Escribe de memoria — el texto se oculta', de: 'Aus dem Gedächtnis tippen — der Text verschwindet', fr: 'Tape de mémoire — le texte disparaît', it: 'Digita a memoria — il testo scompare', pt: 'Digita de memória — o texto desaparece' },
+  'hub.span.d': { ru: 'Запомни ряд слов и воспроизведи', en: 'Memorize a row of words and recall it', es: 'Memoriza una serie de palabras y repítela', de: 'Merke dir eine Wortreihe und tippe sie nach', fr: 'Mémorise une suite de mots et retape-la', it: 'Memorizza una serie di parole e riscrivila', pt: 'Memoriza uma série de palavras e repete-a' },
   'span.level': { ru: 'Уровень', en: 'Level', es: 'Nivel', de: 'Stufe', fr: 'Niveau', it: 'Livello', pt: 'Nível' },
   'span.intro': { ru: 'Запомни список слов, пока он на экране. Потом он исчезнет — набери по памяти. Справился — слов станет больше.', en: 'Memorize the word list while it shows. Then it disappears — type it from memory. Succeed and the list grows.', es: 'Memoriza la lista mientras se ve. Luego desaparece — escríbela de memoria. Si aciertas, crece.', de: 'Merke dir die Wortliste, solange sie zu sehen ist. Dann verschwindet sie — tippe aus dem Gedächtnis. Schaffst du es, wird sie länger.', fr: 'Mémorise la liste tant qu’elle s’affiche. Puis elle disparaît — tape-la de mémoire. Réussis et elle s’allonge.', it: 'Memorizza la lista finché è visibile. Poi sparisce — scrivila a memoria. Se ci riesci, cresce.', pt: 'Memoriza a lista enquanto aparece. Depois desaparece — escreve-a de memória. Se acertares, cresce.' },
   'span.show': { ru: 'Запоминай…', en: 'Memorize…', es: 'Memoriza…', de: 'Merken…', fr: 'Mémorise…', it: 'Memorizza…', pt: 'Memoriza…' },
@@ -208,20 +211,20 @@ const DICT: Record<string, Entry> = {
   'prog.title': { ru: 'Прогресс по сессиям', en: 'Progress by session', es: 'Progreso por sesión', de: 'Fortschritt je Sitzung', fr: 'Progrès par session', it: 'Progresso per sessione', pt: 'Progresso por sessão' },
   'prog.empty': { ru: 'Недостаточно данных. Пройди хотя бы 2 упражнения — появится график скорости.', en: 'Not enough data. Finish at least 2 exercises to see the speed chart.', es: 'Datos insuficientes. Completa al menos 2 ejercicios para ver el gráfico.', de: 'Zu wenig Daten. Schließe mind. 2 Übungen ab, um das Diagramm zu sehen.', fr: 'Données insuffisantes. Termine au moins 2 exercices pour voir le graphique.', it: 'Dati insufficienti. Completa almeno 2 esercizi per il grafico.', pt: 'Dados insuficientes. Conclui pelo menos 2 exercícios para ver o gráfico.' },
   'prog.close': { ru: 'Закрыть', en: 'Close', es: 'Cerrar', de: 'Schließen', fr: 'Fermer', it: 'Chiudi', pt: 'Fechar' },
-  'ach.title': { ru: 'Достижения', en: 'Achievements' },
-  'ach.sub': { ru: 'Бейджи за вехи — открыто', en: 'Milestone badges — unlocked' },
-  'ach.unlocked': { ru: 'Достижение получено!', en: 'Achievement unlocked!' },
-  'ach.first': { ru: 'Первые шаги', en: 'First steps' },
-  'ach.sessions10': { ru: '10 сессий', en: '10 sessions' },
-  'ach.sessions50': { ru: '50 сессий', en: '50 sessions' },
-  'ach.streak3': { ru: 'Серия 3 дня', en: '3-day streak' },
-  'ach.streak7': { ru: 'Серия 7 дней', en: '7-day streak' },
-  'ach.streak30': { ru: 'Серия 30 дней', en: '30-day streak' },
-  'ach.wpm30': { ru: '30 WPM', en: '30 WPM' },
-  'ach.wpm50': { ru: '50 WPM', en: '50 WPM' },
-  'ach.wpm70': { ru: '70 WPM', en: '70 WPM' },
-  'ach.acc99': { ru: 'Точность 99%', en: '99% accuracy' },
-  'ach.polyglot': { ru: 'Полиглот (3+ языка)', en: 'Polyglot (3+ languages)' },
+  'ach.title': { ru: 'Достижения', en: 'Achievements', es: 'Logros', de: 'Erfolge', fr: 'Succès', it: 'Traguardi', pt: 'Conquistas' },
+  'ach.sub': { ru: 'Бейджи за вехи — открыто', en: 'Milestone badges — unlocked', es: 'Insignias por hitos — desbloqueadas', de: 'Abzeichen für Meilensteine — freigeschaltet', fr: 'Badges d’étape — débloqués', it: 'Badge dei traguardi — sbloccati', pt: 'Medalhas por marcos — desbloqueadas' },
+  'ach.unlocked': { ru: 'Достижение получено!', en: 'Achievement unlocked!', es: '¡Logro desbloqueado!', de: 'Erfolg freigeschaltet!', fr: 'Succès débloqué !', it: 'Traguardo raggiunto!', pt: 'Conquista desbloqueada!' },
+  'ach.first': { ru: 'Первые шаги', en: 'First steps', es: 'Primeros pasos', de: 'Erste Schritte', fr: 'Premiers pas', it: 'Primi passi', pt: 'Primeiros passos' },
+  'ach.sessions10': { ru: '10 сессий', en: '10 sessions', es: '10 sesiones', de: '10 Sitzungen', fr: '10 séances', it: '10 sessioni', pt: '10 sessões' },
+  'ach.sessions50': { ru: '50 сессий', en: '50 sessions', es: '50 sesiones', de: '50 Sitzungen', fr: '50 séances', it: '50 sessioni', pt: '50 sessões' },
+  'ach.streak3': { ru: 'Серия 3 дня', en: '3-day streak', es: '3 días seguidos', de: '3 Tage in Folge', fr: '3 jours d’affilée', it: '3 giorni di fila', pt: '3 dias seguidos' },
+  'ach.streak7': { ru: 'Серия 7 дней', en: '7-day streak', es: '7 días seguidos', de: '7 Tage in Folge', fr: '7 jours d’affilée', it: '7 giorni di fila', pt: '7 dias seguidos' },
+  'ach.streak30': { ru: 'Серия 30 дней', en: '30-day streak', es: '30 días seguidos', de: '30 Tage in Folge', fr: '30 jours d’affilée', it: '30 giorni di fila', pt: '30 dias seguidos' },
+  'ach.wpm30': { ru: '30 WPM', en: '30 WPM', es: '30 WPM', de: '30 WPM', fr: '30 WPM', it: '30 WPM', pt: '30 WPM' },
+  'ach.wpm50': { ru: '50 WPM', en: '50 WPM', es: '50 WPM', de: '50 WPM', fr: '50 WPM', it: '50 WPM', pt: '50 WPM' },
+  'ach.wpm70': { ru: '70 WPM', en: '70 WPM', es: '70 WPM', de: '70 WPM', fr: '70 WPM', it: '70 WPM', pt: '70 WPM' },
+  'ach.acc99': { ru: 'Точность 99%', en: '99% accuracy', es: 'Precisión del 99%', de: '99% Genauigkeit', fr: 'Précision de 99 %', it: 'Precisione del 99%', pt: 'Precisão de 99%' },
+  'ach.polyglot': { ru: 'Полиглот (3+ языка)', en: 'Polyglot (3+ languages)', es: 'Políglota (3+ idiomas)', de: 'Polyglott (3+ Sprachen)', fr: 'Polyglotte (3+ langues)', it: 'Poliglotta (3+ lingue)', pt: 'Poliglota (3+ línguas)' },
   'custom.title': { ru: 'Свой текст', en: 'Custom text', es: 'Texto propio', de: 'Eigener Text', fr: 'Texte perso', it: 'Testo tuo', pt: 'Texto próprio' },
   'custom.ph': { ru: 'Вставь любой текст для тренировки…', en: 'Paste any text to practice…', es: 'Pega cualquier texto para practicar…', de: 'Beliebigen Text zum Üben einfügen…', fr: 'Colle un texte pour t’entraîner…', it: 'Incolla un testo per esercitarti…', pt: 'Cola qualquer texto para praticar…' },
   'custom.start': { ru: 'Тренировать', en: 'Practice', es: 'Practicar', de: 'Üben', fr: 'S’entraîner', it: 'Allena', pt: 'Praticar' },
@@ -230,7 +233,7 @@ const DICT: Record<string, Entry> = {
   'st.exercises': { ru: 'упражнений', en: 'exercises', es: 'ejercicios', de: 'Übungen', fr: 'exercices', it: 'esercizi', pt: 'exercícios' },
   'st.done': { ru: 'пройдено', en: 'done', es: 'hechos', de: 'erledigt', fr: 'faits', it: 'fatti', pt: 'feitos' },
   'st.record': { ru: 'рекорд', en: 'best', es: 'récord', de: 'Rekord', fr: 'record', it: 'record', pt: 'recorde' },
-  'st.wpm': { ru: 'WPM', en: 'WPM' },
+  'st.wpm': { ru: 'WPM', en: 'WPM', es: 'WPM', de: 'WPM', fr: 'WPM', it: 'WPM', pt: 'WPM' },
   'st.accuracy': { ru: 'точность', en: 'accuracy', es: 'precisión', de: 'Genauigkeit', fr: 'précision', it: 'precisione', pt: 'precisão' },
   'st.errors': { ru: 'ошибок', en: 'errors', es: 'errores', de: 'Fehler', fr: 'fautes', it: 'errori', pt: 'erros' },
   'st.time': { ru: 'время', en: 'time', es: 'tiempo', de: 'Zeit', fr: 'temps', it: 'tempo', pt: 'tempo' },
@@ -278,17 +281,17 @@ const DICT: Record<string, Entry> = {
   'ex.cancel': { ru: 'Выйти', en: 'Exit', es: 'Salir', de: 'Beenden', fr: 'Quitter', it: 'Esci', pt: 'Sair' },
   'ex.finish': { ru: 'Завершить и засчитать', en: 'Finish & submit', es: 'Terminar y contar', de: 'Beenden & werten', fr: 'Terminer et valider', it: 'Termina e conta', pt: 'Terminar e contar' },
   // подписи графика прогресса (были захардкожены по-русски для всех языков)
-  'prog.sessions': { ru: 'сессий', en: 'sessions' },
-  'prog.max': { ru: 'макс', en: 'max' },
-  'prog.last': { ru: 'последняя', en: 'last' },
-  'prog.to': { ru: 'до', en: 'to' },
-  'prog.sess': { ru: 'сесс.', en: 'sess.' },
-  'heat.mastered': { ru: 'освоено', en: 'mastered' },
-  'heat.weak': { ru: 'слабые клавиши', en: 'weak keys' },
+  'prog.sessions': { ru: 'сессий', en: 'sessions', es: 'sesiones', de: 'Sitzungen', fr: 'séances', it: 'sessioni', pt: 'sessões' },
+  'prog.max': { ru: 'макс', en: 'max', es: 'máx', de: 'max', fr: 'max', it: 'max', pt: 'máx' },
+  'prog.last': { ru: 'последняя', en: 'last', es: 'última', de: 'zuletzt', fr: 'dernière', it: 'ultima', pt: 'última' },
+  'prog.to': { ru: 'до', en: 'to', es: 'hasta', de: 'bis', fr: 'jusqu’à', it: 'fino a', pt: 'até' },
+  'prog.sess': { ru: 'сесс.', en: 'sess.', es: 'ses.', de: 'Sitz.', fr: 'séances', it: 'sess.', pt: 'sessões' },
+  'heat.mastered': { ru: 'освоено', en: 'mastered', es: 'dominadas', de: 'beherrscht', fr: 'maîtrisées', it: 'padroneggiati', pt: 'dominadas' },
+  'heat.weak': { ru: 'слабые клавиши', en: 'weak keys', es: 'teclas débiles', de: 'schwache Tasten', fr: 'touches faibles', it: 'tasti deboli', pt: 'teclas fracas' },
   'ex.left': { ru: 'осталось', en: 'left', es: 'restante', de: 'übrig', fr: 'restant', it: 'restante', pt: 'restante' },
   'ex.result': { ru: 'Результат теста', en: 'Test result', es: 'Resultado', de: 'Testergebnis', fr: 'Résultat', it: 'Risultato', pt: 'Resultado' },
-  'ex.gross': { ru: 'Gross WPM', en: 'Gross WPM' },
-  'ex.net': { ru: 'Net WPM', en: 'Net WPM' },
+  'ex.gross': { ru: 'Gross WPM', en: 'Gross WPM', es: 'WPM bruto', de: 'Brutto-WPM', fr: 'WPM brut', it: 'WPM lordo', pt: 'WPM bruto' },
+  'ex.net': { ru: 'Net WPM', en: 'Net WPM', es: 'WPM neto', de: 'Netto-WPM', fr: 'WPM net', it: 'WPM netto', pt: 'WPM líquido' },
   'ex.keystrokes': { ru: 'нажатий', en: 'keystrokes', es: 'pulsaciones', de: 'Anschläge', fr: 'frappes', it: 'battute', pt: 'toques' },
   'ex.pass': { ru: 'СДАН', en: 'PASS', es: 'APROBADO', de: 'BESTANDEN', fr: 'RÉUSSI', it: 'SUPERATO', pt: 'APROVADO' },
   'ex.fail': { ru: 'НЕ СДАН', en: 'FAIL', es: 'NO APROBADO', de: 'NICHT BESTANDEN', fr: 'ÉCHEC', it: 'NON SUPERATO', pt: 'REPROVADO' },
@@ -298,6 +301,49 @@ const DICT: Record<string, Entry> = {
   'ex.cert.title': { ru: 'СЕРТИФИКАТ', en: 'CERTIFICATE', es: 'CERTIFICADO', de: 'ZERTIFIKAT', fr: 'CERTIFICAT', it: 'CERTIFICATO', pt: 'CERTIFICADO' },
   'ex.cert.sub': { ru: 'тест слепой печати', en: 'touch typing test', es: 'prueba de mecanografía', de: 'Tipptest', fr: 'test de dactylographie', it: 'test di dattilografia', pt: 'teste de digitação' },
   'ex.cert.date': { ru: 'Дата', en: 'Date', es: 'Fecha', de: 'Datum', fr: 'Date', it: 'Data', pt: 'Data' },
+  // тексты, жившие тернарниками ru/en прямо в main.ts и compete.ts: на es/de/fr/it/pt были английскими (до 17.09.2026)
+  'tb.account': { ru: 'Аккаунт', en: 'Account', es: 'Cuenta', de: 'Konto', fr: 'Compte', it: 'Account', pt: 'Conta' },
+  'tb.profile': { ru: 'Профиль', en: 'Profile', es: 'Perfil', de: 'Profil', fr: 'Profil', it: 'Profilo', pt: 'Perfil' },
+  'set.voice': { ru: '🔊 Озвучка букв', en: '🔊 Letter voice', es: '🔊 Voz de las letras', de: '🔊 Buchstaben vorlesen', fr: '🔊 Voix des lettres', it: '🔊 Voce delle lettere', pt: '🔊 Voz das letras' },
+  'set.layout': { ru: 'Раскладка', en: 'Layout', es: 'Distribución', de: 'Layout', fr: 'Disposition', it: 'Layout', pt: 'Layout' },
+  'set.layout.auto': { ru: 'Авто (по языку)', en: 'Auto (by language)', es: 'Auto (según el idioma)', de: 'Auto (nach Sprache)', fr: 'Auto (selon la langue)', it: 'Auto (in base alla lingua)', pt: 'Auto (pelo idioma)' },
+  'set.targetwpm': { ru: 'Целевой WPM (для прогноза)', en: 'Target WPM (for forecast)', es: 'Objetivo de WPM (para el pronóstico)', de: 'Ziel-WPM (für die Prognose)', fr: 'Objectif WPM (pour la prévision)', it: 'Obiettivo WPM (per la previsione)', pt: 'Meta de WPM (para a previsão)' },
+  'set.companion': { ru: 'Режим телефона (компаньон)', en: 'Phone mode (companion)', es: 'Modo teléfono (acompañante)', de: 'Handy-Modus (Begleiter)', fr: 'Mode téléphone (compagnon)', it: 'Modalità telefono (compagno)', pt: 'Modo telefone (companheiro)' },
+  'share.btn': { ru: '🔗 Поделиться', en: '🔗 Share', es: '🔗 Compartir', de: '🔗 Teilen', fr: '🔗 Partager', it: '🔗 Condividi', pt: '🔗 Compartilhar' },
+  'share.fail': { ru: 'Не удалось создать ссылку (нет сети?)', en: 'Could not create link (offline?)', es: 'No se pudo crear el enlace (¿sin conexión?)', de: 'Link konnte nicht erstellt werden (offline?)', fr: 'Impossible de créer le lien (hors ligne ?)', it: 'Impossibile creare il link (offline?)', pt: 'Não foi possível criar o link (sem rede?)' },
+  'share.text': { ru: 'Моя скорость печати: {wpm} WPM, точность {acc}%! А ты сможешь быстрее?', en: 'My typing speed: {wpm} WPM, {acc}% accuracy! Can you beat it?', es: 'Mi velocidad de escritura: {wpm} WPM, precisión del {acc}%. ¿Puedes superarla?', de: 'Mein Tipptempo: {wpm} WPM, {acc}% Genauigkeit! Schaffst du mehr?', fr: 'Ma vitesse de frappe : {wpm} WPM, {acc} % de précision ! Tu fais mieux ?', it: 'La mia velocità di battitura: {wpm} WPM, precisione {acc}%! Riesci a battermi?', pt: 'Minha velocidade de digitação: {wpm} WPM, precisão de {acc}%! Consegues bater?' },
+  'share.copy': { ru: 'Копировать', en: 'Copy', es: 'Copiar', de: 'Kopieren', fr: 'Copier', it: 'Copia', pt: 'Copiar' },
+  'share.copied': { ru: '✓ Скопировано', en: '✓ Copied', es: '✓ Copiado', de: '✓ Kopiert', fr: '✓ Copié', it: '✓ Copiato', pt: '✓ Copiado' },
+  'comp.you': { ru: 'Ты', en: 'You', es: 'Tú', de: 'Du', fr: 'Toi', it: 'Tu', pt: 'Tu' },
+  'comp.target': { ru: 'Цель', en: 'Target', es: 'Objetivo', de: 'Ziel', fr: 'Objectif', it: 'Obiettivo', pt: 'Meta' },
+  'comp.ahead': { ru: '+{n} впереди', en: '+{n} ahead', es: '+{n} por delante', de: '+{n} vorne', fr: '+{n} d’avance', it: '+{n} avanti', pt: '+{n} à frente' },
+  'comp.behind': { ru: '{n} позади', en: '{n} behind', es: '{n} por detrás', de: '{n} zurück', fr: '{n} de retard', it: '{n} indietro', pt: '{n} atrás' },
+  'comp.even': { ru: 'вровень', en: 'neck & neck', es: 'empatados', de: 'gleichauf', fr: 'à égalité', it: 'alla pari', pt: 'empatados' },
+  'comp.beat': { ru: 'Победа над {nick}!', en: 'You beat {nick}!', es: '¡Superaste a {nick}!', de: 'Du hast {nick} geschlagen!', fr: 'Tu as battu {nick} !', it: 'Hai battuto {nick}!', pt: 'Venceste {nick}!' },
+  'comp.short': { ru: 'Не хватило до {nick}', en: 'Short of {nick}', es: 'No alcanzaste a {nick}', de: 'Knapp hinter {nick}', fr: 'Pas assez pour battre {nick}', it: 'Non hai raggiunto {nick}', pt: 'Faltou pouco para {nick}' },
+  'comp.sharetext': { ru: 'Обгони меня в TypeRIGHT: {wpm} WPM!', en: 'Beat me in TypeRIGHT: {wpm} WPM!', es: '¡Supérame en TypeRIGHT: {wpm} WPM!', de: 'Schlag mich in TypeRIGHT: {wpm} WPM!', fr: 'Bats-moi sur TypeRIGHT : {wpm} WPM !', it: 'Battimi su TypeRIGHT: {wpm} WPM!', pt: 'Supera-me no TypeRIGHT: {wpm} WPM!' },
+  'comp.challenge': { ru: 'Бросить вызов', en: 'Challenge a friend', es: 'Reta a un amigo', de: 'Freund zum Duell fordern', fr: 'Défier un ami', it: 'Sfida un amico', pt: 'Desafia um amigo' },
+  'comp.league': { ru: 'Лига недели', en: 'Weekly league', es: 'Liga semanal', de: 'Wochenliga', fr: 'Ligue de la semaine', it: 'Lega settimanale', pt: 'Liga semanal' },
+  'acc.err.taken': { ru: 'Ник занят', en: 'Nick taken', es: 'Ese apodo ya está en uso', de: 'Nickname ist vergeben', fr: 'Ce pseudo est déjà pris', it: 'Nickname già in uso', pt: 'Esse apelido já está em uso' },
+  'acc.err.nouser': { ru: 'Ник не найден', en: 'No such nick', es: 'Apodo no encontrado', de: 'Nickname nicht gefunden', fr: 'Pseudo introuvable', it: 'Nickname non trovato', pt: 'Apelido não encontrado' },
+  'acc.err.pin': { ru: 'Неверный PIN', en: 'Wrong PIN', es: 'PIN incorrecto', de: 'Falsche PIN', fr: 'PIN incorrect', it: 'PIN errato', pt: 'PIN incorreto' },
+  'acc.err.nickshort': { ru: 'Ник слишком короткий', en: 'Nick too short', es: 'Apodo demasiado corto', de: 'Nickname zu kurz', fr: 'Pseudo trop court', it: 'Nickname troppo corto', pt: 'Apelido muito curto' },
+  'acc.err.pinshort': { ru: 'PIN слишком короткий (мин. 4)', en: 'PIN too short (min 4)', es: 'PIN demasiado corto (mín. 4)', de: 'PIN zu kurz (mind. 4)', fr: 'PIN trop court (min. 4)', it: 'PIN troppo corto (min. 4)', pt: 'PIN muito curto (mín. 4)' },
+  'err.net': { ru: 'Ошибка сети', en: 'Network error', es: 'Error de red', de: 'Netzwerkfehler', fr: 'Erreur réseau', it: 'Errore di rete', pt: 'Erro de rede' },
+  'acc.nickmin': { ru: 'Ник минимум 2 символа', en: 'Nick min 2 chars', es: 'Apodo: mínimo 2 caracteres', de: 'Nickname: mind. 2 Zeichen', fr: 'Pseudo : 2 caractères min.', it: 'Nickname: minimo 2 caratteri', pt: 'Apelido: mínimo 2 caracteres' },
+  'acc.pinmin': { ru: 'PIN минимум 4 цифры', en: 'PIN min 4 digits', es: 'PIN: mínimo 4 dígitos', de: 'PIN: mind. 4 Ziffern', fr: 'PIN : 4 chiffres min.', it: 'PIN: minimo 4 cifre', pt: 'PIN: mínimo 4 dígitos' },
+  'acc.connecting': { ru: 'Связь…', en: 'Connecting…', es: 'Conectando…', de: 'Verbinde…', fr: 'Connexion…', it: 'Connessione…', pt: 'Conectando…' },
+  'acc.synced': { ru: 'Прогресс синхронизирован ✓', en: 'Progress synced ✓', es: 'Progreso sincronizado ✓', de: 'Fortschritt synchronisiert ✓', fr: 'Progression synchronisée ✓', it: 'Progressi sincronizzati ✓', pt: 'Progresso sincronizado ✓' },
+  'acc.syncing': { ru: 'Синхронизация…', en: 'Syncing…', es: 'Sincronizando…', de: 'Synchronisiere…', fr: 'Synchronisation…', it: 'Sincronizzazione…', pt: 'Sincronizando…' },
+  'acc.done': { ru: 'Готово ✓', en: 'Done ✓', es: 'Listo ✓', de: 'Fertig ✓', fr: 'Terminé ✓', it: 'Fatto ✓', pt: 'Pronto ✓' },
+  'acc.signedin': { ru: 'Вы вошли как', en: 'Signed in as', es: 'Sesión iniciada como', de: 'Angemeldet als', fr: 'Connecté en tant que', it: 'Accesso come', pt: 'Conectado como' },
+  'acc.synchint': { ru: 'Прогресс синхронизируется между устройствами под этим ником.', en: 'Progress syncs across devices under this nick.', es: 'El progreso se sincroniza entre dispositivos con este apodo.', de: 'Der Fortschritt wird unter diesem Nickname zwischen Geräten synchronisiert.', fr: 'La progression se synchronise entre appareils sous ce pseudo.', it: 'I progressi si sincronizzano tra i dispositivi con questo nickname.', pt: 'O progresso é sincronizado entre dispositivos com este apelido.' },
+  'acc.logout': { ru: 'Выйти', en: 'Sign out', es: 'Cerrar sesión', de: 'Abmelden', fr: 'Se déconnecter', it: 'Esci', pt: 'Sair' },
+  'acc.sync': { ru: 'Синхронизировать', en: 'Sync now', es: 'Sincronizar', de: 'Jetzt synchronisieren', fr: 'Synchroniser', it: 'Sincronizza', pt: 'Sincronizar' },
+  'acc.pitch': { ru: 'Ник + короткий PIN — и прогресс будет на любом устройстве. Без почты.', en: 'Nick + short PIN — your progress on any device. No email.', es: 'Apodo + PIN corto: tu progreso en cualquier dispositivo. Sin correo.', de: 'Nickname + kurze PIN — dein Fortschritt auf jedem Gerät. Ohne E-Mail.', fr: 'Pseudo + PIN court — ta progression sur tous tes appareils. Sans e-mail.', it: 'Nickname + PIN breve: i tuoi progressi su ogni dispositivo. Senza email.', pt: 'Apelido + PIN curto — seu progresso em qualquer dispositivo. Sem e-mail.' },
+  'acc.nick': { ru: 'Ник', en: 'Nick', es: 'Apodo', de: 'Nickname', fr: 'Pseudo', it: 'Nickname', pt: 'Apelido' },
+  'acc.login': { ru: 'Войти', en: 'Sign in', es: 'Entrar', de: 'Anmelden', fr: 'Se connecter', it: 'Accedi', pt: 'Entrar' },
+  'acc.create': { ru: 'Создать', en: 'Create', es: 'Crear', de: 'Erstellen', fr: 'Créer', it: 'Crea', pt: 'Criar' },
 };
 
 export function t(key: string): string {

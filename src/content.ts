@@ -1,3 +1,4 @@
+/* typerighting-content · VER 7 · 17.09.2026 */
 // Модель упражнения (нормализована из 4 банков оригинального TypeRIGHT).
 export type Bank = 'abandon' | 'engRus' | 'letterByLetter' | 'poemHymn' | 'classic' | 'ruWords' | 'ruPhrases';
 

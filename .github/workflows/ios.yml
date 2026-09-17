@@ -1,3 +1,4 @@
+# typerighting-ci-ios · VER 2 · 17.09.2026
 name: Build iOS (simulator / TestFlight)
 
 # Рецепт снят с рабочей iOS-сборки psygames (02–04.09.2026): те же грабли Apple,

@@ -1,3 +1,4 @@
+/* typerighting-i18n · VER 31 · 17.09.2026 */
 // Интерфейс на 7 языках (заказ Дениса 13.06.2026). Язык в tr_lang, дефолт RU.
 // ru/en обязательны; es/de/fr/it/pt опциональны с fallback на en (t() ниже).
 export type Lang = 'ru' | 'en' | 'es' | 'de' | 'fr' | 'it' | 'pt';

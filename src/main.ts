@@ -1,3 +1,4 @@
+/* typerighting-app · VER 54 · 17.09.2026 */
 import './style.css';
 import { loadExercises, exercisesOfBank, BANKS, type Bank, type Exercise } from './content';
 import { ravenExercises } from './raven';
@@ -25,6 +26,9 @@ import { getChallenge, type ChallengeData } from './compete-net';
 import { initSessionLog } from './session-log';
 import { petSync, petEnabled, initPet } from './pet';
 import { LayoutDetector, type PhysLayout } from './layout-detect';
+// Версия приложения — один источник (package.json; tauri.conf.json и Cargo.toml держат ту же).
+// Раньше багфиксу она шла строкой '2.59.0' — со следующим релизом разошлась бы с настоящей.
+import pkg from '../package.json';
 
 // Встроенный багфикс (webcheck bugfix-app.js, подключён в index.html ДО этого модуля,
 // вендорится локально ради CSP APK). Кнопка «Сообщить о баге» снизу-слева → пишет в единый
@@ -32,7 +36,7 @@ import { LayoutDetector, type PhysLayout } from './layout-detect';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 (window as any).BugfixApp?.init({
   project: 'typefree',
-  version: '2.59.0',
+  version: pkg.version,
   // Только dev + тест-сборки (Android CI ставит VITE_TEST_BUILD=1). На публичном вебе/стабиле
   // кнопка выключена — иначе спам от случайных юзеров в TeamOps.
   enabled: (import.meta as any).env?.DEV || (import.meta as any).env?.VITE_TEST_BUILD === '1',
@@ -674,6 +678,7 @@ function renderModal(): string {
         <button id="sound-test" class="ghost" style="margin-top:6px">🔊 ${t('set.soundtest')}</button>
         <button id="set-companion" class="ghost">📱 ${lang() === 'ru' ? 'Режим телефона (компаньон)' : 'Phone mode (companion)'}</button>
       </div>
+      <p class="hint2 app-version">TypeRIGHT v${pkg.version}</p>
       <div class="donebtns"><button id="set-close" class="primary">${t('prog.close')}</button></div>
     </div></div>`;
   }

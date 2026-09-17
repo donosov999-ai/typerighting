@@ -1,3 +1,4 @@
+# typerighting-ci-android · VER 5 · 17.09.2026
 name: Build Android APK (debug / sideload)
 
 # Отдельно от build.yml (десктоп на тегах v*). Пока — ручной запуск: итерируем

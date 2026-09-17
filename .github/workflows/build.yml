@@ -1,3 +1,4 @@
+# typerighting-ci-desktop · VER 9 · 17.09.2026
 name: Build desktop bundles (macOS + Windows + Linux)
 
 # Триггер: только теги v* + ручной запуск. Сборку на каждый push в main

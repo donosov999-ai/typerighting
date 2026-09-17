@@ -1,3 +1,4 @@
+// typerighting-tauri · VER 4 · 17.09.2026
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let builder = tauri::Builder::default().plugin(tauri_plugin_process::init());

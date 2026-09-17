@@ -1,3 +1,4 @@
+/* typerighting-account · VER 5 · 17.09.2026 */
 // Аккаунты + облачный синк прогресса (вход по нику + PIN — выбор Дениса 20.06).
 // Бэкенд: Supabase personal-nzt, таблица tr_users закрыта RLS, доступ только
 // через SECURITY DEFINER RPC tr_register / tr_login / tr_sync. PIN хранится

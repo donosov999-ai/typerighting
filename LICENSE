@@ -1,0 +1,95 @@
+typerighting — Проприетарная лицензия / Proprietary License
+Copyright (c) 2026 Denis Onosov (ODV999) / Денис Васильевич Оносов. All rights reserved.
+Все права защищены.
+
+────────────────────────────────────────────────────────────────────────
+РУССКИЙ
+────────────────────────────────────────────────────────────────────────
+
+ЭТО КОММЕРЧЕСКИЙ ПРОДУКТ, А НЕ ОТКРЫТЫЙ ИСХОДНЫЙ КОД.
+
+Исключительные права на программный код, сборки, дизайн, тексты,
+изображения, данные и иные материалы этого репозитория принадлежат
+правообладателю — Денису Васильевичу Оносову (ODV999).
+
+Доступ к репозиторию, его публичная видимость, получение файлов через
+сайт, приложение или любым другим способом НЕ дают никаких прав на
+использование.
+
+ЛЮБОЕ ИСПОЛЬЗОВАНИЕ — ТОЛЬКО ПО ПИСЬМЕННОМУ ДОГОВОРУ С ПРАВООБЛАДАТЕЛЕМ.
+
+Без такого договора запрещено, полностью или частично, в коммерческих
+и некоммерческих целях:
+1. Копировать и воспроизводить код и материалы.
+2. Распространять, публиковать, передавать третьим лицам.
+3. Изменять, переводить, адаптировать, создавать производные продукты,
+   в том числе под другим названием или оформлением.
+4. Декомпилировать, дизассемблировать, обходить защиту и привязку.
+5. Продавать, сдавать в аренду, предоставлять как услугу (SaaS).
+6. Встраивать в свои сайты, приложения и сервисы.
+7. Использовать для обучения, дообучения и оценки моделей искусственного
+   интеллекта.
+
+СТОРОННИЕ КОМПОНЕНТЫ
+Библиотеки и материалы третьих лиц, включённые в репозиторий, распространяются
+на условиях своих собственных лицензий. Эта лицензия распространяется на код
+и материалы правообладателя.
+
+ОТВЕТСТВЕННОСТЬ
+Нарушение исключительных прав влечёт ответственность в соответствии с частью
+четвёртой Гражданского кодекса Российской Федерации, законодательством страны
+нарушения и международными договорами об охране авторских прав, включая
+Бернскую конвенцию.
+
+ОТСУТСТВИЕ ГАРАНТИЙ
+Программа предоставляется «как есть», без каких-либо гарантий. Правообладатель
+не отвечает за убытки, связанные с использованием программы.
+
+ЛИЦЕНЗИРОВАНИЕ
+Для заключения договора обращайтесь к владельцу аккаунта donosov999-ai
+на GitHub.
+
+────────────────────────────────────────────────────────────────────────
+ENGLISH
+────────────────────────────────────────────────────────────────────────
+
+THIS IS A COMMERCIAL PRODUCT, NOT OPEN SOURCE.
+
+All exclusive rights to the source code, builds, design, texts, images, data
+and other materials in this repository belong to the copyright holder,
+Denis Onosov (ODV999).
+
+Access to this repository, its public visibility, or obtaining the files via
+a website, an application or by any other means does NOT grant any right of use.
+
+ANY USE IS PERMITTED ONLY UNDER A WRITTEN AGREEMENT WITH THE COPYRIGHT HOLDER.
+
+Without such an agreement it is prohibited, in whole or in part, for commercial
+or non-commercial purposes:
+1. To copy or reproduce the code and materials.
+2. To distribute, publish or transfer them to third parties.
+3. To modify, translate, adapt or create derivative products, including under
+   a different name or branding.
+4. To decompile, disassemble or circumvent protection and binding.
+5. To sell, rent or provide it as a service (SaaS).
+6. To embed it into your own websites, applications or services.
+7. To use it for training, fine-tuning or evaluating artificial intelligence
+   models.
+
+THIRD-PARTY COMPONENTS
+Third-party libraries and materials included in this repository are governed
+by their own licenses. This license covers the copyright holder's own code
+and materials.
+
+LIABILITY
+Infringement of exclusive rights entails liability under Part Four of the Civil
+Code of the Russian Federation, the laws of the country of infringement and
+international copyright treaties, including the Berne Convention.
+
+NO WARRANTY
+The software is provided "as is", without warranty of any kind. The copyright
+holder is not liable for any damages arising from use of the software.
+
+LICENSING
+To conclude an agreement, contact the owner of the donosov999-ai account
+on GitHub.

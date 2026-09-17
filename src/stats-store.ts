@@ -43,6 +43,9 @@ const MIN_SESSION_KEYS = 10;
 let keysSinceHist = 0;
 // H — счётчики текущей сессии (для богатой истории len/ms/err без правки вызовов).
 let errsSinceHist = 0, sessionStartTs = 0;
+// Ошибки текущей сессии ПО КЛАВИШАМ (keyId → число) — для облачной истории тренировок
+// (tr_sessions.err_keys, задача 612e065f): «где ошибался именно в этой сессии», а не накопленное.
+let errKeysSinceHist: Record<string, number> = {};
 // Граница сессии: разрыв >5 мин между нажатиями = уход/новая сессия → чистим хвост
 // (страхует от брошенной сессии без pushHistory). 5 мин безопасно > любой паузы
 // внутри экзамена, поэтому реальный результат не разрежется.
@@ -85,7 +88,7 @@ export function recordKey(keyId: string, ok: boolean, now = Date.now(), timed = 
   s.ts = now;
   const gap = now - lastKeyTs;
   // граница сессии: долгий простой → предыдущая сессия брошена, не тащим её хвост
-  if (lastKeyTs > 0 && gap > SESSION_GAP_MS) { keysSinceHist = 0; errsSinceHist = 0; sessionStartTs = 0; }
+  if (lastKeyTs > 0 && gap > SESSION_GAP_MS) { keysSinceHist = 0; errsSinceHist = 0; sessionStartTs = 0; errKeysSinceHist = {}; }
   lastKeyTs = now;
   keysSinceHist++;
   if (sessionStartTs === 0) sessionStartTs = now; // H — старт сессии
@@ -100,6 +103,7 @@ export function recordKey(keyId: string, ok: boolean, now = Date.now(), timed = 
   } else {
     s.err++;
     errsSinceHist++;
+    errKeysSinceHist[keyId] = (errKeysSinceHist[keyId] ?? 0) + 1;
   }
   persist();
 }
@@ -223,6 +227,18 @@ export function weakDrill(L: Lang, lines = 5): string[] {
 export type HistPoint = { t: number; wpm: number; acc: number; len?: number; ms?: number; err?: number; score?: number };
 const H_KEY = 'tr_history';
 
+// ── Событие «сессия записана» ──
+// Облачная история тренировок (session-log.ts, задача 612e065f) слушает ЭТО событие, а не
+// вызовы pushHistory: их 9 в 7 модулях (тест, поток, курс, AI-обучение, соревнование,
+// наизусть, память), и любой новый режим попадёт в облако сам. Сеть сюда не тянем —
+// модуль статистики остаётся чистым и тестируемым.
+export type SessionEvent = HistPoint & { errKeys: Record<string, number> };
+const sessionListeners: ((e: SessionEvent) => void)[] = [];
+export function onSession(fn: (e: SessionEvent) => void): () => void {
+  sessionListeners.push(fn);
+  return () => { const i = sessionListeners.indexOf(fn); if (i >= 0) sessionListeners.splice(i, 1); };
+}
+
 export function pushHistory(wpm: number, acc: number, now: number) {
   // Счётчики сессии читаем и СБРАСЫВАЕМ до любых ранних return — иначе хвост
   // мусорной попытки (wpm=0 / микро-сессия) утечёт в следующую точку истории
@@ -230,7 +246,8 @@ export function pushHistory(wpm: number, acc: number, now: number) {
   const len = keysSinceHist;
   const ms = sessionStartTs && now - sessionStartTs < 3600000 ? now - sessionStartTs : 0; // >1ч = простой, игнор
   const err = Math.round(errsSinceHist);
-  keysSinceHist = 0; errsSinceHist = 0; sessionStartTs = 0;
+  const errKeys = errKeysSinceHist;
+  keysSinceHist = 0; errsSinceHist = 0; sessionStartTs = 0; errKeysSinceHist = {};
   if (wpm <= 0 || len < MIN_SESSION_KEYS) return; // мусор/микро-сессия — счётчики уже сброшены
   // composite-score: скорость × точность(доля) × фактор длины (короткие сессии дешевле)
   const a = acc > 1 ? acc / 100 : acc; // acc в проде 0..100 → нормируем в долю
@@ -238,9 +255,13 @@ export function pushHistory(wpm: number, acc: number, now: number) {
   let h: HistPoint[] = [];
   try { h = JSON.parse(localStorage.getItem(H_KEY) ?? '[]'); } catch { h = []; }
   if (!Array.isArray(h)) h = [];
-  h.push({ t: now, wpm, acc, len, ms, err, score });
+  const point: HistPoint = { t: now, wpm, acc, len, ms, err, score };
+  h.push(point);
   if (h.length > 300) h = h.slice(h.length - 300);
   try { localStorage.setItem(H_KEY, JSON.stringify(h)); } catch { /* quota */ }
+  // acc в событии — всегда проценты 0..100 (в истории он бывает и долей — у разных вызовов по-разному)
+  const ev: SessionEvent = { ...point, acc: Math.round(a * 10000) / 100, errKeys };
+  for (const fn of sessionListeners) { try { fn(ev); } catch { /* слушатель не должен ронять запись истории */ } }
 }
 
 // ── F — прогноз «≈N сессий до целевого WPM» ──

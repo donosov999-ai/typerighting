@@ -3,8 +3,10 @@
 // через SECURITY DEFINER RPC tr_register / tr_login / tr_sync. PIN хранится
 // на сервере bcrypt-хэшем; локально ник+PIN кэшируются для авто-синка
 // (осознанный компромисс — это детский тренажёр, не банк).
-const SUPA_URL = 'https://iuvvheeocobhiothfgei.supabase.co';
-const SUPA_KEY = 'sb_publishable_A2vJ5DjemTZIKrKX6XGqvQ_WaiuAkk1';
+// Экспорт — чтобы session-log.ts не держал вторую копию ключа (publishable = клиентский по замыслу,
+// защищён RLS + SECURITY DEFINER RPC; секретов в репо нет — gitleaks по истории 17.09.2026).
+export const SUPA_URL = 'https://iuvvheeocobhiothfgei.supabase.co';
+export const SUPA_KEY = 'sb_publishable_A2vJ5DjemTZIKrKX6XGqvQ_WaiuAkk1';
 
 const headers = {
   apikey: SUPA_KEY,
@@ -16,8 +18,12 @@ export interface RpcResult { ok: boolean; err?: string; progress?: Snapshot; }
 export type Snapshot = Record<string, string>; // ключ localStorage → сырое значение
 
 // Настройки устройства — НЕ синхронизируем (звук/тема/раскладка/метроном локальны).
+// tr_device и tr_sess_queue (session-log.ts) — строго per-device: синк забирает ВСЕ ключи tr_*,
+// и без этого id устройства разъехался бы по всем устройствам пользователя, а очередь
+// неотправленных сессий досылалась бы с чужого устройства.
 const DEVICE_ONLY = new Set([
   'tr_bridge', 'tr_hardkeys', 'tr_metro', 'tr_metro_bpm', 'tr_dark', 'tr_flow', 'tr_lang', 'tr_acc',
+  'tr_device', 'tr_sess_queue', 'tr_sess_debug',
 ]);
 
 async function callRpc(fn: string, body: Record<string, unknown>): Promise<RpcResult> {

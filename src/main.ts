@@ -22,6 +22,7 @@ import { linkAccount, autoSync, pushSync, loadSession, clearSession, trSync, col
 import { checkForUpdate } from './updater';
 import { registerCert } from './cert';
 import { getChallenge, type ChallengeData } from './compete-net';
+import { initSessionLog } from './session-log';
 
 // Встроенный багфикс (webcheck bugfix-app.js, подключён в index.html ДО этого модуля,
 // вендорится локально ради CSP APK). Кнопка «Сообщить о баге» снизу-слева → пишет в единый
@@ -1064,6 +1065,14 @@ loadExercises().then((data) => { all = data; loadBank(); }).catch((err) => {
 });
 // тихо подтянуть облачный прогресс при старте, если вошёл в аккаунт
 void autoSync().then((ok) => { if (ok) { reapplyGlobal(); renderTopbar(); } });
+// Облачная история тренировок (tr_sessions, задача 612e065f). Режим читается в момент конца
+// сессии: флаги ниже к этому времени ещё выставлены (finishExam оставляет exam в фазе result).
+initSessionLog(() => ({
+  mode: exam ? 'test' : courseMode ? 'course' : aiMode ? 'ai' : compMode ? 'compete'
+    : memMode ? 'memorize' : spanMode ? 'span' : flowMode ? 'flow' : `train:${bank}`,
+  lang: lang(),
+  layout: resolveLayout(),
+}));
 // авто-проверка обновлений — только в нативном приложении (в браузере/PWA молча выходит)
 void checkForUpdate();
 // P2: вход по ссылке-вызову ?challenge=<id> → грузим вызов и открываем соревнование

@@ -5,7 +5,12 @@ export const LANGS: Lang[] = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
 export const LANG_LABEL: Record<Lang, string> = { ru: '🇷🇺 RU', en: '🇬🇧 EN', es: '🇪🇸 ES', de: '🇩🇪 DE', fr: '🇫🇷 FR', it: '🇮🇹 IT', pt: '🇵🇹 PT' };
 
 let current: Lang = (() => {
-  const v = localStorage.getItem('tr_lang');
+  // Чтение хранилища — только в try. Это уровень МОДУЛЯ: если доступ бросит (браузер/WebView с
+  // запрещённым хранилищем → SecurityError), упадёт весь граф импортов — белый экран. Тот же сбой
+  // в Node: стабы тестов ставятся после импорта, и stats-store.test.ts не собирался с 19.08.2026
+  // (импорт i18n в stats-store, коммит c3eeafa) — месяц тесты статистики молча не шли.
+  let v: string | null = null;
+  try { v = localStorage.getItem('tr_lang'); } catch { /* хранилище недоступно */ }
   if ((LANGS as string[]).includes(v ?? '')) return v as Lang; // явный выбор пользователя
   // автоопределение по языку системы (первый запуск)
   const sys = ((typeof navigator !== 'undefined' && (navigator.language || (navigator.languages && navigator.languages[0]))) || 'en').slice(0, 2).toLowerCase();

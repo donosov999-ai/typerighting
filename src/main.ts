@@ -24,6 +24,7 @@ import { registerCert } from './cert';
 import { getChallenge, type ChallengeData } from './compete-net';
 import { initSessionLog } from './session-log';
 import { petSync, petEnabled, initPet } from './pet';
+import { LayoutDetector, type PhysLayout } from './layout-detect';
 
 // Встроенный багфикс (webcheck bugfix-app.js, подключён в index.html ДО этого модуля,
 // вендорится локально ради CSP APK). Кнопка «Сообщить о баге» снизу-слева → пишет в единый
@@ -66,6 +67,26 @@ function resolveLayout(): Layout {
   return l === 'fr' ? 'azerty' : l === 'de' ? 'qwertz' : 'qwerty';
 }
 function applyLayout() { setLayout(resolveLayout()); }
+// Детектор раскладки подключённой клавиатуры (layout-detect.ts, задача caaacea3): физическая
+// раскладка ОС по e.code/e.key и «не тот алфавит». Плашку можно закрыть — до перезапуска.
+const layoutDet = new LayoutDetector();
+const layoutWarnOff = { phys: false, script: false };
+function layoutWarnHtml(): string {
+  const v = layoutDet.verdict();
+  const cur = resolveLayout();
+  let html = '';
+  if (v.physical && v.physical !== cur && !layoutWarnOff.phys) {
+    html += `<div class="layout-warn" role="status">⌨️ ${esc(t('layout.phys').replace('{kb}', v.physical.toUpperCase()).replace('{schema}', cur.toUpperCase()))}
+      <button id="lw-switch" data-layout="${v.physical}">${esc(t('layout.switch'))}</button>
+      <button id="lw-x" class="ghost" aria-label="${esc(t('layout.dismiss'))}" title="${esc(t('layout.dismiss'))}">✕</button></div>`;
+  }
+  if (v.scriptMismatch && !layoutWarnOff.script) {
+    const bridgeOn = localStorage.getItem('tr_bridge') !== '0';
+    html += `<div class="layout-warn" role="status">⌨️ ${esc(t(v.scriptMismatch === 'latin' ? 'layout.scriptLatin' : 'layout.scriptCyr'))} ${esc(t(bridgeOn ? 'layout.bridgeOn' : 'layout.bridgeOff'))}
+      <button id="lw-x2" class="ghost" aria-label="${esc(t('layout.dismiss'))}" title="${esc(t('layout.dismiss'))}">✕</button></div>`;
+  }
+  return html;
+}
 applyLayout();
 let blockOnError = true;
 let showKeyb = true; // схема клавиатуры из оригинального TypeRIGHT
@@ -538,6 +559,7 @@ function render() {
         <button id="next" class="ghost">${t('tb.next')}</button>
       </div>
 
+      ${layoutWarnHtml()}
       <div class="card">
         <div class="exhead">
           <span class="extitle">${esc(ex?.title ?? '')}</span>
@@ -887,6 +909,16 @@ function onClick(id: string, fn: () => void) { const el = document.getElementByI
 function onChange(id: string, fn: (el: HTMLInputElement) => void) { const el = document.getElementById(id) as HTMLInputElement | null; if (el) el.onchange = () => fn(el); }
 
 function bindControls() {
+  onClick('lw-switch', () => {
+    const btn = document.getElementById('lw-switch');
+    const to = btn?.getAttribute('data-layout') as PhysLayout | null;
+    if (!to) return;
+    layoutPref = to; applyLayout();
+    try { localStorage.setItem('tr_layout', layoutPref); } catch { /* */ }
+    render();
+  });
+  onClick('lw-x', () => { layoutWarnOff.phys = true; render(); });
+  onClick('lw-x2', () => { layoutWarnOff.script = true; render(); });
   onChange('bank', (el) => { special = null; bank = el.value as Bank; loadBank(); });
   onClick('weak', () => { special === 'weak' ? exitSpecial() : startWeak(); });
   onClick('custom', () => { modal = 'custom'; render(); });
@@ -1009,6 +1041,8 @@ document.addEventListener('keydown', (e) => {
 
   e.preventDefault();
   const expected = st.pattern[st.pos] ?? '';
+  // ДО моста: мост подменяет символ по месту клавиши, и несовпадение раскладки стало бы невидимым
+  if (e.key.length === 1) layoutDet.feed(e.code, e.key, expected);
   ch = bridgeChar(ch, expected);
   const rc = ruCtx();
 

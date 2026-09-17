@@ -9,7 +9,9 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
-    "test": "vitest run"
+    "test": "vitest run",
+    "predev": "node scripts/fetch-mascot.mjs",
+    "prebuild": "node scripts/fetch-mascot.mjs"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2",

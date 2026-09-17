@@ -4,3 +4,6 @@ src-tauri/target/
 *.log
 .DS_Store
 HANDOFF_TZ.md
+
+# Питомец: приватный движок + проприетарный пак подтягиваются при сборке (scripts/fetch-mascot.mjs), в публичное репо не кладём
+public/mascot/

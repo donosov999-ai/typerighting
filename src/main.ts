@@ -23,6 +23,7 @@ import { checkForUpdate } from './updater';
 import { registerCert } from './cert';
 import { getChallenge, type ChallengeData } from './compete-net';
 import { initSessionLog } from './session-log';
+import { petSync, petEnabled, initPet } from './pet';
 
 // Встроенный багфикс (webcheck bugfix-app.js, подключён в index.html ДО этого модуля,
 // вендорится локально ради CSP APK). Кнопка «Сообщить о баге» снизу-слева → пишет в единый
@@ -427,6 +428,7 @@ function renderModalGlobal() {
   cb('block', (v) => { blockOnError = v; persist('tr_block', v); });
   cb('keyb', (v) => { showKeyb = v; persist('tr_keyb', v); });
   cb('heat', (v) => { showHeat = v; try { localStorage.setItem('tr_heat', showHeat ? '1' : '0'); } catch { /* */ } });
+  cb('pet', (v) => persist('tr_pet', v)); // render() в cb → syncPet сам погасит/поднимет питомца
   cb('hardkeys', (v) => { try { localStorage.setItem('tr_hardkeys', v ? '1' : '0'); } catch { /* */ } });
   cb('metro', (v) => { metroOn = v; try { localStorage.setItem('tr_metro', v ? '1' : '0'); } catch { /* */ } });
   cb('bridge', (v) => { try { localStorage.setItem('tr_bridge', v ? '1' : '0'); } catch { /* */ } });
@@ -445,7 +447,20 @@ function renderModalGlobal() {
   onChange('targetwpm', (el) => { const v = +el.value; if (v >= 10 && v <= 200) setTargetWpm(v); }); // цель для forecast() в прогрессе
 }
 
+// Питомец (pet.ts, задача 46d1207f): виден только между сессиями — меню, режим телефона, экран
+// результатов теста. Экран тренажёра — никогда, даже после конца упражнения: клавиатура там на
+// месте и человек сразу печатает дальше (первая версия села поверх Enter на схеме, кадр 17.09).
+// Рекорд такой сессии питомец скажет при следующем появлении. В режимах со своим экраном (курс,
+// AI, соревнование, память, дети) скрыт. Вызов — первым в render(): у функции много ранних
+// return, а хост питомца живёт в body, и перерисовка #app его не трогает.
+function syncPet() {
+  if (!profile || modal || kidsActive || courseMode || aiMode || compMode || memMode || spanMode) { petSync(false); return; }
+  if (companionMode || hubMode) { petSync(true); return; }
+  petSync(exam?.phase === 'result');
+}
+
 function render() {
+  syncPet();
   renderTopbar();
   renderModalGlobal();
   updateMetronome();
@@ -622,6 +637,7 @@ function renderModal(): string {
         <label><input type="checkbox" id="block" ${blockOnError ? 'checked' : ''}/> ${t('tb.block')}</label>
         <label><input type="checkbox" id="keyb" ${showKeyb ? 'checked' : ''}/> ${t('tb.keyb')}</label>
         <label><input type="checkbox" id="heat" ${showHeat ? 'checked' : ''}/> ${t('tb.heat')}</label>
+        <label><input type="checkbox" id="pet" ${petEnabled() ? 'checked' : ''}/> ${t('set.pet')}</label>
         <label><input type="checkbox" id="hardkeys" ${localStorage.getItem('tr_hardkeys') === '1' ? 'checked' : ''}/> ${t('set.hardkeys')}</label>
         <label><input type="checkbox" id="metro" ${metroOn ? 'checked' : ''}/> ${t('set.metro')}</label>
         <label class="set-range">${t('set.metro.bpm')}: <input type="range" id="metrobpm" min="60" max="200" step="10" value="${metroBpm}"/> <b id="metrobpmval">${metroBpm}</b></label>
@@ -1067,6 +1083,7 @@ loadExercises().then((data) => { all = data; loadBank(); }).catch((err) => {
 void autoSync().then((ok) => { if (ok) { reapplyGlobal(); renderTopbar(); } });
 // Облачная история тренировок (tr_sessions, задача 612e065f). Режим читается в момент конца
 // сессии: флаги ниже к этому времени ещё выставлены (finishExam оставляет exam в фазе result).
+initPet(); // рекорд запоминается в момент конца сессии — питомец скажет о нём при появлении
 initSessionLog(() => ({
   mode: exam ? 'test' : courseMode ? 'course' : aiMode ? 'ai' : compMode ? 'compete'
     : memMode ? 'memorize' : spanMode ? 'span' : flowMode ? 'flow' : `train:${bank}`,

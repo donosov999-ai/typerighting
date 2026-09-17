@@ -23,7 +23,7 @@ export type Snapshot = Record<string, string>; // ключ localStorage → сы
 // неотправленных сессий досылалась бы с чужого устройства.
 const DEVICE_ONLY = new Set([
   'tr_bridge', 'tr_hardkeys', 'tr_metro', 'tr_metro_bpm', 'tr_dark', 'tr_flow', 'tr_lang', 'tr_acc',
-  'tr_device', 'tr_sess_queue', 'tr_sess_debug',
+  'tr_device', 'tr_sess_queue', 'tr_sess_debug', 'tr_pet',
 ]);
 
 async function callRpc(fn: string, body: Record<string, unknown>): Promise<RpcResult> {

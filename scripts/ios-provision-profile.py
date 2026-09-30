@@ -45,48 +45,48 @@ except ImportError:
 BASE = 'https://api.appstoreconnect.apple.com/v1'
 
 
-def токен() -> str:
+def token() -> str:
     key_id = os.environ.get('APPLE_API_KEY_ID')
     issuer = os.environ.get('APPLE_API_ISSUER')
     if not key_id or not issuer:
         sys.exit('нужны APPLE_API_KEY_ID и APPLE_API_ISSUER')
-    путь = os.path.expanduser(f'~/private_keys/AuthKey_{key_id}.p8')
-    if not os.path.exists(путь):
-        sys.exit(f'ключ не найден: {путь}')
-    ключ = open(путь, encoding='utf-8').read()
+    path = os.path.expanduser(f'~/private_keys/AuthKey_{key_id}.p8')
+    if not os.path.exists(path):
+        sys.exit(f'ключ не найден: {path}')
+    key = open(path, encoding='utf-8').read()
     now = int(time.time())
     return jwt.encode(
         {'iss': issuer, 'iat': now, 'exp': now + 1200, 'aud': 'appstoreconnect-v1'},
-        ключ, algorithm='ES256', headers={'kid': key_id, 'typ': 'JWT'},
+        key, algorithm='ES256', headers={'kid': key_id, 'typ': 'JWT'},
     )
 
 
-def запрос(tok: str, method: str, path: str, body=None) -> dict:
+def request_api(tok: str, method: str, path: str, body=None) -> dict:
     """Вызов API. Пустое тело (204 на DELETE) → пустой словарь, а не JSONDecodeError."""
     r = urllib.request.Request(f'{BASE}{path}',
                                data=json.dumps(body).encode() if body else None, method=method)
     r.add_header('Authorization', f'Bearer {tok}')
     r.add_header('Content-Type', 'application/json')
     try:
-        сырое = urllib.request.urlopen(r, timeout=90).read()
+        raw = urllib.request.urlopen(r, timeout=90).read()
     except urllib.error.HTTPError as e:
         sys.exit(f'{method} {path} → {e.code}: {e.read().decode()[:400]}')
-    if not сырое.strip():
+    if not raw.strip():
         return {}
-    return json.loads(сырое)
+    return json.loads(raw)
 
 
-def главное() -> None:
+def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument('--bundle', default='pro.typefree.app')
     p.add_argument('--profile-name', default='TypeFree App Store')
     a = p.parse_args()
 
-    tok = токен()
+    tok = token()
 
     # 1. Все сертификаты распространения аккаунта — НЕ создаём и НЕ отзываем, только читаем.
-    сертификаты = запрос(tok, 'GET', '/certificates?limit=200')['data']
-    dist = [c for c in сертификаты if c['attributes']['certificateType'] == 'DISTRIBUTION']
+    certs = request_api(tok, 'GET', '/certificates?limit=200')['data']
+    dist = [c for c in certs if c['attributes']['certificateType'] == 'DISTRIBUTION']
     if not dist:
         sys.exit('в аккаунте нет сертификата распространения — сначала заведи общий '
                  '.p12 и положи в секрет APPLE_CERTIFICATE (см. IOS_SETUP.md)')
@@ -94,32 +94,32 @@ def главное() -> None:
 
     # 2. Старый профиль с нашим именем удаляем (после смены сертификата он мёртв).
     #    Чужие профили (в т.ч. psygames) не трогаем — фильтр строго по имени.
-    for prof in запрос(tok, 'GET', '/profiles?limit=200')['data']:
+    for prof in request_api(tok, 'GET', '/profiles?limit=200')['data']:
         if prof['attributes']['name'] == a.profile_name:
-            запрос(tok, 'DELETE', f"/profiles/{prof['id']}")
+            request_api(tok, 'DELETE', f"/profiles/{prof['id']}")
             print(f'старый профиль «{a.profile_name}» удалён')
 
-    ид = next((b for b in запрос(tok, 'GET', '/bundleIds?limit=200')['data']
+    bid = next((b for b in request_api(tok, 'GET', '/bundleIds?limit=200')['data']
                if b['attributes']['identifier'] == a.bundle), None)
-    if not ид:
+    if not bid:
         sys.exit(f'bundleId {a.bundle} не найден в аккаунте — заведи его в '
                  'developer.apple.com/account/resources/identifiers (см. IOS_SETUP.md)')
 
-    профиль = запрос(tok, 'POST', '/profiles', {'data': {
+    profile = request_api(tok, 'POST', '/profiles', {'data': {
         'type': 'profiles',
         'attributes': {'name': a.profile_name, 'profileType': 'IOS_APP_STORE'},
         'relationships': {
-            'bundleId': {'data': {'type': 'bundleIds', 'id': ид['id']}},
+            'bundleId': {'data': {'type': 'bundleIds', 'id': bid['id']}},
             'certificates': {'data': [{'type': 'certificates', 'id': c['id']} for c in dist]}}}})
-    па = профиль['data']['attributes']
+    attrs = profile['data']['attributes']
 
-    каталог = os.path.expanduser('~/Library/MobileDevice/Provisioning Profiles')
-    os.makedirs(каталог, exist_ok=True)
-    файл = os.path.join(каталог, f"{па['uuid']}.mobileprovision")
-    open(файл, 'wb').write(base64.b64decode(па['profileContent']))
-    print(f"профиль: {па['name']} · {па['profileType']} · {па['profileState']}")
-    print(f'установлен: {файл}')
+    folder = os.path.expanduser('~/Library/MobileDevice/Provisioning Profiles')
+    os.makedirs(folder, exist_ok=True)
+    fpath = os.path.join(folder, f"{attrs['uuid']}.mobileprovision")
+    open(fpath, 'wb').write(base64.b64decode(attrs['profileContent']))
+    print(f"профиль: {attrs['name']} · {attrs['profileType']} · {attrs['profileState']}")
+    print(f'установлен: {fpath}')
 
 
 if __name__ == '__main__':
-    главное()
+    main()

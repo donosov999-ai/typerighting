@@ -558,3 +558,16 @@ button:hover { filter: brightness(1.1); }
    перекрывает текст упражнения — стоит над карточкой, в потоке, без fixed */
 .layout-warn { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 10px; padding: 10px 14px; border-radius: 12px; background: color-mix(in srgb, #f59e0b 14%, transparent); border: 1px solid color-mix(in srgb, #f59e0b 45%, transparent); font-size: 14px; line-height: 1.4; }
 .layout-warn button { min-height: 32px; }
+
+/* typerighting-safe-area · VER 1 · 30.09.2026 — Android: шаблон MainActivity Tauri 2.11 вызывает enableEdgeToEdge(),
+   страница рисуется ПОД системной строкой и панелью навигации — верхняя панель уходила под часы и значки (7c89aea5 п. 3).
+   WebView с M136 передаёт их размеры в env(safe-area-inset-*) (chromium: android_webview/docs/insets.md); wry 0.55
+   отступы сам не обрабатывает. На десктопе, в браузере и на iOS без viewport-fit=cover значения 0 — там всё как было.
+   Сверху — border-top цвета панели, а не padding: padding панели переопределяет мобильный @media выше. */
+#topbar { border-top: env(safe-area-inset-top, 0px) solid var(--surface); }
+body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px); }
+.comp { padding-top: calc(22px + env(safe-area-inset-top, 0px)); } /* компаньон: верхней панели там нет */
+.modal-bg { padding: calc(20px + env(safe-area-inset-top, 0px)) calc(20px + env(safe-area-inset-right, 0px))
+  calc(20px + env(safe-area-inset-bottom, 0px)) calc(20px + env(safe-area-inset-left, 0px)); }
+.badge-toast { right: calc(20px + env(safe-area-inset-right, 0px)); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }

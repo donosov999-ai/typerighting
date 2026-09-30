@@ -18,9 +18,9 @@ import { createSign } from 'node:crypto';
 
 const KEY_ID = process.env.APPLE_API_KEY_ID;
 const ISSUER = process.env.APPLE_API_ISSUER;
-// Идентификатор — из окружения, по умолчанию TypeRIGHT. Не из секрета: секрета
+// Идентификатор — из окружения, по умолчанию TypeFree. Не из секрета: секрета
 // APPLE_APP_ID нет, и первая редакция psygames «успешно» пропускала шаг молча.
-const BUNDLE_ID = process.env.APPLE_BUNDLE_ID || 'com.odv999.typerighting';
+const BUNDLE_ID = process.env.APPLE_BUNDLE_ID || 'pro.typefree.app';
 const KEY_PATH = process.env.APPLE_API_KEY_PATH || `${process.env.HOME}/private_keys/AuthKey_${KEY_ID}.p8`;
 
 if (!KEY_ID || !ISSUER) {

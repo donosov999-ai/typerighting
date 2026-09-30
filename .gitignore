@@ -7,3 +7,8 @@ HANDOFF_TZ.md
 
 # Питомец: приватный движок + проприетарный пак подтягиваются при сборке (scripts/fetch-mascot.mjs), в публичное репо не кладём
 public/mascot/
+
+# Платформенные проекты Tauri генерируются при сборке (tauri ios init / android init) — в репо не держим,
+# иначе сгенерированный Xcode-проект уедет в коммит и разойдётся со сборкой CI. Схемы ACL (gen/schemas) остаются.
+src-tauri/gen/apple/
+src-tauri/gen/android/

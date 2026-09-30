@@ -78,8 +78,8 @@ def запрос(tok: str, method: str, path: str, body=None) -> dict:
 
 def главное() -> None:
     p = argparse.ArgumentParser()
-    p.add_argument('--bundle', default='com.odv999.typerighting')
-    p.add_argument('--profile-name', default='TypeRIGHT App Store')
+    p.add_argument('--bundle', default='pro.typefree.app')
+    p.add_argument('--profile-name', default='TypeFree App Store')
     a = p.parse_args()
 
     tok = токен()

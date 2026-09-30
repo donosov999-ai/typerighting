@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "TypeRIGHTing",
+  "productName": "TypeFree",
   "version": "2.60.0",
   "identifier": "com.odv999.typerighting",
   "build": {
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "TypeRIGHT — тренажёр слепой печати",
+        "title": "TypeFree",
         "width": 1080,
         "height": 940,
         "minWidth": 720,
@@ -33,7 +33,7 @@
     "homepage": "https://typefree.pro",
     "category": "Education",
     "shortDescription": "Touch typing trainer (English + Russian)",
-    "longDescription": "TypeRIGHT 2.0 — touch typing trainer with 4800+ exercises in 4 banks: words in sentences, EN-RU with translation hints, letter-by-letter buildup, poems by stanza. Migrated from the original .NET WinForms app to web + Tauri.",
+    "longDescription": "TypeFree — touch typing trainer with 4800+ exercises in 4 banks: words in sentences, EN-RU with translation hints, letter-by-letter buildup, poems by stanza. Migrated from the original .NET WinForms app to web + Tauri.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",

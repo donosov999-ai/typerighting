@@ -1,4 +1,4 @@
-/* typerighting-app · VER 55 · 17.09.2026 */
+/* typerighting-app · VER 56 · 30.09.2026 */
 import './style.css';
 import { loadExercises, exercisesOfBank, BANKS, type Bank, type Exercise } from './content';
 import { ravenExercises } from './raven';
@@ -675,7 +675,7 @@ function renderModal(): string {
         <button id="sound-test" class="ghost" style="margin-top:6px">🔊 ${t('set.soundtest')}</button>
         <button id="set-companion" class="ghost">📱 ${t('set.companion')}</button>
       </div>
-      <p class="hint2 app-version">TypeRIGHT v${pkg.version}</p>
+      <p class="hint2 app-version">TypeFree v${pkg.version}</p>
       <div class="donebtns"><button id="set-close" class="primary">${t('prog.close')}</button></div>
     </div></div>`;
   }
@@ -868,7 +868,7 @@ function downloadCertificate(s: ReturnType<typeof examStats>, pass: boolean) {
   g.strokeStyle = '#b9962e'; g.lineWidth = 6; g.strokeRect(30, 30, 1140, 790);
   g.lineWidth = 1.5; g.strokeRect(44, 44, 1112, 762);
   g.fillStyle = '#2a2a33'; g.textAlign = 'center';
-  g.font = '700 28px Georgia, serif'; g.fillText('TypeRIGHT', 600, 110);
+  g.font = '700 28px Georgia, serif'; g.fillText('TypeFree', 600, 110);
   g.font = '800 64px Georgia, serif'; g.fillStyle = '#b9962e'; g.fillText(t('ex.cert.title'), 600, 200);
   g.font = '400 26px Georgia, serif'; g.fillStyle = '#555'; g.fillText(t('ex.cert.sub'), 600, 240);
   g.font = '700 52px Georgia, serif'; g.fillStyle = '#2a2a33'; g.fillText(exam.name || '—', 600, 350);
@@ -880,7 +880,7 @@ function downloadCertificate(s: ReturnType<typeof examStats>, pass: boolean) {
   g.font = '400 22px Georgia, serif'; g.fillStyle = '#777';
   g.fillText(`${t('ex.cert.date')}: ${new Date().toLocaleDateString()}`, 600, 740);
   const a = document.createElement('a');
-  a.download = `TypeRIGHT-test-${s.net}wpm.png`; a.href = c.toDataURL('image/png'); a.click();
+  a.download = `TypeFree-test-${s.net}wpm.png`; a.href = c.toDataURL('image/png'); a.click();
 }
 
 // ── Спец-режимы ──

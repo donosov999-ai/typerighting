@@ -1,4 +1,4 @@
-/* typerighting-i18n · VER 32 · 17.09.2026 */
+/* typerighting-i18n · VER 33 · 30.09.2026 */
 // Интерфейс на 7 языках (заказ Дениса 13.06.2026). Язык в tr_lang, дефолт RU.
 // Все 7 языков обязательны — держит src/i18n.test.ts (до 17.09.2026 26 ключей жили только на ru/en
 // и на es/de/fr/it/pt молча показывали английский). Фолбэк t() на en — страховка, не норма.
@@ -321,7 +321,7 @@ export const DICT: Record<string, Entry> = {
   'comp.even': { ru: 'вровень', en: 'neck & neck', es: 'empatados', de: 'gleichauf', fr: 'à égalité', it: 'alla pari', pt: 'empatados' },
   'comp.beat': { ru: 'Победа над {nick}!', en: 'You beat {nick}!', es: '¡Superaste a {nick}!', de: 'Du hast {nick} geschlagen!', fr: 'Tu as battu {nick} !', it: 'Hai battuto {nick}!', pt: 'Venceste {nick}!' },
   'comp.short': { ru: 'Не хватило до {nick}', en: 'Short of {nick}', es: 'No alcanzaste a {nick}', de: 'Knapp hinter {nick}', fr: 'Pas assez pour battre {nick}', it: 'Non hai raggiunto {nick}', pt: 'Faltou pouco para {nick}' },
-  'comp.sharetext': { ru: 'Обгони меня в TypeRIGHT: {wpm} WPM!', en: 'Beat me in TypeRIGHT: {wpm} WPM!', es: '¡Supérame en TypeRIGHT: {wpm} WPM!', de: 'Schlag mich in TypeRIGHT: {wpm} WPM!', fr: 'Bats-moi sur TypeRIGHT : {wpm} WPM !', it: 'Battimi su TypeRIGHT: {wpm} WPM!', pt: 'Supera-me no TypeRIGHT: {wpm} WPM!' },
+  'comp.sharetext': { ru: 'Обгони меня в TypeFree: {wpm} WPM!', en: 'Beat me in TypeFree: {wpm} WPM!', es: '¡Supérame en TypeFree: {wpm} WPM!', de: 'Schlag mich in TypeFree: {wpm} WPM!', fr: 'Bats-moi sur TypeFree : {wpm} WPM !', it: 'Battimi su TypeFree: {wpm} WPM!', pt: 'Supera-me no TypeFree: {wpm} WPM!' },
   'comp.challenge': { ru: 'Бросить вызов', en: 'Challenge a friend', es: 'Reta a un amigo', de: 'Freund zum Duell fordern', fr: 'Défier un ami', it: 'Sfida un amico', pt: 'Desafia um amigo' },
   'comp.league': { ru: 'Лига недели', en: 'Weekly league', es: 'Liga semanal', de: 'Wochenliga', fr: 'Ligue de la semaine', it: 'Lega settimanale', pt: 'Liga semanal' },
   'acc.err.taken': { ru: 'Ник занят', en: 'Nick taken', es: 'Ese apodo ya está en uso', de: 'Nickname ist vergeben', fr: 'Ce pseudo est déjà pris', it: 'Nickname già in uso', pt: 'Esse apelido já está em uso' },
@@ -329,6 +329,10 @@ export const DICT: Record<string, Entry> = {
   'acc.err.pin': { ru: 'Неверный PIN', en: 'Wrong PIN', es: 'PIN incorrecto', de: 'Falsche PIN', fr: 'PIN incorrect', it: 'PIN errato', pt: 'PIN incorreto' },
   'acc.err.nickshort': { ru: 'Ник слишком короткий', en: 'Nick too short', es: 'Apodo demasiado corto', de: 'Nickname zu kurz', fr: 'Pseudo trop court', it: 'Nickname troppo corto', pt: 'Apelido muito curto' },
   'acc.err.pinshort': { ru: 'PIN слишком короткий (мин. 4)', en: 'PIN too short (min 4)', es: 'PIN demasiado corto (mín. 4)', de: 'PIN zu kurz (mind. 4)', fr: 'PIN trop court (min. 4)', it: 'PIN troppo corto (min. 4)', pt: 'PIN muito curto (mín. 4)' },
+  // Окно автообновления (src/updater.ts). Раньше висело по-русски на всех языках.
+  'upd.available': { ru: 'Доступна новая версия TypeFree {ver}.', en: 'TypeFree {ver} is available.', es: 'Ya está disponible TypeFree {ver}.', de: 'TypeFree {ver} ist verfügbar.', fr: 'TypeFree {ver} est disponible.', it: 'È disponibile TypeFree {ver}.', pt: 'O TypeFree {ver} já está disponível.' },
+  'upd.notes': { ru: 'Что нового:', en: 'What is new:', es: 'Novedades:', de: 'Neu in dieser Version:', fr: 'Nouveautés :', it: 'Novità:', pt: 'Novidades:' },
+  'upd.confirm': { ru: 'Обновить сейчас?', en: 'Update now?', es: '¿Actualizar ahora?', de: 'Jetzt aktualisieren?', fr: 'Mettre à jour maintenant ?', it: 'Aggiornare ora?', pt: 'Atualizar agora?' },
   'err.net': { ru: 'Ошибка сети', en: 'Network error', es: 'Error de red', de: 'Netzwerkfehler', fr: 'Erreur réseau', it: 'Errore di rete', pt: 'Erro de rede' },
   'acc.nickmin': { ru: 'Ник минимум 2 символа', en: 'Nick min 2 chars', es: 'Apodo: mínimo 2 caracteres', de: 'Nickname: mind. 2 Zeichen', fr: 'Pseudo : 2 caractères min.', it: 'Nickname: minimo 2 caratteri', pt: 'Apelido: mínimo 2 caracteres' },
   'acc.pinmin': { ru: 'PIN минимум 4 цифры', en: 'PIN min 4 digits', es: 'PIN: mínimo 4 dígitos', de: 'PIN: mind. 4 Ziffern', fr: 'PIN : 4 chiffres min.', it: 'PIN: minimo 4 cifre', pt: 'PIN: mínimo 4 dígitos' },

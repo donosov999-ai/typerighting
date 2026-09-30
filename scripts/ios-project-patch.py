@@ -5,7 +5,7 @@
 Адаптировано из psygames/scripts/ios-project-patch.py (VER 03.09.2026) — источник
 рецепта и всех разобранных ниже граблей. Отличия TypeRIGHT: имя проекта
 `typerighting.xcodeproj`, таргет `typerighting_iOS`, профиль по умолчанию
-«TypeRIGHT App Store», один идентификатор `com.odv999.typerighting` (без
+«TypeFree App Store», один идентификатор `pro.typefree.app` (без
 tauri.ios.conf.json-переопределения). Логика правок не менялась.
 
 🔴 ЗАЧЕМ ПАТЧ, А НЕ ПРАВКА ФАЙЛА РУКАМИ.
@@ -38,20 +38,23 @@ tauri.ios.conf.json-переопределения). Логика правок �
    не содержит — ответ «нет» фактический, а не удобный.
 
 Запуск (после `cargo tauri ios init`, до сборки):
-    python3 scripts/ios-project-patch.py --team XXXXXXXXXX --profile "TypeRIGHT App Store"
+    python3 scripts/ios-project-patch.py --team XXXXXXXXXX --profile "TypeFree App Store"
 """
 import argparse
 import subprocess
 import sys
 from pathlib import Path
 
-ПРОЕКТ = Path('src-tauri/gen/apple')
-XCODEPROJ = 'typerighting.xcodeproj'
-IOS_TARGET = 'typerighting_iOS'
+PROJECT = Path('src-tauri/gen/apple')
+# Имя проекта и таргета Tauri выводит из productName (было typerighting, стало typefree).
+# Не зашиваем: ищем по маске, иначе переименование продукта тихо ломает подпись.
+_PROJ = sorted(PROJECT.glob('*.xcodeproj')) if PROJECT.exists() else []
+XCODEPROJ = _PROJ[0].name if _PROJ else 'typefree.xcodeproj'
+IOS_TARGET = XCODEPROJ.replace('.xcodeproj', '') + '_iOS'
 
 
-def патч(team: str, profile: str, min_ios: str) -> None:
-    yml = ПРОЕКТ / 'project.yml'
+def patch(team: str, profile: str, min_ios: str) -> None:
+    yml = PROJECT / 'project.yml'
     if not yml.exists():
         sys.exit(f'нет {yml} — сначала `cargo tauri ios init`')
     s = yml.read_text(encoding='utf-8')
@@ -91,9 +94,9 @@ def патч(team: str, profile: str, min_ios: str) -> None:
     yml.write_text(s, encoding='utf-8')
     print('project.yml пропатчен: ручная подпись, iOS', min_ios, ', очистка бандла')
 
-    subprocess.run(['xcodegen', 'generate'], cwd=ПРОЕКТ, check=True,
+    subprocess.run(['xcodegen', 'generate'], cwd=PROJECT, check=True,
                    stdout=subprocess.DEVNULL)
-    pbx = (ПРОЕКТ / XCODEPROJ / 'project.pbxproj').read_text(encoding='utf-8')
+    pbx = (PROJECT / XCODEPROJ / 'project.pbxproj').read_text(encoding='utf-8')
     for что, где in (('CODE_SIGN_STYLE = Manual', 'ручная подпись'),
                      (profile, 'профиль'),
                      ('-lapp', 'линковка библиотеки флагом')):
@@ -102,7 +105,7 @@ def патч(team: str, profile: str, min_ios: str) -> None:
 
     # ⚠️ Ответ про шифрование ищем в Info.plist, а не в project.pbxproj: xcodegen
     #    раскладывает свойства блока `info` в ОТДЕЛЬНЫЙ Info.plist, не в проект.
-    плист = ПРОЕКТ / IOS_TARGET / 'Info.plist'
+    плист = PROJECT / IOS_TARGET / 'Info.plist'
     if not плист.exists():
         sys.exit(f'после генерации нет {плист} — некуда класть ответ про шифрование')
     if 'ITSAppUsesNonExemptEncryption' not in плист.read_text(encoding='utf-8'):
@@ -113,7 +116,7 @@ def патч(team: str, profile: str, min_ios: str) -> None:
 if __name__ == '__main__':
     p = argparse.ArgumentParser()
     p.add_argument('--team', required=True)
-    p.add_argument('--profile', default='TypeRIGHT App Store')
+    p.add_argument('--profile', default='TypeFree App Store')
     p.add_argument('--min-ios', default='15.0')
     a = p.parse_args()
-    патч(a.team, a.profile, a.min_ios)
+    patch(a.team, a.profile, a.min_ios)

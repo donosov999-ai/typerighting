@@ -3,7 +3,7 @@
   "private": true,
   "version": "2.60.0",
   "type": "module",
-  "description": "TypeRIGHTing — тренажёр слепой печати (переписан с .NET WinForms на веб + Tauri)",
+  "description": "TypeFree — тренажёр слепой печати (переписан с .NET WinForms на веб + Tauri)",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",

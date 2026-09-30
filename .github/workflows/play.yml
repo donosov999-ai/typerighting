@@ -1,13 +1,12 @@
-# typefree-ci-play · VER 1 · 30.09.2026 · typerighting-claude-mac
+# typefree-ci-play · VER 2 · 30.09.2026 · typerighting-claude-mac
 name: Build Google Play bundle (.aab)
 
-# Магазинная сборка для Google Play (задача 7c89aea5, п. 5): .aab, подписанный КЛЮЧОМ ЗАГРУЗКИ
-# (upload key) из секретов, БЕЗ встроенного багфикса — VITE_TEST_BUILD не задан, кнопки «Report a bug» нет.
-# Отличие от android.yml (сайдлоад-APK, тест-ключ новый на каждую сборку, публичный релиз android-test):
-# ключ стабильный, формат .aab, результат — только артефакт Actions.
-# Ключ: ~/.sdt_secrets/typefree_android_signing.local.json (+ upload.jks рядом, по соглашению §1 STORE_PUBLISH_RULES).
-# Секреты в репо кладёт Денис: ~/Downloads/Code claude/typerighting/set_android_secrets.sh.
-# Первую сборку в Play Console грузит человек (STORE_PUBLISH_RULES.md §4 п. 3), дальше — чат через API.
+# Магазинная сборка для Google Play (задача 7c89aea5, п. 5): .aab БЕЗ встроенного багфикса —
+# VITE_TEST_BUILD не задан, кнопки «Report a bug» нет.
+# VER 2: секреты в GitHub НЕ обязательны. Как у остальных чатов (STORE_PUBLISH_RULES §3–§4):
+# CI собирает НЕПОДПИСАННЫЙ .aab, подпись и заливка — на маке ключом из ~/.sdt_secrets:
+#   jarsigner … upload.jks → Play API (edits → bundles → tracks/internal).
+# Если секреты ANDROID_UPLOAD_* всё же положены — CI подписывает сам (проверка jarsigner по CN).
 on:
   workflow_dispatch:
 
@@ -29,16 +28,13 @@ jobs:
       ANDROID_HOME: /usr/local/lib/android/sdk
       NDK_HOME: /usr/local/lib/android/sdk/ndk/27.0.12077973
     steps:
-      - name: Check upload-key secrets
+      - name: Signing mode
+        id: keys
         env:
           KS: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_B64 }}
-          SP: ${{ secrets.ANDROID_UPLOAD_STORE_PASSWORD }}
-          KA: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
-          KP: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
         run: |
-          for v in KS SP KA KP; do
-            if [ -z "${!v}" ]; then echo "🔴 нет секретов ключа загрузки — Денис запускает set_android_secrets.sh"; exit 1; fi
-          done
+          if [ -n "$KS" ]; then echo "signed=yes" >> "$GITHUB_OUTPUT"; echo "подпись в CI ключом загрузки"
+          else echo "signed=no" >> "$GITHUB_OUTPUT"; echo "секретов нет → неподписанный .aab, подпись на маке"; fi
 
       - uses: actions/checkout@v4
 
@@ -86,11 +82,13 @@ jobs:
         run: python3 scripts/android-insets-patch.py
 
       - name: Restore upload keystore
+        if: steps.keys.outputs.signed == 'yes'
         env:
           KS: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_B64 }}
         run: echo "$KS" | base64 -d > "$RUNNER_TEMP/upload.jks"
 
       - name: Patch build.gradle.kts (sign release with upload key)
+        if: steps.keys.outputs.signed == 'yes'
         run: |
           GRADLE=src-tauri/gen/android/app/build.gradle.kts
           [ -f "$GRADLE" ] || { echo "🔴 нет $GRADLE после init"; find src-tauri/gen/android -name 'build.gradle*'; exit 1; }
@@ -110,7 +108,7 @@ jobs:
           EOF
 
       # Без VITE_TEST_BUILD: багфикс в main.ts включается только в dev и тест-сборках
-      - name: Build signed release bundle
+      - name: Build release bundle
         env:
           ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/upload.jks
           ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_STORE_PASSWORD }}
@@ -119,18 +117,23 @@ jobs:
         run: npx tauri android build --aab
 
       - name: Locate + verify bundle
+        env:
+          SIGNED: ${{ steps.keys.outputs.signed }}
         run: |
           AAB=$(find src-tauri/gen/android -name "*.aab" | head -1)
           [ -n "$AAB" ] || { echo "🔴 .aab не собрался"; find src-tauri/gen/android -name "*.aab"; exit 1; }
           echo "✅ .aab: $AAB ($(du -m "$AAB" | cut -f1) МБ)"
-          # Подписан ключом загрузки TypeFree, а не отладочным: иначе Play отклонит сборку
-          jarsigner -verify -verbose -certs "$AAB" | grep -m1 "CN=TypeFree Upload" \
-            || { echo "🔴 .aab подписан не ключом загрузки TypeFree"; exit 1; }
-          cp "$AAB" TypeFree-play.aab
+          if [ "$SIGNED" = "yes" ]; then
+            jarsigner -verify -verbose -certs "$AAB" | grep -m1 "CN=TypeFree Upload" \
+              || { echo "🔴 .aab подписан не ключом загрузки TypeFree"; exit 1; }
+            cp "$AAB" TypeFree-play.aab
+          else
+            cp "$AAB" TypeFree-play-unsigned.aab
+          fi
 
       - name: Upload bundle artifact
         uses: actions/upload-artifact@v4
         with:
-          name: TypeFree-play-aab
-          path: TypeFree-play.aab
+          name: ${{ steps.keys.outputs.signed == 'yes' && 'TypeFree-play-aab' || 'TypeFree-play-unsigned-aab' }}
+          path: TypeFree-play*.aab
           retention-days: 90

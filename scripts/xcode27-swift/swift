@@ -1,0 +1,14 @@
+#!/bin/bash
+# typefree-xcode27-swift · VER 1 · 30.09.2026 — обёртка `swift` для сборки iOS на Xcode 27 (Swift 6.4).
+# SwiftPM 6.4 по умолчанию собирает через Swift Build, и в release функции @_cdecl без `public`
+# получают ЛОКАЛЬНУЮ видимость (nm: t вместо T) — Rust не линкуется: _log_stdout, _register_plugin…
+# (tauri-apps/tauri#16130, Brendonovich/swift-rs#81). Нативная система сборки оставляет их глобальными
+# и кладёт библиотеку туда, где её ищет swift-rs (.build/<triple>/release). Замер на маке 30.09:
+# default → _internal_export:t, --build-system=native → T.
+# Подключение: PATH="$(pwd)/scripts/xcode27-swift:$PATH" npx tauri ios build …
+REAL=$(xcrun --find swift)
+if [ "$1" = "build" ]; then
+  shift
+  exec "$REAL" build --build-system=native "$@"
+fi
+exec "$REAL" "$@"

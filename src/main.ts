@@ -555,7 +555,7 @@ function render() {
   app.innerHTML = `
     <div class="wrap">
       <header>
-        <h1>Type<span>RIGHT</span></h1>
+        <h1>Type<span>Free</span></h1>
         <select id="bank" class="bank-sel">
           ${BANKS.map((b) => `<option value="${b}" ${b === bank && !inSpecial ? 'selected' : ''}>${t('bank.' + b)}</option>`).join('')}
         </select>
@@ -715,7 +715,7 @@ function renderOnboarding() {
   app.innerHTML = `
     <div class="wrap onboard">
       <div class="ob-lang">${langSwitcherHtml()}</div>
-      <h1 class="ob-title">Type<span>RIGHT</span></h1>
+      <h1 class="ob-title">Type<span>Free</span></h1>
       <p class="ob-sub">${t('ob.sub')}</p>
       <div class="ob-cards">
         ${(Object.keys(PROFILE_EMOJI) as Profile[]).map((p) => `
@@ -966,7 +966,7 @@ function renderHub() {
   ];
   app.innerHTML = `
     <div class="wrap hub">
-      <header><h1>Type<span>RIGHT</span></h1></header>
+      <header><h1>Type<span>Free</span></h1></header>
       <p class="hub-q">${t('hub.q')}${streak >= 2 ? ` &nbsp;·&nbsp; <b class="streak">🔥 ${streak} ${t('hub.streak')}</b>` : ''}</p>
       <div class="hub-cards">
         ${cards.map(([go, name, desc], i) => `

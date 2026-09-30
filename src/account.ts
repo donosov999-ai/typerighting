@@ -1,4 +1,4 @@
-/* typerighting-account · VER 5 · 17.09.2026 */
+/* typerighting-account · VER 6 · 30.09.2026 */
 // Аккаунты + облачный синк прогресса (вход по нику + PIN — выбор Дениса 20.06).
 // Бэкенд: Supabase personal-nzt, таблица tr_users закрыта RLS, доступ только
 // через SECURITY DEFINER RPC tr_register / tr_login / tr_sync. PIN хранится
@@ -41,6 +41,11 @@ export const trRegister = (nick: string, pin: string) => callRpc('tr_register', 
 export const trLogin = (nick: string, pin: string) => callRpc('tr_login', { p_nick: nick, p_pin: pin });
 export const trSync = (nick: string, pin: string, progress: Snapshot) =>
   callRpc('tr_sync', { p_nick: nick, p_pin: pin, p_progress: progress });
+// Удаление аккаунта. Требование App Store 5.1.1(v): раз завести аккаунт можно в приложении,
+// удалить его тоже нужно из приложения, а не письмом в поддержку. Сервер сносит ник, тренировки,
+// сертификаты, строки рейтинга, забеги и вызовы; прогресс на устройстве остаётся у человека.
+export const trDelete = (nick: string, pin: string) =>
+  callRpc('tr_account_delete', { p_nick: nick, p_pin: pin });
 
 // ── Снимок локального прогресса ──
 export function collectLocal(): Snapshot {

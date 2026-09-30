@@ -1,4 +1,4 @@
-/* typerighting-app · VER 56 · 30.09.2026 */
+/* typerighting-app · VER 57 · 30.09.2026 */
 import './style.css';
 import { loadExercises, exercisesOfBank, BANKS, type Bank, type Exercise } from './content';
 import { ravenExercises } from './raven';
@@ -19,7 +19,7 @@ import { companionEnter } from './companion';
 import { t, lang, setLang, LANGS, LANG_LABEL, type Lang } from './i18n';
 import { recordKey, heatMap, hasKeyData, weakDrill, pushHistory, progressSVG, streakDays, getTargetWpm, setTargetWpm } from './stats-store';
 import { checkNewBadges, BADGES, unlockedSet, type Badge } from './achievements';
-import { linkAccount, autoSync, pushSync, loadSession, clearSession, trSync, collectLocal } from './account';
+import { linkAccount, autoSync, pushSync, loadSession, clearSession, trSync, trDelete, collectLocal } from './account';
 import { checkForUpdate } from './updater';
 import { registerCert } from './cert';
 import { getChallenge, type ChallengeData } from './compete-net';
@@ -114,6 +114,7 @@ let special: null | 'weak' | 'custom' = null;
 let customText = '';
 let modal: null | 'custom' | 'progress' | 'settings' | 'account' | 'ach' = null;
 let accMsg = '';        // статус-сообщение формы аккаунта
+let accDelArm = false;  // удаление аккаунта в два шага: первое нажатие взводит, второе удаляет
 let accBusy = false;    // идёт сетевой запрос (блокирует кнопки)
 function accErr(err: string | undefined): string {
   switch (err) {
@@ -369,7 +370,7 @@ function renderTopbar() {
   (document.getElementById('tb-progress') as HTMLButtonElement).onclick = () => { modal = 'progress'; render(); };
   (document.getElementById('tb-ach') as HTMLButtonElement).onclick = () => { modal = 'ach'; render(); };
   (document.getElementById('tb-settings') as HTMLButtonElement).onclick = () => { modal = 'settings'; render(); };
-  (document.getElementById('tb-account') as HTMLButtonElement).onclick = () => { modal = 'account'; accMsg = ''; render(); };
+  (document.getElementById('tb-account') as HTMLButtonElement).onclick = () => { modal = 'account'; accMsg = ''; accDelArm = false; render(); };
   (document.getElementById('tb-dark') as HTMLButtonElement).onclick = () => { dark = !dark; try { localStorage.setItem('tr_dark', dark ? '1' : '0'); } catch { /* */ } applyDark(); renderTopbar(); };
   const tp = document.getElementById('tb-profile') as HTMLSelectElement;
   tp.onchange = () => { profile = tp.value as Profile; saveProfile(profile); reapplyGlobal(); };
@@ -433,7 +434,18 @@ function renderModalGlobal() {
   };
   onClick('acc-login', () => void accDo('login'));
   onClick('acc-register', () => void accDo('register'));
-  onClick('acc-logout', () => { clearSession(); accMsg = ''; renderTopbar(); renderModalGlobal(); });
+  onClick('acc-logout', () => { clearSession(); accMsg = ''; accDelArm = false; renderTopbar(); renderModalGlobal(); });
+  // Удаление аккаунта (App Store 5.1.1(v)): два шага, чтобы не снести случайно одним тапом.
+  onClick('acc-del', () => void (async () => {
+    const sess = loadSession(); if (!sess) return;
+    if (!accDelArm) { accDelArm = true; accMsg = t('acc.delete.hint'); renderModalGlobal(); return; }
+    accBusy = true; accMsg = t('acc.syncing'); renderModalGlobal();
+    const r = await trDelete(sess.nick, sess.pin);
+    accBusy = false; accDelArm = false;
+    if (r.ok) { clearSession(); accMsg = t('acc.deleted'); renderTopbar(); }
+    else { accMsg = accErr(r.err); }
+    renderModalGlobal();
+  })());
   onClick('acc-sync', () => void (async () => {
     const sess = loadSession(); if (!sess) return;
     accBusy = true; accMsg = t('acc.syncing'); renderModalGlobal();
@@ -625,6 +637,7 @@ function renderModal(): string {
       ${accMsg ? `<p class="acc-msg">${esc(accMsg)}</p>` : ''}
       <div class="donebtns">
         <button id="acc-logout" class="ghost">${t('acc.logout')}</button>
+        <button id="acc-del" class="ghost acc-del" ${accBusy ? 'disabled' : ''}>${accDelArm ? t('acc.delete.confirm') : t('acc.delete')}</button>
         <button id="acc-sync" class="primary" ${accBusy ? 'disabled' : ''}>${accBusy ? '…' : t('acc.sync')}</button>
       </div>` : `
       <p class="hint2">${t('acc.pitch')}</p>

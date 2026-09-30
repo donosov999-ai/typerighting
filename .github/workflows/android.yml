@@ -1,4 +1,4 @@
-# typerighting-ci-android · VER 5 · 17.09.2026
+# typerighting-ci-android · VER 6 · 30.09.2026
 name: Build Android APK (debug / sideload)
 
 # Отдельно от build.yml (десктоп на тегах v*). Пока — ручной запуск: итерируем
@@ -70,6 +70,15 @@ jobs:
       # Скаффолд gen/android (не коммитим — генерится в CI, как у psygames)
       - name: Initialize Tauri Android project
         run: npx tauri android init
+
+      # typefree-insets · 30.09.2026 — шаблон MainActivity Tauri 2.11 вызывает enableEdgeToEdge(): страница рисуется
+      # под системной строкой и панелью навигации (задача 7c89aea5, п. 3). WebView с M136 отдаёт отступы в CSS
+      # env(safe-area-inset-*) — их учитывает src/style.css (блок typerighting-safe-area). Старый WebView их НЕ отдаёт
+      # (замер 30.09: в образах эмулятора Android 36 — WebView 133) → на нём отступ ставит сам Android: padding
+      # корневого вида, а отступы, переданные дальше в WebView, обнулены — двойного отступа не будет.
+      # Шаблон изменился (якорей нет) → шаг падает громко, а не собирает APK без правки.
+      - name: Patch MainActivity (system bar insets when WebView < 136)
+        run: python3 scripts/android-insets-patch.py
 
       # Тест-ключ подписи (НЕ Play-релиз): генерим в CI, чтобы release-APK ставился
       # сайдлоадом. ⚠️ Ключ новый на каждую сборку → обновление поверх требует

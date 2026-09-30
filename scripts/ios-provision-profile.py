@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Создаёт/обновляет ТОЛЬКО профиль App Store для TypeRIGHT через App Store Connect API.
+VER 2 · 30.09.2026
 
 🔴 ПОЧЕМУ ЭТОТ СКРИПТ НЕ ТРОГАЕТ СЕРТИФИКАТЫ — И ЭТО ГЛАВНОЕ ОТЛИЧИЕ ОТ PSYGAMES.
 
@@ -20,16 +21,22 @@ psygames/scripts/ios-provision.py на каждом релизе СОЗДАЁТ 
 Скрипт НИКОГДА не создаёт и не отзывает сертификаты: удаляет и пересоздаёт лишь
 профиль со своим именем. Клобер соседнего приложения невозможен by construction.
 
-Профиль ссылается на ВСЕ сертификаты распространения аккаунта: какой из них реально
-попадёт в связку ключей (тот, чей приватный ключ пришёл в .p12), тем и подпишется.
-Это избавляет от сверки серийников и остаётся верным, даже если в аккаунте временно
-живёт больше одного сертификата.
+🔴 В ПРОФИЛЬ — ТОЛЬКО СЕРТИФИКАТ ИЗ НАШЕГО .p12 (VER 2 · 30.09.2026).
+Раньше профиль ссылался на ВСЕ сертификаты распространения аккаунта. 30.09.2026 профиль
+«TypeFree App Store» стал INVALID: в нём стоял сертификат CI PsyGames 39V6T5G65M, а их CI
+меняет свой сертификат на каждом выпуске и отзывает прошлый. Любой чужой сертификат в профиле —
+бомба с чужим таймером. Поэтому сертификат выбирается по отпечатку SHA-1 того сертификата,
+что лежит в .p12 (им реально подписываемся), сверкой с certificateContent в App Store Connect.
+Нет совпадения → остановка, а не «берём все» (канон STORE_PUBLISH_RULES §1а: общий YWD42L62ZH).
 
 Переменные окружения: APPLE_API_KEY_ID, APPLE_API_ISSUER; ключ .p8 —
-в ~/private_keys/AuthKey_${APPLE_API_KEY_ID}.p8 (кладёт workflow из секрета).
+в ~/private_keys/AuthKey_${APPLE_API_KEY_ID}.p8 (кладёт workflow из секрета) или путь в --key-file;
+путь к .p12 — --p12, пароль к нему — APPLE_CERTIFICATE_PASSWORD.
+--dry-run: только читает (какой сертификат совпал, какие профили с нашим именем есть) и ничего не меняет.
 """
 import argparse
 import base64
+import hashlib
 import json
 import os
 import sys
@@ -39,10 +46,12 @@ import urllib.request
 
 try:
     import jwt  # pyjwt
+    from cryptography.hazmat.primitives.serialization import Encoding, pkcs12
 except ImportError:
     sys.exit('нужен pyjwt: pip3 install --break-system-packages pyjwt cryptography')
 
 BASE = 'https://api.appstoreconnect.apple.com/v1'
+KEY_FILE = ''  # --key-file; пусто → ~/private_keys/AuthKey_<id>.p8
 
 
 def token() -> str:
@@ -50,7 +59,7 @@ def token() -> str:
     issuer = os.environ.get('APPLE_API_ISSUER')
     if not key_id or not issuer:
         sys.exit('нужны APPLE_API_KEY_ID и APPLE_API_ISSUER')
-    path = os.path.expanduser(f'~/private_keys/AuthKey_{key_id}.p8')
+    path = os.path.expanduser(KEY_FILE or f'~/private_keys/AuthKey_{key_id}.p8')
     if not os.path.exists(path):
         sys.exit(f'ключ не найден: {path}')
     key = open(path, encoding='utf-8').read()
@@ -76,28 +85,57 @@ def request_api(tok: str, method: str, path: str, body=None) -> dict:
     return json.loads(raw)
 
 
+def p12_sha1(path: str) -> str:
+    """SHA-1 сертификата внутри .p12 (заглавные hex) — по нему ищем сертификат в аккаунте."""
+    password = os.environ.get('APPLE_CERTIFICATE_PASSWORD', '')
+    _key, cert, _extra = pkcs12.load_key_and_certificates(
+        open(os.path.expanduser(path), 'rb').read(), password.encode() if password else None)
+    if cert is None:
+        sys.exit(f'в {path} нет сертификата')
+    return hashlib.sha1(cert.public_bytes(Encoding.DER)).hexdigest().upper()
+
+
 def main() -> None:
+    global KEY_FILE
     p = argparse.ArgumentParser()
     p.add_argument('--bundle', default='pro.typefree.app')
     p.add_argument('--profile-name', default='TypeFree App Store')
+    p.add_argument('--p12', required=True, help='.p12, которым подписываемся (ios-signing-setup.sh передаёт свой)')
+    p.add_argument('--key-file', default='', help='путь к .p8 (для запуска на маке)')
+    p.add_argument('--dry-run', action='store_true', help='только прочитать и показать, ничего не менять')
     a = p.parse_args()
+    KEY_FILE = a.key_file
 
     tok = token()
 
-    # 1. Все сертификаты распространения аккаунта — НЕ создаём и НЕ отзываем, только читаем.
+    # 1. Сертификаты распространения аккаунта — НЕ создаём и НЕ отзываем, только читаем
+    #    и берём ОДИН: тот, что лежит в нашем .p12.
     certs = request_api(tok, 'GET', '/certificates?limit=200')['data']
     dist = [c for c in certs if c['attributes']['certificateType'] == 'DISTRIBUTION']
-    if not dist:
-        sys.exit('в аккаунте нет сертификата распространения — сначала заведи общий '
-                 '.p12 и положи в секрет APPLE_CERTIFICATE (см. IOS_SETUP.md)')
-    print(f'сертификатов распространения в аккаунте: {len(dist)} (ни один не тронут)')
+    want = p12_sha1(a.p12)
+    ours = [c for c in dist
+            if hashlib.sha1(base64.b64decode(c['attributes']['certificateContent'])).hexdigest().upper() == want]
+    print(f'сертификатов распространения в аккаунте: {len(dist)} '
+          f"({', '.join(c['id'] for c in dist)}); ни один не тронут")
+    if len(ours) != 1:
+        sys.exit(f'🔴 сертификата из .p12 (SHA-1 {want[:8]}…) в аккаунте {len(ours)} — '
+                 'отозван или .p12 не тот. Профиль не трогаю (STORE_PUBLISH_RULES §1а)')
+    cert = ours[0]
+    print(f"в профиль пойдёт только {cert['id']} — до {cert['attributes']['expirationDate'][:10]}")
 
     # 2. Старый профиль с нашим именем удаляем (после смены сертификата он мёртв).
     #    Чужие профили (в т.ч. psygames) не трогаем — фильтр строго по имени.
-    for prof in request_api(tok, 'GET', '/profiles?limit=200')['data']:
-        if prof['attributes']['name'] == a.profile_name:
-            request_api(tok, 'DELETE', f"/profiles/{prof['id']}")
-            print(f'старый профиль «{a.profile_name}» удалён')
+    mine = [prof for prof in request_api(tok, 'GET', '/profiles?limit=200')['data']
+            if prof['attributes']['name'] == a.profile_name]
+    for prof in mine:
+        ids = [c['id'] for c in request_api(tok, 'GET', f"/profiles/{prof['id']}/certificates")['data']]
+        print(f"есть профиль «{a.profile_name}»: {prof['attributes']['profileState']}, сертификаты {ids}")
+    if a.dry_run:
+        print('--dry-run: ничего не менял')
+        return
+    for prof in mine:
+        request_api(tok, 'DELETE', f"/profiles/{prof['id']}")
+        print(f'старый профиль «{a.profile_name}» удалён')
 
     bid = next((b for b in request_api(tok, 'GET', '/bundleIds?limit=200')['data']
                if b['attributes']['identifier'] == a.bundle), None)
@@ -110,14 +148,14 @@ def main() -> None:
         'attributes': {'name': a.profile_name, 'profileType': 'IOS_APP_STORE'},
         'relationships': {
             'bundleId': {'data': {'type': 'bundleIds', 'id': bid['id']}},
-            'certificates': {'data': [{'type': 'certificates', 'id': c['id']} for c in dist]}}}})
+            'certificates': {'data': [{'type': 'certificates', 'id': cert['id']}]}}}})
     attrs = profile['data']['attributes']
 
     folder = os.path.expanduser('~/Library/MobileDevice/Provisioning Profiles')
     os.makedirs(folder, exist_ok=True)
     fpath = os.path.join(folder, f"{attrs['uuid']}.mobileprovision")
     open(fpath, 'wb').write(base64.b64decode(attrs['profileContent']))
-    print(f"профиль: {attrs['name']} · {attrs['profileType']} · {attrs['profileState']}")
+    print(f"профиль: {attrs['name']} · {attrs['profileType']} · {attrs['profileState']} · сертификат {cert['id']}")
     print(f'установлен: {fpath}')
 
 

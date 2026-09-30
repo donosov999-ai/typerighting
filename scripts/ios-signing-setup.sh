@@ -44,7 +44,9 @@ security set-key-partition-list -S apple-tool:,apple:,codesign: \
 echo "— identities в связке:"
 security find-identity -v -p codesigning | sed 's/^/  /'
 
-# 3. Профиль App Store только для TypeRIGHT (сертификаты не трогаются)
-python3 "$(dirname "$0")/ios-provision-profile.py"
+# 3. Профиль App Store только для TypeRIGHT (сертификаты не трогаются).
+#    В профиль идёт ТОЛЬКО сертификат из этого .p12 (сверка по SHA-1), не все сертификаты
+#    аккаунта: чужой сертификат CI PsyGames меняется на каждом их выпуске и убивал профиль (30.09).
+python3 "$(dirname "$0")/ios-provision-profile.py" --p12 "$WORKDIR/dist.p12"
 
 rm -f "$WORKDIR/dist.p12"

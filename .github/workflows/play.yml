@@ -1,0 +1,136 @@
+# typefree-ci-play · VER 1 · 30.09.2026 · typerighting-claude-mac
+name: Build Google Play bundle (.aab)
+
+# Магазинная сборка для Google Play (задача 7c89aea5, п. 5): .aab, подписанный КЛЮЧОМ ЗАГРУЗКИ
+# (upload key) из секретов, БЕЗ встроенного багфикса — VITE_TEST_BUILD не задан, кнопки «Report a bug» нет.
+# Отличие от android.yml (сайдлоад-APK, тест-ключ новый на каждую сборку, публичный релиз android-test):
+# ключ стабильный, формат .aab, результат — только артефакт Actions.
+# Ключ: ~/.sdt_secrets/typefree_android_signing.local.json (+ upload.jks рядом, по соглашению §1 STORE_PUBLISH_RULES).
+# Секреты в репо кладёт Денис: ~/Downloads/Code claude/typerighting/set_android_secrets.sh.
+# Первую сборку в Play Console грузит человек (STORE_PUBLISH_RULES.md §4 п. 3), дальше — чат через API.
+on:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_NET_RETRY: "10"
+  CARGO_HTTP_MULTIPLEXING: "false"
+  CARGO_NET_GIT_FETCH_WITH_CLI: "true"
+  NODE_VERSION: '22'
+
+jobs:
+  aab:
+    name: Google Play bundle (.aab)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+    env:
+      ANDROID_HOME: /usr/local/lib/android/sdk
+      NDK_HOME: /usr/local/lib/android/sdk/ndk/27.0.12077973
+    steps:
+      - name: Check upload-key secrets
+        env:
+          KS: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_B64 }}
+          SP: ${{ secrets.ANDROID_UPLOAD_STORE_PASSWORD }}
+          KA: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
+          KP: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
+        run: |
+          for v in KS SP KA KP; do
+            if [ -z "${!v}" ]; then echo "🔴 нет секретов ключа загрузки — Денис запускает set_android_secrets.sh"; exit 1; fi
+          done
+
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # NDK 27 выравнивает 16 КБ page-size — обязательное требование Google Play (ловили на psygames)
+      - name: Setup Android SDK (platform 34 + NDK 27)
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'platforms;android-34 build-tools;34.0.0 ndk;27.0.12077973'
+
+      - name: Setup Rust + Android targets
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-linux-android,armv7-linux-androideabi,i686-linux-android,x86_64-linux-android
+
+      - name: Cache Cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            src-tauri/target/
+          key: ${{ runner.os }}-android-cargo-${{ hashFiles('src-tauri/Cargo.toml') }}
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Initialize Tauri Android project
+        run: npx tauri android init
+
+      # Та же правка, что в android.yml: отступы системных панелей на WebView < 136
+      - name: Patch MainActivity (system bar insets when WebView < 136)
+        run: python3 scripts/android-insets-patch.py
+
+      - name: Restore upload keystore
+        env:
+          KS: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_B64 }}
+        run: echo "$KS" | base64 -d > "$RUNNER_TEMP/upload.jks"
+
+      - name: Patch build.gradle.kts (sign release with upload key)
+        run: |
+          GRADLE=src-tauri/gen/android/app/build.gradle.kts
+          [ -f "$GRADLE" ] || { echo "🔴 нет $GRADLE после init"; find src-tauri/gen/android -name 'build.gradle*'; exit 1; }
+          cat >> "$GRADLE" <<'EOF'
+
+          android {
+              signingConfigs {
+                  create("release") {
+                      storeFile = file(System.getenv("ANDROID_KEYSTORE_PATH"))
+                      storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                      keyAlias = System.getenv("ANDROID_KEY_ALIAS")
+                      keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+                  }
+              }
+              buildTypes { getByName("release") { signingConfig = signingConfigs.getByName("release") } }
+          }
+          EOF
+
+      # Без VITE_TEST_BUILD: багфикс в main.ts включается только в dev и тест-сборках
+      - name: Build signed release bundle
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/upload.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_STORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
+        run: npx tauri android build --aab
+
+      - name: Locate + verify bundle
+        run: |
+          AAB=$(find src-tauri/gen/android -name "*.aab" | head -1)
+          [ -n "$AAB" ] || { echo "🔴 .aab не собрался"; find src-tauri/gen/android -name "*.aab"; exit 1; }
+          echo "✅ .aab: $AAB ($(du -m "$AAB" | cut -f1) МБ)"
+          # Подписан ключом загрузки TypeFree, а не отладочным: иначе Play отклонит сборку
+          jarsigner -verify -verbose -certs "$AAB" | grep -m1 "CN=TypeFree Upload" \
+            || { echo "🔴 .aab подписан не ключом загрузки TypeFree"; exit 1; }
+          cp "$AAB" TypeFree-play.aab
+
+      - name: Upload bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TypeFree-play-aab
+          path: TypeFree-play.aab
+          retention-days: 90

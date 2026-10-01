@@ -571,3 +571,12 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
 .modal-bg { padding: calc(20px + env(safe-area-inset-top, 0px)) calc(20px + env(safe-area-inset-right, 0px))
   calc(20px + env(safe-area-inset-bottom, 0px)) calc(20px + env(safe-area-inset-left, 0px)); }
 .badge-toast { right: calc(20px + env(safe-area-inset-right, 0px)); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
+
+/* typefree-pet-corner · VER 1 · 01.10.2026 — узкий экран: площадка прогулки питомца (pet.ts PHONE_ZONE = 28 px)
+   прижата к правому краю: 8 px поля + 28 px площадки. Без этого движок гулял по всей ширине и закрывал подписи
+   карточек (задача 5169679b). */
+.bz-host.tr-pet-host.tr-pet-corner { left: auto; right: calc(36px + env(safe-area-inset-right, 0px)); }
+/* и описания карточек главной на узком экране не заходят в столбец питомца: его левый край не левее
+   vw − 120 (36 + 84), правый край текста карточки — vw − 40 (поле 14 + рамка 2 + отступ 24) → нужно ≥ 80.
+   Замер 01.10.2026: без отступа 375 px — 13 % строки «Smart stream…» под питомцем, с 64 px — 22 %. */
+@media (max-width: 600px) { .hub-desc { padding-right: 84px; } }

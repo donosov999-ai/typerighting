@@ -122,6 +122,12 @@ function loadEngine(): Promise<void> {
   return loading;
 }
 
+/** Узкий экран: площадка прогулки у правого края, px. Движок гуляет по всей ширине (pickTarget: 0..maxX)
+ *  и на телефоне заходил на подписи карточек (замер 01.10.2026, WebKit: 375 px — 32 % строки «Smart stream…»,
+ *  440 — 7 % «Speed disciplines…»). Своей «зоны» у движка нет: даём площадку bounds этой ширины, а саму
+ *  площадку класс tr-pet-corner ставит к правому краю (style.css). Задача 5169679b. */
+const PHONE_ZONE = 28;
+
 function narrow(): boolean {
   try { return window.matchMedia('(max-width: 600px)').matches; } catch { return false; }
 }
@@ -131,10 +137,11 @@ async function ensurePet(): Promise<PetApi | null> {
   try { await loadEngine(); } catch { return null; }
   const g = window as unknown as { Biryuzik?: BiryuzikGlobal };
   if (!g.Biryuzik || pet) return pet;
+  const corner = narrow();
   pet = g.Biryuzik.init({
     lang: lang() === 'ru' ? 'ru' : 'en',
     id: 'tr-pet',
-    size: narrow() ? 84 : 110,
+    size: corner ? 84 : 110,
     pack: './mascot/typerighting',
     roam: false,
     chatter: false,
@@ -144,9 +151,11 @@ async function ensurePet(): Promise<PetApi | null> {
     // Число больше ширины экрана — движок сам прижимает к правому краю (maxX); opts.x важнее
     // сохранённой позиции.
     x: 100000,
-    bottom: narrow() ? 76 : 24,
+    bottom: corner ? 76 : 24,
+    ...(corner ? { bounds: { w: PHONE_ZONE, h: window.innerHeight } } : {}),
   });
   pet.el.classList.add('tr-pet-host');
+  if (corner) pet.el.classList.add('tr-pet-corner');
   return pet;
 }
 

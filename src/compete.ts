@@ -184,7 +184,7 @@ function renderMenu() {
         <button id="cp-exit" class="mode-back">${t('nav.back')}</button>
         <h1>🏆 ${t('compete.title')}</h1>
       </header>
-      <p class="c-intro">${t('compete.intro')}</p>
+      <p class="c-intro">${t(STORE_APP ? 'compete.intro.store' : 'compete.intro')}</p>
       <div class="cp-grid">
         ${DISCIPLINES.map((d) => {
           const b = best[bestKey(d, L)] ?? 0;

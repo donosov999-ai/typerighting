@@ -7,6 +7,7 @@
 import { progressSVG, streakDays, hasKeyData } from './stats-store';
 import { BADGES, unlockedSet } from './achievements';
 import { t } from './i18n';
+import { STORE_APP } from './store-build';
 
 const esc = (s: string) =>
   s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c] as string));
@@ -38,7 +39,7 @@ export function companionEnter(app: HTMLElement, cb: CompanionCbs): void {
         </button>
         <button class="comp-card" id="comp-compete">
           <span class="comp-ic" aria-hidden="true">🏆</span>
-          <b>${esc(t('cpn.compete'))}</b><small>${esc(t('cpn.compP'))}</small>
+          <b>${esc(t(STORE_APP ? 'compete.title' : 'cpn.compete'))}</b><small>${esc(t(STORE_APP ? 'cpn.compP.store' : 'cpn.compP'))}</small>
         </button>
       </div>
 

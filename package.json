@@ -1,7 +1,7 @@
 {
   "name": "typerighting",
   "private": true,
-  "version": "2.60.1",
+  "version": "2.60.2",
   "type": "module",
   "description": "TypeFree — тренажёр слепой печати (переписан с .NET WinForms на веб + Tauri)",
   "scripts": {

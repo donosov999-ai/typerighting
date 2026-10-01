@@ -959,7 +959,7 @@ function renderHub() {
     ['train', t('hub.train'), t('hub.train.d')],
     ['course', t('course.title'), t('hub.course.d')],
     ['learn', t('learn.title'), t('hub.learn.d')],
-    ['compete', t('compete.title'), t('hub.compete.d')],
+    ['compete', t('compete.title'), t(STORE_APP ? 'hub.compete.d.store' : 'hub.compete.d')],
     ['memorize', t('mem.title'), t('hub.mem.d')],
     ['span', t('span.title'), t('hub.span.d')],
     ['exam', t('ex.title'), t('hub.exam.d')],

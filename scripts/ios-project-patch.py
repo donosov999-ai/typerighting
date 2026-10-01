@@ -29,6 +29,9 @@ tauri.ios.conf.json-переопределения). Логика правок �
    Работает одно: убрать библиотеку из `dependencies` совсем и линковать флагом
    `-lapp` (пути к Externals уже стоят в LIBRARY_SEARCH_PATHS). Тогда она линкуется
    и никуда не копируется.
+   И ещё: папке Externals — `buildPhase: none`. xcodegen раскладывает её файлы по фазам
+   в момент генерации; если libapp.a от прошлой сборки уже лежит там (повторная сборка
+   без init), он попадает в Resources и копируется в .app — та же 90171 (01.10.2026, 2.60.1).
 
 3. МИНИМУМ iOS 15. Загрузка с 14.0 проходит, но приходит предупреждение 90068: с весны
    2027 Apple перестанет принимать ниже пятнадцатой. Лучше сейчас, чем через год срочно.
@@ -87,6 +90,9 @@ def patch(team: str, profile: str, min_ios: str) -> None:
     зависимость = '      - framework: libapp.a\n        embed: false\n'
     if зависимость in s:
         s = s.replace(зависимость, '', 1)
+    внешние = '      - path: Externals\n'
+    if внешние in s and 'path: Externals\n        buildPhase: none' not in s:
+        s = s.replace(внешние, внешние + '        buildPhase: none\n', 1)
     if 'OTHER_LDFLAGS' not in s:
         s = s.replace('        ENABLE_BITCODE: false',
                       '        OTHER_LDFLAGS: $(inherited) -lapp\n        ENABLE_BITCODE: false', 1)
@@ -104,6 +110,8 @@ def patch(team: str, profile: str, min_ios: str) -> None:
     subprocess.run(['xcodegen', 'generate'], cwd=PROJECT, check=True,
                    stdout=subprocess.DEVNULL)
     pbx = (PROJECT / XCODEPROJ / 'project.pbxproj').read_text(encoding='utf-8')
+    if 'libapp.a in Resources' in pbx:
+        sys.exit('libapp.a попал в Resources — уедет внутрь .app, Apple отклонит (90171)')
     for что, где in (('CODE_SIGN_STYLE = Manual', 'ручная подпись'),
                      (profile, 'профиль'),
                      ('-lapp', 'линковка библиотеки флагом')):

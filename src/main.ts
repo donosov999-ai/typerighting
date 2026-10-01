@@ -24,6 +24,7 @@ import { checkForUpdate } from './updater';
 import { registerCert } from './cert';
 import { getChallenge, type ChallengeData } from './compete-net';
 import { initSessionLog } from './session-log';
+import { STORE_APP } from './store-build';
 import { petSync, petEnabled, initPet } from './pet';
 import { LayoutDetector, type PhysLayout } from './layout-detect';
 // Версия приложения — один источник (package.json; tauri.conf.json и Cargo.toml держат ту же).
@@ -812,7 +813,7 @@ function renderExam() {
       </div>
       <div class="donebtns">
         <button id="ex-cert" class="primary">${t('ex.cert')}</button>
-        <button id="ex-share">${t('share.btn')}</button>
+        ${STORE_APP ? '' : `<button id="ex-share">${t('share.btn')}</button>`}
         <button id="ex-retry">${t('ex.again')}</button>
         <button id="ex-exit" class="ghost">${t('ex.cancel')}</button>
       </div>
@@ -1141,7 +1142,7 @@ void checkForUpdate();
 // P2: вход по ссылке-вызову ?challenge=<id> → грузим вызов и открываем соревнование
 void (async () => {
   const cid = new URLSearchParams(location.search).get('challenge');
-  if (!cid || !/^[0-9a-f-]{36}$/i.test(cid)) return;
+  if (STORE_APP || !cid || !/^[0-9a-f-]{36}$/i.test(cid)) return;
   const ch = await getChallenge(cid);
   if (ch) { pendingChallenge = ch; compMode = true; compInit = false; render(); }
 })();

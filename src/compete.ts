@@ -9,6 +9,7 @@ import { t, lang } from './i18n';
 import type { Profile } from './profiles';
 import { submitScore, fetchTop, type LbRow } from './leaderboard';
 import { saveReplay, getReplay, createChallenge, leagueSubmit, leagueBoard, CHALLENGE_BASE, type Tick, type ChallengeData, type LeagueRow } from './compete-net';
+import { STORE_APP } from './store-build';
 
 type DiscKey = 'alpha_fwd' | 'alpha_rev' | 'words' | 'digits' | 'sprint';
 const DISCIPLINES: DiscKey[] = ['alpha_fwd', 'alpha_rev', 'words', 'digits', 'sprint'];
@@ -134,7 +135,7 @@ function finish() {
   lastResult = { wpm, acc, ms, medal, isRecord };
   if (ghostRaf !== null) { cancelAnimationFrame(ghostRaf); ghostRaf = null; } // стоп призрак
   // недельная лига — записываем результат (async, не блокирует UI)
-  if (prof !== 'kids') void leagueSubmit(localStorage.getItem('tr_name') || 'Anon', disc, curLang(), wpm, acc);
+  if (prof !== 'kids' && !STORE_APP) void leagueSubmit(localStorage.getItem('tr_name') || 'Anon', disc, curLang(), wpm, acc);
   screen = 'result';
 }
 
@@ -247,6 +248,7 @@ function renderResult() {
   const r = lastResult!;
   const savedName = localStorage.getItem('tr_name') ?? '';
   const kids = prof === 'kids';
+  const social = !kids && !STORE_APP; // магазинные сборки — без публикации, лиги и вызовов (store-build.ts)
   // вердикт по вызову (если вошли по ссылке-челленджу)
   let chVerdict = '';
   if (activeChallenge) {
@@ -278,7 +280,7 @@ function renderResult() {
           <div><b>${r.acc}%</b><span>${t('st.accuracy')}</span></div>
           <div><b>${(r.ms / 1000).toFixed(1)}s</b><span>${t('st.time')}</span></div>
         </div>
-        ${kids ? '' : `
+        ${!social ? '' : `
         <div class="cp-publish">
           <input id="cp-name" type="text" value="${esc(savedName)}" placeholder="${t('comp.name')}" maxlength="24"/>
           <button id="cp-pub" class="primary" ${published ? 'disabled' : ''}>${published ? '✓' : '🌐 ' + t('comp.publish')}</button>
@@ -290,14 +292,15 @@ function renderResult() {
         ${shareBox}`}
         <div class="donebtns">
           <button id="cp-again">${t('k.again')}</button>
-          <button id="cp-board" class="ghost">🌐 ${t('comp.leaderboard')}</button>
+          ${STORE_APP ? '' : `<button id="cp-board" class="ghost">🌐 ${t('comp.leaderboard')}</button>`}
           <button id="cp-menu" class="ghost">${t('k.map')}</button>
         </div>
       </div>
     </div>`;
   (root!.querySelector('#cp-again') as HTMLButtonElement).onclick = () => startDisc(disc);
   (root!.querySelector('#cp-menu') as HTMLButtonElement).onclick = () => { activeChallenge = null; screen = 'menu'; render(); };
-  (root!.querySelector('#cp-board') as HTMLButtonElement).onclick = () => openBoard();
+  const bdBtn = root!.querySelector('#cp-board') as HTMLButtonElement | null;
+  if (bdBtn) bdBtn.onclick = () => openBoard();
   const pub = root!.querySelector('#cp-pub') as HTMLButtonElement | null;
   if (pub) pub.onclick = () => publish((root!.querySelector('#cp-name') as HTMLInputElement).value.trim() || '—');
   const chBtn = root!.querySelector('#cp-challenge') as HTMLButtonElement | null;

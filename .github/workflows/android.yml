@@ -1,4 +1,4 @@
-# typerighting-ci-android · VER 6 · 30.09.2026
+# typerighting-ci-android · VER 7 · 01.10.2026
 name: Build Android APK (debug / sideload)
 
 # Отдельно от build.yml (десктоп на тегах v*). Пока — ручной запуск: итерируем
@@ -70,6 +70,13 @@ jobs:
       # Скаффолд gen/android (не коммитим — генерится в CI, как у psygames)
       - name: Initialize Tauri Android project
         run: npx tauri android init
+
+      # Значок: `tauri android init` кладёт в res/ стандартный значок Tauri, а src-tauri/icons/android не берёт
+      # (замер 01.10.2026: в .aab 2.60.0 — значок Tauri). Копируем свой набор поверх, как сделал бы `tauri icon`.
+      - name: App icon (src-tauri/icons/android → res)
+        run: |
+          cp -R src-tauri/icons/android/. src-tauri/gen/android/app/src/main/res/
+          cmp src-tauri/icons/android/mipmap-xxxhdpi/ic_launcher_foreground.png src-tauri/gen/android/app/src/main/res/mipmap-xxxhdpi/ic_launcher_foreground.png
 
       # typefree-insets · 30.09.2026 — шаблон MainActivity Tauri 2.11 вызывает enableEdgeToEdge(): страница рисуется
       # под системной строкой и панелью навигации (задача 7c89aea5, п. 3). WebView с M136 отдаёт отступы в CSS

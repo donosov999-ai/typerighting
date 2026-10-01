@@ -37,10 +37,17 @@ tauri.ios.conf.json-переопределения). Логика правок �
    встаёт с MISSING_EXPORT_COMPLIANCE. Приложение ходит по HTTPS и своей криптографии
    не содержит — ответ «нет» фактический, а не удобный.
 
+5. ЗНАЧОК ИЗ src-tauri/icons/ios. `tauri ios init` кладёт в каталог Xcode стандартный
+   значок Tauri, а наш набор не берёт: так ушла в TestFlight сборка 2.60.0 (замер
+   01.10.2026 по AppIcon60x60@2x.png собранного .app). Имена файлов совпадают —
+   копируем поверх; значок 1024 с альфа-каналом App Store не принимает — проверяем.
+
 Запуск (после `cargo tauri ios init`, до сборки):
     python3 scripts/ios-project-patch.py --team XXXXXXXXXX --profile "TypeFree App Store"
 """
 import argparse
+import json
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -110,6 +117,22 @@ def patch(team: str, profile: str, min_ios: str) -> None:
         sys.exit(f'после генерации нет {плист} — некуда класть ответ про шифрование')
     if 'ITSAppUsesNonExemptEncryption' not in плист.read_text(encoding='utf-8'):
         sys.exit('в Info.plist нет ответа про экспортное шифрование — сборка встанет у Apple')
+
+    # 5. Значок — свой набор поверх стандартного значка Tauri
+    знаки = Path('src-tauri/icons/ios')
+    каталог = PROJECT / 'Assets.xcassets' / 'AppIcon.appiconset'
+    нужны = {i['filename'] for i in json.loads((каталог / 'Contents.json').read_text(encoding='utf-8'))['images']
+             if i.get('filename')}
+    нет = sorted(n for n in нужны if not (знаки / n).exists())
+    if нет:
+        sys.exit(f'в {знаки} нет файлов, которых ждёт каталог Xcode: {нет} — `npx tauri icon`')
+    for n in sorted(нужны):
+        shutil.copyfile(знаки / n, каталог / n)
+    альфа = subprocess.run(['sips', '-g', 'hasAlpha', str(каталог / 'AppIcon-512@2x.png')],
+                           capture_output=True, text=True).stdout
+    if 'hasAlpha: yes' in альфа:
+        sys.exit('значок 1024 (AppIcon-512@2x.png) с альфа-каналом — App Store его не примет')
+    print(f'значок: {len(нужны)} файлов из {знаки} в каталог Xcode')
     print('проект пересобран, все правки на месте ✅')
 
 

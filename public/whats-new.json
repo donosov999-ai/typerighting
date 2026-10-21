@@ -1,0 +1,51 @@
+{
+  "_about": "TypeFree — «Что нового» для людей. Новые версии сверху. Читает asiapps.pro (scripts/sync-whats-new.mjs через git show origin/main:public/whats-new.json). При каждом выпуске добавлять запись.",
+  "releases": [
+    {
+      "version": "2.60.3",
+      "date": "2026-10-07",
+      "en": [
+        "New app icon and the name TypeFree on every screen.",
+        "Delete your account right in the app: account button → “Delete account”.",
+        "Android: the top bar and content no longer slide under the system bars.",
+        "On phones the companion pet no longer covers text."
+      ],
+      "ru": [
+        "Новый значок и название TypeFree на всех экранах.",
+        "Аккаунт можно удалить прямо в приложении: кнопка аккаунта → «Удалить аккаунт».",
+        "Android: верхняя панель и содержимое больше не уходят под системные строки.",
+        "На телефоне питомец больше не закрывает текст."
+      ]
+    },
+    {
+      "version": "2.60.0",
+      "date": "2026-09-17",
+      "en": [
+        "The whole interface in seven languages: English, Russian, Spanish, German, French, Italian, Portuguese.",
+        "Training history: your finished sessions are kept and shown as progress.",
+        "A companion pet that comments on your actual statistics without getting in the way of typing.",
+        "Keyboard layout check: if your keyboard’s layout does not match the lesson, the app says so plainly."
+      ],
+      "ru": [
+        "Весь интерфейс на семи языках: русский, английский, испанский, немецкий, французский, итальянский, португальский.",
+        "История тренировок: законченные занятия сохраняются и видны как прогресс.",
+        "Питомец-спутник: говорит по делу, по вашей статистике, и не мешает печатать.",
+        "Проверка раскладки: если раскладка клавиатуры не совпала с уроком, приложение так и скажет."
+      ]
+    },
+    {
+      "version": "2.59.0",
+      "date": "2026-08-01",
+      "en": [
+        "Repetition drill: the weakest letter comes back three times in a row.",
+        "Set your target speed (WPM) in the settings.",
+        "Race your own ghost: a replay of your best run on the track next to you."
+      ],
+      "ru": [
+        "Дрилл повторения: самая слабая буква возвращается три раза подряд.",
+        "Целевую скорость (WPM) можно задать в настройках.",
+        "Гонка с призраком: запись вашего лучшего забега на соседней дорожке."
+      ]
+    }
+  ]
+}

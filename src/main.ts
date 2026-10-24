@@ -1,5 +1,6 @@
 /* typerighting-app · VER 57 · 30.09.2026 */
 import './style.css';
+import { practiceLines, practiceProgressKey, numericExercises } from './practice-options';
 import { loadExercises, exercisesOfBank, BANKS, type Bank, type Exercise } from './content';
 import { ravenExercises } from './raven';
 import { classicExercises } from './classic';
@@ -50,7 +51,17 @@ let pendingChallenge: ChallengeData | null = null;
 // ── Состояние сессии ──
 let profile: Profile | null = loadProfile();
 let all: Exercise[] = [];
-let bank: Bank = 'abandon';
+let bank: Bank = 'classic';
+let noPunctuation = false;
+let textBank: Bank = 'classic';
+try {
+  noPunctuation = localStorage.getItem('typefree_practice_plain') === '1';
+  const saved = localStorage.getItem('typefree_practice_bank');
+  if (saved && BANKS.includes(saved as Bank)) bank = saved as Bank;
+  const previous = localStorage.getItem('typefree_practice_text_bank');
+  if (previous && previous !== 'digits' && BANKS.includes(previous as Bank)) textBank = previous as Bank;
+} catch { /* Storage is optional. */ }
+let kidsFreePractice = false;
 let pool: Exercise[] = [];
 let idx = 0;
 let st: TypingState = createState(['']);
@@ -156,7 +167,8 @@ function examStats() {
 }
 
 function startExam(durMin: number, target: number, name: string) {
-  const sentences = exercisesOfBank(all, 'abandon');
+  // Use the existing localized classics, never the disabled legacy course texts.
+  const sentences = classicExercises(lang());
   const shuffled = [...sentences].sort(() => Math.random() - 0.5);
   if (!shuffled.length) return;   // упражнения ещё не загрузились (офлайн-первый-запуск) — не стартуем, иначе краш на shuffled[0]
   exam = { phase: 'run', durMin, target, name, endAt: Date.now() + durMin * 60000, typed: 0, errors: 0, count: 0, pool: shuffled, pi: 0, timer: null };
@@ -207,13 +219,13 @@ let prog: Progress = { bestWpm: 0, bestAcc: 0, done: [], lastIdx: 0 };
 
 function loadProgress(b: Bank): Progress {
   try {
-    const p = JSON.parse(localStorage.getItem(`tr_progress_${b}`) ?? '');
+    const p = JSON.parse(localStorage.getItem(practiceProgressKey(b, noPunctuation)) ?? '');
     if (p && Array.isArray(p.done)) return { bestWpm: p.bestWpm | 0, bestAcc: p.bestAcc | 0, done: p.done, lastIdx: p.lastIdx | 0 };
   } catch { /* нет сохранения */ }
   return { bestWpm: 0, bestAcc: 0, done: [], lastIdx: 0 };
 }
 function saveProgress() {
-  try { localStorage.setItem(`tr_progress_${bank}`, JSON.stringify(prog)); } catch { /* quota */ }
+  try { localStorage.setItem(practiceProgressKey(bank, noPunctuation), JSON.stringify(prog)); } catch { /* quota */ }
 }
 function recordFinish(ex: Exercise) {
   const s = stats(st);
@@ -330,7 +342,7 @@ function activeMode(): string {
   if (memMode) return 'memorize';
   if (spanMode) return 'span';
   if (courseMode) return 'course';
-  if (profile === 'kids') return 'kids';
+  if (profile === 'kids' && !kidsFreePractice) return 'kids';
   return 'train';
 }
 const MODE_ICON: Record<string, string> = { train: 'train', course: 'course', learn: 'ai', compete: 'compete', memorize: 'memorize', span: 'span', exam: 'exam', progress: 'progress' };
@@ -374,13 +386,14 @@ function renderTopbar() {
   (document.getElementById('tb-account') as HTMLButtonElement).onclick = () => { modal = 'account'; accMsg = ''; accDelArm = false; render(); };
   (document.getElementById('tb-dark') as HTMLButtonElement).onclick = () => { dark = !dark; try { localStorage.setItem('tr_dark', dark ? '1' : '0'); } catch { /* */ } applyDark(); renderTopbar(); };
   const tp = document.getElementById('tb-profile') as HTMLSelectElement;
-  tp.onchange = () => { profile = tp.value as Profile; saveProfile(profile); reapplyGlobal(); };
+  tp.onchange = () => { kidsFreePractice = false; profile = tp.value as Profile; saveProfile(profile); reapplyGlobal(); };
   const tl = document.getElementById('tb-lang') as HTMLSelectElement;
   tl.onchange = () => { setLang(tl.value as Lang); reapplyGlobal(); };
 }
 
 // прямой переход в любой режим из любого (одним кликом по верхней панели)
 function goTo(target: string) {
+  kidsFreePractice = profile === 'kids' && target === 'train';
   special = null;
   if (exam?.timer) clearInterval(exam.timer);
   // погасить таймеры/rAF покидаемых режимов (иначе setTimeout «Память»/kids перерисует поверх
@@ -405,7 +418,7 @@ function reapplyGlobal() {
   applyLayout();   // раскладка авто-следует за языком интерфейса (если pref=auto)
   aiInit = false; courseInit = false; compInit = false; memInit = false; spanInit = false; kidsActive = false;
   if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
-  if (!hubMode && !aiMode && !compMode && !memMode && !spanMode && !courseMode && !exam && profile !== 'kids') { if (special) { special === 'weak' ? startWeak() : startCustom(customText); } else if (bank === 'poemHymn' || bank === 'classic') loadBank(); else reset(); }
+  if (!hubMode && !aiMode && !compMode && !memMode && !spanMode && !courseMode && !exam && (profile !== 'kids' || kidsFreePractice)) { if (special) { special === 'weak' ? startWeak() : startCustom(customText); } else if (bank === 'poemHymn' || bank === 'classic') loadBank(); else reset(); }
   render();
 }
 
@@ -521,7 +534,7 @@ function render() {
     return; // режим «Память» рисует себя сам
   }
   spanInit = false;
-  if (profile === 'kids') {
+  if (profile === 'kids' && !kidsFreePractice) {
     if (!kidsActive) {
       kidsActive = true;
       kidsEnter(app,
@@ -574,6 +587,11 @@ function render() {
         <button id="next" class="ghost">${t('tb.next')}</button>
       </div>
 
+      <div class="practice-options">
+        <label><input id="practice-plain" type="checkbox" ${noPunctuation ? 'checked' : ''} ${bank === 'digits' && !special ? 'disabled' : ''}> ${t('practice.plain')}</label>
+        <label><input id="practice-digits" type="checkbox" ${bank === 'digits' && !special ? 'checked' : ''}> ${t('practice.digits')}</label>
+      </div>
+      ${!st.pattern ? `<p class="hint2" role="status">${t('practice.empty')}</p>` : ''}
       ${layoutWarnHtml()}
       <div class="card">
         <div class="exhead">
@@ -911,7 +929,7 @@ function startCustom(text: string) {
   customLines = text.split(/\r?\n/).map((l) => l.trimEnd()).filter((l) => l.length > 0);
   if (customLines.length === 0) return;
   special = 'custom'; exam = null; modal = null;
-  st = createState(flowMode ? [customLines.join(' ')] : customLines);
+  st = createState(flowMode ? [practiceLines(customLines, noPunctuation).join(' ')] : practiceLines(customLines, noPunctuation));
   if (statsTimer) { clearInterval(statsTimer); statsTimer = null; }
   render();
 }
@@ -932,7 +950,17 @@ function bindControls() {
   });
   onClick('lw-x', () => { layoutWarnOff.phys = true; render(); });
   onClick('lw-x2', () => { layoutWarnOff.script = true; render(); });
-  onChange('bank', (el) => { special = null; bank = el.value as Bank; loadBank(); });
+  onChange('bank', (el) => selectPracticeBank(el.value as Bank));
+  onChange('practice-digits', el => selectPracticeBank(el.checked ? 'digits' : textBank));
+  onChange('practice-plain', el => {
+    noPunctuation = el.checked;
+    try { localStorage.setItem('typefree_practice_plain', noPunctuation ? '1' : '0'); } catch { /* quota */ }
+    flowReset();
+    if (special === 'custom') startCustom(customText);
+    else if (special === 'weak') startWeak();
+    else loadBank();
+    (document.activeElement as HTMLElement | null)?.blur();
+  });
   onClick('weak', () => { special === 'weak' ? exitSpecial() : startWeak(); });
   onClick('custom', () => { modal = 'custom'; render(); });
   onClick('prev', () => { if (special) { nextSpecial(); return; } idx = (idx - 1 + pool.length) % pool.length; reset(); });
@@ -991,17 +1019,26 @@ function nextSpecial(repeat = false) {
   if (special === 'weak' && !repeat) { startWeak(); return; }
   if (special === 'weak') { startWeak(); return; }
   // custom: повторить тот же текст
-  st = createState(flowMode ? [customLines.join(' ')] : customLines);
+  st = createState(flowMode ? [practiceLines(customLines, noPunctuation).join(' ')] : practiceLines(customLines, noPunctuation));
   render();
+}
+
+function selectPracticeBank(next: Bank) {
+  if (bank !== 'digits') textBank = bank;
+  bank = next; special = null; flowReset();
+  try { localStorage.setItem('typefree_practice_bank', bank); localStorage.setItem('typefree_practice_text_bank', textBank); } catch { /* quota */ }
+  loadBank();
 }
 
 function loadBank() {
   // мультиязычные банки готовых текстов на языке интерфейса
-  pool = bank === 'poemHymn' ? ravenExercises(lang())
+  pool = bank === 'digits' ? numericExercises()
+       : bank === 'poemHymn' ? ravenExercises(lang())
        : bank === 'classic' ? classicExercises(lang())
        : bank === 'ruWords' ? ruWordsExercises()
        : bank === 'ruPhrases' ? ruPhrasesExercises()
        : exercisesOfBank(all, bank);
+  if (noPunctuation) pool = pool.filter(ex => practiceLines(ex.lines, true).length > 0);
   prog = loadProgress(bank);
   idx = Math.min(Math.max(prog.lastIdx, 0), Math.max(pool.length - 1, 0));
   reset();
@@ -1009,7 +1046,8 @@ function loadBank() {
 
 function exState(ex: Exercise | undefined) {
   if (!ex) return createState(['']);
-  return createState(flowMode ? [ex.lines.join(' ')] : ex.lines);
+  const lines = practiceLines(ex.lines, noPunctuation);
+  return createState(flowMode ? [lines.join(' ')] : lines);
 }
 function reset() {
   st = exState(pool[idx]);
@@ -1038,9 +1076,9 @@ document.addEventListener('keydown', (e) => {
   if (compMode) { competeHandleKey(e); return; }
   if (memMode) { memorizeHandleKey(e); return; }
   if (spanMode) { recallHandleKey(e); return; }
-  if (profile === 'kids') { kidsHandleKey(e); return; }
+  if (profile === 'kids' && !kidsFreePractice) { kidsHandleKey(e); return; }
   if (exam && exam.phase !== 'run') return;
-  if (st.finishedAt !== null) return;
+  if (st.finishedAt !== null || !st.pattern) return;
 
   if (e.key === 'Backspace') {
     e.preventDefault();

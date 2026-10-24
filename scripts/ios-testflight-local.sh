@@ -17,8 +17,17 @@ TEAM=$(J $ASC team_id); KEY_ID=$(J $ASC key_id); ISSUER=$(J $ASC issuer_id); KEY
 VER=$(node -p "require('./src-tauri/tauri.conf.json').version")
 echo "▶ TypeFree iOS $VER"
 
-[ -d src-tauri/gen/apple ] || npx tauri ios init
-"$PY" ~/dev/psygames-game-lab/smart-alarm-flutter/tools/sign_keychain.py
+[ -d src-tauri/gen/apple ] || printf 'n\n' | APPLE_DEVELOPMENT_TEAM="$TEAM" npx tauri ios init --skip-targets-install
+# Reuse the existing signing keychain; never delete a shared keychain during a release.
+"$PY" - <<'SIGNPY'
+import json,os,subprocess
+cfg=json.load(open(os.path.expanduser('~/.sdt_secrets/apple_signing.json')))
+kc=os.path.expanduser(cfg['build_keychain'])
+subprocess.run(['security','unlock-keychain','-p',cfg['build_keychain_password'],kc],check=True,capture_output=True)
+r=subprocess.run(['security','find-identity','-v','-p','codesigning',kc],check=True,capture_output=True,text=True)
+if 'Apple Distribution' not in r.stdout: raise SystemExit('Existing distribution identity unavailable; shared keychain preserved')
+print('Existing signing keychain reused; no keys or certificates removed')
+SIGNPY
 APPLE_API_KEY_ID="$KEY_ID" APPLE_API_ISSUER="$ISSUER" APPLE_CERTIFICATE_PASSWORD="$P12_PASS" "$PY" scripts/ios-provision-profile.py --p12 "$P12" --key-file "$KEY_FILE"
 "$PY" scripts/ios-project-patch.py --team "$TEAM" --profile "TypeFree App Store"
 # Обёртка swift — обход Xcode 27 (tauri#16130), см. scripts/xcode27-swift/swift

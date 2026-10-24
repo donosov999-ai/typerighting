@@ -133,6 +133,18 @@ def main() -> None:
     if a.dry_run:
         print('--dry-run: ничего не менял')
         return
+    # A valid profile already referencing our distribution certificate needs no replacement.
+    # Preserve its UUID and every existing signed build that uses it.
+    for prof in mine:
+        attrs = prof['attributes']
+        ids = [c['id'] for c in request_api(tok, 'GET', f"/profiles/{prof['id']}/certificates")['data']]
+        if attrs['profileState'] == 'ACTIVE' and ids == [cert['id']] and attrs.get('profileContent'):
+            folder = os.path.expanduser('~/Library/MobileDevice/Provisioning Profiles')
+            os.makedirs(folder, exist_ok=True)
+            path = os.path.join(folder, f"{attrs['uuid']}.mobileprovision")
+            with open(path, 'wb') as existing: existing.write(base64.b64decode(attrs['profileContent']))
+            print('Existing active TypeFree provisioning profile reused; no profile deleted')
+            return
     for prof in mine:
         request_api(tok, 'DELETE', f"/profiles/{prof['id']}")
         print(f'старый профиль «{a.profile_name}» удалён')

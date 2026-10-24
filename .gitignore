@@ -12,3 +12,7 @@ public/mascot/
 # иначе сгенерированный Xcode-проект уедет в коммит и разойдётся со сборкой CI. Схемы ACL (gen/schemas) остаются.
 src-tauri/gen/apple/
 src-tauri/gen/android/
+
+# Dependency symlinks in isolated release worktrees
+node_modules
+scripts/__pycache__/

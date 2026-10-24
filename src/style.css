@@ -580,3 +580,6 @@ body { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-are
    vw − 120 (36 + 84), правый край текста карточки — vw − 40 (поле 14 + рамка 2 + отступ 24) → нужно ≥ 80.
    Замер 01.10.2026: без отступа 375 px — 13 % строки «Smart stream…» под питомцем, с 64 px — 22 %. */
 @media (max-width: 600px) { .hub-desc { padding-right: 84px; } }
+
+/* Practice content options: shared by desktop/mobile and all profiles. */
+.practice-options{display:flex;gap:20px;flex-wrap:wrap;margin:14px 0}.practice-options label{display:flex;align-items:center;gap:7px;cursor:pointer}.practice-options input{width:18px;height:18px;accent-color:var(--accent,#326bf6)}

@@ -7,14 +7,29 @@
   "pubGet": "offline PASS",
   "analyze": "PASS no issues",
   "tests": {
-    "count": 8,
-    "scope": "appearance contract/controller/state-preserving widget tree and Synapse header host",
-    "result": "PASS"
+    "count": 67,
+    "result": "PASS",
+    "scope": "8 foundation + 48 typing/plain + 7 transfer/storage + 4 keyboard/practice/responsive/input tests"
   },
   "sourceUnchanged": true,
   "realUserStorageRead": false,
-  "realSynapseRendererIntegrated": false,
+  "realSynapseRendererIntegrated": true,
   "nativeUpdateMigrationTested": false,
   "storeOrProductionChanged": false,
-  "docs": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/DESIGN_TEMPLATE_REF.md"
+  "docs": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/DESIGN_TEMPLATE_REF.md",
+  "synapseAcceptance": "LOCAL frozen owner candidate only; header canonical static head, panel shared animated renderer",
+  "nativePlatformsBuilt": [
+    "web release",
+    "macOS debug candidate distinct bundle ID"
+  ],
+  "browserProof": "real RU completion 53 WPM/100%; history remains after reload, source keyboard fits 1280x720",
+  "remaining": [
+    "installed-app native storage migration",
+    "all remaining original modes and full localization",
+    "accepted shared Synapse revision and CI dependency setup",
+    "mobile platform packaging and physical device QA",
+    "store/production release"
+  ],
+  "webPreview": "http://127.0.0.1:8062/",
+  "sourceHashVerification": "8 exported TS files match baseline"
 }

@@ -1,0 +1,30 @@
+{
+  "source": "2fa2b77f032e77b759b29b44d223c7f91578597b",
+  "sourceHashes": {
+    "classic.ts": "92473a83aee7b02516781fe289c58490f4ebb3f59c52a84f083bf85474e1a6ea",
+    "raven.ts": "17beee2cb2e894f63ab44286730d061473cbecf6e1ba32009753da18cca0c798",
+    "ru.ts": "a2639f6928cc909d6af3158bef81ee122ebff3a1e3b6f8dc602c4d2dd48ee020",
+    "practice-options.ts": "9c39f6b0c6d0b4d404f2a5fbe5a2f8c1057a237d68e73cb81f2a2bee8be39d61",
+    "i18n.ts": "9715789569c3062b47538c9702153e7dd31601814aa5830303cae93b3c38c12b",
+    "corpus.ts": "647686840779e197ae73bfe8019c09f755ca8688516d23dca694f6c4651c288c",
+    "keyboard.ts": "946796662b135dee07d01f1ff15ec6f69dc6d32875127c897570b118c77937b8",
+    "typing.ts": "fbe7511a7568201b81b9df9ac4ca07c9b837b94d462b4c28b66ca40f06a7641d"
+  },
+  "exerciseCounts": {
+    "ru": 86,
+    "en": 14,
+    "es": 11,
+    "de": 12,
+    "fr": 11,
+    "it": 13,
+    "pt": 12
+  },
+  "traces": 47,
+  "events": 2827,
+  "hiddenBanks": [
+    "abandon",
+    "engRus",
+    "letterByLetter"
+  ],
+  "scope": "source data, no user storage"
+}

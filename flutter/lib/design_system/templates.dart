@@ -25,8 +25,9 @@ const templateRoles = <String>[
 ];
 
 Map<String, dynamic> _map(Object? v) {
-  if (v is! Map<String, dynamic>)
+  if (v is! Map<String, dynamic>) {
     throw const FormatException('Expected object');
+  }
   return v;
 }
 
@@ -95,8 +96,9 @@ class DesignTemplate {
     for (final entry in profiles.entries) {
       final value = entry.value;
       final pair = _map(value);
-      if (pair.length != 2)
+      if (pair.length != 2) {
         throw const FormatException('Invalid profile tokens');
+      }
       accents[entry.key] = Map.unmodifiable({
         'light': _color(pair['light']),
         'dark': _color(pair['dark']),
@@ -141,13 +143,15 @@ class TemplateRegistry {
       throw const FormatException('Unsupported registry contract');
     }
     final raw = json['templates'];
-    if (raw is! List || raw.isEmpty)
+    if (raw is! List || raw.isEmpty) {
       throw const FormatException('Empty registry');
+    }
     final parsed = <String, DesignTemplate>{};
     for (final value in raw) {
       final item = DesignTemplate.parse(_map(value));
-      if (parsed.containsKey(item.id))
+      if (parsed.containsKey(item.id)) {
         throw const FormatException('Duplicate template');
+      }
       parsed[item.id] = item;
     }
     final fallback = json['fallbackTemplateId'];
@@ -221,8 +225,9 @@ class AppearanceController extends ChangeNotifier {
 
   void preview(String id, ThemeMode brightness) {
     if (_busy) throw StateError('Appearance save in progress');
-    if (!registry.templates.containsKey(id))
+    if (!registry.templates.containsKey(id)) {
       throw const FormatException('Unknown template');
+    }
     _preview = AppearanceSelection(id, brightness);
     notifyListeners();
   }

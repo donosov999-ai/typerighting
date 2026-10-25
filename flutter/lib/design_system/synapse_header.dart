@@ -20,6 +20,8 @@ class SynapseHeaderButton extends StatelessWidget {
     if (!enabled) return const SizedBox.shrink();
     return Semantics(
       button: true,
+      onTap: portrait == null ? null : onOpen,
+      excludeSemantics: true,
       label: label,
       child: Tooltip(
         message: label,

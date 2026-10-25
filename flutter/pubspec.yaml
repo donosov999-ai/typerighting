@@ -7,11 +7,22 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  crypto: 3.0.7
+  path_provider: 2.1.6
+  shared_preferences: 2.5.5
+  web: 1.1.1
+  synapse_pet:
+    git:
+      url: https://github.com/donosov999-ai/mascot-engine.git
+      ref: 7c5938ecb9c42f609c86b7d3f90cc1f9c9a4a949
+      path: packages/synapse_pet
 dev_dependencies:
+  flutter_lints: 6.0.0
   flutter_test:
     sdk: flutter
 flutter:
   uses-material-design: true
   assets:
     - assets/templates/registry.json
+    - assets/baseline/
 

@@ -3,3 +3,5 @@ build/
 .flutter-plugins-dependencies
 coverage/
 *.iml
+pubspec_overrides.yaml
+.idea/

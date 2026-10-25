@@ -44,3 +44,6 @@ TeamOps remaining child tasks (created 25.10, planned, own executor):
 - 2046fb02-53b1-47db-918f-e0a2a417e6a3: remaining modes/full parity/localization.
 - e820238d-8f28-44ce-8751-6c03a9c8905a: accepted shared dependency and gated release/device acceptance.
 Implementation milestone commit: a6858c5. No push or deploy performed.
+
+
+Later continuation 25.10: archive/history/settings adapter and native WKWebView fixture plus functional course route now implemented. Read the newer /Users/denisonosov/dev/typerighting-wt-flutter-20261025/flutter/F1_COURSE_HANDOFF_20261025.md for current scope and remaining gates; earlier statements above describe the previous milestone.

@@ -1,0 +1,30 @@
+{
+  "date": "2026-10-25",
+  "baseline": "2fa2b77f032e77b759b29b44d223c7f91578597b",
+  "tests": 77,
+  "result": "PASS",
+  "analyze": "no issues",
+  "courseGoldenCases": 133,
+  "courseProgramme": {
+    "ru": 19,
+    "en": 19,
+    "es": 19,
+    "de": 19,
+    "fr": 19,
+    "it": 19,
+    "pt": 19
+  },
+  "nativeFixtureProof": "docs/webkit-fixture-proof-20261025.json",
+  "installedAppUpdateProven": false,
+  "iOSAndroidMigrationProven": false,
+  "realUserStorageRead": false,
+  "storesProductionChanged": false,
+  "scope": "LOCAL candidate: legacy archive/settings adapters + structured course route",
+  "gates": [
+    "Tauri packaged update with disposable containers",
+    "iOS/Android storage migration and physical device acceptance",
+    "new per-key measurements/EMA and all other original modes",
+    "complete localization and template visual acceptance",
+    "accepted private shared Synapse dependency and release packaging"
+  ]
+}

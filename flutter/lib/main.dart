@@ -10,10 +10,14 @@ import 'package:synapse_pet/synapse_pet.dart';
 
 import 'data/platform_store.dart';
 import 'data/local_repository.dart';
+import 'data/progress_view.dart';
 import 'design_system/templates.dart';
 import 'design_system/synapse_header.dart';
 import 'domain/typing.dart';
 import 'features/keyboard_guide.dart';
+import 'features/practice_widgets.dart';
+import 'features/course_page.dart';
+export 'features/practice_widgets.dart' show PracticeCommitFormatter;
 
 const languages = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
 
@@ -43,8 +47,8 @@ class PreferenceStore implements AppearanceStore {
 }
 
 class Resources {
-  Resources(this.content, this.keyboards, this.registry);
-  final Map<String, dynamic> content, keyboards;
+  Resources(this.content, this.keyboards, this.registry, this.course);
+  final Map<String, dynamic> content, keyboards, course;
   final TemplateRegistry registry;
   static Future<Resources> load() async => Resources(
     jsonDecode(await rootBundle.loadString('assets/baseline/catalog.json'))
@@ -55,6 +59,9 @@ class Resources {
       jsonDecode(await rootBundle.loadString('assets/templates/registry.json'))
           as Map<String, dynamic>,
     ),
+
+    jsonDecode(await rootBundle.loadString('assets/baseline/course.json'))
+        as Map<String, dynamic>,
   );
 }
 
@@ -76,7 +83,10 @@ Future<void> main() async {
         appearance: AppearanceController(
           resources.registry,
           PreferenceStore(),
-          existingInstall: false,
+          existingInstall: (repo.data['receipts'] as Map).isNotEmpty,
+          legacyDark: (repo.data['legacy'] as Map)['tr_dark'] == null
+              ? null
+              : (repo.data['legacy'] as Map)['tr_dark'] == '1',
           saved: saved,
         ),
       ),
@@ -134,6 +144,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       saved = false,
       saving = false,
       historyPage = false,
+      coursePage = false,
       ignoreInput = false;
   int index = 0;
   String? custom, error;
@@ -349,14 +360,14 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   }
 
   SessionFact fact(Map<String, dynamic> p) => SessionFact(
-    gameId: 'typefree.practice',
+    gameId: p['mode'] == 'course' ? 'typefree.course' : 'typefree.practice',
     outcome: Outcome.finished,
     at: DateTime.fromMillisecondsSinceEpoch(p['t'] as int),
     score: p['wpm'] as int,
     errors: p['errors'] as int,
     timeSeconds: ((p['elapsedMs'] as int) / 1000).round(),
     difficulty: p['difficulty'] as String,
-    mode: 'practice',
+    mode: (p['mode'] as String?) ?? 'practice',
     unit: 'WPM',
   );
   Future<void> saveResult() async {
@@ -876,8 +887,15 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       ),
       bottomNavigationBar: NavigationBar(
         height: 56,
-        selectedIndex: historyPage ? 1 : 0,
-        onDestinationSelected: (v) => setState(() => historyPage = v == 1),
+        selectedIndex: coursePage
+            ? 2
+            : historyPage
+            ? 1
+            : 0,
+        onDestinationSelected: (v) => setState(() {
+          historyPage = v == 1;
+          coursePage = v == 2;
+        }),
         destinations: [
           NavigationDestination(
             icon: const Icon(Icons.keyboard_outlined),
@@ -886,6 +904,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           NavigationDestination(
             icon: const Icon(Icons.insights_outlined),
             label: tr('prog.title'),
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.school_outlined),
+            label: tr('course.title'),
           ),
         ],
       ),
@@ -988,6 +1010,45 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     ],
                   );
                   if (historyPage) return historyView(c);
+                  if (coursePage) {
+                    return CoursePage(
+                      key: ValueKey('course-$language-$profile'),
+                      data: widget.resources.course,
+                      repository: widget.repository,
+                      language: language,
+                      profile: profile,
+                      keyboard: keyboard,
+                      tr: tr,
+                      clock: widget.clock,
+                      onSaved: (point, earlier) async {
+                        if (!mounted ||
+                            point['profile'] != profile ||
+                            point['language'] != language) {
+                          return;
+                        }
+                        try {
+                          await assistant.onGameSaved(
+                            fact(point),
+                            earlier
+                                .where((p) => p['profile'] == profile)
+                                .map(fact)
+                                .toList(),
+                            game: GameInfo(
+                              id: 'typefree.course',
+                              name: tr('course.title'),
+                              category: 'typing',
+                            ),
+                          );
+                          await widget.repository.transaction((d) {
+                            (d['prefs'] as Map)['synapseMemory_$profile'] =
+                                assistant.memory.toJson();
+                          });
+                        } catch (_) {
+                          /* Result was saved; optional companion never invalidates it. */
+                        }
+                      },
+                    );
+                  }
                   if (!wide) return practice;
                   return Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1031,123 +1092,82 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     );
   }
 
-  Widget historyView(BuildContext c) => Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      Text(tr('prog.title'), style: Theme.of(c).textTheme.headlineMedium),
-      if (history.isEmpty)
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 32),
-          child: Text(tr('prog.empty')),
-        ),
-      for (final p in history.reversed)
-        Card(
-          child: ListTile(
-            title: Text(p['title'] as String),
-            subtitle: Text(
-              DateTime.fromMillisecondsSinceEpoch(p['t'] as int)
-                  .toLocal()
-                  .toString(),
+  Widget historyView(BuildContext c) {
+    final view = ProgressView(widget.repository.data);
+    final rows = view.timeline;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(tr('prog.title'), style: Theme.of(c).textTheme.headlineMedium),
+        if (view.archive.isNotEmpty)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Сохранено из прежней версии',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  Text(
+                    'Тренировок: ${view.previousSessions.length} · звёзд курса: ${view.courseStars} · звёзд детского режима: ${view.kidsStars} · достижений: ${view.achievements.length}',
+                  ),
+                  const Text(
+                    'Старая история не содержит языка, профиля и названия упражнения. Эти данные не восстанавливаются предположениями.',
+                  ),
+                ],
+              ),
             ),
-            trailing: Text('${p['wpm']} WPM · ${p['accuracy']}%'),
           ),
-        ),
-    ],
-  );
-}
-
-class PatternView extends StatefulWidget {
-  const PatternView({super.key, required this.session});
-  final TypingSession session;
-  @override
-  State<PatternView> createState() => _PatternViewState();
-}
-
-class _PatternViewState extends State<PatternView> {
-  final scroll = ScrollController();
-  @override
-  void dispose() {
-    scroll.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final session = widget.session;
-    final t = Theme.of(context).extension<TypeFreeTokens>()!;
-    final span = TextSpan(
-      style: TextStyle(
-        fontSize: 28,
-        height: 1.6,
-        fontFamily: 'monospace',
-        color: t['text'],
-      ),
-      children: List.generate(
-        session.pattern.length,
-        (i) => TextSpan(
-          text: session.pattern[i],
-          style: TextStyle(
-            color: i == session.pos
-                ? t['onExpectedKey']
-                : session.marks[i] == 1
-                ? t['success']
-                : session.marks[i] == 2
-                ? t['danger']
-                : t['text'],
-            backgroundColor: i == session.pos ? t['expectedKey'] : null,
+        if (rows.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 32),
+            child: Text(tr('prog.empty')),
           ),
-        ),
-      ),
-    );
-    return SizedBox(
-      height: 62,
-      child: LayoutBuilder(
-        builder: (context, bounds) {
-          final painter = TextPainter(
-            text: span,
-            textDirection: TextDirection.ltr,
-            textScaler: MediaQuery.textScalerOf(context),
-          )..layout(maxWidth: bounds.maxWidth);
-          final y = painter
-              .getOffsetForCaret(
-                TextPosition(
-                  offset: session.pos.clamp(0, session.pattern.length),
+        for (final row in rows)
+          Card(
+            child: ListTile(
+              title: Text(
+                row['origin'] == 'legacy'
+                    ? 'Тренировка из прежней версии'
+                    : row['title'] as String,
+              ),
+              subtitle: Text(
+                DateTime.fromMillisecondsSinceEpoch((row['t'] as num).toInt())
+                    .toLocal()
+                    .toString(),
+              ),
+              trailing: Text(
+                '${row['wpm']} WPM · ${(row['accuracy'] as num).toStringAsFixed(0)}%',
+              ),
+            ),
+          ),
+        if (view.banks.isNotEmpty)
+          ExpansionTile(
+            title: const Text('Прогресс по наборам'),
+            children: [
+              for (final e in view.banks.entries)
+                ListTile(
+                  title: Text(
+                    [
+                          'abandon',
+                          'engRus',
+                          'letterByLetter',
+                        ].any((b) => e.key == b || e.key == '${b}_plain')
+                        ? '${e.key} · архив, временно отключён'
+                        : tr('bank.${e.key.replaceFirst('_plain', '')}') +
+                              (e.key.endsWith('_plain')
+                                  ? ' · без пунктуации'
+                                  : ''),
+                  ),
+                  subtitle: Text(
+                    'Пройдено: ${(e.value['done'] as List).length} · рекорд: ${e.value['bestWpm']} WPM · ${e.value['bestAcc']}%',
+                  ),
                 ),
-                Rect.zero,
-              )
-              .dy;
-          final lineHeight = painter.preferredLineHeight;
-          painter.dispose();
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted || !scroll.hasClients) return;
-            final current = scroll.offset;
-            final bottom = y + lineHeight;
-            final target = y < current
-                ? y
-                : bottom > current + 62
-                ? bottom - 62
-                : current;
-            final clamped = target.clamp(0.0, scroll.position.maxScrollExtent);
-            if ((current - clamped).abs() > .5) scroll.jumpTo(clamped);
-          });
-          return SingleChildScrollView(
-            controller: scroll,
-            child: Text.rich(span),
-          );
-        },
-      ),
+            ],
+          ),
+      ],
     );
-  }
-}
-
-class PracticeCommitFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-    TextEditingValue old,
-    TextEditingValue next,
-  ) {
-    if (next.composing.isValid && !next.composing.isCollapsed) return next;
-    if (old.composing.isValid && !old.composing.isCollapsed) return next;
-    return next.text.length - old.text.length > 1 ? old : next;
   }
 }

@@ -1,6 +1,6 @@
 # TypeFree Flutter · isolated local candidate · 25 October 2026
 
-This is a working ordinary-practice slice, not a replacement for TypeFree 2.60.4.
+This is a working ordinary-practice and structured-course slice, not a replacement for TypeFree 2.60.4.
 Baseline: 2fa2b77f032e77b759b29b44d223c7f91578597b. Old src and installed user data remain untouched.
 
 ## Run locally
@@ -32,9 +32,11 @@ Candidate history/preferences use separate local storage (typefree.flutter.candi
 
 ## Migration boundary and remaining work
 
-Local-transfer envelope implements explicit allowlist/checksum/atomic receipt/conflict checks. It is tested on fixtures only. NO real Tauri WebView-to-Flutter extraction, installed-app update, native crash recovery or migration of real users has been validated. Imported legacy rows are retained for later adapters; the current progress page lists new Flutter sessions only. Never replace the installed app from this candidate.
+Local-transfer envelope implements explicit allowlist/checksum/atomic receipt/conflict checks. It is tested on fixtures only. A native, separately named macOS WKWebsiteDataStore was seeded with synthetic data in one process and read in a second process, then transferred into the real Dart file store and reloaded. Run `python3 tool/run_webkit_fixture.py`; evidence docs/webkit-fixture-proof-20261025.json. This is not a packaged Tauri-to-Flutter update proof. NO real Tauri WebView-to-Flutter extraction, installed-app update, native crash recovery or migration of real users has been validated. The progress page now displays a frozen imported archive separately from new sessions, with archived records/stars/achievements. It does not invent profile/language/exercise identity absent in the old history. Raw archives remain unchanged when new history is capped. Missing supported preferences are adapted without overwriting an existing choice. Never replace the installed app from this candidate.
 
-Not ported yet: full course/AI/competition/memory/recall/exam/kids flows, full statistics/achievements, help/audio/export settings and all route localization. Account/coach candidates remain separate; no fake auth, pupils or reports. Author playlist editor remains private and is not shipped. See STAGE_HANDOFF_20261025.md and the design migration plan.
+Structured course: 19 canonical lessons for each of seven languages, source-matching generated content (133 golden cases), per-line blocking input, stars/unlock and transactional save/retry. Source course reports last-line WPM/accuracy; stars use total errors. New per-key EMA/heatmap measurements are not yet wired, so full course parity is still pending.
+
+Not ported yet: AI/competition/memory/recall/exam/kids flows, full statistics/achievements, help/audio/export settings and all route localization. Account/coach candidates remain separate; no fake auth, pupils or reports. Author playlist editor remains private and is not shipped. See F1_COURSE_HANDOFF_20261025.md and STAGE_HANDOFF_20261025.md and the design migration plan.
 
 Design reference: /Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/DESIGN_TEMPLATE_REF.md
 Migration plan: /Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/FLUTTER_MIGRATION_PLAN.md

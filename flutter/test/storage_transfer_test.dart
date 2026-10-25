@@ -158,7 +158,24 @@ void main() {
       final store = MemoryStore(), repo = LocalRepository(MemoryStore());
       final live = LocalRepository(store);
       await Future.wait(
-        List.generate(15, (i) => live.appendSession({'id': 's-$i'})),
+        List.generate(
+          15,
+          (i) => live.appendSession({
+            'id': 's-$i',
+            'title': 'Fixture',
+            'exercise': 'fixture',
+            'language': 'en',
+            'profile': 'm',
+            'mode': 'practice',
+            'difficulty': 'fixture',
+            't': i,
+            'wpm': 40,
+            'accuracy': 98,
+            'errors': 1,
+            'elapsedMs': 2000,
+            'len': 10,
+          }),
+        ),
       );
       expect((live.data['sessions'] as List).length, 15);
       expect(await live.appendSession({'id': 's-1'}), false);

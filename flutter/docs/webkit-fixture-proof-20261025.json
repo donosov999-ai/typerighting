@@ -1,0 +1,19 @@
+{
+  "scope": "synthetic named WKWebsiteDataStore only; no installed app storage",
+  "fixtureId": "8aff089b-52d3-4c9f-999c-f3520e49650f",
+  "webkitKeys": 21,
+  "allowedImportedKeys": 18,
+  "firstImportInserted": true,
+  "replayInserted": false,
+  "historyRows": 1,
+  "courseStars": 3,
+  "kidsStars": 2,
+  "sourceUnchanged": true,
+  "candidateReload": "PASS",
+  "pinDeviceQueueExcluded": true,
+  "installedAppUpdateProven": false,
+  "webkitCrossProcessPersistence": "PASS",
+  "macOS": "26.6.2",
+  "fixtureScriptSha256": "f1146af6fb50727af26abd072965ab280602568fcaa9f89b535ea2390868ff13",
+  "scopeLimits": "Actual WKWebView + Dart candidate persistence; not a Tauri installed-app update, iOS or Android proof"
+}

@@ -1,0 +1,20 @@
+<!doctype html><meta charset="utf-8"><title>TypeFree disposable storage fixture</title>
+<script>
+function fixtureSeed() {
+  // Synthetic values only, including excluded sentinels, never real credentials.
+  const values = {
+    tr_history: JSON.stringify([{t:1700000000000,wpm:42,acc:97,len:100,ms:30000,err:3,score:41}]),
+    tr_progress_ruWords: JSON.stringify({bestWpm:42,bestAcc:97,done:['ruw-1'],lastIdx:1}),
+    tr_progress_abandon: JSON.stringify({bestWpm:20,bestAcc:90,done:['archive-only'],lastIdx:0}),
+    tr_course_ru: JSON.stringify({stars:{'1':3}}),
+    tr_kids: JSON.stringify({stars:{'0':2}}),
+    tr_keystats: JSON.stringify({KeyA:{ok:10,err:2,t:1200,nt:8,bt:900,ts:1700000000000}}),
+    tr_ach: JSON.stringify(['first']), tr_compete: JSON.stringify({sprint_ru:42}),
+    tr_lang:'ru', tr_profile:'f', tr_layout:'qwerty', tr_block:'1', tr_keyb:'1', tr_bridge:'1',
+    tr_dark:'0', typefree_practice_bank:'ruWords', typefree_practice_text_bank:'ruWords',
+    typefree_practice_plain:'0', tr_acc:'FIXTURE_EXCLUDED_PIN', tr_device:'FIXTURE_EXCLUDED_DEVICE',
+    tr_sess_queue:'["FIXTURE_EXCLUDED_QUEUE"]'
+  };
+  for (const [k,v] of Object.entries(values)) localStorage.setItem(k,v);
+}
+</script>

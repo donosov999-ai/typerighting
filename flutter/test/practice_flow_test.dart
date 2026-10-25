@@ -9,6 +9,8 @@ import 'package:typefree_flutter_foundation/features/keyboard_guide.dart';
 
 import 'storage_transfer_test.dart' show MemoryStore;
 
+import 'package:typefree_flutter_foundation/data/legacy_transfer.dart';
+
 class AppearanceMemory implements AppearanceStore {
   @override
   Future<void> save(Map<String, Object> value) async {}
@@ -161,6 +163,56 @@ void main() {
     appearance.dispose();
     await tester.binding.setSurfaceSize(null);
   });
+  testWidgets(
+    'real practice restores allowed legacy choices and history shows provenance',
+    (tester) async {
+      final res = (await tester.runAsync(Resources.load))!;
+      final repo = LocalRepository(MemoryStore());
+      await repo.load();
+      await importTransfer(
+        repo,
+        createTransfer({
+          'tr_lang': 'ru',
+          'tr_profile': 'f',
+          'tr_pet': '0',
+          'tr_keyb': '1',
+          'typefree_practice_bank': 'ruWords',
+          'tr_progress_ruWords':
+              '{"bestWpm":42,"bestAcc":97,"done":["old-1"],"lastIdx":1}',
+          'tr_history': '[{"t":1700000000000,"wpm":42,"acc":97}]',
+          'tr_course_ru': '{"stars":{"1":3}}',
+        }, exportId: 'widget-fixture'),
+      );
+      final appearance = AppearanceController(
+        res.registry,
+        AppearanceMemory(),
+        existingInstall: true,
+      );
+      final key = GlobalKey<TypeFreeAppState>();
+      await tester.binding.setSurfaceSize(const Size(1280, 720));
+      await tester.pumpWidget(
+        TypeFreeApp(
+          key: key,
+          resources: res,
+          repository: repo,
+          appearance: appearance,
+        ),
+      );
+      await tester.pump();
+      expect(key.currentState!.profile, 'f');
+      expect(key.currentState!.index, 1);
+      expect(key.currentState!.language, 'ru');
+      await tester.tap(find.byIcon(Icons.insights_outlined));
+      await tester.pump();
+      expect(find.text('Тренировка из прежней версии'), findsOneWidget);
+      expect(find.textContaining('звёзд курса: 3'), findsOneWidget);
+      expect(find.textContaining('42 WPM'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+      appearance.dispose();
+      await tester.binding.setSurfaceSize(null);
+    },
+  );
   test(
     'paste is not a physical trainer completion shortcut; IME stays supported',
     () {

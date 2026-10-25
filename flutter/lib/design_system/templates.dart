@@ -293,6 +293,39 @@ class AppearanceController extends ChangeNotifier {
     return ThemeData(
       colorScheme: scheme,
       scaffoldBackgroundColor: c['canvas'],
+      appBarTheme: AppBarTheme(
+        backgroundColor: c['canvas'],
+        foregroundColor: c['text'],
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+      ),
+      cardTheme: CardThemeData(
+        color: c['surface'],
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: c['canvas'],
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: Colors.transparent,
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            size: 22,
+            color: states.contains(WidgetState.selected)
+                ? c['primary']
+                : c['mutedText'],
+          ),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => TextStyle(
+            fontSize: 11,
+            color: states.contains(WidgetState.selected)
+                ? c['primary']
+                : c['mutedText'],
+          ),
+        ),
+      ),
       extensions: [TypeFreeTokens(c)],
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(

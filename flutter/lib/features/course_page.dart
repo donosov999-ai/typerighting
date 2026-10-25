@@ -20,6 +20,7 @@ class CoursePage extends StatefulWidget {
     required this.tr,
     required this.onSaved,
     this.clock,
+    this.initialLessonId,
   });
   final Map<String, dynamic> data;
   final LocalRepository repository;
@@ -29,6 +30,7 @@ class CoursePage extends StatefulWidget {
   final Future<void> Function(Map<String, dynamic>, List<Map<String, dynamic>>)
   onSaved;
   final int Function()? clock;
+  final int? initialLessonId;
   @override
   State<CoursePage> createState() => CoursePageState();
 }
@@ -59,6 +61,12 @@ class CoursePageState extends State<CoursePage> {
   void initState() {
     super.initState();
     entry.addListener(edit);
+    if (widget.initialLessonId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final matches = lessons.where((l) => l['id'] == widget.initialLessonId);
+        if (mounted && matches.isNotEmpty) start(matches.first);
+      });
+    }
     timer = Timer.periodic(const Duration(milliseconds: 250), (_) {
       if (mounted && attempt?.startedAt != null && !attempt!.finished) {
         setState(() {});

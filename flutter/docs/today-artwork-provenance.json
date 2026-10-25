@@ -1,0 +1,7 @@
+{
+  "tool": "built-in ImageGen",
+  "intent": "original landscape artwork only, no UI or fabricated app data",
+  "prompt": "Use case: stylized-concept. Asset type: landscape artwork only for TypeFree Today dashboard hero background. Wide digital illustration, calm alpine valley at sunrise, layered navy and teal mountains with warm peach edges, dark conifer silhouettes in foreground, large soft pale orange sun near upper right horizon, warm salmon orange sky. Refined flat-shaded painterly illustration, crisp shapes, restrained detail. Panoramic 3:1 composition, upper half contains the bright sky and peaks, lower half becomes very dark navy with subtle trees to allow white UI text drawn separately. No text, no UI, no borders, no icons, no logos, no people, no keyboard. Opaque background. Only original landscape art; not a mockup.",
+  "output": "assets/artwork/today-mountains-v1.png",
+  "source": "/Users/denisonosov/.codex/generated_images/01a11767-7f76-7d41-8a18-70701a9821d6/exec-39ce6c21-6230-495a-aedb-8cb41cbffc1d.png"
+}

@@ -17,6 +17,8 @@ import 'domain/typing.dart';
 import 'features/keyboard_guide.dart';
 import 'features/practice_widgets.dart';
 import 'features/course_page.dart';
+import 'features/today_page.dart';
+import 'domain/today.dart';
 export 'features/practice_widgets.dart' show PracticeCommitFormatter;
 
 const languages = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
@@ -109,6 +111,8 @@ Future<void> main() async {
   }
 }
 
+enum AppSection { today, practiceMenu, practice, course, progress, more }
+
 class TypeFreeApp extends StatefulWidget {
   const TypeFreeApp({
     super.key,
@@ -116,11 +120,13 @@ class TypeFreeApp extends StatefulWidget {
     required this.repository,
     required this.appearance,
     this.clock,
+    this.initialSection = AppSection.today,
   });
   final Resources resources;
   final LocalRepository repository;
   final AppearanceController appearance;
   final MillisecondClock? clock;
+  final AppSection initialSection;
   @override
   State<TypeFreeApp> createState() => TypeFreeAppState();
 }
@@ -143,9 +149,15 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       motion = true,
       saved = false,
       saving = false,
-      historyPage = false,
-      coursePage = false,
       ignoreInput = false;
+  late AppSection section;
+  int? courseStartLessonId;
+  bool get historyPage => section == AppSection.progress;
+  bool get coursePage => section == AppSection.course;
+  void showSection(AppSection next) {
+    setState(() => section = next);
+  }
+
   int index = 0;
   String? custom, error;
   List<Map<String, dynamic>> get exercises => custom != null
@@ -173,6 +185,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    section = widget.initialSection;
     WidgetsBinding.instance.addObserver(this);
     final p = widget.repository.data['prefs'] as Map;
     language = languages.contains(p['lang']) ? p['lang'] as String : 'ru';
@@ -846,38 +859,91 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     );
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'TypeFree',
-          style: TextStyle(fontWeight: FontWeight.w800),
-        ),
+        toolbarHeight: section == AppSection.today
+            ? 52 * MediaQuery.textScalerOf(c).scale(14) / 14
+            : 56,
+        leading: section == AppSection.practice || coursePage
+            ? IconButton(
+                tooltip: tr('nav.back'),
+                onPressed: () => showSection(AppSection.practiceMenu),
+                icon: const Icon(Icons.arrow_back),
+              )
+            : null,
+        title: section == AppSection.today
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    shellText(language, 'today'),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    shellText(language, 'intro'),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(fontSize: 10),
+                  ),
+                ],
+              )
+            : Text(
+                section == AppSection.today
+                    ? shellText(language, 'today')
+                    : section == AppSection.practiceMenu
+                    ? shellText(language, 'practice')
+                    : historyPage
+                    ? shellText(language, 'progress')
+                    : section == AppSection.more
+                    ? shellText(language, 'more')
+                    : coursePage
+                    ? tr('course.title')
+                    : tr('hub.train'),
+                style: TextStyle(fontWeight: FontWeight.w800),
+              ),
         actions: [
-          DropdownButton<String>(
-            value: language,
-            items: languages
-                .map(
-                  (l) =>
-                      DropdownMenuItem(value: l, child: Text(l.toUpperCase())),
-                )
-                .toList(),
-            onChanged: saving
-                ? null
-                : (l) => change(() {
-                    language = l!;
-                    custom = null;
-                    bank = language == 'ru' ? 'ruWords' : 'classic';
-                    textBank = bank;
-                    index = 0;
-                    loadKeyboard();
-                    assistant.dispose();
-                    headerAssistant.dispose();
-                    createAssistant();
-                  }),
-          ),
-          IconButton(
-            tooltip: tr('hub.settings'),
-            onPressed: settings,
-            icon: const Icon(Icons.settings_outlined),
-          ),
+          if (section == AppSection.today)
+            IconButton(
+              tooltip: shellText(language, 'progress'),
+              onPressed: () => showSection(AppSection.progress),
+              icon: const Icon(Icons.calendar_today_outlined, size: 20),
+            ),
+          if (section != AppSection.today)
+            DropdownButton<String>(
+              value: language,
+              items: languages
+                  .map(
+                    (l) => DropdownMenuItem(
+                      value: l,
+                      child: Text(l.toUpperCase()),
+                    ),
+                  )
+                  .toList(),
+              onChanged: saving
+                  ? null
+                  : (l) => change(() {
+                      language = l!;
+                      custom = null;
+                      bank = language == 'ru' ? 'ruWords' : 'classic';
+                      textBank = bank;
+                      index = 0;
+                      loadKeyboard();
+                      assistant.dispose();
+                      headerAssistant.dispose();
+                      createAssistant();
+                    }),
+            ),
+          if (section != AppSection.today)
+            IconButton(
+              tooltip: tr('hub.settings'),
+              onPressed: settings,
+              icon: const Icon(Icons.settings_outlined),
+            ),
           SynapseHeaderButton(
             enabled: pet,
             portrait: face(c),
@@ -887,33 +953,50 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       ),
       bottomNavigationBar: NavigationBar(
         height: 56,
-        selectedIndex: coursePage
-            ? 2
+        selectedIndex: section == AppSection.today
+            ? 0
             : historyPage
-            ? 1
-            : 0,
-        onDestinationSelected: (v) => setState(() {
-          historyPage = v == 1;
-          coursePage = v == 2;
-        }),
+            ? 2
+            : section == AppSection.more
+            ? 3
+            : 1,
+        onDestinationSelected: (v) => showSection(
+          [
+            AppSection.today,
+            AppSection.practiceMenu,
+            AppSection.progress,
+            AppSection.more,
+          ][v],
+        ),
         destinations: [
           NavigationDestination(
-            icon: const Icon(Icons.keyboard_outlined),
-            label: tr('hub.train'),
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home),
+            label: shellText(language, 'today'),
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.grid_view_outlined),
+            selectedIcon: const Icon(Icons.grid_view_rounded),
+            label: shellText(language, 'practice'),
           ),
           NavigationDestination(
             icon: const Icon(Icons.insights_outlined),
-            label: tr('prog.title'),
+            label: shellText(language, 'progress'),
           ),
           NavigationDestination(
-            icon: const Icon(Icons.school_outlined),
-            label: tr('course.title'),
+            icon: const Icon(Icons.more_horiz),
+            label: shellText(language, 'more'),
           ),
         ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.fromLTRB(
+            12,
+            section == AppSection.today ? 0 : 12,
+            12,
+            12,
+          ),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1320),
@@ -1009,10 +1092,16 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       if (!wide && session.finished) completion,
                     ],
                   );
+                  if (section == AppSection.today) return todayView(c);
+                  if (section == AppSection.practiceMenu) {
+                    return practiceMenu(c);
+                  }
+                  if (section == AppSection.more) return moreView(c);
                   if (historyPage) return historyView(c);
                   if (coursePage) {
                     return CoursePage(
                       key: ValueKey('course-$language-$profile'),
+                      initialLessonId: courseStartLessonId,
                       data: widget.resources.course,
                       repository: widget.repository,
                       language: language,
@@ -1091,6 +1180,133 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       ),
     );
   }
+
+  Widget todayView(BuildContext c) {
+    final lessons = List<Map<String, dynamic>>.from(
+      (widget.resources.course['lessons'] as Map)[language] as List,
+    );
+    final summary = TodaySummary(
+      widget.repository.data,
+      profile: profile,
+      language: language,
+      now: DateTime.now(),
+      lessonCount: lessons.length,
+    );
+    final lesson = lessons[summary.nextLesson - 1];
+    final title =
+        tr(lesson['titleKey'] as String) +
+        (lesson['titleArg'] == null ? '' : ': ${lesson['titleArg']}');
+    return TodayPage(
+      summary: summary,
+      language: language,
+      lessonTitle: title,
+      onPractice: () => showSection(AppSection.practice),
+      onCourse: () {
+        setState(() {
+          courseStartLessonId = summary.nextLesson;
+          section = AppSection.course;
+        });
+      },
+      onProgress: () => showSection(AppSection.progress),
+    );
+  }
+
+  Widget practiceMenu(BuildContext c) => Center(
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 620),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            shellText(language, 'choose'),
+            style: Theme.of(c).textTheme.bodySmall,
+          ),
+          const SizedBox(height: 12),
+          modeTile(
+            c,
+            Icons.bolt,
+            tr('hub.train'),
+            tr('hub.train.d'),
+            () => showSection(AppSection.practice),
+          ),
+          modeTile(
+            c,
+            Icons.school_outlined,
+            tr('course.title'),
+            tr('hub.course.d'),
+            () {
+              setState(() {
+                courseStartLessonId = null;
+                section = AppSection.course;
+              });
+            },
+          ),
+        ],
+      ),
+    ),
+  );
+  Widget modeTile(
+    BuildContext c,
+    IconData icon,
+    String title,
+    String subtitle,
+    VoidCallback action,
+  ) => Padding(
+    padding: const EdgeInsets.only(bottom: 10),
+    child: Card(
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(
+          color: Theme.of(c).extension<TypeFreeTokens>()!['border'],
+        ),
+      ),
+      child: ListTile(
+        onTap: action,
+        leading: Container(
+          width: 40,
+          height: 44,
+          decoration: BoxDecoration(
+            color: Theme.of(c).colorScheme.primary.withValues(alpha: .18),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(icon, color: Theme.of(c).colorScheme.primary),
+        ),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+        subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
+        trailing: const Icon(Icons.chevron_right),
+      ),
+    ),
+  );
+  Widget moreView(BuildContext c) => Center(
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 620),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          modeTile(
+            c,
+            Icons.settings_outlined,
+            tr('hub.settings'),
+            shellText(language, 'more'),
+            settings,
+          ),
+          modeTile(
+            c,
+            Icons.insights_outlined,
+            shellText(language, 'progress'),
+            tr('hub.progress.d'),
+            () => showSection(AppSection.progress),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            shellText(language, 'local'),
+            style: Theme.of(c).textTheme.bodySmall,
+          ),
+        ],
+      ),
+    ),
+  );
 
   Widget historyView(BuildContext c) {
     final view = ProgressView(widget.repository.data);

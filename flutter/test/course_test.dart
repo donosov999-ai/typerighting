@@ -87,6 +87,7 @@ void main() {
       await tester.binding.setSurfaceSize(const Size(1280, 800));
       await tester.pumpWidget(
         TypeFreeApp(
+          initialSection: AppSection.practiceMenu,
           resources: resources,
           repository: live,
           appearance: appearance,

@@ -60,6 +60,7 @@ void main() {
       final key = GlobalKey<TypeFreeAppState>();
       await tester.pumpWidget(
         TypeFreeApp(
+          initialSection: AppSection.practice,
           key: key,
           resources: res,
           repository: live,
@@ -144,7 +145,12 @@ void main() {
     );
     await tester.binding.setSurfaceSize(const Size(1280, 720));
     await tester.pumpWidget(
-      TypeFreeApp(resources: res, repository: repo, appearance: appearance),
+      TypeFreeApp(
+        initialSection: AppSection.practice,
+        resources: res,
+        repository: repo,
+        appearance: appearance,
+      ),
     );
     await tester.pump();
     final guide = tester.getRect(find.byType(KeyboardGuide));
@@ -192,6 +198,7 @@ void main() {
       await tester.binding.setSurfaceSize(const Size(1280, 720));
       await tester.pumpWidget(
         TypeFreeApp(
+          initialSection: AppSection.practice,
           key: key,
           resources: res,
           repository: repo,

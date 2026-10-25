@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-25",
+  "implementationCommit": "f5e556b",
+  "tests": 81,
+  "analyze": "PASS no issues",
+  "webBuild": "PASS release",
+  "macOSBuild": "PASS debug separate candidate ID",
+  "defaultRoute": "Today",
+  "visualAcceptance": "draft - differences recorded; no Denis approval",
+  "comparison": "design-acceptance/20261025-local-f5e556b/A2-today/comparison-panel.png",
+  "storeOrProductionChanged": false,
+  "realUserMigration": false
+}

@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-25",
+  "timezone": "Asia/Almaty",
+  "screen": "A2 Today",
+  "reference": {
+    "sheet": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/01.png",
+    "sha256": "0b882d194ac4fb72ec88c063aca27c458321be8aa9d9f30e46741dc9f15b53c0",
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "cropXYXY": [
+      604,
+      70,
+      932,
+      520
+    ],
+    "cropPurpose": "exclude illustrated phone frame/status chrome; keep all A2 app content",
+    "logicalViewport": "unknown: generated concept sheet",
+    "uniformScale": 0.975609756097561,
+    "normalizedSize": [
+      320,
+      439
+    ]
+  },
+  "actual": {
+    "path": "/Users/denisonosov/dev/typerighting-wt-flutter-20261025/flutter/design-acceptance/20261025-local-1a6c0ef/A2-today-missing/actual.png",
+    "sha256": "b6b2707c3d8ed01c676793edc426721b0b21845750ecf1cab36f79a3c93a7e94",
+    "url": "http://127.0.0.1:8062/",
+    "screen": "ordinary practice / default start, Today route absent",
+    "sourceImplementationCommit": "1a6c0ef",
+    "checkoutHead": "0dc155cbfbda5f14b0f46b55444ab00f39b762c8",
+    "artifact": "local web build, not a store build",
+    "viewportCSS": [
+      320,
+      582
+    ],
+    "screenshotSize": [
+      320,
+      582
+    ],
+    "devicePixelRatio": 2,
+    "language": "ru",
+    "htmlLanguage": "en-US",
+    "profile": "m",
+    "template": "midnight-orange",
+    "brightnessSetting": "system",
+    "resolvedBrightness": "dark",
+    "textScale": "not independently measured; no test override made"
+  },
+  "normalization": {
+    "align": "content top-left",
+    "sameWidth": 320,
+    "actualScale": 1,
+    "alpha": 0.5,
+    "commonOverlayHeight": 439,
+    "outsideOverlap": "actual pixels retained; no reference pixels invented",
+    "warping": false,
+    "retouching": false
+  },
+  "status": "draft - Today not implemented; same-state visual acceptance blocked",
+  "userAcceptance": null,
+  "limits": [
+    "reference contains illustrative values; no logical viewport/DPR metadata",
+    "actual is different screen because target route is not implemented",
+    "narrow window only; this is not full desktop or mobile device acceptance"
+  ],
+  "outputs": {
+    "comparison-panel.png": "811ef294ecb0818b5ddce8b36fcc26a6b7ffeee9cb92c0553c326875729ad6fc",
+    "side-by-side.png": "efffedf393d35e1296eab23e50ae3adcec73a619a9deb64253f3342e4b772b0b",
+    "overlay-50.png": "59d3ea8268a47cf66fb264799fa8e3b6e19a407d2811ecb459d9840e9f8a418c"
+  }
+}

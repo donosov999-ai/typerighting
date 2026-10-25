@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-25",
+  "timezone": "Asia/Almaty",
+  "screen": "A2 Today",
+  "reference": {
+    "sheet": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/01.png",
+    "sha256": "0b882d194ac4fb72ec88c063aca27c458321be8aa9d9f30e46741dc9f15b53c0",
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "cropXYXY": [
+      604,
+      70,
+      932,
+      520
+    ],
+    "cropPurpose": "exclude illustrated phone frame/status chrome; keep all A2 app content",
+    "logicalViewport": "unknown: generated concept sheet",
+    "uniformScale": 0.975609756097561,
+    "normalizedSize": [
+      320,
+      439
+    ]
+  },
+  "actual": {
+    "path": "/Users/denisonosov/dev/typerighting-wt-flutter-20261025/flutter/design-acceptance/20261025-local-f5e556b/A2-today/actual.png",
+    "sha256": "626413ab6ccfbfceca6db3338fa2fb28b263c318dcb0cc7b16c3af7a20fd7951",
+    "url": "http://127.0.0.1:8062/",
+    "screen": "Today / default start",
+    "sourceImplementationCommit": "f5e556b",
+    "checkoutHead": "f5e556b",
+    "artifact": "local web build, not a store build",
+    "viewportCSS": [
+      320,
+      582
+    ],
+    "screenshotSize": [
+      320,
+      582
+    ],
+    "devicePixelRatio": 2,
+    "language": "ru",
+    "htmlLanguage": "en-US",
+    "profile": "m",
+    "template": "midnight-orange",
+    "brightnessSetting": "system",
+    "resolvedBrightness": "dark",
+    "textScale": "not independently measured; no test override made"
+  },
+  "normalization": {
+    "align": "content top-left",
+    "sameWidth": 320,
+    "actualScale": 1,
+    "alpha": 0.5,
+    "commonOverlayHeight": 439,
+    "outsideOverlap": "actual pixels retained; no reference pixels invented",
+    "warping": false,
+    "retouching": false
+  },
+  "status": "draft - Today implemented; remaining differences documented; not accepted",
+  "userAcceptance": null,
+  "limits": [
+    "reference contains illustrative values; no logical viewport/DPR metadata",
+    "reference statistics are illustrative; actual values come from local automated test sessions",
+    "narrow window only; this is not full desktop or mobile device acceptance"
+  ],
+  "outputs": {
+    "comparison-panel.png": "d3624c1257ca436adf268a095fb91c4e1bbf5eaaef67e15a6d6e2c409905e4d9",
+    "side-by-side.png": "da88985191e4059801b9221a6182a38408ece7e5a8068cb21f43a4bae68c6ce9",
+    "overlay-50.png": "b05883a7a9aeab0ca6c91997286c5532cb260230f1c7385fe03a7d4f9078c4d6"
+  }
+}

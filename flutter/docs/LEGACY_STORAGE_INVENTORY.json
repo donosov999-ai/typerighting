@@ -1,0 +1,305 @@
+{
+  "source": "2fa2b77f032e77b759b29b44d223c7f91578597b",
+  "scope": "source identifiers only; no installed/user storage read",
+  "literalKeys": {
+    "tr_acc": {
+      "sources": [
+        "src/account.ts"
+      ],
+      "classification": "never copy as ordinary progress"
+    },
+    "tr_account_delete": {
+      "sources": [
+        "src/account.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_bridge": {
+      "sources": [
+        "src/account.ts",
+        "src/keyboard.ts",
+        "src/main.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_dark": {
+      "sources": [
+        "src/account.ts",
+        "src/main.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_device": {
+      "sources": [
+        "src/account.ts",
+        "src/session-log.ts"
+      ],
+      "classification": "never copy as ordinary progress"
+    },
+    "tr_flow": {
+      "sources": [
+        "src/account.ts",
+        "src/main.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_hardkeys": {
+      "sources": [
+        "src/account.ts",
+        "src/main.ts",
+        "src/learn.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_history": {
+      "sources": [
+        "src/account.ts",
+        "src/stats-store.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_lang": {
+      "sources": [
+        "src/account.ts",
+        "src/i18n.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_login": {
+      "sources": [
+        "src/account.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_metro": {
+      "sources": [
+        "src/account.ts",
+        "src/main.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_metro_bpm": {
+      "sources": [
+        "src/account.ts",
+        "src/main.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_pet": {
+      "sources": [
+        "src/account.ts",
+        "src/main.ts",
+        "src/pet.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_register": {
+      "sources": [
+        "src/account.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_sess_debug": {
+      "sources": [
+        "src/account.ts",
+        "src/session-log.ts"
+      ],
+      "classification": "never copy as ordinary progress"
+    },
+    "tr_sess_queue": {
+      "sources": [
+        "src/account.ts",
+        "src/session-log.ts"
+      ],
+      "classification": "never copy as ordinary progress"
+    },
+    "tr_sync": {
+      "sources": [
+        "src/account.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_profile": {
+      "sources": [
+        "src/profiles.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_block": {
+      "sources": [
+        "src/main.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_heat": {
+      "sources": [
+        "src/main.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_hide": {
+      "sources": [
+        "src/main.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_keyb": {
+      "sources": [
+        "src/main.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_layout": {
+      "sources": [
+        "src/main.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_mode": {
+      "sources": [
+        "src/main.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_name": {
+      "sources": [
+        "src/main.ts",
+        "src/compete.ts"
+      ],
+      "classification": "nickname/personally identifying: separate user choice"
+    },
+    "tr_sound": {
+      "sources": [
+        "src/main.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "typefree_practice_bank": {
+      "sources": [
+        "src/main.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "typefree_practice_plain": {
+      "sources": [
+        "src/main.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "typefree_practice_text_bank": {
+      "sources": [
+        "src/main.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_ach": {
+      "sources": [
+        "src/achievements.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_kids_ai_lvl": {
+      "sources": [
+        "src/learn.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_kids": {
+      "sources": [
+        "src/kids.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_voice": {
+      "sources": [
+        "src/voice.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_compete": {
+      "sources": [
+        "src/compete.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_span_best": {
+      "sources": [
+        "src/recall.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_mem_len": {
+      "sources": [
+        "src/memorize.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_pet_streak": {
+      "sources": [
+        "src/pet.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_keystats": {
+      "sources": [
+        "src/stats-store.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_target_wpm": {
+      "sources": [
+        "src/stats-store.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_challenge_create": {
+      "sources": [
+        "src/compete-net.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_challenge_get": {
+      "sources": [
+        "src/compete-net.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_league_board": {
+      "sources": [
+        "src/compete-net.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_league_submit": {
+      "sources": [
+        "src/compete-net.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_replay_get": {
+      "sources": [
+        "src/compete-net.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    },
+    "tr_replay_save": {
+      "sources": [
+        "src/compete-net.ts"
+      ],
+      "classification": "needs per-key schema validation before import"
+    }
+  },
+  "dynamicKeys": [
+    "tr_course_<ru|en|es|de|fr|it|pt>",
+    "tr_progress_<bank>",
+    "tr_progress_<bank>_plain"
+  ],
+  "gates": {
+    "iosUpdateInPlace": "not tested",
+    "androidUpdateInPlace": "not tested",
+    "desktopUpdateInPlace": "not tested",
+    "webOriginMigration": "not tested",
+    "sourceDataDeletion": "forbidden",
+    "storeRelease": "not authorized by this local unit"
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "status": "design-contract-not-runtime-integration",
+  "defaultForNewInstall": "midnight-orange",
+  "fallbackTemplateId": "classic-blue",
+  "preferenceKey": "typefree.appearance.v1",
+  "requiredSlots": [
+    "app.header",
+    "app.navigation",
+    "practice.controls",
+    "practice.text",
+    "practice.keyboard",
+    "assistant.header",
+    "assistant.panel"
+  ],
+  "templates": [
+    {
+      "id": "midnight-orange",
+      "revision": 1,
+      "title": "Оранжевый",
+      "layoutId": "adaptive-workspace-v1",
+      "preview": "13-synapse-templates.png",
+      "variants": {
+        "light": {
+          "canvas": "#F4F6F9",
+          "surface": "#FFFFFF",
+          "raisedSurface": "#EEF2F7",
+          "border": "#CBD5E1",
+          "text": "#1F2A37",
+          "mutedText": "#475569",
+          "primary": "#B84F08",
+          "onPrimary": "#FFFFFF",
+          "success": "#16744E",
+          "danger": "#B42318",
+          "focusRing": "#8A3A05",
+          "keyboardFace": "#FFFFFF",
+          "keyboardBase": "#CBD5E1",
+          "keyboardLegend": "#1F2A37",
+          "keyboardSecondaryLegend": "#475569",
+          "expectedKey": "#B84F08",
+          "onExpectedKey": "#FFFFFF",
+          "shiftKey": "#F4CB72",
+          "onShiftKey": "#071722",
+          "assistantPanel": "#FFFFFF"
+        },
+        "dark": {
+          "canvas": "#071722",
+          "surface": "#112938",
+          "raisedSurface": "#193847",
+          "border": "#365467",
+          "text": "#EFF6FA",
+          "mutedText": "#B9CDD8",
+          "primary": "#FF9B48",
+          "onPrimary": "#071722",
+          "success": "#72DBC1",
+          "danger": "#FF8A8A",
+          "focusRing": "#FFC28F",
+          "keyboardFace": "#193847",
+          "keyboardBase": "#365467",
+          "keyboardLegend": "#EFF6FA",
+          "keyboardSecondaryLegend": "#B9CDD8",
+          "expectedKey": "#FF9B48",
+          "onExpectedKey": "#071722",
+          "shiftKey": "#F4CB72",
+          "onShiftKey": "#071722",
+          "assistantPanel": "#112938"
+        }
+      },
+      "profileAccents": {
+        "m": {
+          "light": "#B84F08",
+          "dark": "#FF9B48"
+        },
+        "f": {
+          "light": "#9F3C60",
+          "dark": "#F6AFCA"
+        },
+        "kids": {
+          "light": "#9D4900",
+          "dark": "#FFB35F"
+        }
+      }
+    },
+    {
+      "id": "classic-blue",
+      "revision": 1,
+      "title": "Классический",
+      "layoutId": "adaptive-workspace-v1",
+      "preview": "01.png",
+      "variants": {
+        "light": {
+          "canvas": "#F4F6F9",
+          "surface": "#FFFFFF",
+          "raisedSurface": "#EEF2F7",
+          "border": "#CBD5E1",
+          "text": "#1F2A37",
+          "mutedText": "#475569",
+          "primary": "#2F6FED",
+          "onPrimary": "#FFFFFF",
+          "success": "#16744E",
+          "danger": "#B42318",
+          "focusRing": "#174EA6",
+          "keyboardFace": "#FFFFFF",
+          "keyboardBase": "#CBD5E1",
+          "keyboardLegend": "#1F2A37",
+          "keyboardSecondaryLegend": "#475569",
+          "expectedKey": "#2F6FED",
+          "onExpectedKey": "#FFFFFF",
+          "shiftKey": "#F4CB72",
+          "onShiftKey": "#071722",
+          "assistantPanel": "#FFFFFF"
+        },
+        "dark": {
+          "canvas": "#0F1419",
+          "surface": "#1A2029",
+          "raisedSurface": "#232B36",
+          "border": "#455365",
+          "text": "#E6EDF3",
+          "mutedText": "#A9B5C3",
+          "primary": "#78B8FF",
+          "onPrimary": "#0F1419",
+          "success": "#63D087",
+          "danger": "#FF8A8A",
+          "focusRing": "#B7DBFF",
+          "keyboardFace": "#232B36",
+          "keyboardBase": "#455365",
+          "keyboardLegend": "#EFF6FA",
+          "keyboardSecondaryLegend": "#B9CDD8",
+          "expectedKey": "#78B8FF",
+          "onExpectedKey": "#0F1419",
+          "shiftKey": "#F4CB72",
+          "onShiftKey": "#071722",
+          "assistantPanel": "#1A2029"
+        }
+      },
+      "profileAccents": {
+        "m": {
+          "light": "#2F6FED",
+          "dark": "#78B8FF"
+        },
+        "f": {
+          "light": "#9F3C60",
+          "dark": "#F6AFCA"
+        },
+        "kids": {
+          "light": "#9D4900",
+          "dark": "#FFB35F"
+        }
+      }
+    }
+  ]
+}

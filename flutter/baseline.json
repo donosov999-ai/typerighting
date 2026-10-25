@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-25",
+  "baseline": "2fa2b77f032e77b759b29b44d223c7f91578597b",
+  "designRef": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/DESIGN_TEMPLATE_REF.md",
+  "designRefSha256": "7baf800efcecde7a77e3ec8b9f0a2cda63469b81c88428c6483c4c0f264e43a6",
+  "sourceHashes": {
+    "src/typing.ts": "fbe7511a7568201b81b9df9ac4ca07c9b837b94d462b4c28b66ca40f06a7641d",
+    "src/keyboard.ts": "946796662b135dee07d01f1ff15ec6f69dc6d32875127c897570b118c77937b8",
+    "src/content.ts": "d3a2ed266b05d52b66bc6a7671711ee0c2fc204d67440b606513edf304e03a3f",
+    "src/main.ts": "849dfc7f7c35634fe8df6252420e79a88ebb9d53483845d10202edff3ad5b6c7",
+    "src/style.css": "1e6baa62663f6549870fdc0d7b1058b99b8532118dc6fe6c3618a33cc802c152",
+    "src/practice-options.ts": "9c39f6b0c6d0b4d404f2a5fbe5a2f8c1057a237d68e73cb81f2a2bee8be39d61",
+    "src/stats-store.ts": "621f43be551fa438c3d75fc374e21d3dec92cdaebf098c7951a57623f7f59619",
+    "src/account.ts": "d4b320276d3cd464deee67442e10251f459e3eefc40ae4696e41a02d210c1005",
+    "src-tauri/tauri.conf.json": "5c76a69d8830c2bc718972c92ec1f73a4b71603e308c8a9b7272d70d7ba859ac",
+    "package.json": "254266740e35fcf788895be7e8439164b4536ee28c05a2d2e8f7b59a651024a9"
+  },
+  "flutter": "3.47.5",
+  "dart": "3.13.4",
+  "scope": "F0 and isolated design-system foundation; no real-user/native migration yet"
+}

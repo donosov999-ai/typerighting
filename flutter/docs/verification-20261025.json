@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-25",
+  "branch": "codex/typefree-flutter-20261025",
+  "sourceBaseline": "2fa2b77f032e77b759b29b44d223c7f91578597b",
+  "flutter": "3.47.5",
+  "dart": "3.13.4",
+  "pubGet": "offline PASS",
+  "analyze": "PASS no issues",
+  "tests": {
+    "count": 8,
+    "scope": "appearance contract/controller/state-preserving widget tree and Synapse header host",
+    "result": "PASS"
+  },
+  "sourceUnchanged": true,
+  "realUserStorageRead": false,
+  "realSynapseRendererIntegrated": false,
+  "nativeUpdateMigrationTested": false,
+  "storeOrProductionChanged": false,
+  "docs": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/DESIGN_TEMPLATE_REF.md"
+}

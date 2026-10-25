@@ -38,3 +38,9 @@ References:
 /Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/FLUTTER_MIGRATION_PLAN.md
 /Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/FUNCTION_PARITY.md
 Evidence: docs/verification-20261025.json, docs/baseline-export.json, docs/test-output-20261025.txt, docs/practice-proof-20261025.png, docs/history-reload-proof-20261025.png.
+
+TeamOps remaining child tasks (created 25.10, planned, own executor):
+- ab250f45-e333-4b6d-9617-7b6ef7917564: F1 platform fixture extraction/update and legacy adapters.
+- 2046fb02-53b1-47db-918f-e0a2a417e6a3: remaining modes/full parity/localization.
+- e820238d-8f28-44ce-8751-6c03a9c8905a: accepted shared dependency and gated release/device acceptance.
+Implementation milestone commit: a6858c5. No push or deploy performed.

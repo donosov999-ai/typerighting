@@ -17,6 +17,8 @@ import 'domain/learning.dart';
 import 'features/learning_page.dart';
 import 'features/competition_page.dart';
 import 'features/memorize_page.dart';
+import 'features/recall_page.dart';
+import 'domain/recall.dart';
 import 'data/progress_view.dart';
 import 'design_system/templates.dart';
 import 'design_system/synapse_header.dart';
@@ -135,6 +137,7 @@ enum AppSection {
   learn,
   compete,
   memorize,
+  recall,
   progress,
   weakKeys,
   more,
@@ -164,6 +167,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   final learningKey = GlobalKey<LearningPageState>();
   final competitionKey = GlobalKey<CompetitionPageState>();
   final memorizeKey = GlobalKey<MemorizePageState>();
+  final recallKey = GlobalKey<RecallPageState>();
+  late RecallAdaptation recallAdaptation;
   late LearningAdaptation learningAdaptation;
   int weakReturnIndex = 0;
   List<String> weakLines = [];
@@ -191,6 +196,9 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   bool get historyPage => section == AppSection.progress;
   bool get coursePage => section == AppSection.course;
   Future<bool> finishLearning() async {
+    if (section == AppSection.recall) {
+      return await recallKey.currentState?.checkpointForExit() ?? true;
+    }
     if (section == AppSection.memorize) {
       return await memorizeKey.currentState?.finishAndSave() ?? true;
     }
@@ -269,6 +277,14 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     learningAdaptation = LearningAdaptation(
       kidsLevel: level is String ? (jsonDecode(level) as num).toInt() : 0,
     );
+    final recallBest =
+        num.tryParse(
+          (widget.repository.data['legacy'] as Map)['tr_span_best']
+                  ?.toString() ??
+              '',
+        ) ??
+        3;
+    recallAdaptation = RecallAdaptation(bestSpan: max(3, recallBest));
     createAssistant();
     loadKeyboard();
     reset();
@@ -1020,6 +1036,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                 section == AppSection.learn ||
                 section == AppSection.compete ||
                 section == AppSection.memorize ||
+                section == AppSection.recall ||
                 section == AppSection.weakKeys
             ? IconButton(
                 tooltip: tr('nav.back'),
@@ -1065,6 +1082,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     ? shellText(language, 'progress')
                     : section == AppSection.more
                     ? shellText(language, 'more')
+                    : section == AppSection.recall
+                    ? tr('span.title')
                     : section == AppSection.memorize
                     ? tr('mem.title')
                     : section == AppSection.compete
@@ -1295,6 +1314,50 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       profile: profile,
                       tr: tr,
                       onGenerate: startWeak,
+                    );
+                  }
+                  if (section == AppSection.recall) {
+                    return RecallPage(
+                      key: recallKey,
+                      repository: widget.repository,
+                      keyStatistics: keyStatistics,
+                      corpus:
+                          (widget.resources.content['corpus'] as Map)[language]
+                              as String,
+                      adaptation: recallAdaptation,
+                      language: language,
+                      profile: profile,
+                      keyboard: keyboard,
+                      tr: tr,
+                      clock: widget.clock,
+                      onTyping: () {
+                        if (headerAssistant.pose != SynapsePose.idle) {
+                          headerAssistant.preview(SynapsePreviewAction.idle);
+                        }
+                      },
+                      onSaved: (point, earlier) async {
+                        if (!mounted ||
+                            point['profile'] != profile ||
+                            point['language'] != language) {
+                          return;
+                        }
+                        await assistant.onGameSaved(
+                          fact(point),
+                          earlier
+                              .where((p) => p['profile'] == profile)
+                              .map(fact)
+                              .toList(),
+                          game: GameInfo(
+                            id: 'typefree.recall',
+                            name: tr('span.title'),
+                            category: 'typing',
+                          ),
+                        );
+                        await widget.repository.transaction((d) {
+                          (d['prefs'] as Map)['synapseMemory_$profile'] =
+                              assistant.memory.toJson();
+                        });
+                      },
                     );
                   }
                   if (section == AppSection.memorize) {
@@ -1594,6 +1657,13 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
             tr('mem.title'),
             tr('mem.intro'),
             () => showSection(AppSection.memorize),
+          ),
+          modeTile(
+            c,
+            Icons.extension_outlined,
+            tr('span.title'),
+            tr('hub.span.d'),
+            () => showSection(AppSection.recall),
           ),
         ],
       ),

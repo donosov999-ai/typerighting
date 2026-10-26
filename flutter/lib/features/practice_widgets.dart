@@ -5,8 +5,9 @@ import '../domain/typing.dart';
 import '../design_system/templates.dart';
 
 class PatternView extends StatefulWidget {
-  const PatternView({super.key, required this.session});
+  const PatternView({super.key, required this.session, this.displayPattern});
   final TypingSession session;
+  final String? displayPattern;
   @override
   State<PatternView> createState() => _PatternViewState();
 }
@@ -22,6 +23,8 @@ class _PatternViewState extends State<PatternView> {
   @override
   Widget build(BuildContext context) {
     final session = widget.session;
+    final displayed = widget.displayPattern ?? session.pattern;
+    assert(displayed.length == session.pattern.length);
     final t = Theme.of(context).extension<TypeFreeTokens>()!;
     final span = TextSpan(
       style: TextStyle(
@@ -33,7 +36,7 @@ class _PatternViewState extends State<PatternView> {
       children: List.generate(
         session.pattern.length,
         (i) => TextSpan(
-          text: session.pattern[i],
+          text: displayed[i],
           style: TextStyle(
             color: i == session.pos
                 ? t['onExpectedKey']

@@ -16,6 +16,7 @@ import 'domain/adaptive.dart';
 import 'domain/learning.dart';
 import 'features/learning_page.dart';
 import 'features/competition_page.dart';
+import 'features/memorize_page.dart';
 import 'data/progress_view.dart';
 import 'design_system/templates.dart';
 import 'design_system/synapse_header.dart';
@@ -133,6 +134,7 @@ enum AppSection {
   course,
   learn,
   compete,
+  memorize,
   progress,
   weakKeys,
   more,
@@ -161,6 +163,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   bool weakMode = false, showHeat = false, hardKeys = false;
   final learningKey = GlobalKey<LearningPageState>();
   final competitionKey = GlobalKey<CompetitionPageState>();
+  final memorizeKey = GlobalKey<MemorizePageState>();
   late LearningAdaptation learningAdaptation;
   int weakReturnIndex = 0;
   List<String> weakLines = [];
@@ -188,6 +191,9 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   bool get historyPage => section == AppSection.progress;
   bool get coursePage => section == AppSection.course;
   Future<bool> finishLearning() async {
+    if (section == AppSection.memorize) {
+      return await memorizeKey.currentState?.finishAndSave() ?? true;
+    }
     if (section == AppSection.compete) {
       return await competitionKey.currentState?.finishAndSave() ?? true;
     }
@@ -1013,6 +1019,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                 coursePage ||
                 section == AppSection.learn ||
                 section == AppSection.compete ||
+                section == AppSection.memorize ||
                 section == AppSection.weakKeys
             ? IconButton(
                 tooltip: tr('nav.back'),
@@ -1058,6 +1065,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     ? shellText(language, 'progress')
                     : section == AppSection.more
                     ? shellText(language, 'more')
+                    : section == AppSection.memorize
+                    ? tr('mem.title')
                     : section == AppSection.compete
                     ? tr('compete.title')
                     : section == AppSection.learn
@@ -1286,6 +1295,49 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       profile: profile,
                       tr: tr,
                       onGenerate: startWeak,
+                    );
+                  }
+                  if (section == AppSection.memorize) {
+                    return MemorizePage(
+                      key: memorizeKey,
+                      repository: widget.repository,
+                      keyStatistics: keyStatistics,
+                      catalog: Map<String, dynamic>.from(
+                        widget.resources.content['catalog'] as Map,
+                      ),
+                      language: language,
+                      profile: profile,
+                      keyboard: keyboard,
+                      tr: tr,
+                      clock: widget.clock,
+                      onTyping: () {
+                        if (headerAssistant.pose != SynapsePose.idle) {
+                          headerAssistant.preview(SynapsePreviewAction.idle);
+                        }
+                      },
+                      onSaved: (point, earlier) async {
+                        if (!mounted ||
+                            point['profile'] != profile ||
+                            point['language'] != language) {
+                          return;
+                        }
+                        await assistant.onGameSaved(
+                          fact(point),
+                          earlier
+                              .where((p) => p['profile'] == profile)
+                              .map(fact)
+                              .toList(),
+                          game: GameInfo(
+                            id: 'typefree.memorize',
+                            name: tr('mem.title'),
+                            category: 'typing',
+                          ),
+                        );
+                        await widget.repository.transaction((d) {
+                          (d['prefs'] as Map)['synapseMemory_$profile'] =
+                              assistant.memory.toJson();
+                        });
+                      },
                     );
                   }
                   if (section == AppSection.compete) {
@@ -1535,6 +1587,13 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
             tr('compete.title'),
             tr('compete.intro.store'),
             () => showSection(AppSection.compete),
+          ),
+          modeTile(
+            c,
+            Icons.psychology_outlined,
+            tr('mem.title'),
+            tr('mem.intro'),
+            () => showSection(AppSection.memorize),
           ),
         ],
       ),

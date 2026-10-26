@@ -59,6 +59,12 @@ class LocalRepository {
       }
     }
     final prefs = doc['prefs'] as Map;
+    for (final profile in ['m', 'f', 'kids']) {
+      final name = prefs['certificateName_$profile'];
+      if (name != null && (name is! String || name.length > 512)) {
+        throw const FormatException('Invalid local certificate name');
+      }
+    }
     for (final key in [
       'plain',
       'block',

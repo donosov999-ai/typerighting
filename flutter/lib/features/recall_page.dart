@@ -366,7 +366,8 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
     return Focus(
       focusNode: resultFocus,
       onKeyEvent: (_, event) {
-        if (event is KeyDownEvent &&
+        if (resultFocus.hasPrimaryFocus &&
+            event is KeyDownEvent &&
             result != null &&
             [
               LogicalKeyboardKey.enter,

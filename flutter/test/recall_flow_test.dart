@@ -241,6 +241,23 @@ void main() {
         await tester.pump();
         final id = page.id;
         if (round == 0) {
+          // Traverse actual controls: Next, menu, then automatic-next toggle.
+          page.resultFocus.requestFocus();
+          await tester.pump();
+          for (var tab = 0; tab < 3; tab++) {
+            await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+            await tester.pump();
+          }
+          await tester.sendKeyEvent(LogicalKeyboardKey.space);
+          await tester.pump();
+          expect(page.autoAdvance, false);
+          expect(page.id, id);
+          await tester.sendKeyEvent(LogicalKeyboardKey.space);
+          await tester.pump();
+          expect(page.autoAdvance, true);
+          expect(page.id, id);
+          page.resultFocus.requestFocus();
+          await tester.pump();
           now += 3499;
           await tester.pump(const Duration(milliseconds: 3499));
           expect(page.id, id);

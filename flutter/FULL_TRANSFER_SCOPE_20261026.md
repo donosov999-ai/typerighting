@@ -18,7 +18,7 @@
 
 ## Текущее состояние — не завершение
 
-Последнее состояние 26.10: меню Flutter содержит5 основных режимов с настоящими Dart упражнениями: тренировку, курс, AI, локальное соревнование и «Наизусть». Это не5полностью принятых режимов: остаются дизайн и открытые части сервисов/AI. Остальные2основных режима (Память, Тест печати) обязательны. Latestsource23a81d5: Наизусть2источника×7языков×4длины×5проходов, per-pass history/length progression/retry;112sourcecases560passes, финальные103tests/analyze/web/macOSPASS. В браузере подтверждены2полных цикла, повышение5→7→10 и сохранение длины после reload; цифры — автоматизированная проверка, не результат Дениса. Скрытые буквы больше не раскрывает клавиатура; будущая voice тоже не должна их произносить. Comparison C6/D1/D3/E1/E2/E3/D4/D5/J4 остаютсяdraft с существенными расхождениями и безowneracceptance. Все остальные59групп/71состояние, kids/globalfeatures/author/account/coach/backend, реальныеdevice/nativeupdate/release остаются обязательными. Flutter пока толькоLOCAL.
+Последнее состояние 26.10: менюFlutter содержит6основныхрежимов с настоящимиDartупражнениями: тренировка,курс,AI,localcompetition,Наизусть,Память. Это не6полностью принятыхрежимов: остаются дизайн,общиеaudio/другиефункции иоткрытыечастисервисов/AI. Тест печати/экзамен ещё отсутствует и обязателен. Latestsource7fb4dfe: Память7корпусов/span3–9,auto/manualhide,blockedrecall/timed=false,stars/best/history/retry/auto-next3500ms/EnterSpace/cleanup/lifecycle.98sourcecases294rounds;финальный109tests/analyze/web/macOSPASS. Browserреальные3слова→auto hide→ввод→100%3stars→saved→следующий4слова→выходвисторию; прежнийbest4пережилreload. Значения193/200WPM —automation,неДенис. Рекордsource—достигнутаяследующаядлина,а неуже завершённыеслова;validlegacy9.0непонижается. Всеreferencecomparisonpackets остаютсяdraft/неowneraccepted. Kids/globalfeatures/author/account/coach/backend/реальныеnativeupdate/device/release ивсе59/71требованиясохраняются. FlutterтолькоLOCAL.
 
 26.10 API readback: TestFlight2.60.4 VALID/IN_BETA_TESTING в «Свои»; Play2060004 internal/closed-test1 completed, production пуст. Flutter в магазины НЕ загружен. Источник подтверждений `/Users/denisonosov/Documents/TeamOps/typerighting-onboarding/store-check-20261026/`. Подготовленный необязательный Flutter-web/Tauri preview эксперимент не опубликован и вынесен в `/Users/denisonosov/Downloads/Helper codex/typefree-release-experiment-20261026`; он не удовлетворяет цели нативного полного переноса.
 
@@ -30,7 +30,7 @@
 | TypeFree Flutter: AI-обучение взрослых и детей со всеми адаптивными механиками | `a4dc0a83-e2f0-4f9e-a013-1271899dcf92` | in_progress |
 | TypeFree Flutter: соревнование — пять дисциплин, повторы, призрак, рейтинг, лига и вызовы | `be1afcd2-294f-46dc-adcb-f06f8b372eae` | in_progress |
 | TypeFree Flutter: Наизусть — оба источника, четыре длины и пять проходов | `a86c2d6d-c9c5-4db9-8edb-937542c07649` | in_progress |
-| TypeFree Flutter: Память — показ, скрытие, ввод и адаптивный span | `283439cf-000f-493c-8439-3e01407ee242` | planned |
+| TypeFree Flutter: Память — показ, скрытие, ввод и адаптивный span | `283439cf-000f-493c-8439-3e01407ee242` | in_progress |
 | TypeFree Flutter: тест печати 1/5/10 минут и сертификат | `ea87c138-a414-4a00-8a71-ccaf43ddca60` | planned |
 | TypeFree Flutter: детский курс — все 33 уровня, звёзды, кот и мягкие паузы | `70f10a9c-ed23-4f26-924d-a81fec53c0e6` | planned |
 | TypeFree Flutter: завершить паритет тренировки, курса, потока и библиотеки | `a254cc2f-42fe-4af4-a7fd-f15c8e6000b7` | in_progress |
@@ -158,3 +158,7 @@
 ## Этап «Наизусть» —23a81d5,26.10
 
 Пятый реальный режим добавлен; прежние4/7и3/7снимки выше — история. Холодный старт читать MEMORIZE_HANDOFF_20261026.md и docs/verification-memorize-20261026.json. Сквозная проверка5проходов/5сохранений, source112scenarios560passes,103testsPASS. ДизайнD4/D5/J4непринят, задачаa86c2d6dостаётсяin_progress. Два других главных режима, детский курс и весь оставшийся глобальный/native/backend/releaseобъём не исключать.
+
+## Этап «Память» —7fb4dfe,26.10
+
+Шестой настоящий режим,source98cases294rounds,109testsPASS,реальныйbrowserinput/history. Coldstart RECALL_HANDOFF_20261026.md,docs/verification-recall-20261026.json. D6/J5/J6draftcomparison с существеннымирасхождениями; глобальныеSFXещёнет,задача283439cfостаётсяin_progress. Предыдущие3/4/5modeснимкиисторические. ПоследнийосновнойрежимТестпечатииполныйkids/global/native/backend/releaseобъёмнеисключать. ДообщейприёмкиSynapseпроверитьсопоставимостьhistoricalfactsпоmode/language/difficulty,а нетолькопрофилю.

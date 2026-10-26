@@ -1,0 +1,38 @@
+# TypeFree — режим «Память», этап26.10.2026
+
+Source commit `7fb4dfe`; `/Users/denisonosov/dev/typerighting-wt-flutter-20261025`, ветка `codex/typefree-flutter-20261025`. Полный объём59групп/71состояние/7главных режимов сохраняется в `FULL_TRANSFER_SCOPE_20261026.md`. TeamOps `283439cf-000f-493c-8439-3e01407ee242` остаётся **in_progress**: source mechanics перенесены, визуальная/device/audioприёмка не завершена.
+
+## Реализовано
+
+- Dart `domain/recall.dart` + интегрированный `features/recall_page.dart`: уникальный pool слов длиной3–7UTF16символов из каждого реального корпуса7языков; source insertion order/seeded sampling/guard/без повторов. Span3–9, текущий span сохраняется в общем module-like состоянии между входами/профилями/языками, как source; после полного reload старт3, `tr_span_best` сохраняется отдельно.
+- Один и тот же PatternView для показа и маски: reveal max(2500,span*1200)ms, ручное «Запомнил», автоматическое скрытие, игнорирование ввода до скрытия; будущие буквы — точки, пробелы остаются. Физическая клавиатура ни в reveal, ни в recall не раскрывает следующую скрытую букву. Typedprefix/IME/Backspace/paste ограничения реальные; Enter во время recall не считается ошибкой, как исходник.
+- Source WPM по non-whitespace, characteraccuracy/recall>=90 повышает span, иначе снижает до3; предел9; stars100/90/70. Результат отдельно показывает фактически завершённые слова и следующий набор, не выдуманный word-level recall. Лучший source span означает достигнутую следующую длину (после успеха на3словах —4), это объяснено в UI. Не выдавать его за4уже завершённых слова или клиническую метрику.
+- Timed=false key evidence не портит speedEMA паузами вспоминания. Atomic history/key evidence/best с immutable captured result и уникальным roundID. Повтор после отказа записи не удваивает историю. Автопереход ждёт успешного сохранения. Ошибка удерживает в режиме, не исчезает под новым раундом. Frozen importarchive не меняется.
+- Source авто-next3500ms, кнопка и Enter/Space на результате работают. Добавлена локальная пауза/возобновление автоперехода для просмотра результата. Таймер отменяется при меню/route/profile/language/layout/dispose. Background прекращает reveal и timers; resume не показывает скрытые слова заново, восстанавливает ввод/разрешённый auto-next. Theme/template rebuild сохраняет текущий раунд и фазу.
+- Shared Synapse получает только реально сохранённый результат, его optional callback не отменяет запись. Никакого backend/LLM/передачи результатов; LOCAL default сохранён.
+
+## Исправления переноса / не терять
+
+- Старый source keyboardSVG раскрывал скрытую ожидаемую букву; новый режим не делает этого. Будущая voice тоже не должна озвучивать скрытый ответ (см.audioзадачу54a5f7a3-e4fa-47e3-b236-18090866e20d).
+- Допустимый legacyrecord `9.0` нельзя читать через int.tryParse: это сбрасывало бы рекорд до3 и понижало при новом сохранении. Использован num; атомарный max сохраняет ранее достигнутое, включая числовые формы/дробные допустимые legacyvalues. Отдельный реальный widget→save→reload тест для9.0.
+- ResultSemantics включает characteraccuracy, completedspan,nextspan,best,stars и смысл рекорда. В итоговом browserAX все данные видны.
+- CompletedSpan считается из фактически выбранного текста, если малый/custompool исчерпал sourceguard; не заявлять больше завершённых слов, чем реально было. Семь bundled pools sourceparity проходят целиком.
+
+## Проверки
+
+- `node flutter/tool/export_recall.mjs` исполняет неизменённые recall/typing/keyboard/stats-store/corpus с synthetic clock/storage/timer handles/RNG.98сценариев×3раунда=294:7языков×span3–9×clean/error. Сравнение pool/order, patterned words, reveal/hidden/mid masks, ошибки, WPM/accuracy/stars/up/down/best. Дополнительно exact90boundary/starlevels/min/max, пустой corpus и большой прежний record.
+- 3widgettests: auto-hide3599/3600ms; manualhide; все ввод/ошибки/игнорируемый Enter/Backspace; hidden keyboard; template continuity; timed=false; failedsave/routehold/retry/dedup/reload; reveal/result timer cleanup; auto-next3499/3500; Enter/Space; background/resume; record9.0не понижается.
+- **Финальный полный прогон109testsPASS**, analyze noissues, webrelease/macOSdebugPASS. Логи `/tmp/typefree-recall-{all-tests,analyze,web,macos}.log`, локальные копии `docs/recall-*-20261026.log`; сводка `docs/verification-recall-20261026.json`.
+- Preview `http://127.0.0.1:8062/?build=e94fb8e0604d288c`. DOMconfirmed mainJS SHA256`e94fb8e0604d288c8bc691070417a7178fe2d2a6ba9648299c46ef2467cdce62`. После каждого webbuild запускать `python3 tool/fingerprint_web.py`; storage не чистить.
+- Browser: «над команда лесов» автоматически скрылись и были напечатаны→100%→best4. Reload сохранил best4. После последнего accessibilityfix «кот взоры старик» автоматически скрылись→настоящие нажатия→100%/3stars/completed3/next4/best4→pause. Затем реальный новый набор4слов «крутого союз ходит часы»→выход вProgress; незавершённый набор не записан как завершённый. Две завершённые browserгонки193/200WPM в истории — **automation, НЕ результат Дениса**.
+- `docs/practice-six-modes-proof-20261026.png`, `docs/recall-{hidden,next-four,history}-proof-20261026.png`. Raw D6/J5/J6 screenshots/reference/50%overlay/manifests/reports в `design-acceptance/20261026-recall-candidate/`. Actual960×824CSS/DPR1/RU/m/midnight-orange/systemdark; document.visibilityState visible. Temporaryviewport reset, tab handedoff.
+- Сравнения диагностические: reference logicalviewport неизвестен, ширина reference нормализована равномерно, actual не ретуширован/растянут. **Есть существенные расхождения, owneracceptance отсутствует.** Восстановить пакет: `/opt/homebrew/bin/python3 flutter/tool/build_recall_comparisons.py`.
+
+## Что остаётся
+
+- D6 wordcards/sidebar/композиция, J5illustration/меню, J6структура результата/реальные word-errordetails и материалы; все responsive/theme/profile/7language/textscale/native acceptance. Не копировать выдуманные4из5correct из generatedрисунка: sourceblockedinput не измерял это как отдельный показатель. Полная740pxклавиатура пока требует horizontal scroll на узких экранах — не принятая мобильная компоновка.
+- Global start/fanfare/star audio ещё не подключено (общая audioзадача); не считать исходный SFX перенесённым по одному немому сценарию.
+- Теперь6главных режимов имеют настоящие Dart routes. Тест печати/экзамен пока отсутствует. Kids course, оставшиеся частиAI/competition, progress/achievements/audio/voice/metronome/help/export/settings/localization/companion/author/account/coach/backend и все59/71требования остаются обязательными.
+- Реальные iOS/Androidустройства/старое→Flutterбез потери данных, мобильные проекты/artifacts, accepted Synapse dependency/CI и storeupload ещё не доказаны. FlutterLOCAL, не загружен; TSsourceне изменён; новых расходов/production/миграции реальных данных не было. Storeversions этот этап не проверял и не менял.
+
+Дополнительный открытый пункт общей статистики/Synapse: текущие per-mode callbacks в main.dart выбирают earlier history только по profile. До общей приёмки нужен общий adapter/test для сопоставимости по mode/language/difficulty; скорость короткого recall нельзя сравнивать с другим режимом как доказательство прогресса. Это не закрывается текущей sourceparity.

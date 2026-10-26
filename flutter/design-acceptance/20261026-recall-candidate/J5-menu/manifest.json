@@ -1,0 +1,67 @@
+{
+  "screen": "J5-menu",
+  "status": "draft - substantial differences, not accepted",
+  "ownerAcceptance": null,
+  "sourceCommit": "7fb4dfe",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/10.png",
+    "sha256": "43c3ffebffad9837adaaaa32cc4db190c86c8ceb688c13bde19298a068ef3e3c",
+    "cropXYXY": [
+      557,
+      607,
+      1009,
+      990
+    ],
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "logicalViewport": "unknown generated image",
+    "uniformScale": 2.1238938053097347
+  },
+  "actual": {
+    "sha256": "828e0b14e64696be6646f5404055902a85412a6664a3dbe04ae55d5d056bfbcc",
+    "viewportCSS": [
+      960,
+      824
+    ],
+    "devicePixelRatio": 1,
+    "screenshotSize": [
+      960,
+      824
+    ],
+    "platform": "local Flutter web / IAB",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "system observed dark",
+    "state": "RU/m start menu:span3,best reached next-set4 retained from previous automated round.",
+    "url": "http://127.0.0.1:8062/?build=e94fb8e0604d288c",
+    "mainJsSha256": "e94fb8e0604d288c8bc691070417a7178fe2d2a6ba9648299c46ef2467cdce62"
+  },
+  "method": {
+    "equalWidth": 960,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alignment": "top-left app content",
+    "alpha": 0.5,
+    "commonHeight": 813,
+    "padding": "gray outside available image pixels"
+  },
+  "limits": [
+    "Reference logical viewport/DPR unknown: diagnostic only, not device acceptance",
+    "Reference and actual metrics differ; actual figures come from automation",
+    "Other viewports/profiles/themes/native platforms remain open"
+  ],
+  "differences": [
+    "Reference has word-preview chips and illustrated hero; source menu chooses fresh random words only at Start.",
+    "Actual layout currently uses a plain summary card and localized explanation of next-set record.",
+    "Materials/typography/geometry and all theme/profile/textscale/native states remain open."
+  ],
+  "outputs": {
+    "side-by-side.png": "0863619e2960563966635c6fe24ac6d64d3e3a2cac922a4b45b6dbab87b9e916",
+    "overlay-50.png": "8983da236ce571c5d49daafefba8ef854fded9236d31d4a497c15e77eb2addb0",
+    "comparison-panel.png": "390abd07c75c3a1e016c59bc04bb5dc80d8a152d0f8da6e188f4f0220c1da1c9"
+  }
+}

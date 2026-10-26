@@ -1,0 +1,68 @@
+{
+  "screen": "J6-result",
+  "status": "draft - substantial differences, not accepted",
+  "ownerAcceptance": null,
+  "sourceCommit": "7fb4dfe",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/10.png",
+    "sha256": "43c3ffebffad9837adaaaa32cc4db190c86c8ceb688c13bde19298a068ef3e3c",
+    "cropXYXY": [
+      1066,
+      608,
+      1497,
+      991
+    ],
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "logicalViewport": "unknown generated image",
+    "uniformScale": 2.2273781902552203
+  },
+  "actual": {
+    "sha256": "b8e632cb8bdd1c9d633f6cdbbf6a6ba59a5f6fe249c020bc92e6c0c3e6358a42",
+    "viewportCSS": [
+      960,
+      824
+    ],
+    "devicePixelRatio": 1,
+    "screenshotSize": [
+      960,
+      824
+    ],
+    "platform": "local Flutter web / IAB",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "system observed dark",
+    "state": "Completed3actualwords:100%characteraccuracy,3stars,nextspan4,best4; auto-next paused; automation only.",
+    "url": "http://127.0.0.1:8062/?build=e94fb8e0604d288c",
+    "mainJsSha256": "e94fb8e0604d288c8bc691070417a7178fe2d2a6ba9648299c46ef2467cdce62"
+  },
+  "method": {
+    "equalWidth": 960,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alignment": "top-left app content",
+    "alpha": 0.5,
+    "commonHeight": 824,
+    "padding": "gray outside available image pixels"
+  },
+  "limits": [
+    "Reference logical viewport/DPR unknown: diagnostic only, not device acceptance",
+    "Reference and actual metrics differ; actual figures come from automation",
+    "Other viewports/profiles/themes/native platforms remain open"
+  ],
+  "differences": [
+    "Reference per-word checklist/illustration/split result panel not yet implemented; actual shows true character accuracy and completed/next span.",
+    "Source blocked input ultimately completes every word; cannot copy reference4of5correct as an unmeasured fact.",
+    "Record is the reached next challenge, not completed length; actual label explains this source rule.",
+    "Typography/cards/spacing/visual feedback/full responsive acceptance remain open."
+  ],
+  "outputs": {
+    "side-by-side.png": "67dc0e059bc88a5416c9fa49da6099b874930dd97e4874c137139a066e5d5112",
+    "overlay-50.png": "c167b4a6d5f5f63ea80a570de7630c8291ee20e32aef9474c7ffa0eb969e5b42",
+    "comparison-panel.png": "57da897a581104baa9c3c71276a89a75723a1a155fe6dc116b5d09e6e8d277e5"
+  }
+}

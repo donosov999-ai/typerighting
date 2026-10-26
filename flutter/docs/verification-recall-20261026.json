@@ -1,0 +1,66 @@
+{
+  "date": "2026-10-26",
+  "sourceCommit": "7fb4dfe",
+  "sourceParity": {
+    "scenarios": 98,
+    "rounds": 294,
+    "sources": {
+      "recall.ts": "9aba551d73d508a856c0dfaa02da608324b02d12383e691b7c8f6e97d0efff79",
+      "typing.ts": "fbe7511a7568201b81b9df9ac4ca07c9b837b94d462b4c28b66ca40f06a7641d",
+      "keyboard.ts": "946796662b135dee07d01f1ff15ec6f69dc6d32875127c897570b118c77937b8",
+      "stats-store.ts": "621f43be551fa438c3d75fc374e21d3dec92cdaebf098c7951a57623f7f59619",
+      "corpus.ts": "647686840779e197ae73bfe8019c09f755ca8688516d23dca694f6c4651c288c"
+    }
+  },
+  "checks": {
+    "fullTests": 109,
+    "fullTestsStatus": "PASS final source",
+    "analyze": "no issues",
+    "web": "PASS",
+    "macosDebug": "PASS"
+  },
+  "preview": {
+    "mainJsSha256": "e94fb8e0604d288c8bc691070417a7178fe2d2a6ba9648299c46ef2467cdce62",
+    "bootstrapSha256": "71a07683c5c870ecaa4ccf0a94b217f49d1aae58d64a30aa385f7e10495e8f73",
+    "mainJs": "main.e94fb8e0604d288c.dart.js",
+    "bootstrap": "flutter_bootstrap.71a07683c5c870ec.js",
+    "scope": "local generated output; no source or user storage changes"
+  },
+  "browser": {
+    "visibility": "visible",
+    "viewportCSS": [
+      960,
+      824
+    ],
+    "devicePixelRatio": 1,
+    "workflow": "real3word reveal→auto hide→blocked keyboard input→saved100%/3stars→next4words→exit to history",
+    "firstPattern": "над команда лесов",
+    "finalPattern": "кот взоры старик",
+    "nextFourPattern": "крутого союз ходит часы",
+    "historyWpm": [
+      193,
+      200
+    ],
+    "warning": "automation, not Denis performance; two distinct saved rounds; unfinished4wordround not saved",
+    "recordAfterReload": 4,
+    "accessibility": "accuracy/completed/next/best/stars and record meaning in AX; hidden text+keyboard do not reveal answer"
+  },
+  "design": {
+    "states": [
+      "D6",
+      "J5",
+      "J6"
+    ],
+    "path": "design-acceptance/20261026-recall-candidate",
+    "status": "draft substantial differences; no owner acceptance"
+  },
+  "remaining": "global59groups71states; exam,kids,stats/audio/export/help/settings/localization/author/account/coach/backend/nativeupgrade/devices/release; Synapse acceptance and comparable history review",
+  "storeUpload": false,
+  "teamOps": {
+    "task": "283439cf-000f-493c-8439-3e01407ee242",
+    "parent": "568d223e-d42c-4e30-83a0-fbad3a95e721",
+    "journal": "d5df6bdb-6330-481e-b088-2d7969c138bd",
+    "status": "in_progress - audio/design/device acceptance pending",
+    "receiptIsNotOwnerAcceptance": true
+  }
+}

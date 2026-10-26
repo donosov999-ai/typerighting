@@ -1,0 +1,68 @@
+{
+  "screen": "D6-show",
+  "status": "draft - substantial differences, not accepted",
+  "ownerAcceptance": null,
+  "sourceCommit": "7fb4dfe",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/04.png",
+    "sha256": "47d54524b841e8ab44fb8de5aec22f22ef88896062566d94b73b8c954669b32a",
+    "cropXYXY": [
+      1046,
+      595,
+      1508,
+      968
+    ],
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "logicalViewport": "unknown generated image",
+    "uniformScale": 2.0779220779220777
+  },
+  "actual": {
+    "sha256": "f766b22ba5d2bc9e1f8bf99d59b2e44bc2bd4575128c61d19f5007ed72d84e31",
+    "viewportCSS": [
+      960,
+      824
+    ],
+    "devicePixelRatio": 1,
+    "screenshotSize": [
+      960,
+      824
+    ],
+    "platform": "local Flutter web / IAB",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "system observed dark",
+    "state": "RU/m reveal phase:кот взоры старик,three actual words,3600ms automatic hide.",
+    "url": "http://127.0.0.1:8062/?build=e94fb8e0604d288c",
+    "mainJsSha256": "e94fb8e0604d288c8bc691070417a7178fe2d2a6ba9648299c46ef2467cdce62"
+  },
+  "method": {
+    "equalWidth": 960,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alignment": "top-left app content",
+    "alpha": 0.5,
+    "commonHeight": 775,
+    "padding": "gray outside available image pixels"
+  },
+  "limits": [
+    "Reference logical viewport/DPR unknown: diagnostic only, not device acceptance",
+    "Reference and actual metrics differ; actual figures come from automation",
+    "Other viewports/profiles/themes/native platforms remain open"
+  ],
+  "differences": [
+    "Reference has word cards/sidebar; actual retains the source single pattern field between reveal and recall.",
+    "Actual full physical keyboard preserves original keys; generated compact drawing omits some.",
+    "Hidden phase must not highlight or announce expected letters; reveal/hidden screenshots are separate truthful states.",
+    "Narrow740px keyboard still scrolls horizontally; responsive composition/materials need work."
+  ],
+  "outputs": {
+    "side-by-side.png": "15d805e666b86ded9b968e8a22269c9c243af362a98268bfdcaa2b67247c4825",
+    "overlay-50.png": "f5f879c0dfa19d9010ab8784f5d8c0fcb1d64df669805fe48348bd132960d1ed",
+    "comparison-panel.png": "3be070cea0fc0ec92dd9409faaf6200e4360217f1b4f0d458dd8f89203d51085"
+  }
+}

@@ -54,10 +54,12 @@ class KeyboardGuide extends StatelessWidget {
     required this.model,
     required this.expected,
     required this.ru,
+    this.heat = const {},
   });
   final KeyboardModel model;
   final String? expected;
   final bool ru;
+  final Map<String, double> heat;
   @override
   Widget build(BuildContext context) {
     final tokens = Theme.of(context).extension<TypeFreeTokens>()!;
@@ -74,7 +76,7 @@ class KeyboardGuide extends StatelessWidget {
               width: width,
               height: width * 380 / 920,
               child: CustomPaint(
-                painter: _GuidePainter(model, expected, ru, tokens),
+                painter: _GuidePainter(model, expected, ru, tokens, heat),
               ),
             ),
           ),
@@ -85,11 +87,12 @@ class KeyboardGuide extends StatelessWidget {
 }
 
 class _GuidePainter extends CustomPainter {
-  _GuidePainter(this.model, this.expected, this.ru, this.tokens);
+  _GuidePainter(this.model, this.expected, this.ru, this.tokens, this.heat);
   final KeyboardModel model;
   final String? expected;
   final bool ru;
   final TypeFreeTokens tokens;
+  final Map<String, double> heat;
   @override
   void paint(Canvas canvas, Size size) {
     canvas.scale(size.width / 920, size.height / 380);
@@ -107,6 +110,14 @@ class _GuidePainter extends CustomPainter {
         (g['h'] as num).toDouble(),
       );
       final active = g['id'] == id, shifting = g['id'] == shift;
+      final rate = heat[g['id']];
+      final face = rate == null
+          ? tokens['keyboardFace']
+          : Color.lerp(
+              tokens['success'],
+              tokens['danger'],
+              (rate * 3).clamp(0, 1),
+            )!.withValues(alpha: .45);
       canvas.drawRRect(
         RRect.fromRectAndRadius(rect, const Radius.circular(8)),
         Paint()
@@ -114,7 +125,7 @@ class _GuidePainter extends CustomPainter {
               ? tokens['expectedKey']
               : shifting
               ? tokens['shiftKey']
-              : tokens['keyboardFace'],
+              : face,
       );
       canvas.drawRRect(
         RRect.fromRectAndRadius(rect, const Radius.circular(8)),

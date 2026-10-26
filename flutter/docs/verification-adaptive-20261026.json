@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-26",
+  "scope": "LOCAL heatmap/weak key/adaptive kernel; not all modes",
+  "parent": "568d223e-d42c-4e30-83a0-fbad3a95e721",
+  "task": "bffa00b8-0790-4206-8525-fa75bffee270",
+  "source_cases": 42,
+  "source_cases_scope": "Windows/macOS x7languages xempty/weak/recovery; exact rankings/weights/seeded generated lines",
+  "tests": 89,
+  "tests_result": "PASS",
+  "analyze": "PASS no issues",
+  "builds": {
+    "web": "PASS",
+    "macos_debug": "PASS"
+  },
+  "ui_comparison_C6": "PENDING - not accepted",
+  "full_migration": "INCOMPLETE; 2 primary practice menu modes currently implemented",
+  "source_sha256": {
+    "lib/domain/adaptive.dart": "200a574137843b30c4552f5ec00878f37494b251855c570180bbab0a90dd5cd8",
+    "lib/features/weak_keys_page.dart": "c59ba1e8923d5625f43bf927358c4ab46a9be0a257c263bd836a8af66e30a1d0",
+    "lib/features/keyboard_guide.dart": "53a0d4af267fc6f7caf800ffdd1e59f4500c4b68534ad0e92ef74dc9c4959389",
+    "lib/main.dart": "2e60867e814cf8adf22a50dc11b7c3bf17178af275693ed2dd3df30c06ba0a38",
+    "lib/data/key_statistics_store.dart": "bbd4a64782d44bbdb5d6395f7145e470dc3146dfb356a0f1c47df794b0db5475",
+    "lib/data/legacy_values.dart": "fd9ff60bede1b10050bdac69b10c7083b8f283680fc75d98de664bd438a0b5b6",
+    "lib/data/local_repository.dart": "5c4df59ad25a26f77bd56b24157d18805b892e8f807965ca4d93e8886433b812",
+    "test/adaptive_test.dart": "cabc88975d53509de375588b5778373de54e779474e3ecea4823749adc6148e1",
+    "test/adaptive_flow_test.dart": "bdaadbc0a75f97e551bdbde8276405a346c686ce59d6a5b8018a0f373330a5e3",
+    "tool/export_adaptive.mjs": "865f99187534f6999c0e321cfea881ad4eaf385a1463c808508c679ba39cebda",
+    "test/fixtures/adaptive.json": "ae309ad8579d5b761de5614b8d4016cbedbc505c2b294dcb844363986dfc82b0"
+  },
+  "deployment": "LOCAL only; no store upload, production or real-user migration",
+  "remaining": "All scope preserved in FULL_TRANSFER_SCOPE_20261026.md; active full goal remains open"
+}

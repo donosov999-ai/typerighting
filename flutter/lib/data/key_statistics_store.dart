@@ -29,6 +29,17 @@ class KeyStatisticsStore {
     });
   }
 
+  Map<String, dynamic> get currentStats {
+    final raw = (repository.data['legacy'] as Map)['tr_keystats'];
+    final stats = raw is String
+        ? Map<String, dynamic>.from(jsonDecode(raw) as Map)
+        : <String, dynamic>{};
+    for (final event in _pending) {
+      applyKeyEvidence(stats, event);
+    }
+    return stats;
+  }
+
   Future<void> flush() => commit((_) {});
 
   Future<void> commit(void Function(Map<String, dynamic>) apply) {

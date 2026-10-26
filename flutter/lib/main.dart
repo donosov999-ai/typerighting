@@ -12,6 +12,7 @@ import 'data/platform_store.dart';
 import 'data/local_repository.dart';
 import 'data/key_statistics_store.dart';
 import 'domain/key_statistics.dart';
+import 'domain/adaptive.dart';
 import 'data/progress_view.dart';
 import 'design_system/templates.dart';
 import 'design_system/synapse_header.dart';
@@ -20,6 +21,7 @@ import 'features/keyboard_guide.dart';
 import 'features/practice_widgets.dart';
 import 'features/course_page.dart';
 import 'features/today_page.dart';
+import 'features/weak_keys_page.dart';
 import 'domain/today.dart';
 export 'features/practice_widgets.dart' show PracticeCommitFormatter;
 
@@ -113,7 +115,15 @@ Future<void> main() async {
   }
 }
 
-enum AppSection { today, practiceMenu, practice, course, progress, more }
+enum AppSection {
+  today,
+  practiceMenu,
+  practice,
+  course,
+  progress,
+  weakKeys,
+  more,
+}
 
 class TypeFreeApp extends StatefulWidget {
   const TypeFreeApp({
@@ -135,6 +145,9 @@ class TypeFreeApp extends StatefulWidget {
 
 class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   late String language, profile, bank, layout;
+  bool weakMode = false, showHeat = false;
+  int weakReturnIndex = 0;
+  List<String> weakLines = [];
   late TypingSession session;
   late KeyStatisticsStore keyStatistics;
   RecordedHistory? recordedHistory;
@@ -164,7 +177,16 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
 
   int index = 0;
   String? custom, error;
-  List<Map<String, dynamic>> get exercises => custom != null
+  List<Map<String, dynamic>> get exercises => weakMode
+      ? [
+          {
+            'id': 'weak',
+            'bank': 'weak',
+            'title': tr('weak.title'),
+            'lines': weakLines,
+          },
+        ]
+      : custom != null
       ? [
           {
             'id': 'custom',
@@ -210,6 +232,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     pet = p['pet'] != false;
     motion = p['motion'] != false;
     showKeyboard = p['keyboard'] != false;
+    showHeat = p['heat'] == true;
     createAssistant();
     loadKeyboard();
     reset();
@@ -384,11 +407,12 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           'bank': bank,
           'plain': plain,
           'textBank': textBank,
-          'index': index,
+          'index': weakMode ? weakReturnIndex : index,
           'block': block,
           'bridge': bridge,
           'flow': flow,
           'keyboard': showKeyboard,
+          'heat': showHeat,
           'layout': layout,
           'pet': pet,
           'motion': motion,
@@ -431,7 +455,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       'language': language,
       'profile': profile,
       'difficulty': '$language/${ex['bank']}/$plain/$layout/$flow',
-      'mode': 'practice',
+      'mode': weakMode ? 'weak' : 'practice',
       't': DateTime.now().millisecondsSinceEpoch,
       ...stats.toJson(),
       'len': session.attemptedKeys,
@@ -447,19 +471,21 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       await keyStatistics.commit((doc) {
         final sessions = doc['sessions'] as List, legacy = doc['legacy'] as Map;
         if (sessions.any((x) => x['id'] == id)) return;
-        final key =
-            'tr_progress_${ex['bank']}${plain && ex['bank'] != 'digits' ? '_plain' : ''}';
-        final record = legacy[key] is String
-            ? jsonDecode(legacy[key] as String) as Map
-            : <String, dynamic>{};
-        final done = List<String>.from((record['done'] as List?) ?? []);
-        if (!done.contains(ex['id'])) done.add(ex['id'] as String);
-        legacy[key] = jsonEncode({
-          'done': done,
-          'lastIdx': index,
-          'bestWpm': max((record['bestWpm'] as num?) ?? 0, stats.wpm),
-          'bestAcc': max((record['bestAcc'] as num?) ?? 0, stats.accuracy),
-        });
+        if (ex['bank'] != 'weak') {
+          final key =
+              'tr_progress_${ex['bank']}${plain && ex['bank'] != 'digits' ? '_plain' : ''}';
+          final record = legacy[key] is String
+              ? jsonDecode(legacy[key] as String) as Map
+              : <String, dynamic>{};
+          final done = List<String>.from((record['done'] as List?) ?? []);
+          if (!done.contains(ex['id'])) done.add(ex['id'] as String);
+          legacy[key] = jsonEncode({
+            'done': done,
+            'lastIdx': index,
+            'bestWpm': max((record['bestWpm'] as num?) ?? 0, stats.wpm),
+            'bestAcc': max((record['bestAcc'] as num?) ?? 0, stats.accuracy),
+          });
+        }
         if (captured.eligible(stats.wpm)) {
           sessions.add(point);
           fresh = true;
@@ -511,6 +537,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
 
   void next([int delta = 1]) {
     if (saving || session.finished && !saved) return;
+    if (weakMode && delta != 0) {
+      unawaited(startWeak());
+      return;
+    }
     setState(() {
       index = (index + delta) % exercises.length;
       reset();
@@ -665,6 +695,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                   for (final row in <(String, bool, void Function(bool))>[
                     (tr('tb.block'), block, (v) => block = v),
                     (tr('tb.keyb'), showKeyboard, (v) => showKeyboard = v),
+                    (tr('tb.heat'), showHeat, (v) => showHeat = v),
                     (tr('set.bridge'), bridge, (v) => bridge = v),
                     (
                       'Синапс',
@@ -721,6 +752,44 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     if (mounted) inputFocus.requestFocus();
   }
 
+  Future<void> startWeak() async {
+    if (saving || session.finished && !saved) return;
+    try {
+      await keyStatistics.flush();
+    } catch (_) {
+      /* Pending evidence remains available for generation and retry. */
+    }
+    if (!mounted) return;
+    final stats = keyStatistics.currentStats;
+    final letters = letterInventory(
+      keyboard.snapshot,
+      language == 'ru' ? 'ru' : 'en',
+    );
+    final corpus =
+        (widget.resources.content['corpus'] as Map)[language] as String;
+    final lines = weakDrill(corpus, language, stats, letters);
+    if (lines.isEmpty) return;
+    setState(() {
+      if (!weakMode) weakReturnIndex = index;
+      weakMode = true;
+      weakLines = lines;
+      index = 0;
+      section = AppSection.practice;
+      reset();
+    });
+    inputFocus.requestFocus();
+  }
+
+  void exitWeak() {
+    if (saving || session.finished && !saved) return;
+    setState(() {
+      weakMode = false;
+      index = weakReturnIndex;
+      reset();
+    });
+    inputFocus.requestFocus();
+  }
+
   Future<void> customText() async {
     final editor = TextEditingController(text: custom);
     final result = await showDialog<String>(
@@ -752,6 +821,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     Future<void>.delayed(const Duration(milliseconds: 400), editor.dispose);
     if (result != null && result.trim().isNotEmpty) {
       setState(() {
+        weakMode = false;
         custom = result;
         index = 0;
         reset();
@@ -785,6 +855,9 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   );
   Widget screen(BuildContext c) {
     final stats = session.stats;
+    final heat = showHeat
+        ? keyHeatMap(keyStatistics.currentStats)
+        : <String, double>{};
     void change(VoidCallback action) {
       if (saving) return;
       setState(() {
@@ -821,10 +894,24 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
               ? null
               : (b) => change(() {
                   custom = null;
+                  weakMode = false;
                   bank = b!;
                   if (bank != 'digits') textBank = bank;
                   index = 0;
                 }),
+        ),
+        TextButton.icon(
+          onPressed: saving ? null : (weakMode ? exitWeak : startWeak),
+          icon: const Icon(Icons.track_changes),
+          label: Text(weakMode ? tr('nav.back') : tr('tb.weak')),
+        ),
+        FilterChip(
+          label: Text(tr('tb.heat')),
+          selected: showHeat,
+          onSelected: (v) {
+            setState(() => showHeat = v);
+            unawaited(savePrefs());
+          },
         ),
         TextButton.icon(
           onPressed: saving ? null : customText,
@@ -843,6 +930,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
               ? null
               : (v) => change(() {
                   custom = null;
+                  weakMode = false;
                   bank = v ? 'digits' : textBank;
                   index = 0;
                 }),
@@ -889,7 +977,11 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
         leading: section == AppSection.practice || coursePage
             ? IconButton(
                 tooltip: tr('nav.back'),
-                onPressed: () => showSection(AppSection.practiceMenu),
+                onPressed: () => showSection(
+                  section == AppSection.weakKeys
+                      ? AppSection.progress
+                      : AppSection.practiceMenu,
+                ),
                 icon: const Icon(Icons.arrow_back),
               )
             : null,
@@ -921,6 +1013,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     ? shellText(language, 'today')
                     : section == AppSection.practiceMenu
                     ? shellText(language, 'practice')
+                    : section == AppSection.weakKeys
+                    ? tr('weak.title')
                     : historyPage
                     ? shellText(language, 'progress')
                     : section == AppSection.more
@@ -951,6 +1045,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
               onChanged: saving
                   ? null
                   : (l) => change(() {
+                      weakMode = false;
                       language = l!;
                       custom = null;
                       bank = language == 'ru' ? 'ruWords' : 'classic';
@@ -979,7 +1074,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
         height: 56,
         selectedIndex: section == AppSection.today
             ? 0
-            : historyPage
+            : historyPage || section == AppSection.weakKeys
             ? 2
             : section == AppSection.more
             ? 3
@@ -1054,6 +1149,11 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                           ),
                         ],
                       ),
+                      if (weakMode)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text(tr('weak.hint')),
+                        ),
                       Card(
                         child: Padding(
                           padding: const EdgeInsets.all(8),
@@ -1086,6 +1186,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                         smartDashesType: SmartDashesType.disabled,
                         smartQuotesType: SmartQuotesType.disabled,
                         inputFormatters: [PracticeCommitFormatter()],
+                        onEditingComplete: () {},
                         onSubmitted: (_) => enter(),
                         decoration: const InputDecoration(
                           border: OutlineInputBorder(),
@@ -1100,12 +1201,20 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                             padding: const EdgeInsets.all(8),
                             child: KeyboardGuide(
                               model: keyboard,
+                              heat: heat,
                               expected: session.expected,
                               ru: language == 'ru',
                             ),
                           ),
                         ),
                       ],
+                      if (showHeat)
+                        Text(
+                          heat.isEmpty
+                              ? adaptiveNoData(language)
+                              : '${tr('heat.mastered')} → ${tr('heat.weak')}',
+                          style: Theme.of(c).textTheme.bodySmall,
+                        ),
                       if (error != null)
                         Text(
                           error!,
@@ -1122,6 +1231,17 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                   }
                   if (section == AppSection.more) return moreView(c);
                   if (historyPage) return historyView(c);
+                  if (section == AppSection.weakKeys) {
+                    return WeakKeysPage(
+                      keyboard: keyboard,
+                      statistics: keyStatistics.currentStats,
+                      sessions: history,
+                      language: language,
+                      profile: profile,
+                      tr: tr,
+                      onGenerate: startWeak,
+                    );
+                  }
                   if (coursePage) {
                     return CoursePage(
                       keyStatistics: keyStatistics,
@@ -1340,6 +1460,13 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(tr('prog.title'), style: Theme.of(c).textTheme.headlineMedium),
+        modeTile(
+          c,
+          Icons.track_changes,
+          tr('weak.title'),
+          tr('tb.heat'),
+          () => showSection(AppSection.weakKeys),
+        ),
         if (view.archive.isNotEmpty)
           Card(
             child: Padding(

@@ -1,0 +1,67 @@
+{
+  "date": "2026-10-26",
+  "sourceCommit": "23a81d5",
+  "sourceParity": {
+    "scenarios": 112,
+    "passes": 560,
+    "sources": {
+      "memorize.ts": "7af749f6b84c1ba37af12890e550ffb22d044de2cc808ec1459445af568f4e1d",
+      "classic.ts": "92473a83aee7b02516781fe289c58490f4ebb3f59c52a84f083bf85474e1a6ea",
+      "raven.ts": "17beee2cb2e894f63ab44286730d061473cbecf6e1ba32009753da18cca0c798",
+      "typing.ts": "fbe7511a7568201b81b9df9ac4ca07c9b837b94d462b4c28b66ca40f06a7641d",
+      "keyboard.ts": "946796662b135dee07d01f1ff15ec6f69dc6d32875127c897570b118c77937b8",
+      "stats-store.ts": "621f43be551fa438c3d75fc374e21d3dec92cdaebf098c7951a57623f7f59619"
+    }
+  },
+  "checks": {
+    "fullTests": 103,
+    "fullTestsStatus": "PASS after semantics fix",
+    "targetedTests": 3,
+    "analyze": "no issues",
+    "web": "PASS",
+    "macosDebug": "PASS"
+  },
+  "preview": {
+    "mainJsSha256": "4fc28d6943fbf7667ad0f3c6a0370c2198a37bceb8ae411cac99c0e8083a1fdc",
+    "bootstrapSha256": "3837a30b192521b1475f34e521548e104956bffacd2c92e3236c55cd5847c070",
+    "mainJs": "main.4fc28d6943fbf766.dart.js",
+    "bootstrap": "flutter_bootstrap.3837a30b192521b1.js",
+    "scope": "local generated output; no source or user storage changes"
+  },
+  "browser": {
+    "workflow": "both sources/options visible; 5word cycle →5rows →tier7 persists after reload; second7word cycle →5additionalrows →tier10",
+    "lastPassResults": [
+      183,
+      184,
+      183,
+      183,
+      181
+    ],
+    "lastRecall": 100,
+    "lastGain": 99,
+    "warning": "automation, not Denis performance; two cycles total10 history rows",
+    "accessibility": "all five result summaries in AX after fix; blind has dots and generic keyboard label"
+  },
+  "intentionalDifferences": [
+    "hidden keyboard expected-letter leak closed",
+    "all excerpt pages and explicit4length choices available"
+  ],
+  "design": {
+    "states": [
+      "D4",
+      "D5",
+      "J4"
+    ],
+    "path": "design-acceptance/20261026-memorize-candidate",
+    "status": "draft substantial differences; no owner acceptance"
+  },
+  "remaining": "full scope ledger59groups71states, other2mainmodes,kids/globalfunctions/nativeupdate/backend/release",
+  "storeUpload": false,
+  "teamOps": {
+    "task": "a86c2d6d-c9c5-4db9-8edb-937542c07649",
+    "parent": "568d223e-d42c-4e30-83a0-fbad3a95e721",
+    "journal": "f176bb7a-bd07-49cf-843c-87053450f73e",
+    "status": "in_progress - design acceptance pending",
+    "receiptIsNotOwnerAcceptance": true
+  }
+}

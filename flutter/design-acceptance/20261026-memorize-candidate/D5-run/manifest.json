@@ -1,0 +1,68 @@
+{
+  "screen": "D5-run",
+  "status": "draft - substantial differences, not accepted",
+  "ownerAcceptance": null,
+  "sourceCommit": "23a81d5",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/04.png",
+    "sha256": "47d54524b841e8ab44fb8de5aec22f22ef88896062566d94b73b8c954669b32a",
+    "cropXYXY": [
+      550,
+      594,
+      1011,
+      967
+    ],
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "logicalViewport": "unknown generated image",
+    "uniformScale": 2.0824295010845986
+  },
+  "actual": {
+    "sha256": "749832409cbeaf4faa384edc944537c5c13672efc8b02b3a75c80471543eab53",
+    "viewportCSS": [
+      960,
+      824
+    ],
+    "devicePixelRatio": 1,
+    "screenshotSize": [
+      960,
+      824
+    ],
+    "platform": "local Flutter web / IAB",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "system observed dark",
+    "state": "Classic/RU, seven-word passage, pass4/5 first-letter hints, before typing.",
+    "url": "http://127.0.0.1:8062/?build=4fc28d6943fbf766",
+    "mainJsSha256": "4fc28d6943fbf7667ad0f3c6a0370c2198a37bceb8ae411cac99c0e8083a1fdc"
+  },
+  "method": {
+    "equalWidth": 960,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alignment": "top-left app content",
+    "alpha": 0.5,
+    "commonHeight": 777,
+    "padding": "gray outside available image pixels"
+  },
+  "limits": [
+    "Reference logical viewport/DPR unknown: diagnostic only, not device acceptance",
+    "Reference and actual metrics differ; actual figures come from automation",
+    "Other viewports/profiles/themes/native platforms remain open"
+  ],
+  "differences": [
+    "Reference has two panels and inline completion; actual source follows five ordered passes with between-pass result.",
+    "Pattern and full physical keyboard occupy one column; progress/KPI composition/materials/margins differ.",
+    "Expected hidden letters are deliberately not exposed through keyboard/accessibility; original TS leaked them.",
+    "Narrow-screen physical keyboard still scrolls horizontally; mobile layout remains open."
+  ],
+  "outputs": {
+    "side-by-side.png": "ed804c50042b96d7fa4e8658ae7252b578146f26eba2a444bd8436d2e045f8a9",
+    "overlay-50.png": "d90e14ce9b2830f2cbbfcd97e7c74a32e87930884aa74a6fb807bf38e63d2314",
+    "comparison-panel.png": "0bed210d5e9e7a3ba08517f142cd106ae2782bb4410a31e30ef089f27a2691a5"
+  }
+}

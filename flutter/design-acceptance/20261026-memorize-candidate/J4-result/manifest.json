@@ -1,0 +1,68 @@
+{
+  "screen": "J4-result",
+  "status": "draft - substantial differences, not accepted",
+  "ownerAcceptance": null,
+  "sourceCommit": "23a81d5",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/10.png",
+    "sha256": "43c3ffebffad9837adaaaa32cc4db190c86c8ceb688c13bde19298a068ef3e3c",
+    "cropXYXY": [
+      54,
+      609,
+      484,
+      992
+    ],
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "logicalViewport": "unknown generated image",
+    "uniformScale": 2.2325581395348837
+  },
+  "actual": {
+    "sha256": "76e520da33c213c3702d85c14b130095fba735d92a3daadf75e34fd98775b5e2",
+    "viewportCSS": [
+      960,
+      824
+    ],
+    "devicePixelRatio": 1,
+    "screenshotSize": [
+      960,
+      824
+    ],
+    "platform": "local Flutter web / IAB",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "system observed dark",
+    "state": "Classic/RU finalpass5/5,181WPM/100%recall/99%of firstpass; tier7→10words; automation only.",
+    "url": "http://127.0.0.1:8062/?build=4fc28d6943fbf766",
+    "mainJsSha256": "4fc28d6943fbf7667ad0f3c6a0370c2198a37bceb8ae411cac99c0e8083a1fdc"
+  },
+  "method": {
+    "equalWidth": 960,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alignment": "top-left app content",
+    "alpha": 0.5,
+    "commonHeight": 824,
+    "padding": "gray outside available image pixels"
+  },
+  "limits": [
+    "Reference logical viewport/DPR unknown: diagnostic only, not device acceptance",
+    "Reference and actual metrics differ; actual figures come from automation",
+    "Other viewports/profiles/themes/native platforms remain open"
+  ],
+  "differences": [
+    "Reference structured five-pass summary/table, trophy and two-action composition are not fully implemented.",
+    "Actual final metrics and accessible summary are genuine, not reference illustrative outcomes.",
+    "Five per-pass results exist in personal history; final page currently emphasizes final recall/gain.",
+    "Hero illustration, density, materials, typography and responsive acceptance remain open."
+  ],
+  "outputs": {
+    "side-by-side.png": "a2c683e5d577bdf28d4cb7528c70025e2ecfcc01b9a7dc819582792cf10ae6a8",
+    "overlay-50.png": "a335553e63df0e22e6762f69d812c03d46f957de7a0eb1482e979445d4b8de7a",
+    "comparison-panel.png": "b696b2e452395a96b96a656fb1bbdc3e5c59d70510d92171dc995fa2369471c7"
+  }
+}

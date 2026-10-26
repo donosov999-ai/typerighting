@@ -1,0 +1,68 @@
+{
+  "screen": "D4-menu",
+  "status": "draft - substantial differences, not accepted",
+  "ownerAcceptance": null,
+  "sourceCommit": "23a81d5",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/04.png",
+    "sha256": "47d54524b841e8ab44fb8de5aec22f22ef88896062566d94b73b8c954669b32a",
+    "cropXYXY": [
+      28,
+      594,
+      516,
+      967
+    ],
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "logicalViewport": "unknown generated image",
+    "uniformScale": 1.9672131147540983
+  },
+  "actual": {
+    "sha256": "9392bc83ca9dcdb3ae67dbde07af5cd7f9c092e001265350db9fb2290a35cae0",
+    "viewportCSS": [
+      960,
+      824
+    ],
+    "devicePixelRatio": 1,
+    "screenshotSize": [
+      960,
+      824
+    ],
+    "platform": "local Flutter web / IAB",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "system observed dark",
+    "state": "Classic/RU, saved7-word tier, all4 lengths and both source selectors; first12 excerpts paged.",
+    "url": "http://127.0.0.1:8062/?build=4fc28d6943fbf766",
+    "mainJsSha256": "4fc28d6943fbf7667ad0f3c6a0370c2198a37bceb8ae411cac99c0e8083a1fdc"
+  },
+  "method": {
+    "equalWidth": 960,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alignment": "top-left app content",
+    "alpha": 0.5,
+    "commonHeight": 734,
+    "padding": "gray outside available image pixels"
+  },
+  "limits": [
+    "Reference logical viewport/DPR unknown: diagnostic only, not device acceptance",
+    "Reference and actual metrics differ; actual figures come from automation",
+    "Other viewports/profiles/themes/native platforms remain open"
+  ],
+  "differences": [
+    "Source chips/excerpt list replace reference side navigation and split panels; layout/spacing/materials still differ.",
+    "Runtime uses actual Pushkin Onegin/Raven content, not the invented author list in the generated drawing.",
+    "Lengths are genuine5/7/10 words/fullstanza, not reference fictional3/6/12 lines.",
+    "Full viewport/profile/theme/textscale/native acceptance remains open."
+  ],
+  "outputs": {
+    "side-by-side.png": "d6e316beb910a9725d5b470b5aafa98ec4ccacec08b735a694848e23d7af3daa",
+    "overlay-50.png": "f927f31e502da393958976904e46566e7ab05019d0a0564dac5f368859dacb4a",
+    "comparison-panel.png": "c088563037d6b7aed33526f9541c1b87b2af9f211cc00cf08ddee03ea94a8bc1"
+  }
+}

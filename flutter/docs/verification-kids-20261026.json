@@ -1,0 +1,85 @@
+{
+  "date": "2026-10-26",
+  "sourceCommit": "12a0033",
+  "status": "partial - child course functional candidate; not complete or owner accepted",
+  "sourceScenarios": 264,
+  "inputEvents": 6534,
+  "levels": {
+    "ru": 9,
+    "en": 24,
+    "wordsPerLevel": 5
+  },
+  "fullTestCount": 122,
+  "checks": {
+    "all-tests": {
+      "path": "/tmp/typefree-kids-all-tests.log",
+      "sha256": "1fd5cc4fff6877e677e9db89662f76d34df4a3382e0fd22755c8e62c4c5c6ebb",
+      "tail": "eat preference, weak real exercise, retry-free save and return preserve ordinary bank\n00:09 +120: /Users/denisonosov/dev/typerighting-wt-flutter-20261025/flutter/test/adaptive_flow_test.dart: heat preference, weak real exercise, retry-free save and return preserve ordinary bank\n00:30 +121: /Users/denisonosov/dev/typerighting-wt-flutter-20261025/flutter/test/adaptive_flow_test.dart: weak-key analysis fits seven languages at 200 percent and shows honest empty results\n00:30 +122: All tests passed!\n"
+    },
+    "analyze": {
+      "path": "/tmp/typefree-kids-analyze.log",
+      "sha256": "320caae112e4fcc83dcc97c0989299b0a483773fc8f506e0877daad745cffb2d",
+      "tail": "Analyzing flutter...                                            \nNo issues found! (ran in 2.0s)\n"
+    },
+    "web": {
+      "path": "/tmp/typefree-kids-web.log",
+      "sha256": "adcaadf5351559fe16b723cd629e069a512d57c38b75339c9293781bbb9199a4",
+      "tail": " font families in an IconData class but not including them in the assets section of your pubspec.yaml, are missing the package that would include them, or are missing \"uses-material-design: true\".\nFont asset \"MaterialIcons-Regular.otf\" was tree-shaken, reducing it from 1645184 to 11640 bytes (99.3% reduction). Tree-shaking can be disabled by providing the --no-tree-shake-icons flag when building your app.\nCompiling lib/main.dart for the Web...                             15,4s\n✓ Built build/web\n"
+    },
+    "macos": {
+      "path": "/tmp/typefree-kids-macos.log",
+      "sha256": "f1a4d5e0b4d9c7ced7cc6ec152945a569cc962b12f5396c322cc4785677622e3",
+      "tail": "Building macOS application...                                   \n✓ Built build/macos/Build/Products/Debug/typefree_flutter_foundation.app\n"
+    },
+    "parity": {
+      "path": "/tmp/typefree-kids-parity.log",
+      "sha256": "d4384ee018e86e65f84543df39492180d7dcc6b2bb61fa86f7018ec5d8a70616",
+      "tail": "00:00 +0: loading /Users/denisonosov/dev/typerighting-wt-flutter-20261025/flutter/test/kids_parity_test.dart\n00:00 +0: 264 original child runs / 6534 inputs: all33 levels, error stars, physical bridge and best progress\n00:00 +1: unlock fence, interruption, best stars, pause every3 and final course exit\n00:00 +2: golden traces and shipped lesson asset are tied to current source bytes\n00:00 +3: exact90 percent threshold and worse attempts never lower imported best\n00:00 +4: All tests passed!\n"
+    },
+    "flow": {
+      "path": "/tmp/typefree-kids-flow.log",
+      "sha256": "c99bdb308b877edc3f923f0b1a00b7d9319b4ad9003cda3656cb8d806d588a52",
+      "tail": "00:00 +0: loading /Users/denisonosov/dev/typerighting-wt-flutter-20261025/flutter/test/kids_flow_test.dart\n00:00 +0: real child map, blocked input, atomic stars failure/retry, auto timer, route cleanup and reload\n00:00 +1: child result focused controls retain Space, background stops next and three-level pause is visible\n00:01 +2: All tests passed!\n"
+    }
+  },
+  "browser": {
+    "url": "http://127.0.0.1:8062/?build=a254a2ee1e77fe31",
+    "bundle": {
+      "mainJsSha256": "a254a2ee1e77fe31471838a76b54fc8b697643ddfa5b0787954eb17a221b3797",
+      "bootstrapSha256": "ebba8150d501a17c1abf771a2ee64aa017e09394e1a69e3698667dbf142286b5",
+      "mainJs": "main.a254a2ee1e77fe31.dart.js",
+      "bootstrap": "flutter_bootstrap.ebba8150d501a17c.js",
+      "scope": "local generated output; no source or user storage changes"
+    },
+    "viewportCSS": [
+      960,
+      824
+    ],
+    "dpr": 1,
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "observed dark",
+    "observed": [
+      "33 map buttons; levels2–33 initially locked",
+      "actual physical input котдомсоклесмяч -> saved3stars",
+      "auto-next unchecked, result stays",
+      "level2 unlocked after completion",
+      "reload -> same3stars, next level still open"
+    ],
+    "automationNotOwnerPerformance": true,
+    "temporaryViewportReset": true
+  },
+  "design": [
+    "design-acceptance/20261026-kids-candidate/D2-map",
+    "design-acceptance/20261026-kids-candidate/J3-result"
+  ],
+  "open": [
+    "sound/voice",
+    "illustrated map and result composition",
+    "explicit break and ordinary-practice design actions",
+    "all responsive/theme/profile/accessibility conditions",
+    "real native execution and iOS/Android upgrade",
+    "full59/71 scope and release gates"
+  ]
+}

@@ -1,0 +1,69 @@
+{
+  "screen": "J3-result",
+  "status": "draft - substantial differences, not accepted",
+  "ownerAcceptance": null,
+  "sourceCommit": "12a0033",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/10.png",
+    "sha256": "43c3ffebffad9837adaaaa32cc4db190c86c8ceb688c13bde19298a068ef3e3c",
+    "cropXYXY": [
+      1063,
+      58,
+      1495,
+      504
+    ],
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "logicalViewport": "unknown generated image",
+    "uniformScale": 2.2222222222222223
+  },
+  "actual": {
+    "sha256": "962997011cff1a8c06ade7299a8c0e0fd7219b1cf3b894a56195acd8d4efbef7",
+    "viewportCSS": [
+      960,
+      824
+    ],
+    "devicePixelRatio": 1,
+    "screenshotSize": [
+      960,
+      824
+    ],
+    "platform": "local Flutter web / IAB",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "system observed dark",
+    "state": "Automated real keyboard entry of котдомсоклесмяч: five words, three stars, saved locally; auto-next paused.",
+    "url": "http://127.0.0.1:8062/?build=a254a2ee1e77fe31",
+    "mainJsSha256": "a254a2ee1e77fe31471838a76b54fc8b697643ddfa5b0787954eb17a221b3797"
+  },
+  "method": {
+    "equalWidth": 960,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alignment": "top-left app content",
+    "alpha": 0.5,
+    "commonHeight": 824,
+    "padding": "gray outside available image pixels"
+  },
+  "limits": [
+    "Reference logical viewport/DPR unknown: diagnostic only, not device acceptance",
+    "Reference and actual metrics differ; actual figures come from automation",
+    "Other viewports/profiles/themes/native platforms remain open"
+  ],
+  "differences": [
+    "Original accuracy-first kids course does not show speed. Generated126characters/min is not copied as an unmeasured result.",
+    "Actual retains the original blue typing cat; orange illustrated hero/confetti/materials/geometry are not implemented.",
+    "Source-compatible retry/map/next and optional auto-next controls are present; reference separate ordinary-practice and break actions need design work.",
+    "Soft rest after three levels is widget-tested; this actual screenshot shows only the first completed level.",
+    "Audio/voice and full native/mobile/theme/profile/accessibility design acceptance remain open."
+  ],
+  "outputs": {
+    "side-by-side.png": "91ca64e8a97844836493237f55cc25f4227e8f48e9bb9b64f87bb65a12b4ace7",
+    "overlay-50.png": "2b33920e0322d13a03948024259aa7e2a1342dc88147c07363cff874b9e87660",
+    "comparison-panel.png": "693fb58f57dd2011f3b3d89812b4798a32c71fca5c3c46a97e080ab14a759f65"
+  }
+}

@@ -1,0 +1,9 @@
+# TypeFree — сохранённый этап экзамена 26.10.2026
+
+Source commit62fe296 в `/Users/denisonosov/dev/typerighting-wt-flutter-20261025`. Задача ea87c138-a414-4a00-8a71-ccaf43ddca60 in_progress, полный объём FULL_TRANSFER_SCOPE_20261026.md неизменен.
+
+Добавлен седьмой основной Dart-режим:1/5/10 минут, цель, реальные classic упражнения на7 языках, free input/Backspace/перевод строки, переходы текстов, неизменяемые net/gross/accuracy/elapsed на результате, timeout/lifecycle/early finish, атомарная личная история/retry. Пустой результат не получает выдуманное достижение. Имя сертификата локальное, отдельно по профилям; оно не публикуется и не подменяется аккаунтом. PNG1200×850 рисуется локально; file_picker13.1.0 сохранение. Web сообщает передачу файла на сохранение, не выдаёт null-результат browser download за отмену. Native SavePanel ещё не проверен, только macOS build.
+
+Source fixture91 cases/19024 events. Test suite этапа116PASS; новый набор122PASS включает те же экзаменационные проверки. 7 языковых PNG, early/timeout/background, failed save/retry/dedup, cancel/error/download-requested проверены тестами. Сохранённый browser artifact `docs/exam-certificate-web-20261026.png` визуально проверен: кириллица, имя «Тест TypeFree»,25Net/Gross WPM,100%,фактические0:39.6,выбрано1мин,НЕСДАН/досрочно,дата26.10.2026. Это automation, НЕ performance Дениса. Исходные screenshots E4/E5/E6 в design-acceptance/20261026-exam-candidate/; для них сравнение с reference ещё НЕ завершено. Предыдущий preview a20e74be12c853b3 заменён текущей детской сборкой, а снимки сохранены.
+
+Остались: настоящий native save dialog, печать/публичный сертификат с разрешёнными store/kids правилами, общие achievements/audio, исходная английская Material-counter строка в RU настройках, полный дизайн E4/E5/E6 и mobile/device приёмка. Не закрывать задачу. Flutter в stores не загружен; расходы/production/real-user migration не выполнялись.

@@ -1,0 +1,68 @@
+{
+  "screen": "D2-map",
+  "status": "draft - substantial differences, not accepted",
+  "ownerAcceptance": null,
+  "sourceCommit": "12a0033",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/04.png",
+    "sha256": "47d54524b841e8ab44fb8de5aec22f22ef88896062566d94b73b8c954669b32a",
+    "cropXYXY": [
+      546,
+      112,
+      1012,
+      528
+    ],
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "logicalViewport": "unknown generated image",
+    "uniformScale": 2.060085836909871
+  },
+  "actual": {
+    "sha256": "88224685279d73f9131d57bcfa0889520f9204fb003d709c918b1ee1e32477b9",
+    "viewportCSS": [
+      960,
+      824
+    ],
+    "devicePixelRatio": 1,
+    "screenshotSize": [
+      960,
+      824
+    ],
+    "platform": "local Flutter web / IAB",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "system observed dark",
+    "state": "RU/m child course after reload: level1 has three saved stars, level2 open, levels3–33 locked.",
+    "url": "http://127.0.0.1:8062/?build=a254a2ee1e77fe31",
+    "mainJsSha256": "a254a2ee1e77fe31471838a76b54fc8b697643ddfa5b0787954eb17a221b3797"
+  },
+  "method": {
+    "equalWidth": 960,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alignment": "top-left app content",
+    "alpha": 0.5,
+    "commonHeight": 824,
+    "padding": "gray outside available image pixels"
+  },
+  "limits": [
+    "Reference logical viewport/DPR unknown: diagnostic only, not device acceptance",
+    "Reference and actual metrics differ; actual figures come from automation",
+    "Other viewports/profiles/themes/native platforms remain open"
+  ],
+  "differences": [
+    "Reference illustrated winding map/landscape and hero are not implemented; actual exposes all33 source levels in two language groups.",
+    "Original source has9RU+24EN levels; the generated10-node map is not the authoritative lesson count.",
+    "Spacing, materials, illustrated progress route and explicit ordinary-practice CTA remain open; global Back returns to all practices.",
+    "Reference viewport/DPR unknown; equal-width overlay is diagnostic, not owner or device acceptance."
+  ],
+  "outputs": {
+    "side-by-side.png": "ff4a1e0d852ed77c8f3654bbf6b4ba33ba2cd7732aee16a3e33ad3e3e8781c6f",
+    "overlay-50.png": "77b4c29c340186ad12edaadd50f05b65ee3ba0f9fe1c9774743f45eb95f848e4",
+    "comparison-panel.png": "3fcefad93f3dab3c6a415a45bc2d3c350c5348454e96a8436e27ab9f44f7115d"
+  }
+}

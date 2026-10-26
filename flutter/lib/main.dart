@@ -10,6 +10,8 @@ import 'package:synapse_pet/synapse_pet.dart';
 
 import 'data/platform_store.dart';
 import 'data/local_repository.dart';
+import 'data/key_statistics_store.dart';
+import 'domain/key_statistics.dart';
 import 'data/progress_view.dart';
 import 'design_system/templates.dart';
 import 'design_system/synapse_header.dart';
@@ -134,6 +136,8 @@ class TypeFreeApp extends StatefulWidget {
 class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   late String language, profile, bank, layout;
   late TypingSession session;
+  late KeyStatisticsStore keyStatistics;
+  RecordedHistory? recordedHistory;
   late KeyboardModel keyboard;
   late SynapseController assistant, headerAssistant;
   late BuildContext surface;
@@ -186,6 +190,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     section = widget.initialSection;
+    keyStatistics = KeyStatisticsStore(widget.repository);
     WidgetsBinding.instance.addObserver(this);
     final p = widget.repository.data['prefs'] as Map;
     language = languages.contains(p['lang']) ? p['lang'] as String : 'ru';
@@ -239,6 +244,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   @override
   void dispose() {
     timer?.cancel();
+    keyStatistics.dispose();
     entry.removeListener(edit);
     entry.dispose();
     inputFocus.dispose();
@@ -254,6 +260,11 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       headerAssistant.wake();
     } else {
       headerAssistant.sleep();
+      unawaited(
+        keyStatistics.flush().catchError((Object e) {
+          keyStatistics.lastError = e;
+        }),
+      );
     }
   }
 
@@ -294,6 +305,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     sessionId =
         '${DateTime.now().microsecondsSinceEpoch}-${Random().nextInt(0x7fffffff)}';
     saved = false;
+    recordedHistory = null;
     saving = false;
     error = null;
     previousInput = '';
@@ -323,7 +335,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       final ch = bridge
           ? keyboard.bridge(text[n], session.expected ?? '')
           : text[n];
-      session.press(ch, blockOnError: block);
+      recordPress(ch);
       if (session.finished) break;
     }
     previousInput = text;
@@ -339,9 +351,28 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       if (saved) next();
       return;
     }
-    session.press('\n', blockOnError: block);
+    recordPress('\n');
     setState(() {});
     if (session.finished) unawaited(saveResult());
+  }
+
+  void recordPress(String ch) {
+    if (session.finished) return;
+    final expected = session.expected ?? '';
+    final result = session.press(ch, blockOnError: block);
+    if (expected.isNotEmpty && expected != ' ' && expected != '\n') {
+      final id = keyboard.hit(
+        expected,
+        ru: RegExp('[а-яё]', caseSensitive: false).hasMatch(session.pattern),
+      )?['id'];
+      if (id is String) {
+        keyStatistics.record(
+          id,
+          !result.wrong,
+          widget.clock?.call() ?? DateTime.now().millisecondsSinceEpoch,
+        );
+      }
+    }
   }
 
   Future<void> savePrefs() async {
@@ -384,7 +415,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     unit: 'WPM',
   );
   Future<void> saveResult() async {
-    if (saved || saving) return;
+    if (saved || saving || !session.finished) return;
     setState(() {
       saving = true;
       error = null;
@@ -405,10 +436,15 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       ...stats.toJson(),
       'len': session.attemptedKeys,
     };
+    final captured = recordedHistory ??= keyStatistics.recorder.take(
+      widget.clock?.call() ?? DateTime.now().millisecondsSinceEpoch,
+    );
+    point['len'] = captured.len;
+    point['errKeys'] = captured.errorKeys;
     final earlier = history;
     var fresh = false;
     try {
-      await widget.repository.transaction((doc) {
+      await keyStatistics.commit((doc) {
         final sessions = doc['sessions'] as List, legacy = doc['legacy'] as Map;
         if (sessions.any((x) => x['id'] == id)) return;
         final key =
@@ -424,7 +460,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           'bestWpm': max((record['bestWpm'] as num?) ?? 0, stats.wpm),
           'bestAcc': max((record['bestAcc'] as num?) ?? 0, stats.accuracy),
         });
-        if (stats.wpm > 0 && session.attemptedKeys >= 10) {
+        if (captured.eligible(stats.wpm)) {
           sessions.add(point);
           fresh = true;
           final h = legacy['tr_history'] is String
@@ -432,19 +468,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                   jsonDecode(legacy['tr_history'] as String) as List,
                 )
               : <dynamic>[];
-          h.add({
-            't': point['t'],
-            'wpm': stats.wpm,
-            'acc': stats.accuracy,
-            'len': session.attemptedKeys,
-            'ms': stats.elapsedMs,
-            'err': stats.errors,
-            'score':
-                (stats.wpm *
-                        (stats.accuracy / 100) *
-                        min(1, session.attemptedKeys / 50))
-                    .round(),
-          });
+          h.add(captured.point(stats.wpm, stats.accuracy, point['t'] as int));
           legacy['tr_history'] = jsonEncode(
             h.length > 300 ? h.sublist(h.length - 300) : h,
           );
@@ -1100,6 +1124,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                   if (historyPage) return historyView(c);
                   if (coursePage) {
                     return CoursePage(
+                      keyStatistics: keyStatistics,
                       key: ValueKey('course-$language-$profile'),
                       initialLessonId: courseStartLessonId,
                       data: widget.resources.course,

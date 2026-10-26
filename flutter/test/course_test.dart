@@ -157,6 +157,24 @@ void main() {
         (reload.data['legacy'] as Map)['tr_course_ru'] as String,
       ) as Map;
       expect(progress['stars']['1'], 3);
+      final recorded = attempt.lines
+          .join('')
+          .split('')
+          .where(
+            (ch) =>
+                ch != ' ' && course.widget.keyboard.hit(ch, ru: true) != null,
+          )
+          .length;
+      final history =
+          jsonDecode(reload.data['legacy']['tr_history'] as String) as List;
+      expect(history.single['len'], recorded);
+      final keys =
+          jsonDecode(reload.data['legacy']['tr_keystats'] as String) as Map;
+      expect(
+        keys.values.fold<num>(0, (n, s) => n + (s['ok'] as num)),
+        recorded,
+      );
+      expect(keys.containsKey('space'), false);
       expect(courseUnlocked(2, progress['stars'] as Map), true);
       await course.saveResult();
       expect((live.data['sessions'] as List).length, 1);

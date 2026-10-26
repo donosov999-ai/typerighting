@@ -1,0 +1,42 @@
+{
+  "date": "2026-10-26",
+  "scope": "LOCAL TypeFree Flutter statistics candidate",
+  "source_baseline": "2fa2b77f032e77b759b29b44d223c7f91578597b",
+  "parent_commit": "61c4884",
+  "source_statistics_sha256": "621f43be551fa438c3d75fc374e21d3dec92cdaebf098c7951a57623f7f59619",
+  "fixture_source_matches": true,
+  "traces": 17,
+  "events": 1474,
+  "tests": {
+    "count": 85,
+    "result": "PASS",
+    "log": "test-output-statistics-20261026.txt"
+  },
+  "analyze": "PASS no issues",
+  "builds": {
+    "web": "PASS",
+    "macos_debug": "PASS separate candidate bundle ID"
+  },
+  "source_sha256": {
+    "lib/domain/key_statistics.dart": "da9f23830fc1675193e41aac65bf759090d22a659ec5622dec050822cc58261e",
+    "lib/data/key_statistics_store.dart": "53e5012c0aaf21ea87d125d1bdea3d64f74e63b0f66b2588bba78c437b59b08a",
+    "lib/data/local_repository.dart": "950a1f06bb6aa32f642da139602052172687c82c8d23679dec9029d0aa0016b4",
+    "lib/main.dart": "81c38427be41e042739af08a9bc9abbed666635f4aa0753cf08cdfd14fb59ff0",
+    "lib/features/course_page.dart": "7d7c870ad9adeec0eeb82f72e44dbac716d73f8618863ed610a4c87763828c7d",
+    "test/key_statistics_test.dart": "40a49eaf0b961c3e0dbb9351a89a0bcc3f1746fd7c91affa883376cc7e670201",
+    "test/practice_flow_test.dart": "80d9168930e114ae6ae1b9499bc5a375b542b98654cac99a00f2ba485443e056",
+    "test/course_test.dart": "7139a0a2f32dbc6852d2d5eaa570ca4a4551bce16ca0322100101b88f7697085",
+    "tool/export_key_statistics.mjs": "50d49cc7ba5f0029c3909d9e95ad28eed66c85eacfa2736859df38f6ac4eae8d",
+    "test/fixtures/key-statistics.json": "49776ba1bcfc8b85f9707070450d8c583a8dd841e0f5fdec2bde7267533c59f6"
+  },
+  "web_main_js_sha256": "031a5a500bce01037ecb4ecfc4a7ec587d9a9a627e8ca33c2d12464cd44785eb",
+  "deployment": "LOCAL preview http://127.0.0.1:8062/ only; no push/store/public deployment/user migration",
+  "design": "No layout changes; prior Today comparison remains draft, not owner acceptance",
+  "limitations": [
+    "Heat ratios computed/tested; visible heat-map/adaptive controls pending",
+    "Global legacy key evidence is not profile-attributed",
+    "800ms debounce can lose unflushed keys on abrupt termination; failed batch retained only in live runtime",
+    "Real platform update/mobile/device acceptance remains pending",
+    "Existing Flutter web CupertinoIcons/font and wasm compatibility warnings remain in build log"
+  ]
+}

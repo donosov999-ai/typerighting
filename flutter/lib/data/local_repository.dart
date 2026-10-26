@@ -111,6 +111,21 @@ class LocalRepository {
           'Invalid saved session; original preserved',
         );
       }
+      if (row.containsKey('errKeys')) {
+        final errors = row['errKeys'];
+        if (errors is! Map ||
+            !errors.entries.every(
+              (e) =>
+                  e.key is String &&
+                  RegExp(r'^[a-zA-Z0-9_-]{1,40}$').hasMatch(e.key as String) &&
+                  e.value is int &&
+                  (e.value as int) >= 0,
+            )) {
+          throw const FormatException(
+            'Invalid session key errors; original preserved',
+          );
+        }
+      }
     }
     _data = doc;
   }

@@ -120,6 +120,21 @@ void main() {
       ) as List;
       expect(old.length, 1);
       expect(old.first['acc'], 100);
+      final counted = text
+          .split('')
+          .where(
+            (ch) =>
+                ch != ' ' &&
+                ch != '\n' &&
+                state.keyboard.hit(ch, ru: true) != null,
+          )
+          .length;
+      expect(old.first['len'], counted);
+      final keys =
+          jsonDecode(reload.data['legacy']['tr_keystats'] as String) as Map;
+      expect(keys.values.fold<num>(0, (n, s) => n + (s['ok'] as num)), counted);
+      expect(keys.containsKey('space'), false);
+      expect((reload.data['sessions'] as List).single['errKeys'], isEmpty);
       expect(repo.data['sessions'], isEmpty);
       await tester.pumpWidget(const SizedBox());
       appearance.dispose();

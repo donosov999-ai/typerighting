@@ -5,6 +5,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../data/local_repository.dart';
+import '../data/key_statistics_store.dart';
+import '../domain/key_statistics.dart';
 import '../domain/course.dart';
 import 'keyboard_guide.dart';
 import 'practice_widgets.dart';
@@ -21,9 +23,11 @@ class CoursePage extends StatefulWidget {
     required this.onSaved,
     this.clock,
     this.initialLessonId,
+    required this.keyStatistics,
   });
   final Map<String, dynamic> data;
   final LocalRepository repository;
+  final KeyStatisticsStore keyStatistics;
   final String language, profile;
   final KeyboardModel keyboard;
   final String Function(String) tr;
@@ -38,6 +42,7 @@ class CoursePage extends StatefulWidget {
 class CoursePageState extends State<CoursePage> {
   final entry = TextEditingController(), focus = FocusNode();
   CourseAttempt? attempt;
+  RecordedHistory? recordedHistory;
   Map<String, dynamic>? lesson;
   bool ignore = false, saving = false, saved = false;
   String previous = '', id = '';
@@ -93,6 +98,7 @@ class CoursePageState extends State<CoursePage> {
         clock: now,
       );
       saved = false;
+      recordedHistory = null;
       error = null;
       id =
           'course-${DateTime.now().microsecondsSinceEpoch}-${random.nextInt(0x7fffffff)}';
@@ -133,7 +139,18 @@ class CoursePageState extends State<CoursePage> {
     for (var i = previous.length; i < text.length; i++) {
       final expected = a.session.expected ?? '';
       final ch = widget.keyboard.bridge(text[i], expected);
-      if (a.press(ch)) {
+      final ru = RegExp(
+        '[а-яё]',
+        caseSensitive: false,
+      ).hasMatch(a.session.pattern);
+      final changedLine = a.press(ch);
+      if (expected.isNotEmpty && expected != ' ' && expected != '\n') {
+        final keyId = widget.keyboard.hit(expected, ru: ru)?['id'];
+        if (keyId is String) {
+          widget.keyStatistics.record(keyId, ch == expected, now());
+        }
+      }
+      if (changedLine) {
         clearInput();
         setState(() {});
         return;
@@ -168,12 +185,17 @@ class CoursePageState extends State<CoursePage> {
       'len': a.attemptedKeys,
       'stars': a.stars,
     };
+    final captured = recordedHistory ??= widget.keyStatistics.recorder.take(
+      now(),
+    );
+    point['len'] = captured.len;
+    point['errKeys'] = captured.errorKeys;
     final before = List<Map<String, dynamic>>.from(
       widget.repository.data['sessions'] as List,
     );
     var fresh = false;
     try {
-      await widget.repository.transaction((doc) {
+      await widget.keyStatistics.commit((doc) {
         final rows = doc['sessions'] as List, legacy = doc['legacy'] as Map;
         if (rows.any((r) => r['id'] == id)) return;
         final key = 'tr_course_${widget.language}';
@@ -185,7 +207,7 @@ class CoursePageState extends State<CoursePage> {
         final marks = progress['stars'] as Map;
         marks['${l['id']}'] = max((marks['${l['id']}'] as num?) ?? 0, a.stars);
         legacy[key] = jsonEncode(progress);
-        if (stat.wpm > 0 && a.attemptedKeys >= 10) {
+        if (captured.eligible(stat.wpm)) {
           rows.add(point);
           fresh = true;
           final h = legacy['tr_history'] is String
@@ -193,19 +215,7 @@ class CoursePageState extends State<CoursePage> {
                   jsonDecode(legacy['tr_history'] as String) as List,
                 )
               : <dynamic>[];
-          h.add({
-            't': point['t'],
-            'wpm': stat.wpm,
-            'acc': stat.accuracy,
-            'len': a.attemptedKeys,
-            'ms': point['elapsedMs'],
-            'err': a.errors,
-            'score':
-                (stat.wpm *
-                        (stat.accuracy / 100) *
-                        min(1, a.attemptedKeys / 50))
-                    .round(),
-          });
+          h.add(captured.point(stat.wpm, stat.accuracy, point['t'] as int));
           legacy['tr_history'] = jsonEncode(
             h.length > 300 ? h.sublist(h.length - 300) : h,
           );

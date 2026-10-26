@@ -1,0 +1,20 @@
+Resolving dependencies...
+Downloading packages...
+  code_assets 1.2.1 (2.1.0 available)
+  hooks 2.0.2 (2.2.0 available)
+  material_color_utilities 0.13.0 (0.13.1 available)
+  meta 1.18.3 (1.19.0 available)
+  objective_c 9.5.0 (9.6.2 available)
+  record_use 0.6.0 (1.1.1 available)
+  shared_preferences 2.5.5 (2.5.6 available)
+  shared_preferences_foundation 2.5.7 (2.6.0 available)
+! synapse_advisor 0.1.0 from path /Users/denisonosov/Downloads/Helper codex/typefree-flutter-private-runtime-20261025/synapse_advisor (overridden in ./pubspec_overrides.yaml)
+! synapse_pet 0.1.1 from path /Users/denisonosov/Downloads/Helper codex/typefree-flutter-private-runtime-20261025/synapse_pet (overridden in ./pubspec_overrides.yaml)
+  test_api 0.7.12 (0.7.15 available)
+  vector_math 2.4.0 (2.4.3 available)
+  web 1.1.1 (1.1.2 available)
+Got dependencies!
+11 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing flutter...                                            
+No issues found! (ran in 2.6s)

@@ -2,7 +2,7 @@
   "screen": "J5-menu",
   "status": "draft - substantial differences, not accepted",
   "ownerAcceptance": null,
-  "sourceCommit": "7fb4dfe",
+  "sourceCommit": "a017daa",
   "reference": {
     "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/10.png",
     "sha256": "43c3ffebffad9837adaaaa32cc4db190c86c8ceb688c13bde19298a068ef3e3c",
@@ -20,7 +20,7 @@
     "uniformScale": 2.1238938053097347
   },
   "actual": {
-    "sha256": "828e0b14e64696be6646f5404055902a85412a6664a3dbe04ae55d5d056bfbcc",
+    "sha256": "1116e8f885dae54d3e59a8fd790427fe167b925f885e24da3dd5677d1a360b7f",
     "viewportCSS": [
       960,
       824
@@ -36,8 +36,8 @@
     "template": "midnight-orange",
     "brightness": "system observed dark",
     "state": "RU/m start menu:span3,best reached next-set4 retained from previous automated round.",
-    "url": "http://127.0.0.1:8062/?build=e94fb8e0604d288c",
-    "mainJsSha256": "e94fb8e0604d288c8bc691070417a7178fe2d2a6ba9648299c46ef2467cdce62"
+    "url": "http://127.0.0.1:8062/?build=1e6f6ab2bf45f297",
+    "mainJsSha256": "1e6f6ab2bf45f297384a23ee1e80e4e90fd1825cc3bf858ac066ede8753a05d2"
   },
   "method": {
     "equalWidth": 960,
@@ -60,8 +60,8 @@
     "Materials/typography/geometry and all theme/profile/textscale/native states remain open."
   ],
   "outputs": {
-    "side-by-side.png": "0863619e2960563966635c6fe24ac6d64d3e3a2cac922a4b45b6dbab87b9e916",
-    "overlay-50.png": "8983da236ce571c5d49daafefba8ef854fded9236d31d4a497c15e77eb2addb0",
-    "comparison-panel.png": "390abd07c75c3a1e016c59bc04bb5dc80d8a152d0f8da6e188f4f0220c1da1c9"
+    "side-by-side.png": "fd7655b12f9b4df7ec4a8e9f13a7019433d68eb6b6dbaaba53823d2595f8d300",
+    "overlay-50.png": "27215b165404b7e8b702cbf2e0f2e63d7939fb012c5ba0210eaf2801169d3455",
+    "comparison-panel.png": "1faacf0f812f240e5de2966fe17cd0648db5c1e55142a2e060a9aebaf50098c6"
   }
 }

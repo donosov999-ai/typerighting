@@ -1,8 +1,8 @@
 # D6-show — draft comparison
 
-Source7fb4dfe. Original reference and raw actual preserved;960×824 CSS/DPR1;RU/m/midnight-orange/system dark. Equal-width uniform scaling of reference only; actual untouched;50%overlay in common area with gray padding. Reference viewport unknown.
+Sourcea017daa. Original reference and raw actual preserved;960×824 CSS/DPR1;RU/m/midnight-orange/system dark. Equal-width uniform scaling of reference only; actual untouched;50%overlay in common area with gray padding. Reference viewport unknown.
 
-RU/m reveal phase:кот взоры старик,three actual words,3600ms automatic hide.
+RU/m reveal phase:помогло рядом команда,three actual words,3600ms automatic hide.
 
 ## Remaining differences
 

@@ -12,7 +12,7 @@ specs = [
   'Reference has word-preview chips and illustrated hero; source menu chooses fresh random words only at Start.',
   'Actual layout currently uses a plain summary card and localized explanation of next-set record.',
   'Materials/typography/geometry and all theme/profile/textscale/native states remain open.']),
- ('D6-show','04.png',(1046,595,1508,968),'RU/m reveal phase:кот взоры старик,three actual words,3600ms automatic hide.',[
+ ('D6-show','04.png',(1046,595,1508,968),'RU/m reveal phase:помогло рядом команда,three actual words,3600ms automatic hide.',[
   'Reference has word cards/sidebar; actual retains the source single pattern field between reveal and recall.',
   'Actual full physical keyboard preserves original keys; generated compact drawing omits some.',
   'Hidden phase must not highlight or announce expected letters; reveal/hidden screenshots are separate truthful states.',
@@ -42,15 +42,15 @@ for name, sheet, crop, state, differences in specs:
  side = Image.new('RGB',(2*w+20,h),'#eceeef'); side.paste(r,(0,0));side.paste(a,(w+20,0));side.save(out/'side-by-side.png')
  panel = Image.new('RGB',(3*w+80,h+160),'#eceeef');d=ImageDraw.Draw(panel)
  d.text((20,10),name+' - DRAFT, substantial differences; NOT accepted',font=font(28),fill='#9e3030')
- for i,(img,label) in enumerate([(r,'Reference '+sheet),(a,'Actual Flutter 7fb4dfe'),(overlay,'50% overlay')]):
+ for i,(img,label) in enumerate([(r,'Reference '+sheet),(a,'Actual Flutter a017daa'),(overlay,'50% overlay')]):
   x=20+i*(w+20);d.text((x,55),label,font=font(24),fill='#202830');panel.paste(img,(x,100))
  panel.save(out/'comparison-panel.png')
  manifest = {'screen':name,'status':'draft - substantial differences, not accepted','ownerAcceptance':None,
-  'sourceCommit':'7fb4dfe','reference':{'path':str(reference),'sha256':sha(reference),'cropXYXY':crop,'originalSize':full.size,'logicalViewport':'unknown generated image','uniformScale':scale},
-  'actual':{'sha256':sha(out/'actual.png'),'viewportCSS':[960,824],'devicePixelRatio':1,'screenshotSize':actual.size,'platform':'local Flutter web / IAB','profile':'m','language':'ru','template':'midnight-orange','brightness':'system observed dark','state':state,'url':'http://127.0.0.1:8062/?build=e94fb8e0604d288c','mainJsSha256':'e94fb8e0604d288c8bc691070417a7178fe2d2a6ba9648299c46ef2467cdce62'},
+  'sourceCommit':'a017daa','reference':{'path':str(reference),'sha256':sha(reference),'cropXYXY':crop,'originalSize':full.size,'logicalViewport':'unknown generated image','uniformScale':scale},
+  'actual':{'sha256':sha(out/'actual.png'),'viewportCSS':[960,824],'devicePixelRatio':1,'screenshotSize':actual.size,'platform':'local Flutter web / IAB','profile':'m','language':'ru','template':'midnight-orange','brightness':'system observed dark','state':state,'url':'http://127.0.0.1:8062/?build=1e6f6ab2bf45f297','mainJsSha256':'1e6f6ab2bf45f297384a23ee1e80e4e90fd1825cc3bf858ac066ede8753a05d2'},
   'method':{'equalWidth':w,'actualResized':False,'retouch':False,'warp':False,'alignment':'top-left app content','alpha':.5,'commonHeight':common,'padding':'gray outside available image pixels'},
   'limits':['Reference logical viewport/DPR unknown: diagnostic only, not device acceptance','Reference and actual metrics differ; actual figures come from automation','Other viewports/profiles/themes/native platforms remain open'],
   'differences':differences,'outputs':{n:sha(out/n) for n in ['side-by-side.png','overlay-50.png','comparison-panel.png']}}
  (out/'manifest.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+'\n')
- (out/'REPORT.md').write_text('# '+name+' — draft comparison\n\nSource7fb4dfe. Original reference and raw actual preserved;960×824 CSS/DPR1;RU/m/midnight-orange/system dark. Equal-width uniform scaling of reference only; actual untouched;50%overlay in common area with gray padding. Reference viewport unknown.\n\n'+state+'\n\n## Remaining differences\n\n'+'\n'.join('- '+x for x in differences)+'\n\nNot owner accepted; full71screen/native/device/backend/release goal remains open.\n')
+ (out/'REPORT.md').write_text('# '+name+' — draft comparison\n\nSourcea017daa. Original reference and raw actual preserved;960×824 CSS/DPR1;RU/m/midnight-orange/system dark. Equal-width uniform scaling of reference only; actual untouched;50%overlay in common area with gray padding. Reference viewport unknown.\n\n'+state+'\n\n## Remaining differences\n\n'+'\n'.join('- '+x for x in differences)+'\n\nNot owner accepted; full71screen/native/device/backend/release goal remains open.\n')
  print(name, actual.size, 'draft differences:',len(differences))

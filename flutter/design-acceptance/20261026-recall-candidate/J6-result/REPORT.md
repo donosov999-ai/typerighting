@@ -1,6 +1,6 @@
 # J6-result — draft comparison
 
-Source7fb4dfe. Original reference and raw actual preserved;960×824 CSS/DPR1;RU/m/midnight-orange/system dark. Equal-width uniform scaling of reference only; actual untouched;50%overlay in common area with gray padding. Reference viewport unknown.
+Sourcea017daa. Original reference and raw actual preserved;960×824 CSS/DPR1;RU/m/midnight-orange/system dark. Equal-width uniform scaling of reference only; actual untouched;50%overlay in common area with gray padding. Reference viewport unknown.
 
 Completed3actualwords:100%characteraccuracy,3stars,nextspan4,best4; auto-next paused; automation only.
 

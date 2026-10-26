@@ -1,6 +1,6 @@
 {
   "date": "2026-10-26",
-  "sourceCommit": "7fb4dfe",
+  "sourceCommit": "a017daa",
   "sourceParity": {
     "scenarios": 98,
     "rounds": 294,
@@ -20,10 +20,10 @@
     "macosDebug": "PASS"
   },
   "preview": {
-    "mainJsSha256": "e94fb8e0604d288c8bc691070417a7178fe2d2a6ba9648299c46ef2467cdce62",
-    "bootstrapSha256": "71a07683c5c870ecaa4ccf0a94b217f49d1aae58d64a30aa385f7e10495e8f73",
-    "mainJs": "main.e94fb8e0604d288c.dart.js",
-    "bootstrap": "flutter_bootstrap.71a07683c5c870ec.js",
+    "mainJsSha256": "1e6f6ab2bf45f297384a23ee1e80e4e90fd1825cc3bf858ac066ede8753a05d2",
+    "bootstrapSha256": "3270e2bee34ff6b3187b6fe42ae33ea59fb66399456f79974bccfeff20de9645",
+    "mainJs": "main.1e6f6ab2bf45f297.dart.js",
+    "bootstrap": "flutter_bootstrap.3270e2bee34ff6b3.js",
     "scope": "local generated output; no source or user storage changes"
   },
   "browser": {
@@ -35,15 +35,19 @@
     "devicePixelRatio": 1,
     "workflow": "real3word reveal→auto hide→blocked keyboard input→saved100%/3stars→next4words→exit to history",
     "firstPattern": "над команда лесов",
-    "finalPattern": "кот взоры старик",
-    "nextFourPattern": "крутого союз ходит часы",
+    "finalPattern": "помогло рядом команда",
+    "nextFourPattern": "парусах дышало утро зелёный",
     "historyWpm": [
       193,
-      200
+      200,
+      199,
+      203
     ],
-    "warning": "automation, not Denis performance; two distinct saved rounds; unfinished4wordround not saved",
+    "warning": "automation, not Denis performance; four distinct completed rounds; unfinished4wordrounds not saved",
     "recordAfterReload": 4,
-    "accessibility": "accuracy/completed/next/best/stars and record meaning in AX; hidden text+keyboard do not reveal answer"
+    "accessibility": "accuracy/completed/next/best/stars and record meaning in AX; hidden text+keyboard do not reveal answer",
+    "finalHide": "manual, previous cycles automatic",
+    "keyboardPause": "PASS actual Tab→Next→Menu→Pause, Space toggles pause without starting another round"
   },
   "design": {
     "states": [
@@ -59,8 +63,21 @@
   "teamOps": {
     "task": "283439cf-000f-493c-8439-3e01407ee242",
     "parent": "568d223e-d42c-4e30-83a0-fbad3a95e721",
-    "journal": "d5df6bdb-6330-481e-b088-2d7969c138bd",
+    "journal": "ad445662-83b3-4f1f-94ab-9ab7b3b36ec2",
     "status": "in_progress - audio/design/device acceptance pending",
-    "receiptIsNotOwnerAcceptance": true
+    "receiptIsNotOwnerAcceptance": true,
+    "earlierJournals": [
+      "d5df6bdb-6330-481e-b088-2d7969c138bd",
+      "2585dc2f-13d8-46e6-9d4c-306da65dc8ed"
+    ]
+  },
+  "coreCommit": "7fb4dfe",
+  "visibleLabelRegression": "PASS exact nextSpan text and recordHint appear once; complete AX retained",
+  "visibleLabelFixCommit": "eebe19a",
+  "keyboardRegression": {
+    "priorHandler": "expectedFAIL confirmed",
+    "newHandler": "PASS",
+    "scope": "global Enter/Space only on result primary focus; button actions retained",
+    "localNegativeLog": "/tmp/typefree-recall-prior-focus-test.log"
   }
 }

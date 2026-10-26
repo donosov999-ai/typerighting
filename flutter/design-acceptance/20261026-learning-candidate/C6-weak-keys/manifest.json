@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-26",
+  "screen": "C6 · Слабые клавиши",
+  "sourceCommit": "8d7be68",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/03.png",
+    "sha256": "107f8843c2e77bad125adedea576c0485b62f45d52cef94ece202c6d467e823f",
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "cropXYXY": [
+      1044,
+      612,
+      1448,
+      1014
+    ],
+    "cropPurpose": "exclude drawn device border/status chrome, preserve app content",
+    "logicalViewport": "unknown generated mockup",
+    "uniformScale": 0.7920792079207921,
+    "normalizedSize": [
+      320,
+      318
+    ]
+  },
+  "actual": {
+    "sha256": "5cf9d7bb510246a08f808bba36db4c9c49714b31e738d54b6c42c25c1e668009",
+    "viewportCSS": [
+      320,
+      582
+    ],
+    "screenshotSize": [
+      320,
+      582
+    ],
+    "devicePixelRatio": 1,
+    "platform": "local Flutter web / in-app browser",
+    "template": "midnight-orange",
+    "brightness": "system, observed dark",
+    "language": "ru",
+    "profile": "m",
+    "textScale": "not independently measured; desktop default",
+    "url": "http://127.0.0.1:8062/?build=7e8511b43ba3b6e5",
+    "verifiedMainJsSha256": "7e8511b43ba3b6e5db72ba4658588ffc0f60a0a1a0b1c59b631a724f28e0d33f",
+    "state": "Живые общие per-key данные устройства после автоматического smoke input; числа не являются результатом Дениса."
+  },
+  "normalization": {
+    "actualResized": false,
+    "align": "content top-left",
+    "sameWidth": 320,
+    "overlayAlpha": 0.5,
+    "commonHeight": 318,
+    "padding": "gray outside either image; no invented image pixels",
+    "retouch": false,
+    "warp": false
+  },
+  "status": "draft - differences; NOT accepted",
+  "ownerAcceptance": null,
+  "differences": [
+    "Высота/плотность не соответствуют C6: большая клавиатура требует горизонтальной прокрутки на узком экране.",
+    "Кнопка генерации и последние результаты ниже первого viewport; требуется исправить мобильную композицию.",
+    "Заголовок обрезается рядом с обязательными настройками/языком/Synapse; нужен reflow.",
+    "Показаны только существующие слабые буквы и последние original/plain результаты; отсутствие результата — прочерк."
+  ],
+  "limits": [
+    "Reference viewport/DPR are unknown, so this is a diagnostic comparison not exact-device acceptance",
+    "Illustrative reference metrics differ from genuine local test data",
+    "Full screen/device/theme/profile acceptance remains open"
+  ],
+  "outputs": {
+    "side-by-side.png": "81ed8c8e03c0c2f5ab3232a519b079c1c37da9c36aeeeae8d0e84002f1d0a2bf",
+    "overlay-50.png": "902479902f3ac2ab16669bb11b0881086d2f0bb76a866ff434f908c3e68a2dde",
+    "comparison-panel.png": "5c5b3887b0dc0364b192fbdda80019b214a3c4f99e56f948454d01b955d0b8bd"
+  }
+}

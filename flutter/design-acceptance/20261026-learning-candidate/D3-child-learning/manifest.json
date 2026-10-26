@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-26",
+  "screen": "D3 · Детское AI",
+  "sourceCommit": "8d7be68",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/04.png",
+    "sha256": "47d54524b841e8ab44fb8de5aec22f22ef88896062566d94b73b8c954669b32a",
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "cropXYXY": [
+      1047,
+      115,
+      1507,
+      529
+    ],
+    "cropPurpose": "exclude drawn device border/status chrome, preserve app content",
+    "logicalViewport": "unknown generated mockup",
+    "uniformScale": 2.0869565217391304,
+    "normalizedSize": [
+      960,
+      864
+    ]
+  },
+  "actual": {
+    "sha256": "f954d10082fdf318a2e49ff7947be309388bb562eb67a6b219abc1a0f121de8a",
+    "viewportCSS": [
+      960,
+      824
+    ],
+    "screenshotSize": [
+      960,
+      824
+    ],
+    "devicePixelRatio": 1,
+    "platform": "local Flutter web / in-app browser",
+    "template": "midnight-orange",
+    "brightness": "system, observed dark",
+    "language": "ru",
+    "profile": "kids",
+    "textScale": "not independently measured; desktop default",
+    "url": "http://127.0.0.1:8062/?build=7e8511b43ba3b6e5",
+    "verifiedMainJsSha256": "7e8511b43ba3b6e5db72ba4658588ffc0f60a0a1a0b1c59b631a724f28e0d33f",
+    "state": "Настоящий исходный уровень 1, очки 0, без взрослого табло скорости; оригинальные cat frames."
+  },
+  "normalization": {
+    "actualResized": false,
+    "align": "content top-left",
+    "sameWidth": 960,
+    "overlayAlpha": 0.5,
+    "commonHeight": 824,
+    "padding": "gray outside either image; no invented image pixels",
+    "retouch": false,
+    "warp": false
+  },
+  "status": "draft - differences; NOT accepted",
+  "ownerAcceptance": null,
+  "differences": [
+    "Hero/иллюстрация/правая панель и геометрия не совпадают с рисунком.",
+    "Использованы неизменённые исходные статические кадры кота; новый рисунок не подменяет общий Synapse renderer.",
+    "Истинная первая RU-ступень содержит А/О; generated рисунок показывает другой состав букв/указания рук.",
+    "Полная клавиатура и реальные метрики сохранены; audio/celebration effects остаются глобальной задачей."
+  ],
+  "limits": [
+    "Reference viewport/DPR are unknown, so this is a diagnostic comparison not exact-device acceptance",
+    "Illustrative reference metrics differ from genuine local test data",
+    "Full screen/device/theme/profile acceptance remains open"
+  ],
+  "outputs": {
+    "side-by-side.png": "7f380d7b87fb91ed849781637ef0df72d989cf1500de53ab329959f36d67e4ab",
+    "overlay-50.png": "fc2175ff140577883eadc5ada2af155edfb8c937af77bd607d03526dd4440508",
+    "comparison-panel.png": "2f2420a53ad8623ec5f0e4f6d9a6c05f8d1f1a09b1db9ddb2f35d08bb8cfa393"
+  }
+}

@@ -514,7 +514,7 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
                                 '${result.completedSpan} ${recallCopy(widget.language, 'completed')}',
                               ),
                               Text(
-                                '${result.nextSpan} ${recallCopy(widget.language, 'nextLength')}, ${widget.tr('span.best')}: ${result.bestSpan}, ${result.stars} / 3 ★. ${recallCopy(widget.language, 'recordHint')}',
+                                '${result.nextSpan} ${recallCopy(widget.language, 'nextLength')}',
                               ),
                             ],
                           ),

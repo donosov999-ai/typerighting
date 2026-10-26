@@ -156,6 +156,11 @@ void main() {
         find.byKey(ValueKey('recall-result-${page.id}')),
       );
       expect(summary.properties.label, contains('Memory record: 4'));
+      expect(find.text('4 words in next set'), findsOneWidget);
+      expect(
+        find.text('Record means the next set size reached.'),
+        findsOneWidget,
+      );
       expect(summary.properties.label, contains('/ 3 ★'));
       expect(point['completedSpan'], 3);
       expect(point['nextSpan'], 4);

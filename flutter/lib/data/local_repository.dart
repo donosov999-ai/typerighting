@@ -68,6 +68,7 @@ class LocalRepository {
       'pet',
       'motion',
       'heat',
+      'hardkeys',
     ]) {
       if (prefs.containsKey(key) && prefs[key] is! bool) {
         throw const FormatException('Invalid saved option');

@@ -178,6 +178,7 @@ Map<String, dynamic> legacyPracticePreferences(Map<String, dynamic> values) {
     'tr_block': 'block',
     'tr_keyb': 'keyboard',
     'tr_heat': 'heat',
+    'tr_hardkeys': 'hardkeys',
     'tr_bridge': 'bridge',
     'tr_flow': 'flow',
     'tr_pet': 'pet',

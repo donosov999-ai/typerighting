@@ -13,6 +13,8 @@ import 'data/local_repository.dart';
 import 'data/key_statistics_store.dart';
 import 'domain/key_statistics.dart';
 import 'domain/adaptive.dart';
+import 'domain/learning.dart';
+import 'features/learning_page.dart';
 import 'data/progress_view.dart';
 import 'design_system/templates.dart';
 import 'design_system/synapse_header.dart';
@@ -53,8 +55,14 @@ class PreferenceStore implements AppearanceStore {
 }
 
 class Resources {
-  Resources(this.content, this.keyboards, this.registry, this.course);
-  final Map<String, dynamic> content, keyboards, course;
+  Resources(
+    this.content,
+    this.keyboards,
+    this.registry,
+    this.course,
+    this.learning,
+  );
+  final Map<String, dynamic> content, keyboards, course, learning;
   final TemplateRegistry registry;
   static Future<Resources> load() async => Resources(
     jsonDecode(await rootBundle.loadString('assets/baseline/catalog.json'))
@@ -67,6 +75,8 @@ class Resources {
     ),
 
     jsonDecode(await rootBundle.loadString('assets/baseline/course.json'))
+        as Map<String, dynamic>,
+    jsonDecode(await rootBundle.loadString('assets/baseline/learning.json'))
         as Map<String, dynamic>,
   );
 }
@@ -120,6 +130,7 @@ enum AppSection {
   practiceMenu,
   practice,
   course,
+  learn,
   progress,
   weakKeys,
   more,
@@ -145,7 +156,9 @@ class TypeFreeApp extends StatefulWidget {
 
 class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   late String language, profile, bank, layout;
-  bool weakMode = false, showHeat = false;
+  bool weakMode = false, showHeat = false, hardKeys = false;
+  final learningKey = GlobalKey<LearningPageState>();
+  late LearningAdaptation learningAdaptation;
   int weakReturnIndex = 0;
   List<String> weakLines = [];
   late TypingSession session;
@@ -171,8 +184,14 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   int? courseStartLessonId;
   bool get historyPage => section == AppSection.progress;
   bool get coursePage => section == AppSection.course;
-  void showSection(AppSection next) {
-    setState(() => section = next);
+  Future<bool> finishLearning() async {
+    if (section != AppSection.learn) return true;
+    return await learningKey.currentState?.finishAndSave() ?? true;
+  }
+
+  Future<void> showSection(AppSection next) async {
+    if (next != section && !await finishLearning()) return;
+    if (mounted) setState(() => section = next);
   }
 
   int index = 0;
@@ -233,6 +252,11 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     motion = p['motion'] != false;
     showKeyboard = p['keyboard'] != false;
     showHeat = p['heat'] == true;
+    hardKeys = p['hardkeys'] == true;
+    final level = (widget.repository.data['legacy'] as Map)['tr_kids_ai_lvl'];
+    learningAdaptation = LearningAdaptation(
+      kidsLevel: level is String ? (jsonDecode(level) as num).toInt() : 0,
+    );
     createAssistant();
     loadKeyboard();
     reset();
@@ -413,6 +437,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           'flow': flow,
           'keyboard': showKeyboard,
           'heat': showHeat,
+          'hardkeys': hardKeys,
           'layout': layout,
           'pet': pet,
           'motion': motion,
@@ -664,7 +689,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                         .toList(),
                     onChanged: saving
                         ? null
-                        : (p) {
+                        : (p) async {
+                            if (!await finishLearning() || !mounted) return;
                             setState(() {
                               profile = p!;
                               assistant.dispose();
@@ -684,7 +710,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                           ),
                         )
                         .toList(),
-                    onChanged: (l) {
+                    onChanged: (l) async {
+                      if (!await finishLearning() || !mounted) return;
                       setState(() {
                         layout = l!;
                         loadKeyboard();
@@ -696,6 +723,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     (tr('tb.block'), block, (v) => block = v),
                     (tr('tb.keyb'), showKeyboard, (v) => showKeyboard = v),
                     (tr('tb.heat'), showHeat, (v) => showHeat = v),
+                    (tr('set.hardkeys'), hardKeys, (v) => hardKeys = v),
                     (tr('set.bridge'), bridge, (v) => bridge = v),
                     (
                       'Синапс',
@@ -974,7 +1002,11 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
         toolbarHeight: section == AppSection.today
             ? 52 * MediaQuery.textScalerOf(c).scale(14) / 14
             : 56,
-        leading: section == AppSection.practice || coursePage
+        leading:
+            section == AppSection.practice ||
+                coursePage ||
+                section == AppSection.learn ||
+                section == AppSection.weakKeys
             ? IconButton(
                 tooltip: tr('nav.back'),
                 onPressed: () => showSection(
@@ -1019,6 +1051,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     ? shellText(language, 'progress')
                     : section == AppSection.more
                     ? shellText(language, 'more')
+                    : section == AppSection.learn
+                    ? tr('learn.title')
                     : coursePage
                     ? tr('course.title')
                     : tr('hub.train'),
@@ -1044,18 +1078,21 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                   .toList(),
               onChanged: saving
                   ? null
-                  : (l) => change(() {
-                      weakMode = false;
-                      language = l!;
-                      custom = null;
-                      bank = language == 'ru' ? 'ruWords' : 'classic';
-                      textBank = bank;
-                      index = 0;
-                      loadKeyboard();
-                      assistant.dispose();
-                      headerAssistant.dispose();
-                      createAssistant();
-                    }),
+                  : (l) async {
+                      if (!await finishLearning() || !mounted) return;
+                      change(() {
+                        weakMode = false;
+                        language = l!;
+                        custom = null;
+                        bank = language == 'ru' ? 'ruWords' : 'classic';
+                        textBank = bank;
+                        index = 0;
+                        loadKeyboard();
+                        assistant.dispose();
+                        headerAssistant.dispose();
+                        createAssistant();
+                      });
+                    },
             ),
           if (section != AppSection.today)
             IconButton(
@@ -1242,6 +1279,55 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       onGenerate: startWeak,
                     );
                   }
+                  if (section == AppSection.learn) {
+                    return LearningPage(
+                      key: learningKey,
+                      repository: widget.repository,
+                      keyStatistics: keyStatistics,
+                      corpus:
+                          (widget.resources.content['corpus'] as Map)[language]
+                              as String,
+                      normalization: Map<String, String>.from(
+                        widget.resources.learning['normalization'] as Map,
+                      ),
+                      language: language,
+                      profile: profile,
+                      keyboard: keyboard,
+                      adaptation: learningAdaptation,
+                      tr: tr,
+                      clock: widget.clock,
+                      hardKeys: hardKeys,
+                      onTyping: () {
+                        if (headerAssistant.pose != SynapsePose.idle) {
+                          headerAssistant.preview(SynapsePreviewAction.idle);
+                        }
+                      },
+                      onExit: () => showSection(AppSection.practiceMenu),
+                      onSaved: (point, earlier) async {
+                        if (!mounted ||
+                            point['profile'] != profile ||
+                            point['language'] != language) {
+                          return;
+                        }
+                        await assistant.onGameSaved(
+                          fact(point),
+                          earlier
+                              .where((p) => p['profile'] == profile)
+                              .map(fact)
+                              .toList(),
+                          game: GameInfo(
+                            id: 'typefree.learn',
+                            name: tr('learn.title'),
+                            category: 'typing',
+                          ),
+                        );
+                        await widget.repository.transaction((d) {
+                          (d['prefs'] as Map)['synapseMemory_$profile'] =
+                              assistant.memory.toJson();
+                        });
+                      },
+                    );
+                  }
                   if (coursePage) {
                     return CoursePage(
                       keyStatistics: keyStatistics,
@@ -1385,6 +1471,13 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                 section = AppSection.course;
               });
             },
+          ),
+          modeTile(
+            c,
+            Icons.auto_awesome_outlined,
+            tr('learn.title'),
+            tr('hub.learn.d'),
+            () => showSection(AppSection.learn),
           ),
         ],
       ),

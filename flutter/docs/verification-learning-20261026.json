@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-26",
+  "scope": "LOCAL native-Dart AI learning + preview web/macOS; full migration remains active",
+  "task": "a4dc0a83-e2f0-4f9e-a013-1271899dcf92",
+  "parent": "568d223e-d42c-4e30-83a0-fbad3a95e721",
+  "mainModesImplemented": 3,
+  "mainModesRequired": 7,
+  "sourceScenarios": 98,
+  "keypresses": 20760,
+  "generationProbes": 840,
+  "tests": 94,
+  "testsResult": "PASS",
+  "analyze": "PASS no issues",
+  "builds": {
+    "web": "PASS",
+    "macos_debug": "PASS distinct candidate bundle ID"
+  },
+  "sourceHashes": {
+    "lib/domain/learning.dart": "048602195261f11f319872f330395fe3cfa81e60b8f8136c11d176e1b0ccae13",
+    "lib/features/learning_page.dart": "9b1fd62651338c868c62b4fbe2165462b880ee25c89ad2e2490b99c889463785",
+    "lib/main.dart": "5d97f9c974b18aa2af858d73bf2c3725fe0f995eb7018c2c751a72b3c4105131",
+    "lib/data/local_repository.dart": "49bf6152163bed2dc59eab43a2fa4a2fd6e2d84c9a0d29ce4e06f9d114ac366a",
+    "lib/data/legacy_values.dart": "f619ef4a6f7d710513cfc5605f3cc6f597d42a9ecf4d68caa619cbf38fb415b8",
+    "pubspec.yaml": "458287124ecd1d0ea2ec4730787333a9c536deec9f7544585b2006a021329cc4",
+    "assets/baseline/learning.json": "e878fe8e3125e6f7a189e7fbc7945991acfe4274f86efae3ed6e1c6fcb10e492",
+    "test/learning_parity_test.dart": "871ff9a35e93fe5ef5594de2eeca907d44f1e2ef70b8f4878e551077d0c05d40",
+    "test/learning_flow_test.dart": "7d020c4ee28639316057d562ae4546f2b32c9f40cbb8436ab7c5bbe36f85502e",
+    "tool/export_learning.mjs": "11973a87bc133e5a5980637ea2e61e409684fd8b1d069e0eb7da898aaba06587",
+    "tool/fingerprint_web.py": "027551d8c793c7fff925469de67fb0f1b1b04cab6c0512fa185d9e9d522e3018"
+  },
+  "shippedSourceHashes": {
+    "learn.ts": "8c04c4367a934ce687f973cb3ca2f6c2f0319913513fd08318a3f9b203a65201",
+    "typing.ts": "fbe7511a7568201b81b9df9ac4ca07c9b837b94d462b4c28b66ca40f06a7641d",
+    "stats-store.ts": "621f43be551fa438c3d75fc374e21d3dec92cdaebf098c7951a57623f7f59619",
+    "ngram.ts": "400416222b3900576be893324a332de66affe3e12bde9e2da3da5f5211d2428e",
+    "keyboard.ts": "946796662b135dee07d01f1ff15ec6f69dc6d32875127c897570b118c77937b8"
+  },
+  "webMainJsSha256": "7e8511b43ba3b6e5db72ba4658588ffc0f60a0a1a0b1c59b631a724f28e0d33f",
+  "browserProof": {
+    "url": "http://127.0.0.1:8062/?build=7e8511b43ba3b6e5",
+    "verifiedMainEntrypoint": "main.7e8511b43ba3b6e5.dart.js",
+    "steps": [
+      "Practice shows Training/Course/AI learning",
+      "Open AI: both/left/right hands and actual generated line",
+      "Physical sequential input completes a line and advances to a different generated line",
+      "Finish exits to Practice",
+      "Progress shows one AI result: 180 WPM /100%",
+      "Child profile shows original mood frame, score, true level and no adult speed scoreboard",
+      "Original classic profile and default viewport restored"
+    ],
+    "data": "automated local smoke test; 180 WPM and previous2051WPM are NOT Denis performance",
+    "savedScreenshots": [
+      "learning-narrow-20261026.png",
+      "practice-three-modes-proof-20261026.png",
+      "learning-history-proof-20261026.png"
+    ]
+  },
+  "visualAcceptance": "D1/D3/C6 draft comparisons with remaining differences; not owner acceptance",
+  "deployment": "No push/store upload/public deploy/real-user data migration",
+  "remaining": "4 main modes + kids course + global features/platform migration/backend/design all remain in FULL_TRANSFER_SCOPE_20261026.md"
+}

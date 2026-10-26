@@ -1,0 +1,50 @@
+{
+  "scope": "unchanged original TypeFree static child mood frames; not a replacement Synapse engine",
+  "assets": [
+    {
+      "file": "assets/learning/kids-cat-0.webp",
+      "source": "/Users/denisonosov/dev/typerighting-wt-flutter-20261025/public/images/icons/kids-cat-0.webp",
+      "sha256": "2b1b82e2204945c295dc1e99a2b2b6f584d32ba108dfd7704a61b05a9d5439b3"
+    },
+    {
+      "file": "assets/learning/kids-cat-1.webp",
+      "source": "/Users/denisonosov/dev/typerighting-wt-flutter-20261025/public/images/icons/kids-cat-1.webp",
+      "sha256": "f961ca3f6300976c7f022a8d01c6334ee2bc88d560478a200de7704a2f2d4876"
+    },
+    {
+      "file": "assets/learning/kids-cat-2.webp",
+      "source": "/Users/denisonosov/dev/typerighting-wt-flutter-20261025/public/images/icons/kids-cat-2.webp",
+      "sha256": "6fbb8312060b6cb09c24b6580df28afdd222be3336267bfe4bf37da5d74cce96"
+    },
+    {
+      "file": "assets/learning/kids-cat-3.webp",
+      "source": "/Users/denisonosov/dev/typerighting-wt-flutter-20261025/public/images/icons/kids-cat-3.webp",
+      "sha256": "7bfd4b9ce98fb2163597ae68960699618305c9a5568f23af4d153e13cfac255e"
+    },
+    {
+      "file": "assets/learning/kids-cat-4.webp",
+      "source": "/Users/denisonosov/dev/typerighting-wt-flutter-20261025/public/images/icons/kids-cat-4.webp",
+      "sha256": "6d358bcdeaedb995e56cb90eec1b5e6ee1c816e42d03a6f305fc9ec8f2bb015f"
+    },
+    {
+      "file": "assets/learning/kids-cat-5.webp",
+      "source": "/Users/denisonosov/dev/typerighting-wt-flutter-20261025/public/images/icons/kids-cat-5.webp",
+      "sha256": "75b80b38204b89a3334d04bdc6d2d2348e89686f1e46dfe62bcb5db6d0f23aff"
+    },
+    {
+      "file": "assets/learning/kids-cat-6.webp",
+      "source": "/Users/denisonosov/dev/typerighting-wt-flutter-20261025/public/images/icons/kids-cat-6.webp",
+      "sha256": "877c5b389e74f6e0bea4b62f6db415cb79ef3d17a71c22bac2df94843689d0ee"
+    },
+    {
+      "file": "assets/learning/kids-cat-7.webp",
+      "source": "/Users/denisonosov/dev/typerighting-wt-flutter-20261025/public/images/icons/kids-cat-7.webp",
+      "sha256": "6e5b3f221f12ebb8b8af749acfaa0d7417f16912af6070c808973c33a3ca903e"
+    },
+    {
+      "file": "assets/learning/kids-cat-8.webp",
+      "source": "/Users/denisonosov/dev/typerighting-wt-flutter-20261025/public/images/icons/kids-cat-8.webp",
+      "sha256": "8ba696b15c33d315b336d10f99b736017f3dd69bbcec55c449ecf3e3d112b4f3"
+    }
+  ]
+}

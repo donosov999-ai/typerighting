@@ -26,4 +26,5 @@ flutter:
     - assets/templates/registry.json
     - assets/baseline/
     - assets/artwork/
+    - assets/learning/
 

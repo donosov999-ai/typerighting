@@ -1,0 +1,53 @@
+{
+  "date": "2026-10-26",
+  "sourceCommit": "c784d2e",
+  "sourceParity": {
+    "races": 105,
+    "keypresses": 4282,
+    "seededContentProbes": 35,
+    "sourceHashes": {
+      "compete.ts": "f2060a2f2e2d6c56465d0c33b152b6d384200eba8e1e2a622f209221e018251d",
+      "typing.ts": "fbe7511a7568201b81b9df9ac4ca07c9b837b94d462b4c28b66ca40f06a7641d",
+      "keyboard.ts": "946796662b135dee07d01f1ff15ec6f69dc6d32875127c897570b118c77937b8",
+      "stats-store.ts": "621f43be551fa438c3d75fc374e21d3dec92cdaebf098c7951a57623f7f59619"
+    }
+  },
+  "checks": {
+    "fullTests": {
+      "count": 100,
+      "status": "PASS",
+      "path": "docs/competition-all-tests-20261026.log"
+    },
+    "analyze": "PASS - no issues",
+    "web": "PASS",
+    "macosDebug": "PASS"
+  },
+  "preview": {
+    "mainJsSha256": "60358623f96f2fa177ad3aa17c82bde77f7e283c818cd4d4813ebd287687b056",
+    "bootstrapSha256": "d9bf2a36efbc65140ac20bd0f10220ff38cae2d4de2c228708139f9c2b5a0931",
+    "mainJs": "main.60358623f96f2fa1.dart.js",
+    "bootstrap": "flutter_bootstrap.d9bf2a36efbc6514.js",
+    "scope": "local generated output; no source or user storage changes"
+  },
+  "browser": {
+    "digits": "actual keystrokes →14WPM/100%/0errors saved →own replay →history",
+    "sprint": "actual keystrokes →199WPM/100%/0errors saved",
+    "warning": "automated test data, not Denis performance; no remote publication"
+  },
+  "design": {
+    "screens": [
+      "E1",
+      "E2",
+      "E3"
+    ],
+    "path": "design-acceptance/20261026-competition-candidate",
+    "status": "draft - substantial differences; no owner acceptance"
+  },
+  "remaining": [
+    "network ranking/league/challenges/remote replay",
+    "full responsive/reference design acceptance",
+    "all native/device update/release gates",
+    "other3primary modes and remaining global features"
+  ],
+  "storeUpload": false
+}

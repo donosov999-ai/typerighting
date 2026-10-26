@@ -1,0 +1,68 @@
+{
+  "screen": "E3-result",
+  "status": "draft - substantial differences, not accepted",
+  "ownerAcceptance": null,
+  "sourceCommit": "c784d2e",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/05.png",
+    "sha256": "fd562aaff0cf4fd3cb244c6722bc21686e4dbd36c2b5176e8d4cd3ebab90a7ff",
+    "cropXYXY": [
+      1073,
+      98,
+      1490,
+      506
+    ],
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "logicalViewport": "unknown generated image",
+    "uniformScale": 2.302158273381295
+  },
+  "actual": {
+    "sha256": "bd5d2bddc6d0765a7a826e5e869fb0305c35d505d88378d7a1a0389a30780e53",
+    "viewportCSS": [
+      960,
+      824
+    ],
+    "devicePixelRatio": 1,
+    "screenshotSize": [
+      960,
+      824
+    ],
+    "platform": "local Flutter web / IAB",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "system observed dark",
+    "state": "Completed same RU sprint:199WPM/100%/0 errors/1.4s, saved; AUTOMATION, not Denis performance.",
+    "url": "http://127.0.0.1:8062/?build=60358623f96f2fa1",
+    "mainJsSha256": "60358623f96f2fa177ad3aa17c82bde77f7e283c818cd4d4813ebd287687b056"
+  },
+  "method": {
+    "equalWidth": 960,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alignment": "top-left app content",
+    "alpha": 0.5,
+    "commonHeight": 824,
+    "padding": "gray outside available image pixels"
+  },
+  "limits": [
+    "Reference logical viewport/DPR unknown: diagnostic only, not device acceptance",
+    "Reference and actual metrics differ; actual figures come from automation",
+    "Other viewports/profiles/themes/native platforms remain open"
+  ],
+  "differences": [
+    "Result uses a Wrap instead of reference structured KPI and detail cards; geometry/materials differ.",
+    "Medal text lacks reference illustration; record and retry controls require design refinement.",
+    "Actual truthful WPM uses words/5characters; reference generated unit labels are incorrect.",
+    "Network ranking/league/challenges are not connected and remain open tasks."
+  ],
+  "outputs": {
+    "side-by-side.png": "92bddf99af3e3d41caac2df0a63bfcf2cfd62f531cfa11d41e86df27dca7401a",
+    "overlay-50.png": "b028f884d623c227ff29d0e33ad83622b1c28fc64213edfcef9e2d9387f8ca91",
+    "comparison-panel.png": "aef56830a3bae08643bb6f7bd4573d7f8954c2eab1a5b6251db8cccf9c713fdd"
+  }
+}

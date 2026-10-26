@@ -1,0 +1,67 @@
+{
+  "screen": "E1-menu",
+  "status": "draft - substantial differences, not accepted",
+  "ownerAcceptance": null,
+  "sourceCommit": "c784d2e",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/05.png",
+    "sha256": "fd562aaff0cf4fd3cb244c6722bc21686e4dbd36c2b5176e8d4cd3ebab90a7ff",
+    "cropXYXY": [
+      48,
+      98,
+      465,
+      506
+    ],
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "logicalViewport": "unknown generated image",
+    "uniformScale": 2.302158273381295
+  },
+  "actual": {
+    "sha256": "05674e3942a4ca7eea7fee02e725c576a3dcfa6ded5831cda5d9945cbd9c4f92",
+    "viewportCSS": [
+      960,
+      824
+    ],
+    "devicePixelRatio": 1,
+    "screenshotSize": [
+      960,
+      824
+    ],
+    "platform": "local Flutter web / IAB",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "system observed dark",
+    "state": "Five disciplines; genuine local digits record14WPM from automation.",
+    "url": "http://127.0.0.1:8062/?build=60358623f96f2fa1",
+    "mainJsSha256": "60358623f96f2fa177ad3aa17c82bde77f7e283c818cd4d4813ebd287687b056"
+  },
+  "method": {
+    "equalWidth": 960,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alignment": "top-left app content",
+    "alpha": 0.5,
+    "commonHeight": 824,
+    "padding": "gray outside available image pixels"
+  },
+  "limits": [
+    "Reference logical viewport/DPR unknown: diagnostic only, not device acceptance",
+    "Reference and actual metrics differ; actual figures come from automation",
+    "Other viewports/profiles/themes/native platforms remain open"
+  ],
+  "differences": [
+    "Card geometry, discipline icons, spacing and title hierarchy differ from the reference.",
+    "Generated reference numbers are illustrative; empty records remain empty.",
+    "Full native/device/theme/profile acceptance remains open."
+  ],
+  "outputs": {
+    "side-by-side.png": "771605e25e2eb13491f3f3610a44cf0b5a27ea924422e705c25fb16ce035b4ba",
+    "overlay-50.png": "d3d266b0d999e7a5aaae22673b2008eb22f62e4d819afb32805e451ac82def66",
+    "comparison-panel.png": "20051c40f0f489f4bb6aaa5269826e59a7aed993a8f604d4229434dc84f1d8f0"
+  }
+}

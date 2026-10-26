@@ -1,0 +1,68 @@
+{
+  "screen": "E2-run",
+  "status": "draft - substantial differences, not accepted",
+  "ownerAcceptance": null,
+  "sourceCommit": "c784d2e",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/05.png",
+    "sha256": "fd562aaff0cf4fd3cb244c6722bc21686e4dbd36c2b5176e8d4cd3ebab90a7ff",
+    "cropXYXY": [
+      526,
+      98,
+      1012,
+      506
+    ],
+    "originalSize": [
+      1536,
+      1024
+    ],
+    "logicalViewport": "unknown generated image",
+    "uniformScale": 1.9753086419753085
+  },
+  "actual": {
+    "sha256": "62458ef873b18b4ccde25f55ee2d3bc569b6b551e90b6b0033dc11ea8e3d02df",
+    "viewportCSS": [
+      960,
+      824
+    ],
+    "devicePixelRatio": 1,
+    "screenshotSize": [
+      960,
+      824
+    ],
+    "platform": "local Flutter web / IAB",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "system observed dark",
+    "state": "RU sprint before first stroke: учись каждый день понемногу; no ghost selected.",
+    "url": "http://127.0.0.1:8062/?build=60358623f96f2fa1",
+    "mainJsSha256": "60358623f96f2fa177ad3aa17c82bde77f7e283c818cd4d4813ebd287687b056"
+  },
+  "method": {
+    "equalWidth": 960,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alignment": "top-left app content",
+    "alpha": 0.5,
+    "commonHeight": 806,
+    "padding": "gray outside available image pixels"
+  },
+  "limits": [
+    "Reference logical viewport/DPR unknown: diagnostic only, not device acceptance",
+    "Reference and actual metrics differ; actual figures come from automation",
+    "Other viewports/profiles/themes/native platforms remain open"
+  ],
+  "differences": [
+    "Live timer/KPI/best/ghost summary composition from reference is not yet implemented.",
+    "Full physical keyboard preserves source keys; generated compact drawing omits required keys.",
+    "Minimum740px keyboard scrolls horizontally on narrow screens; responsive composition still needs work.",
+    "Actual random sprint differs from the illustrative reference paragraph; no image/text substitution."
+  ],
+  "outputs": {
+    "side-by-side.png": "8f1f83498809b053aa6a70dfa8522d0ee3c979a84894ff10e85b3d24dc911827",
+    "overlay-50.png": "de547c7f1323b460810400cb1f24368052cb013db4e2fe81cb8e0ffb92a3391b",
+    "comparison-panel.png": "edcbe7789ec8d44e8ccd01e7e9c3769ad740079bf4780cf255e968cb46336b8c"
+  }
+}

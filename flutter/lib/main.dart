@@ -15,6 +15,7 @@ import 'domain/key_statistics.dart';
 import 'domain/adaptive.dart';
 import 'domain/learning.dart';
 import 'features/learning_page.dart';
+import 'features/competition_page.dart';
 import 'data/progress_view.dart';
 import 'design_system/templates.dart';
 import 'design_system/synapse_header.dart';
@@ -131,6 +132,7 @@ enum AppSection {
   practice,
   course,
   learn,
+  compete,
   progress,
   weakKeys,
   more,
@@ -158,6 +160,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   late String language, profile, bank, layout;
   bool weakMode = false, showHeat = false, hardKeys = false;
   final learningKey = GlobalKey<LearningPageState>();
+  final competitionKey = GlobalKey<CompetitionPageState>();
   late LearningAdaptation learningAdaptation;
   int weakReturnIndex = 0;
   List<String> weakLines = [];
@@ -185,6 +188,9 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   bool get historyPage => section == AppSection.progress;
   bool get coursePage => section == AppSection.course;
   Future<bool> finishLearning() async {
+    if (section == AppSection.compete) {
+      return await competitionKey.currentState?.finishAndSave() ?? true;
+    }
     if (section != AppSection.learn) return true;
     return await learningKey.currentState?.finishAndSave() ?? true;
   }
@@ -1006,6 +1012,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
             section == AppSection.practice ||
                 coursePage ||
                 section == AppSection.learn ||
+                section == AppSection.compete ||
                 section == AppSection.weakKeys
             ? IconButton(
                 tooltip: tr('nav.back'),
@@ -1051,6 +1058,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     ? shellText(language, 'progress')
                     : section == AppSection.more
                     ? shellText(language, 'more')
+                    : section == AppSection.compete
+                    ? tr('compete.title')
                     : section == AppSection.learn
                     ? tr('learn.title')
                     : coursePage
@@ -1279,6 +1288,47 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       onGenerate: startWeak,
                     );
                   }
+                  if (section == AppSection.compete) {
+                    return CompetitionPage(
+                      key: competitionKey,
+                      repository: widget.repository,
+                      keyStatistics: keyStatistics,
+                      language: language,
+                      profile: profile,
+                      keyboard: keyboard,
+                      tr: tr,
+                      clock: widget.clock,
+                      onExit: () => showSection(AppSection.practiceMenu),
+                      onTyping: () {
+                        if (headerAssistant.pose != SynapsePose.idle) {
+                          headerAssistant.preview(SynapsePreviewAction.idle);
+                        }
+                      },
+                      onSaved: (point, earlier) async {
+                        if (!mounted ||
+                            point['profile'] != profile ||
+                            point['language'] != language) {
+                          return;
+                        }
+                        await assistant.onGameSaved(
+                          fact(point),
+                          earlier
+                              .where((p) => p['profile'] == profile)
+                              .map(fact)
+                              .toList(),
+                          game: GameInfo(
+                            id: 'typefree.compete',
+                            name: tr('compete.title'),
+                            category: 'typing',
+                          ),
+                        );
+                        await widget.repository.transaction((d) {
+                          (d['prefs'] as Map)['synapseMemory_$profile'] =
+                              assistant.memory.toJson();
+                        });
+                      },
+                    );
+                  }
                   if (section == AppSection.learn) {
                     return LearningPage(
                       key: learningKey,
@@ -1478,6 +1528,13 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
             tr('learn.title'),
             tr('hub.learn.d'),
             () => showSection(AppSection.learn),
+          ),
+          modeTile(
+            c,
+            Icons.emoji_events_outlined,
+            tr('compete.title'),
+            tr('compete.intro.store'),
+            () => showSection(AppSection.compete),
           ),
         ],
       ),

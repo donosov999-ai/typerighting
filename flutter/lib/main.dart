@@ -20,6 +20,8 @@ import 'features/competition_page.dart';
 import 'features/memorize_page.dart';
 import 'features/recall_page.dart';
 import 'features/exam_page.dart';
+import 'features/kids_page.dart';
+import 'domain/kids.dart';
 import 'domain/recall.dart';
 import 'data/progress_view.dart';
 import 'design_system/templates.dart';
@@ -66,9 +68,10 @@ class Resources {
     this.keyboards,
     this.registry,
     this.course,
-    this.learning,
-  );
-  final Map<String, dynamic> content, keyboards, course, learning;
+    this.learning, [
+    this.kids = const {},
+  ]);
+  final Map<String, dynamic> content, keyboards, course, learning, kids;
   final TemplateRegistry registry;
   static Future<Resources> load() async => Resources(
     jsonDecode(await rootBundle.loadString('assets/baseline/catalog.json'))
@@ -83,6 +86,8 @@ class Resources {
     jsonDecode(await rootBundle.loadString('assets/baseline/course.json'))
         as Map<String, dynamic>,
     jsonDecode(await rootBundle.loadString('assets/baseline/learning.json'))
+        as Map<String, dynamic>,
+    jsonDecode(await rootBundle.loadString('assets/baseline/kids.json'))
         as Map<String, dynamic>,
   );
 }
@@ -141,6 +146,7 @@ enum AppSection {
   memorize,
   recall,
   exam,
+  kids,
   progress,
   weakKeys,
   more,
@@ -174,6 +180,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   final memorizeKey = GlobalKey<MemorizePageState>();
   final recallKey = GlobalKey<RecallPageState>();
   final examKey = GlobalKey<ExamPageState>();
+  final kidsKey = GlobalKey<KidsPageState>();
+  final kidsActivity = KidsActivity();
   late RecallAdaptation recallAdaptation;
   late LearningAdaptation learningAdaptation;
   int weakReturnIndex = 0;
@@ -202,6 +210,9 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   bool get historyPage => section == AppSection.progress;
   bool get coursePage => section == AppSection.course;
   Future<bool> finishLearning() async {
+    if (section == AppSection.kids) {
+      return await kidsKey.currentState?.checkpointForExit() ?? true;
+    }
     if (section == AppSection.exam) {
       return await examKey.currentState?.checkpointForExit() ?? true;
     }
@@ -1047,6 +1058,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                 section == AppSection.memorize ||
                 section == AppSection.recall ||
                 section == AppSection.exam ||
+                section == AppSection.kids ||
                 section == AppSection.weakKeys
             ? IconButton(
                 tooltip: tr('nav.back'),
@@ -1092,6 +1104,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     ? shellText(language, 'progress')
                     : section == AppSection.more
                     ? shellText(language, 'more')
+                    : section == AppSection.kids
+                    ? tr('k.title')
                     : section == AppSection.exam
                     ? tr('ex.title')
                     : section == AppSection.recall
@@ -1326,6 +1340,33 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       profile: profile,
                       tr: tr,
                       onGenerate: startWeak,
+                    );
+                  }
+                  if (section == AppSection.kids) {
+                    final rows = widget.resources.kids['levels'];
+                    if (rows is! List || rows.isEmpty) {
+                      return Text(tr('err.load'));
+                    }
+                    return KidsPage(
+                      key: kidsKey,
+                      repository: widget.repository,
+                      levels: rows
+                          .map(
+                            (row) => KidsLevel.fromJson(
+                              Map<String, dynamic>.from(row as Map),
+                            ),
+                          )
+                          .toList(),
+                      activity: kidsActivity,
+                      keyboard: keyboard,
+                      tr: tr,
+                      language: language,
+                      onAI: () => unawaited(showSection(AppSection.learn)),
+                      onTyping: () {
+                        if (headerAssistant.pose != SynapsePose.idle) {
+                          headerAssistant.preview(SynapsePreviewAction.idle);
+                        }
+                      },
                     );
                   }
                   if (section == AppSection.exam) {
@@ -1728,6 +1769,13 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
             tr('ex.title'),
             tr('ex.desc'),
             () => showSection(AppSection.exam),
+          ),
+          modeTile(
+            c,
+            Icons.pets_outlined,
+            tr('k.title'),
+            tr('k.hello'),
+            () => showSection(AppSection.kids),
           ),
         ],
       ),

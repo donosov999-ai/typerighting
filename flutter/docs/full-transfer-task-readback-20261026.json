@@ -1,0 +1,158 @@
+{
+  "checkedAt": "2026-10-26",
+  "count": 19,
+  "tasks": [
+    {
+      "id": "0b753b64-ee0d-45d5-857f-b3d38d37d504",
+      "task_name": "TypeFree Flutter дизайн: кабинеты, аккаунты, авторский инструмент и сервисные состояния (29 состояний)",
+      "status": "planned",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "e0f2dc42-4b77-43dd-b681-aa4862c69f28",
+      "descriptionPresent": true
+    },
+    {
+      "id": "51793c0f-5f8f-4456-a83f-53a9a82e1f46",
+      "task_name": "TypeFree Flutter дизайн: AI, дети, Наизусть, Память, соревнование и тест (16 состояний)",
+      "status": "planned",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "e0f2dc42-4b77-43dd-b681-aa4862c69f28",
+      "descriptionPresent": true
+    },
+    {
+      "id": "e602a588-2f18-4643-8e24-b0a7f0680565",
+      "task_name": "TypeFree Flutter дизайн: тренажёр, клавиатура, библиотека, курс, слабые клавиши и поток (11 состояний)",
+      "status": "in_progress",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "e0f2dc42-4b77-43dd-b681-aa4862c69f28",
+      "descriptionPresent": true
+    },
+    {
+      "id": "ca052f2f-c11a-4160-a581-8e97a4430357",
+      "task_name": "TypeFree Flutter дизайн: основные страницы, прогресс, темы и Синапс (15 состояний)",
+      "status": "in_progress",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "e0f2dc42-4b77-43dd-b681-aa4862c69f28",
+      "descriptionPresent": true
+    },
+    {
+      "id": "e0f2dc42-4b77-43dd-b681-aa4862c69f28",
+      "task_name": "TypeFree Flutter: полная приёмка нового дизайна — 71 экран и 59 групп функций",
+      "status": "in_progress",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "568d223e-d42c-4e30-83a0-fbad3a95e721",
+      "descriptionPresent": true
+    },
+    {
+      "id": "3ad0dfec-2922-4355-b2fb-df27a5f693a6",
+      "task_name": "TypeFree Flutter: настоящие мобильные и desktop сборки, ввод, экспорт и обновления платформ",
+      "status": "planned",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "568d223e-d42c-4e30-83a0-fbad3a95e721",
+      "descriptionPresent": true
+    },
+    {
+      "id": "c3949022-dea7-470d-a02c-27ee1b9f0112",
+      "task_name": "TypeFree Flutter: кабинеты преподавателя и ученика — перенос принятого LOCAL сценария и backend-адаптер",
+      "status": "planned",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "2046fb02-53b1-47db-918f-e0a2a417e6a3",
+      "descriptionPresent": true
+    },
+    {
+      "id": "99f35605-ffcb-4123-a8d0-4dbc8b118e4a",
+      "task_name": "TypeFree Flutter: перенести аккаунт, синхронизацию и защиту согласий с сохранением общих API",
+      "status": "planned",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "2046fb02-53b1-47db-918f-e0a2a417e6a3",
+      "descriptionPresent": true
+    },
+    {
+      "id": "54a5f7a3-e4fa-47e3-b236-18090866e20d",
+      "task_name": "TypeFree Flutter: все настройки, звук, метроном и офлайн-озвучка RU/EN",
+      "status": "planned",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "2046fb02-53b1-47db-918f-e0a2a417e6a3",
+      "descriptionPresent": true
+    },
+    {
+      "id": "0d1610d3-5a5b-44b5-bd0d-e1cf62073398",
+      "task_name": "TypeFree Flutter: полный Прогресс, график, прогноз, достижения и объединение истории",
+      "status": "planned",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "2046fb02-53b1-47db-918f-e0a2a417e6a3",
+      "descriptionPresent": true
+    },
+    {
+      "id": "2fbd9c8e-83a7-4e6a-b5f9-3efd51329772",
+      "task_name": "TypeFree Flutter: все семь режимов в навигации, компаньон, онбординг, профили и семь языков",
+      "status": "in_progress",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "2046fb02-53b1-47db-918f-e0a2a417e6a3",
+      "descriptionPresent": true
+    },
+    {
+      "id": "a254cc2f-42fe-4af4-a7fd-f15c8e6000b7",
+      "task_name": "TypeFree Flutter: завершить паритет тренировки, курса, потока и библиотеки",
+      "status": "in_progress",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "2046fb02-53b1-47db-918f-e0a2a417e6a3",
+      "descriptionPresent": true
+    },
+    {
+      "id": "70f10a9c-ed23-4f26-924d-a81fec53c0e6",
+      "task_name": "TypeFree Flutter: детский курс — все 33 уровня, звёзды, кот и мягкие паузы",
+      "status": "planned",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "2046fb02-53b1-47db-918f-e0a2a417e6a3",
+      "descriptionPresent": true
+    },
+    {
+      "id": "ea87c138-a414-4a00-8a71-ccaf43ddca60",
+      "task_name": "TypeFree Flutter: тест печати 1/5/10 минут и сертификат",
+      "status": "planned",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "2046fb02-53b1-47db-918f-e0a2a417e6a3",
+      "descriptionPresent": true
+    },
+    {
+      "id": "283439cf-000f-493c-8439-3e01407ee242",
+      "task_name": "TypeFree Flutter: Память — показ, скрытие, ввод и адаптивный span",
+      "status": "planned",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "2046fb02-53b1-47db-918f-e0a2a417e6a3",
+      "descriptionPresent": true
+    },
+    {
+      "id": "a86c2d6d-c9c5-4db9-8edb-937542c07649",
+      "task_name": "TypeFree Flutter: Наизусть — оба источника, четыре длины и пять проходов",
+      "status": "planned",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "2046fb02-53b1-47db-918f-e0a2a417e6a3",
+      "descriptionPresent": true
+    },
+    {
+      "id": "be1afcd2-294f-46dc-adcb-f06f8b372eae",
+      "task_name": "TypeFree Flutter: соревнование — пять дисциплин, повторы, призрак, рейтинг, лига и вызовы",
+      "status": "planned",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "2046fb02-53b1-47db-918f-e0a2a417e6a3",
+      "descriptionPresent": true
+    },
+    {
+      "id": "a4dc0a83-e2f0-4f9e-a013-1271899dcf92",
+      "task_name": "TypeFree Flutter: AI-обучение взрослых и детей со всеми адаптивными механиками",
+      "status": "planned",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "2046fb02-53b1-47db-918f-e0a2a417e6a3",
+      "descriptionPresent": true
+    },
+    {
+      "id": "bffa00b8-0790-4206-8525-fa75bffee270",
+      "task_name": "TypeFree Flutter: тепловая карта, слабые клавиши и восстановление",
+      "status": "in_progress",
+      "executor": "typerighting-codex-mac",
+      "parent_id": "2046fb02-53b1-47db-918f-e0a2a417e6a3",
+      "descriptionPresent": true
+    }
+  ]
+}

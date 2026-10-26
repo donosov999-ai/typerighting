@@ -1,0 +1,408 @@
+{
+  "date": "2026-10-26",
+  "goal": "FULL native Flutter migration; all functions and design; not a partial web replacement",
+  "parent": "568d223e-d42c-4e30-83a0-fbad3a95e721",
+  "modeParent": "2046fb02-53b1-47db-918f-e0a2a417e6a3",
+  "newTasks": [
+    {
+      "key": "adaptive",
+      "name": "TypeFree Flutter: тепловая карта, слабые клавиши и восстановление",
+      "status": "in_progress",
+      "groups": [
+        15
+      ],
+      "screens": "C6",
+      "body": "Перенести stats-store.ts/ngram.ts целиком для слабых клавиш: EMA/decay/min samples, ошибки+скорость, recovery от best time, адаптивные n-gram упражнения по 7 языкам, честное отсутствие данных, физические карты Windows/macOS, сохранение и возврат к прежнему банку. Текущий незакоммиченный Dart-кандидат: 42 source-case parity и 89 тестов PASS, генерация/запись/heat переключатель/экран анализа; визуальная C6 приёмка ещё не выполнена. Проверить слабые клавиши после настоящих ошибок, reload, template switch, Enter-фокус, отсутствие удвоения. Не считать перенесённым AI-обучение из одной weakDrill.",
+      "id": "bffa00b8-0790-4206-8525-fa75bffee270"
+    },
+    {
+      "key": "ai",
+      "name": "TypeFree Flutter: AI-обучение взрослых и детей со всеми адаптивными механиками",
+      "groups": [
+        16,
+        17
+      ],
+      "screens": "D1,D3",
+      "body": "Источник src/learn.ts + src/ngram.ts. Перенести бесконечные строки и локальную адаптацию: обе/левая/правая рука; mastery/tempo/rhythm/accuracy и интервалы; взрослый difficulty 0..6, окно ошибок и передышки; детская лесенка RU16/Latin13 пар, старый tr_kids_ai_lvl, очки +10/-5, настроение и переход к ngram после алфавита. Санитизация ё/ъ по настройке, диакритика по QWERTY/AZERTY/QWERTZ, смена руки, exit/save/cleanup. Offline без LLM/диагнозов. Проверка deterministic TS→Dart traces, настоящая клавиатура, per-key/history один раз, все профили/7 языков.",
+      "id": "a4dc0a83-e2f0-4f9e-a013-1271899dcf92"
+    },
+    {
+      "key": "competition",
+      "name": "TypeFree Flutter: соревнование — пять дисциплин, повторы, призрак, рейтинг, лига и вызовы",
+      "groups": [
+        23,
+        24,
+        25,
+        26,
+        27
+      ],
+      "screens": "E1,E2,E3,K1,K2,K3",
+      "body": "Источник src/compete.ts, compete-net.ts, leaderboard.ts, store-build.ts. Все пять дисциплин alpha_fwd/alpha_rev/words/digits/sprint; source WPM/accuracy/medal/records tr_compete по языку, blocked input. Timeline/детерминированный replay/ghost, cleanup таймеров, challenge link и его ошибки/TTL, недельная лига и рейтинг. Не выдумывать серверные данные; честный offline/provider unavailable. Сохранить существующий store/kids запрет соцфункций и добровольность публикации ника. Реальный сервис отдельно от локальной гонки; не закрывать задачу по одному меню/одной дисциплине.",
+      "id": "be1afcd2-294f-46dc-adcb-f06f8b372eae"
+    },
+    {
+      "key": "memorize",
+      "name": "TypeFree Flutter: Наизусть — оба источника, четыре длины и пять проходов",
+      "groups": [
+        20,
+        21
+      ],
+      "screens": "D4,D5,J4",
+      "body": "Источник src/memorize.ts + classic.ts/raven.ts. Классика/Ворон на всех 7 языках; длины 5/7/10 слов/строфа, выбор отрывка; очистка текста по исходным правилам; пять фаз full/third/half/first/blind, маски/границы слов; blocked input и timed=false для per-key; промежуточный и финальный итог, recall/WPM/growth, успех >=85% увеличивает длину, сохранение tr_mem_len, рестарт/следующий/выход. Golden masks + length progression, реальный ввод и сохранение без повтора.",
+      "id": "a86c2d6d-c9c5-4db9-8edb-937542c07649"
+    },
+    {
+      "key": "recall",
+      "name": "TypeFree Flutter: Память — показ, скрытие, ввод и адаптивный span",
+      "groups": [
+        22
+      ],
+      "screens": "D6,J5,J6",
+      "body": "Источник src/recall.ts. Уникальные слова 3–7 букв из языкового корпуса, span 3..9; reveal auto max(2500,span*1200) и ручное «Запомнил»; тот же экран без подсказки будущих символов; ввод с блокировкой, timed=false. Recall>=90% повышает span, иначе снижает до min; реальные best span tr_span_best, звёзды, перезапуск/следующий раунд. Отмена таймера при любом выходе/смене route; никакого восстановления скрытого текста случайной перерисовкой. Проверка fake-clock/state traces + реальная UI память/history.",
+      "id": "283439cf-000f-493c-8439-3e01407ee242"
+    },
+    {
+      "key": "exam",
+      "name": "TypeFree Flutter: тест печати 1/5/10 минут и сертификат",
+      "groups": [
+        28,
+        29
+      ],
+      "screens": "E4,E5,E6,K4",
+      "body": "Источник exam в src/main.ts, cert.ts. Настройка 1/5/10 минут, цели/имени, корректная локализованная classic pool без трёх Шестова; реальный таймер и досрочный финиш; переход упражнений, free input/Backspace и точные net/gross/accuracy/elapsed формулы. Личный результат/history/достижения, повтор, локальный сертификат/export/print. Публичная регистрация/публикация имени только на разрешённых web/desktop путях; store/kids gate не снимать. Граничные таймеры, background/offline/выход, без повтора записи и без подмены WPM знаками/мин.",
+      "id": "ea87c138-a414-4a00-8a71-ccaf43ddca60"
+    },
+    {
+      "key": "kids",
+      "name": "TypeFree Flutter: детский курс — все 33 уровня, звёзды, кот и мягкие паузы",
+      "groups": [
+        19
+      ],
+      "screens": "D2,J3",
+      "body": "Источник src/kids.ts. 9 RU +24 EN =33 исходных уровней по 5 слов, точный порядок/IDs, unlock/stars tr_kids, звёзды по исходному порогу .9, фразы/кот/слово за словом, Enter/Space на итоге, мягкая пауза после трёх уровней. Детям не навязывать скорость; keyboard всегда доступна; озвучка реальных RU/EN сэмплов; выход в AI и обычную практику. Не выдавать RU/EN контент за новый набор 7 языков; интерфейс локализовать. Проверить обновление старых stars и запрет недоступных уровней.",
+      "id": "70f10a9c-ed23-4f26-924d-a81fec53c0e6"
+    },
+    {
+      "key": "practice",
+      "name": "TypeFree Flutter: завершить паритет тренировки, курса, потока и библиотеки",
+      "status": "in_progress",
+      "groups": [
+        5,
+        6,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        18,
+        43,
+        44
+      ],
+      "screens": "B1,B2,B3,C1,C2,C3,C4,C5,J1,J2",
+      "body": "Базовая практика и курс 19 уроков×7 языков уже существуют, но задача — полный перенос source main.ts/typing.ts/keyboard.ts/course.ts/content/classic/raven/ru/practice-options/layout-detect. Оригинал/построчно/поток/свой текст/цифры/plain с раздельными рекордами и старым банком, реальные IDs/каталог/поиск, pause/resume/restart/следующий, сохранённый фокус/видимая строка. Пять рядов клавиатуры, пальцы/Shift/Enter, Auto/QWERTY/AZERTY/QWERTZ, mismatch/bridge. Три набора Шестова off в loader и selector, личные данные сохраняются. Проверить все языки/3 профиля/desktop/web/mobile, курс stars/unlock и callback ошибок записи. Имеющиеся golden tests не заменяют оставшиеся функции и визуальную приёмку.",
+      "id": "a254cc2f-42fe-4af4-a7fd-f15c8e6000b7"
+    },
+    {
+      "key": "navigation",
+      "name": "TypeFree Flutter: все семь режимов в навигации, компаньон, онбординг, профили и семь языков",
+      "status": "in_progress",
+      "groups": [
+        1,
+        2,
+        3,
+        4,
+        35
+      ],
+      "screens": "A1,A2,A3,A4,A5,A6,I6",
+      "body": "Семь основных режимов исходного приложения: Тренировка, Курс печати, AI-обучение, Тест-соревнование, Наизусть, Память, Тест печати. Каждый ведёт к настоящему упражнению, не пустой карточке/веб-замене. Детский игровой курс и детское AI — дополнительные варианты, а не исключённые режимы. Сегодня/Практика/Прогресс/Ещё, полный компаньон без физклавиатуры и явный вход в тренажёр, onboarding m/f/kids, язык RU/EN/ES/DE/FR/IT/PT, BT/external keyboard. Перевести все подписи/ошибки/модалки, не только shell. Back/exit снимают таймеры/ghost; template/profile switch сохраняют согласованные данные и state. Сейчас UI показывает только 2 перенесённых основных режима, это НЕ полный результат.",
+      "id": "2fbd9c8e-83a7-4e6a-b5f9-3efd51329772"
+    },
+    {
+      "key": "statistics",
+      "name": "TypeFree Flutter: полный Прогресс, график, прогноз, достижения и объединение истории",
+      "groups": [
+        7,
+        30,
+        31,
+        38
+      ],
+      "screens": "F1,F2,C4,K6",
+      "body": "Источники stats-store.ts/achievements.ts/account.ts. Полная история/график/стрик/цель WPM/регрессия и uncertainty с честным null, 11 исходных badge IDs и реальные критерии/уведомления/unlocked set. Per-key heat/EMA исходник уже локально перенесён отдельной задачей. Merge: history union по t, max stars/records и MIN bt; не затирать старую историю и не приписывать unknown profile/lang. В матрице24.10 написано500 history points, но живой src/stats-store.ts ограничивает300: следовать исходнику, исправить расхождение в собственном ledger. Даты/таймзоны и единицы source-defined, никаких выводов об интеллекте. Проверки TS fixtures, idempotency/reload/merge/conflict.",
+      "id": "0d1610d3-5a5b-44b5-bd0d-e1cf62073398"
+    },
+    {
+      "key": "audio",
+      "name": "TypeFree Flutter: все настройки, звук, метроном и офлайн-озвучка RU/EN",
+      "groups": [
+        32,
+        33,
+        34
+      ],
+      "screens": "F3,F4",
+      "body": "Источники main.ts/sound.ts/voice.ts/profiles.ts. Перенести все hide text/sound/voice/block/keyboard/heat/hardkeys/bridge и сохранение исходных prefs, раскладки/размеры/доступность. Реальные звуки start/error/success/stars/cat/upgrade, тест звука, метроном60–200 BPM; отключение/exit/background не оставляют звук или таймер. Офлайн RU/EN сэмплы должны реально входить в мобильный bundle; не обещать ES/DE/FR/IT/PT audio без сэмплов. Уважать autoplay/системный звук/reduced motion; никакой новой внешней платной TTS без разрешения. Проверить bundled assets и нативное воспроизведение.",
+      "id": "54a5f7a3-e4fa-47e3-b236-18090866e20d"
+    },
+    {
+      "key": "account",
+      "name": "TypeFree Flutter: перенести аккаунт, синхронизацию и защиту согласий с сохранением общих API",
+      "groups": [
+        37,
+        39,
+        40,
+        41,
+        57
+      ],
+      "screens": "F5,F6,I3,I4,I5,K5,K6,L5,L6",
+      "body": "Источники release account.ts/session-log.ts и отдельный кандидат /Users/denisonosov/dev/typerighting-wt-account-20261016 cloud-account.ts/native-account-host.ts. Сохранить разрешённые login/register/sync/logout/delete и экспорт без PIN/device/queue; LOCAL default, вход ≠ history consent, preview/CAS/grant, OFF/logout/A→B/revocation/native fences. Нет accepted native deletion SDK — честно недоступно, без фальшивого успеха. История сохраняется после logout/delete по существующим правилам. Typed adapters к согласованному общему backend, не четвёртый auth/API. Session outbox/device isolation/minimal scopes, offline/error/loading/declined states. Зависимости existing db294acf-3187-4e20-90ae-005eef445dbb и F1 ab250f45, owner acceptance отдельно; backend/cost/real data mutation не разрешаются созданием этой карточки.",
+      "id": "99f35605-ffcb-4123-a8d0-4dbc8b118e4a"
+    },
+    {
+      "key": "coach",
+      "name": "TypeFree Flutter: кабинеты преподавателя и ученика — перенос принятого LOCAL сценария и backend-адаптер",
+      "groups": [
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55
+      ],
+      "screens": "G1,G2,G3,G4,G5,G6,H1,H2,H3,H4,L1,L2,L3,L4,L5,L6",
+      "body": "Использовать согласованный общий API. Port /Users/denisonosov/dev/typerighting-wt-coach-20261024 (773d303) в Flutter: профиль преподавателя, одноразовая ссылка/код, карточка и scopes до consent, принять/отказать/expired; ученики/группы с серверной изоляцией, программы из реальных exercises с order/difficulty/frequency/deadline/goal, individual/group assignments, immutable version/hash. Запуск того же Dart engine и личной истории, eventId/retry/scoped metrics/errors/comments, cancellation/replacement, revoke-first/outbox purge и завершение без удаления прогресса. Никакой lookup по email и фиктивных пользователей/backend. Подключить existing aa6bbc2f-5fec-4344-931f-0619649353a3/db294acf/a61a629c; собственные тексты d16dee20, timezone4c2331fb, 7lang0507d901 остаются существующими задачами. Acceptance: coach→invite→explicit accept→real exercise→permitted result→disconnect→self-practice; отказ/offline/replay/чужой ученик обязательно.",
+      "id": "c3949022-dea7-470d-a02c-27ee1b9f0112"
+    },
+    {
+      "key": "platforms",
+      "name": "TypeFree Flutter: настоящие мобильные и desktop сборки, ввод, экспорт и обновления платформ",
+      "groups": [
+        42,
+        56
+      ],
+      "screens": "B1,B2,B3,A4,I5",
+      "body": "Создать и проверить настоящие Flutter iOS/Android платформы и полный поддерживаемый desktop/web набор. Existing candidate сейчас имеет только macOS/web; не объявлять его мобильным Flutter-выпуском и не заменять целью Flutter-web iframe в Tauri. Bundle/package IDs для iOS/Android pro.typefree.app; свои существующие значки/подписи, release manifest/permissions/assets/offline, физическая клавиатура/IME/BT/landscape/safe area/lifecycle. Desktop updater отдельно с разрешённым source/signing. Packaged migration/backup/rollback и реальные iOS/Android updates по existing F1 ab250f45-e333-4b6d-9617-7b6ef7917564; реальные пользовательские данные и расходы требуют отдельного разрешения. Release own e820238d только после checks; source/artifact/provider/store/device evidence разделять.",
+      "id": "3ad0dfec-2922-4355-b2fb-df27a5f693a6"
+    },
+    {
+      "key": "design",
+      "name": "TypeFree Flutter: полная приёмка нового дизайна — 71 экран и 59 групп функций",
+      "status": "in_progress",
+      "groups": [
+        58,
+        59
+      ],
+      "screens": "A1–M4, все 71 состояния",
+      "body": "Общий gate всех дизайн-подзадач. Перенести все функции, не урезать меню/упражнения ради рисунка. Канон DESIGN_TEMPLATE_REF.md, SCREEN_ATLAS.md, FUNCTION_PARITY.md; B1–B3 по02-v2-synapse.png, M1–M4 по13-synapse-templates.png. Для КАЖДОГО из71 sketches состояния: reference+actual одинаковой ширины/условий, side-by-side+overlay50/50+таблица расхождений, originals/manifest/commit/platform/viewport/DPR/theme/lang/profile/textScale; исправить существенные расхождения. Не смешивать generated concept с runtime; выдуманные данные/клавиши/единицы не переносить. Templates classic-blue/midnight-orange light/dark/system, preview/cancel/apply/restart/fallback не меняют session/history/consent; общий Synapse interactive face/quiet during typing/factual rewards/disabled/reduced motion/background. Synapse owner/ref/release e820238d остаётся gate. Приёмка Дениса отдельна от self-check; все71 не закрываются одной удачной Today.",
+      "id": "e0f2dc42-4b77-43dd-b681-aa4862c69f28"
+    },
+    {
+      "key": "design-common",
+      "label": "основные страницы, прогресс, темы и Синапс",
+      "screens": [
+        "A1",
+        "A2",
+        "A3",
+        "A4",
+        "A5",
+        "A6",
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "I6",
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "refs": "01.png/06.png/09.png/13-synapse-templates.png",
+      "status": "in_progress",
+      "name": "TypeFree Flutter дизайн: основные страницы, прогресс, темы и Синапс (15 состояний)",
+      "id": "ca052f2f-c11a-4160-a581-8e97a4430357",
+      "groups": []
+    },
+    {
+      "key": "design-practice",
+      "label": "тренажёр, клавиатура, библиотека, курс, слабые клавиши и поток",
+      "screens": [
+        "B1",
+        "B2",
+        "B3",
+        "C1",
+        "C2",
+        "C3",
+        "C4",
+        "C5",
+        "C6",
+        "J1",
+        "J2"
+      ],
+      "refs": "02-v2-synapse.png/03.png/10.png",
+      "status": "in_progress",
+      "name": "TypeFree Flutter дизайн: тренажёр, клавиатура, библиотека, курс, слабые клавиши и поток (11 состояний)",
+      "id": "e602a588-2f18-4643-8e24-b0a7f0680565",
+      "groups": []
+    },
+    {
+      "key": "design-modes",
+      "label": "AI, дети, Наизусть, Память, соревнование и тест",
+      "screens": [
+        "D1",
+        "D2",
+        "D3",
+        "D4",
+        "D5",
+        "D6",
+        "E1",
+        "E2",
+        "E3",
+        "E4",
+        "E5",
+        "E6",
+        "J3",
+        "J4",
+        "J5",
+        "J6"
+      ],
+      "refs": "04.png/05.png/10.png",
+      "name": "TypeFree Flutter дизайн: AI, дети, Наизусть, Память, соревнование и тест (16 состояний)",
+      "id": "51793c0f-5f8f-4456-a83f-53a9a82e1f46",
+      "groups": []
+    },
+    {
+      "key": "design-account",
+      "label": "кабинеты, аккаунты, авторский инструмент и сервисные состояния",
+      "screens": [
+        "F5",
+        "F6",
+        "G1",
+        "G2",
+        "G3",
+        "G4",
+        "G5",
+        "G6",
+        "H1",
+        "H2",
+        "H3",
+        "H4",
+        "I1",
+        "I2",
+        "I3",
+        "I4",
+        "I5",
+        "K1",
+        "K2",
+        "K3",
+        "K4",
+        "K5",
+        "K6",
+        "L1",
+        "L2",
+        "L3",
+        "L4",
+        "L5",
+        "L6"
+      ],
+      "refs": "06.png/07.png/08.png/09.png/11.png/12.png",
+      "name": "TypeFree Flutter дизайн: кабинеты, аккаунты, авторский инструмент и сервисные состояния (29 состояний)",
+      "id": "0b753b64-ee0d-45d5-857f-b3d38d37d504",
+      "groups": []
+    }
+  ],
+  "existingTaskIndex": [
+    {
+      "id": "2046fb02-53b1-47db-918f-e0a2a417e6a3",
+      "task_name": "TypeFree Flutter: перенести оставшиеся режимы и проверить полную функциональность",
+      "status": "in_progress",
+      "parent_id": "568d223e-d42c-4e30-83a0-fbad3a95e721"
+    },
+    {
+      "id": "ab250f45-e333-4b6d-9617-7b6ef7917564",
+      "task_name": "TypeFree Flutter F1: проверить перенос старого WebView на тестовых контейнерах",
+      "status": "in_progress",
+      "parent_id": "568d223e-d42c-4e30-83a0-fbad3a95e721"
+    },
+    {
+      "id": "568d223e-d42c-4e30-83a0-fbad3a95e721",
+      "task_name": "TypeFree: начать переход на Flutter с проверки сохранения старого прогресса",
+      "status": "in_progress",
+      "parent_id": null
+    },
+    {
+      "id": "e820238d-8f28-44ce-8751-6c03a9c8905a",
+      "task_name": "TypeFree Flutter: подготовить принятую зависимость Synapse и выпуск после полной приёмки",
+      "status": "planned",
+      "parent_id": "568d223e-d42c-4e30-83a0-fbad3a95e721"
+    },
+    {
+      "id": "c186e048-44d7-40f3-a5dd-06c51ce2b78c",
+      "task_name": "TypeFree: Без пунктуации и Только цифры в обычном приложении для всех платформ и профилей",
+      "status": "in_progress",
+      "parent_id": null
+    },
+    {
+      "id": "9ba113a6-76e7-41bf-a77d-d6795880292f",
+      "task_name": "TypeFree: авторский выбор готовых плейлистов и применение к приложению",
+      "status": "in_progress",
+      "parent_id": null
+    },
+    {
+      "id": "aa6bbc2f-5fec-4344-931f-0619649353a3",
+      "task_name": "TypeFree: кабинет преподавателя и ученик — локальный сквозной MVP",
+      "status": "in_progress",
+      "parent_id": null
+    },
+    {
+      "id": "a61a629c-2644-41ed-a152-1b1a27ed0665",
+      "task_name": "TypeFree coach: реальная сквозная приёмка iOS и Android",
+      "status": "planned",
+      "parent_id": "aa6bbc2f-5fec-4344-931f-0619649353a3"
+    },
+    {
+      "id": "db294acf-3187-4e20-90ae-005eef445dbb",
+      "task_name": "Подключить кабинет TypeFree к согласованному общему аккаунту и backend",
+      "status": "planned",
+      "parent_id": "aa6bbc2f-5fec-4344-931f-0619649353a3"
+    },
+    {
+      "id": "810eabf5-bee4-4cf4-b355-49b472db4b11",
+      "task_name": "TypeFree: устранить подтверждённые npm advisories инструментов сборки и тестов",
+      "status": "planned",
+      "parent_id": null
+    },
+    {
+      "id": "8045a10d-a7b0-4dc2-80b2-775693765ce0",
+      "task_name": "TypeFree: проверить лицензии и возрастные группы импортированных плейлистов",
+      "status": "planned",
+      "parent_id": "9ba113a6-76e7-41bf-a77d-d6795880292f"
+    },
+    {
+      "id": "0507d901-6f29-4537-82fd-fdbbc735f4dd",
+      "task_name": "TypeFree coach: локализация кабинета на семь языков приложения",
+      "status": "planned",
+      "parent_id": "aa6bbc2f-5fec-4344-931f-0619649353a3"
+    },
+    {
+      "id": "4c2331fb-a182-4514-9c9e-94f3fd6af00f",
+      "task_name": "TypeFree coach: расписание и сроки с часовым поясом",
+      "status": "planned",
+      "parent_id": "aa6bbc2f-5fec-4344-931f-0619649353a3"
+    },
+    {
+      "id": "d16dee20-3c16-4c2d-b31e-be5cc16e974f",
+      "task_name": "TypeFree coach: собственные учебные тексты преподавателя",
+      "status": "planned",
+      "parent_id": "aa6bbc2f-5fec-4344-931f-0619649353a3"
+    },
+    {
+      "id": "6bd553a7-10be-43ba-9d7d-164d6a399a6b",
+      "task_name": "Подключить новый Codex-чат TypeRIGHTing и сверить текущие задачи с Claude",
+      "status": "in_progress",
+      "parent_id": null
+    }
+  ]
+}

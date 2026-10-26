@@ -18,7 +18,9 @@
 
 ## Текущее состояние — не завершение
 
-Последнее состояние 26.10: менюFlutter содержит6основныхрежимов с настоящимиDartупражнениями: тренировка,курс,AI,localcompetition,Наизусть,Память. Это не6полностью принятыхрежимов: остаются дизайн,общиеaudio/другиефункции иоткрытыечастисервисов/AI. Тест печати/экзамен ещё отсутствует и обязателен. Latestsourcea017daa(core7fb4dfe,labelfixeebe19a): Память7корпусов/span3–9,auto/manualhide,blockedrecall/timed=false,stars/best/history/retry/auto-next3500ms/EnterSpace/cleanup/lifecycle.98sourcecases294rounds;финальный109tests/analyze/web/macOSPASS. Browserреальные3слова→auto hide→ввод→100%3stars→saved→следующий4слова→выходвисторию; прежнийbest4пережилreload. Значения193/200WPM —automation,неДенис. Рекордsource—достигнутаяследующаядлина,а неуже завершённыеслова;validlegacy9.0непонижается. Всеreferencecomparisonpackets остаютсяdraft/неowneraccepted. Kids/globalfeatures/author/account/coach/backend/реальныеnativeupdate/device/release ивсе59/71требованиясохраняются. FlutterтолькоLOCAL.
+Актуальный локальный код: `62fe296`, 26.10.2026. В меню представлены 7 основных режимов с Dart-реализацией: Тренировка, Курс, AI, локальное Соревнование, Наизусть, Память и Тест печати. Это НЕ означает полный перенос или приёмку семи режимов. Последний этап — экзамен 1/5/10 минут, устойчивый результат, личная история и локальный PNG-сертификат. В `/tmp/typefree-exam-all-tests.log` подтверждены 116 тестов; analyze/web/macOS build PASS. Скриншоты экзамена пока исходные, без завершённой сравнительной приёмки. Нативный диалог сохранения и физические мобильные обновления не проверены. Печать/публичный сертификат, детский курс, все оставшиеся глобальные функции, аккаунт/авторский инструмент/кабинеты/backend, дизайн и выпуск остаются открытыми. Flutter только LOCAL; в магазины этот код не загружен.
+
+Для восстановления контекста сначала читать этот актуальный раздел и таблицы 59/71 ниже; более старые числа режимов в хронологии в конце файла — исторические снимки. Отсутствующую функцию нельзя признать согласованным исключением. Изменение объёма допускается только по явному решению Дениса с записью причины и затронутых требований.
 
 26.10 API readback: TestFlight2.60.4 VALID/IN_BETA_TESTING в «Свои»; Play2060004 internal/closed-test1 completed, production пуст. Flutter в магазины НЕ загружен. Источник подтверждений `/Users/denisonosov/Documents/TeamOps/typerighting-onboarding/store-check-20261026/`. Подготовленный необязательный Flutter-web/Tauri preview эксперимент не опубликован и вынесен в `/Users/denisonosov/Downloads/Helper codex/typefree-release-experiment-20261026`; он не удовлетворяет цели нативного полного переноса.
 
@@ -31,7 +33,7 @@
 | TypeFree Flutter: соревнование — пять дисциплин, повторы, призрак, рейтинг, лига и вызовы | `be1afcd2-294f-46dc-adcb-f06f8b372eae` | in_progress |
 | TypeFree Flutter: Наизусть — оба источника, четыре длины и пять проходов | `a86c2d6d-c9c5-4db9-8edb-937542c07649` | in_progress |
 | TypeFree Flutter: Память — показ, скрытие, ввод и адаптивный span | `283439cf-000f-493c-8439-3e01407ee242` | in_progress |
-| TypeFree Flutter: тест печати 1/5/10 минут и сертификат | `ea87c138-a414-4a00-8a71-ccaf43ddca60` | planned |
+| TypeFree Flutter: тест печати 1/5/10 минут и сертификат | `ea87c138-a414-4a00-8a71-ccaf43ddca60` | in_progress |
 | TypeFree Flutter: детский курс — все 33 уровня, звёзды, кот и мягкие паузы | `70f10a9c-ed23-4f26-924d-a81fec53c0e6` | planned |
 | TypeFree Flutter: завершить паритет тренировки, курса, потока и библиотеки | `a254cc2f-42fe-4af4-a7fd-f15c8e6000b7` | in_progress |
 | TypeFree Flutter: все семь режимов в навигации, компаньон, онбординг, профили и семь языков | `2fbd9c8e-83a7-4e6a-b5f9-3efd51329772` | in_progress |

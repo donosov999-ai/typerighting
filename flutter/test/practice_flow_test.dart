@@ -176,7 +176,9 @@ void main() {
     await tester.binding.setSurfaceSize(const Size(390, 844));
     await tester.pump();
     expect(tester.takeException(), isNull);
-    await tester.ensureVisible(find.text('Без пунктуации'));
+    // Narrow: the options moved into a sheet behind «Параметры» (ref §6).
+    await tester.tap(find.byTooltip('Параметры'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Без пунктуации'));
     await tester.pump();
     expect(tester.takeException(), isNull);

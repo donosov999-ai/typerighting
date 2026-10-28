@@ -30,6 +30,7 @@ import 'features/achievements_page.dart';
 import 'features/companion_page.dart';
 import 'features/synapse_panel.dart';
 import 'features/result_card.dart';
+import 'features/trainer_parts.dart';
 import 'data/achievement_store.dart';
 import 'data/progress_view.dart';
 import 'domain/progress_metrics.dart' show utcStreak;
@@ -1129,81 +1130,119 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       unawaited(savePrefs());
     }
 
-    final controls = Wrap(
-      spacing: 12,
-      runSpacing: 8,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: [
-        DropdownButton<String>(
-          isExpanded: true,
-          value: bank,
-          items:
-              (language == 'ru'
-                      ? [
-                          'ruWords',
-                          'ruPhrases',
-                          'classic',
-                          'poemHymn',
-                          'digits',
-                        ]
-                      : ['classic', 'poemHymn', 'digits'])
-                  .map(
-                    (b) =>
-                        DropdownMenuItem(value: b, child: Text(tr('bank.$b'))),
-                  )
-                  .toList(),
-          onChanged: saving
-              ? null
-              : (b) => change(() {
-                  custom = null;
-                  weakMode = false;
-                  bank = b!;
-                  if (bank != 'digits') textBank = bank;
-                  index = 0;
-                }),
-        ),
-        TextButton.icon(
-          onPressed: saving ? null : (weakMode ? exitWeak : startWeak),
-          icon: const Icon(Icons.track_changes),
-          label: Text(weakMode ? tr('nav.back') : tr('tb.weak')),
-        ),
-        FilterChip(
-          label: Text(tr('tb.heat')),
-          selected: showHeat,
-          onSelected: (v) {
+    final bankPicker = DropdownButton<String>(
+      isExpanded: true,
+      underline: const SizedBox(),
+      value: bank,
+      items:
+          (language == 'ru'
+                  ? ['ruWords', 'ruPhrases', 'classic', 'poemHymn', 'digits']
+                  : ['classic', 'poemHymn', 'digits'])
+              .map(
+                (b) => DropdownMenuItem(
+                  value: b,
+                  child: Text(tr('bank.$b'), overflow: TextOverflow.ellipsis),
+                ),
+              )
+              .toList(),
+      onChanged: saving
+          ? null
+          : (b) => change(() {
+              custom = null;
+              weakMode = false;
+              bank = b!;
+              if (bank != 'digits') textBank = bank;
+              index = 0;
+            }),
+    );
+    // Options of the exercise (B1 right pane; a sheet on narrow screens).
+    Widget options(VoidCallback refresh) {
+      Widget check(String label, bool value, ValueChanged<bool> on) =>
+          CheckboxListTile(
+            value: value,
+            dense: true,
+            contentPadding: EdgeInsets.zero,
+            controlAffinity: ListTileControlAffinity.leading,
+            title: Text(label, style: const TextStyle(fontSize: 15)),
+            onChanged: saving
+                ? null
+                : (v) {
+                    on(v!);
+                    refresh();
+                  },
+          );
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          check(
+            practiceCopy(language, 'plain'),
+            plain,
+            (v) => change(() => plain = v),
+          ),
+          check(
+            practiceCopy(language, 'digits'),
+            bank == 'digits',
+            (v) => change(() {
+              custom = null;
+              weakMode = false;
+              bank = v ? 'digits' : textBank;
+              index = 0;
+            }),
+          ),
+          check(tr('tb.flow'), flow, (v) => change(() => flow = v)),
+          check(tr('tb.heat'), showHeat, (v) {
             setState(() => showHeat = v);
             unawaited(savePrefs());
-          },
+          }),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+              alignment: Alignment.centerLeft,
+            ),
+            onPressed: saving
+                ? null
+                : () {
+                    refresh();
+                    if (weakMode) {
+                      exitWeak();
+                    } else {
+                      unawaited(startWeak());
+                    }
+                  },
+            icon: const Icon(Icons.bar_chart),
+            label: Text(weakMode ? tr('nav.back') : tr('tb.weak')),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+              alignment: Alignment.centerLeft,
+            ),
+            onPressed: saving ? null : customText,
+            icon: const Icon(Icons.edit_outlined),
+            label: Text(tr('custom.title')),
+          ),
+        ],
+      );
+    }
+
+    void showOptions() => unawaited(
+      showModalBottomSheet<void>(
+        context: c,
+        isScrollControlled: true,
+        builder: (sheet) => SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
+            child: StatefulBuilder(
+              builder: (sheet, set) => options(() => set(() {})),
+            ),
+          ),
         ),
-        TextButton.icon(
-          onPressed: saving ? null : customText,
-          icon: const Icon(Icons.edit_outlined),
-          label: Text(tr('custom.title')),
-        ),
-        FilterChip(
-          label: const Text('Без пунктуации'),
-          selected: plain,
-          onSelected: saving ? null : (v) => change(() => plain = v),
-        ),
-        FilterChip(
-          label: const Text('Только цифры'),
-          selected: bank == 'digits',
-          onSelected: saving
-              ? null
-              : (v) => change(() {
-                  custom = null;
-                  weakMode = false;
-                  bank = v ? 'digits' : textBank;
-                  index = 0;
-                }),
-        ),
-        FilterChip(
-          label: Text(tr('tb.flow')),
-          selected: flow,
-          onSelected: saving ? null : (v) => change(() => flow = v),
-        ),
-      ],
+      ),
     );
+
     final completion = ResultCard(
       language: language,
       tr: tr,
@@ -1427,30 +1466,24 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                   final practice = Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      if (!wide) controls,
-                      const SizedBox(height: 6),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              exercise['title'] as String,
-                              style: Theme.of(c).textTheme.titleLarge,
-                            ),
-                          ),
-                          IconButton(
-                            tooltip: 'Предыдущее',
-                            onPressed: () => next(-1),
-                            icon: const Icon(Icons.chevron_left),
-                          ),
-                          Text('${index + 1} / ${exercises.length}'),
-                          IconButton(
-                            tooltip: 'Следующее',
-                            onPressed: () => next(),
-                            icon: const Icon(Icons.chevron_right),
-                          ),
-                        ],
+                      PracticeHeader(
+                        language: language,
+                        bankPicker: bankPicker,
+                        index: index,
+                        count: exercises.length,
+                        onPrev: () => next(-1),
+                        onNext: () => next(),
+                        onOptions: wide ? null : showOptions,
                       ),
+                      if (custom != null || weakMode)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(
+                            exercise['title'] as String,
+                            style: Theme.of(c).textTheme.titleMedium,
+                          ),
+                        ),
+                      const SizedBox(height: 10),
                       if (weakMode)
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
@@ -1478,20 +1511,18 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                               : PatternView(session: session),
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      Wrap(
-                        spacing: 24,
-                        runSpacing: 8,
-                        children: [
-                          Text('${stats.wpm} WPM'),
-                          Text('${stats.accuracy}% · ${tr('st.accuracy')}'),
-                          Text('${stats.errors} · ${tr('st.errors')}'),
-                          Text(
-                            '${(stats.elapsedMs / 1000).toStringAsFixed(1)} s',
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
+                      if (!wide) ...[
+                        const SizedBox(height: 8),
+                        StatTiles(
+                          language: language,
+                          wpm: stats.wpm,
+                          accuracy: stats.accuracy,
+                          errors: stats.errors,
+                          elapsedMs: stats.elapsedMs,
+                          compact: true,
+                        ),
+                      ],
+                      const SizedBox(height: 8),
                       TextField(
                         key: const ValueKey('practice-input'),
                         controller: entry,
@@ -1929,19 +1960,26 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                           children: [
                             // The result is what matters once the text is
                             // done: on top of the pane, visible without scroll.
-                            if (session.finished) ...[
-                              completion,
-                              const SizedBox(height: 20),
-                            ],
-                            const Text(
-                              'Настройки практики',
-                              style: TextStyle(
-                                fontSize: 18,
+                            if (session.finished)
+                              completion
+                            else
+                              StatTiles(
+                                language: language,
+                                wpm: stats.wpm,
+                                accuracy: stats.accuracy,
+                                errors: stats.errors,
+                                elapsedMs: stats.elapsedMs,
+                              ),
+                            const SizedBox(height: 16),
+                            Text(
+                              practiceCopy(language, 'options'),
+                              style: const TextStyle(
+                                fontSize: 16,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                            const SizedBox(height: 12),
-                            controls,
+                            const SizedBox(height: 4),
+                            options(() {}),
                             const SizedBox(height: 24),
                             const Text(
                               'Пробная версия Flutter. Данные хранятся отдельно от установленного приложения.',

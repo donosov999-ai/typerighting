@@ -1,0 +1,106 @@
+{
+  "screen": "M2-synapse-panel",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "1e11624",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/13-synapse-templates.png",
+    "sha256": "3989b2af4ee270669f13b85834bed24f10fe69be3b98a16c265d58d0d6d41a9a",
+    "cropXYXY": [
+      782,
+      44,
+      1518,
+      506
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 3.4783
+  },
+  "actual": {
+    "sha256": "1a3f9d3eba615a898994d8ffda27360bb293680dbdf200f03ea4000d77245669",
+    "viewportCSS": [
+      1280,
+      800
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      2560,
+      1600
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "нажато лицо Синапса на ПК-ширине; демо seed.json (12 сессий)"
+  },
+  "method": {
+    "equalWidth": 2560,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 1600
+  },
+  "rows": [
+    [
+      "Расположение",
+      "панель справа поверх затемнённого тренажёра",
+      "боковая панель 360 px рядом с контентом, текст не закрыт",
+      "без затемнения/перекрытия",
+      "—",
+      "реф §7: «desktop side panel не накрывает активный текст»",
+      "PASS"
+    ],
+    [
+      "Шапка панели",
+      "портрет, «Синапс», слоган, ×",
+      "то же; × = «Закрыть»",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Вкладки",
+      "Мой прогресс / Подсказки",
+      "то же; «Подсказки» = общий SynapsePet и его реплики",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Следующее действие",
+      "оранжевая карточка «Потренировать слабые клавиши»",
+      "то же → экран «Слабые клавиши»",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Плитки",
+      "Точность 98 % / Время и скорость «Нет данных»",
+      "Точность и WPM+время последней сохранённой тренировки; без данных — «Нет данных — начните тренировку»",
+      "данные настоящие",
+      "—",
+      "цифры не выдумываются (реф §7)",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "1280×800 CSS (M1–M3), 390×844 (M4), DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "ba7030ddae554fcb65987b26d729638fe8cc892d8ca31aecf69587137a249de2",
+    "overlay-50.png": "6341a8b45d281a934693590d623b9b0956828f7d726085a530c951b1b1484885",
+    "comparison-panel.png": "b297d2fedec9273ecd5623eb0ff265378388c6a33415ad1d6128d8ee3d32fde7"
+  }
+}

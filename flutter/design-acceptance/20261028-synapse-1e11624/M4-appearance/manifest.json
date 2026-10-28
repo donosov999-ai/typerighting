@@ -1,0 +1,97 @@
+{
+  "screen": "M4-appearance",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "1e11624",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/13-synapse-templates.png",
+    "sha256": "3989b2af4ee270669f13b85834bed24f10fe69be3b98a16c265d58d0d6d41a9a",
+    "cropXYXY": [
+      798,
+      582,
+      1176,
+      1012
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 2.0635
+  },
+  "actual": {
+    "sha256": "afd5f3e407f19190006e72bec55e13f5d00d2a914890af501027d1470c4b1dca",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Ещё → Настройки → Звук и оформление, телефон"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 887
+  },
+  "rows": [
+    [
+      "Шаблоны",
+      "3 карточки: Тёмный оранжевый / Светлый оранжевый / Классический",
+      "2 карточки с миниатюрой в цветах шаблона: Оранжевый / Классический",
+      "нет отдельной «светлой оранжевой»",
+      "—",
+      "реф §4: одна карточка на шаблон, яркость выбирается отдельно",
+      "PASS"
+    ],
+    [
+      "Яркость",
+      "Системная / Светлая / Тёмная",
+      "Тёмная / Светлая / Системная",
+      "порядок",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Предпросмотр",
+      "«Смена шаблона сохраняет урок…»",
+      "предпросмотр → Применить / Отмена; упражнение не сбрасывается (тест)",
+      "нет текстовой плашки",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Настройки Синапса",
+      "Синапс / Анимация / Голос",
+      "Питомец / Анимация; голоса Синапса нет",
+      "нет «Голос»",
+      "—",
+      "реф §7: голос Синапса не реализован — переключатель не рисую (буквенная озвучка — другой канал)",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "1280×800 CSS (M1–M3), 390×844 (M4), DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "5d074fd99d5c67834afe576e188a9121ce2bedfea1cf7e87bf74d620587f6c71",
+    "overlay-50.png": "0d9ed0c344d1aea1ccd66205f8938978c02b1f0a7bf035ca6017785a37657e19",
+    "comparison-panel.png": "25d48bd4a3d6de00acf5f47e3d2b9ec609631c7cf31cdc7bde1918d44ec78969"
+  }
+}

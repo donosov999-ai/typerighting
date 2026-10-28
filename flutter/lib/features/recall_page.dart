@@ -264,7 +264,7 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
       'id': id,
       'exercise': 'recall',
       'title':
-          '${widget.tr('span.title')} · ${result.completedSpan} ${widget.tr('span.words')}',
+          '${widget.tr('span.title')} · ${spanWords(result.completedSpan, widget.language, widget.tr)}',
       'language': widget.language,
       'profile': widget.profile,
       'mode': 'recall',
@@ -407,7 +407,7 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
                       runSpacing: 12,
                       children: [
                         Text(
-                          '${widget.adaptation.span} ${widget.tr('span.words')}',
+                          spanWords(widget.adaptation.span, widget.language, widget.tr),
                           style: Theme.of(context).textTheme.headlineMedium,
                         ),
                         Text(
@@ -431,7 +431,7 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(
-                      '${widget.tr('span.level')} ${run.roundSpan - 2} · ${run.roundSpan} ${widget.tr('span.words')}',
+                      '${widget.tr('span.level')} ${run.roundSpan - 2} · ${spanWords(run.roundSpan, widget.language, widget.tr)}',
                     ),
                     OutlinedButton(
                       onPressed: toMenu,
@@ -656,4 +656,22 @@ String recallCopy(String language, String key) {
   };
   final i = languages.indexOf(language);
   return values[key]![i < 0 ? 1 : i];
+}
+
+/// «3 слова», «5 слов», «1 слово» (the source always said «слов»); English
+/// singular; other languages keep the dictionary word.
+String spanWords(int n, String language, String Function(String) tr) {
+  if (language == 'ru') {
+    final d10 = n % 10, d100 = n % 100;
+    final form = d100 >= 11 && d100 <= 14
+        ? 'слов'
+        : d10 == 1
+        ? 'слово'
+        : d10 >= 2 && d10 <= 4
+        ? 'слова'
+        : 'слов';
+    return '$n $form';
+  }
+  if (language == 'en' && n == 1) return '1 word';
+  return '$n ${tr('span.words')}';
 }

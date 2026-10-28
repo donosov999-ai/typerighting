@@ -1,0 +1,106 @@
+{
+  "screen": "J1-flow",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "009977a",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/10.png",
+    "sha256": "43c3ffebffad9837adaaaa32cc4db190c86c8ceb688c13bde19298a068ef3e3c",
+    "cropXYXY": [
+      40,
+      40,
+      500,
+      515
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.6957
+  },
+  "actual": {
+    "sha256": "300a54f8a98b40e360063305f9c28c105f4aeba02771bfcaf17e09cdae8a958d",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Сегодня → Начать тренировку; «Русские фразы», Поток включён (prefs, демо)"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 805
+  },
+  "rows": [
+    [
+      "Текст",
+      "непрерывный текст с подсветкой набранного",
+      "все строки упражнения одной строкой (flow), курсор",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Переключатели",
+      "«Без пунктуации» / «Только цифры» видны на экране",
+      "активные режимы — чипы под строкой упражнения (✕ выключает), все — в «Параметрах»",
+      "чипы вместо переключателей",
+      "—",
+      "реф §6: параметры в панели с явной кнопкой; активные видны всегда",
+      "PASS"
+    ],
+    [
+      "Пауза / Выйти",
+      "кнопки ⏸ и «Выйти» в шапке",
+      "«←» в шапке; пауза — нет",
+      "нет паузы",
+      "—",
+      "в тренировке исходника паузы нет (таймер с первого символа)",
+      "PASS"
+    ],
+    [
+      "Клавиатура",
+      "укороченная ЙЦУКЕН, цифровой ряд",
+      "5 рядов guide, листается к нужной клавише",
+      "нет укороченной",
+      "—",
+      "реф §6",
+      "PASS"
+    ],
+    [
+      "Цифры сверху",
+      "время 00:27 · скорость 284 зн/мин · точность 98 %",
+      "WPM · точность · ошибки · время",
+      "зн/мин → WPM",
+      "—",
+      "единица исходника",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка телефона без viewport",
+      "390×844 CSS, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "e7cbadd76c2e1ffe2d2494582e13784ab7ed2e2ee7d37a6e65fe22bbf1e2150e",
+    "overlay-50.png": "fe9e065b9fd591cb5bb001932f678315f9c2dee4d283a85d7f1385547a44ca3e",
+    "comparison-panel.png": "88d3385cb22a2667205688177194bf98119e9e8b10117dfeb0006f4cf23c3505"
+  }
+}

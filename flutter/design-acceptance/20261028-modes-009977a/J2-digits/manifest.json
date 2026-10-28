@@ -1,0 +1,115 @@
+{
+  "screen": "J2-digits",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "009977a",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/10.png",
+    "sha256": "43c3ffebffad9837adaaaa32cc4db190c86c8ceb688c13bde19298a068ef3e3c",
+    "cropXYXY": [
+      548,
+      40,
+      995,
+      515
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.745
+  },
+  "actual": {
+    "sha256": "2cded6de7f3ea471422459d917111d2f4a5be77e136eb7465c6e3358f2ed9d2b",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Сегодня → Начать тренировку; набор «Цифры» (prefs, демо)"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 829
+  },
+  "rows": [
+    [
+      "Текст",
+      "группы цифр 024681 135790…",
+      "группы цифр банка digits исходника",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Подсветка цифр",
+      "весь цифровой ряд оранжевый",
+      "подсвечена только нужная клавиша",
+      "нет подсветки ряда",
+      "—",
+      "guide подсвечивает следующую клавишу (как везде)",
+      "PASS"
+    ],
+    [
+      "Переключатели",
+      "«Без пунктуации» / «Только цифры» видны на экране",
+      "активные режимы — чипы под строкой упражнения (✕ выключает), все — в «Параметрах»",
+      "чипы вместо переключателей",
+      "—",
+      "реф §6: параметры в панели с явной кнопкой; активные видны всегда",
+      "PASS"
+    ],
+    [
+      "Пауза / Выйти",
+      "кнопки ⏸ и «Выйти» в шапке",
+      "«←» в шапке; пауза — нет",
+      "нет паузы",
+      "—",
+      "в тренировке исходника паузы нет (таймер с первого символа)",
+      "PASS"
+    ],
+    [
+      "Клавиатура",
+      "укороченная ЙЦУКЕН, цифровой ряд",
+      "5 рядов guide, листается к нужной клавише",
+      "нет укороченной",
+      "—",
+      "реф §6",
+      "PASS"
+    ],
+    [
+      "Цифры сверху",
+      "время 00:27 · скорость 284 зн/мин · точность 98 %",
+      "WPM · точность · ошибки · время",
+      "зн/мин → WPM",
+      "—",
+      "единица исходника",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка телефона без viewport",
+      "390×844 CSS, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "5056339b9b08d25a2b7d1a2cb9b3637236d07e2bedb26b75cb2cd659b8f35344",
+    "overlay-50.png": "945a27ddcc48809b66c5bcdf76ff5aa577ee2d6f276fe0c0882439462cc8020e",
+    "comparison-panel.png": "e689a9e19844a63b391615e5573e355e31a0a15108d5e44fec319e161eaaef16"
+  }
+}

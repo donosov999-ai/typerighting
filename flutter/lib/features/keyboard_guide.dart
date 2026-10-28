@@ -48,38 +48,133 @@ class KeyboardModel {
   }
 }
 
-class KeyboardGuide extends StatelessWidget {
+/// Five-row guide at its real proportions (DESIGN_TEMPLATE_REF §6): narrower
+/// than 740 it scrolls sideways with an explicit hint and keeps the expected
+/// key in view, instead of shrinking legends.
+class KeyboardGuide extends StatefulWidget {
   const KeyboardGuide({
     super.key,
     required this.model,
     required this.expected,
     required this.ru,
     this.heat = const {},
+    this.language = 'ru',
   });
   final KeyboardModel model;
   final String? expected;
   final bool ru;
   final Map<String, double> heat;
+  final String language;
+  @override
+  State<KeyboardGuide> createState() => _KeyboardGuideState();
+}
+
+String keyboardScrollHint(String language) {
+  const langs = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
+  const words = [
+    'Клавиатура листается вбок и сама показывает нужную клавишу. Целиком — в горизонтальном положении.',
+    'The keyboard scrolls sideways and follows the next key. Turn the device to see all of it.',
+    'El teclado se desplaza y sigue la siguiente tecla. Gira el dispositivo para verlo entero.',
+    'Die Tastatur scrollt seitlich und folgt der nächsten Taste. Quer gedreht ist sie ganz sichtbar.',
+    'Le clavier défile et suit la touche suivante. Tournez l’appareil pour le voir en entier.',
+    'La tastiera scorre e segue il tasto successivo. Ruota il dispositivo per vederla tutta.',
+    'O teclado desliza e acompanha a próxima tecla. Rode o dispositivo para o ver inteiro.',
+  ];
+  final i = langs.indexOf(language);
+  return words[i < 0 ? 1 : i];
+}
+
+class _KeyboardGuideState extends State<KeyboardGuide> {
+  final scroll = ScrollController();
+  double width = 740, viewport = 740;
+
+  @override
+  void dispose() {
+    scroll.dispose();
+    super.dispose();
+  }
+
+  /// Centre the expected key (and its Shift partner stays reachable by swipe).
+  void follow() {
+    if (!scroll.hasClients || width <= viewport) return;
+    final hit = widget.expected == null
+        ? null
+        : widget.model.hit(widget.expected!, ru: widget.ru);
+    if (hit == null) return;
+    for (final raw in widget.model.snapshot['keys'] as List) {
+      final g = raw as Map;
+      if (g['id'] != hit['id']) continue;
+      final centre =
+          ((g['x'] as num) + (g['w'] as num) / 2).toDouble() * width / 920;
+      final target = (centre - viewport / 2).clamp(
+        0.0,
+        scroll.position.maxScrollExtent,
+      );
+      if ((scroll.offset - target).abs() > viewport / 4) scroll.jumpTo(target);
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final tokens = Theme.of(context).extension<TypeFreeTokens>()!;
     return LayoutBuilder(
       builder: (context, c) {
-        final width = math.max(740.0, math.min(820.0, c.maxWidth));
-        return Semantics(
-          label: expected == null
+        width = math.max(740.0, math.min(820.0, c.maxWidth));
+        viewport = c.maxWidth;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) follow();
+        });
+        final guide = Semantics(
+          label: widget.expected == null
               ? 'Клавиатура'
-              : 'Следующий символ: $expected',
+              : 'Следующий символ: ${widget.expected}',
           child: SingleChildScrollView(
+            controller: scroll,
             scrollDirection: Axis.horizontal,
             child: SizedBox(
               width: width,
               height: width * 380 / 920,
               child: CustomPaint(
-                painter: _GuidePainter(model, expected, ru, tokens, heat),
+                painter: _GuidePainter(
+                  widget.model,
+                  widget.expected,
+                  widget.ru,
+                  tokens,
+                  widget.heat,
+                ),
               ),
             ),
           ),
+        );
+        if (width <= c.maxWidth) return guide;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.swap_horiz,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      keyboardScrollHint(widget.language),
+                      style: TextStyle(
+                        fontSize: 11.5,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            guide,
+          ],
         );
       },
     );

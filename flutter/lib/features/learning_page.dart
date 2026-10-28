@@ -328,6 +328,7 @@ class LearningPageState extends State<LearningPage> {
               child: Padding(
                 padding: const EdgeInsets.all(8),
                 child: KeyboardGuide(
+                    language: widget.language,
                   model: widget.keyboard,
                   expected: paused ? null : engine.typing.expected,
                   ru: widget.language == 'ru',

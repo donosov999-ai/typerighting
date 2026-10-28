@@ -422,6 +422,7 @@ class CompetitionPageState extends State<CompetitionPage> {
                 ),
                 const SizedBox(height: 12),
                 KeyboardGuide(
+                  language: widget.language,
                   model: widget.keyboard,
                   expected: race.typing.expected,
                   ru: race.language == 'ru',

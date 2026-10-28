@@ -55,6 +55,7 @@ class WeakKeysPage extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(8),
                 child: KeyboardGuide(
+                    language: language,
                   model: keyboard,
                   expected: null,
                   ru: language == 'ru',

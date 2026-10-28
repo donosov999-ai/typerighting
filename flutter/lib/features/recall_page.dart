@@ -484,6 +484,7 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
                 const SizedBox(height: 12),
                 // Recall must never expose the hidden next letter through key hints.
                 KeyboardGuide(
+                  language: widget.language,
                   model: widget.keyboard,
                   expected: null,
                   ru: widget.language == 'ru',

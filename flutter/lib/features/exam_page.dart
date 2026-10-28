@@ -535,6 +535,7 @@ class ExamPageState extends State<ExamPage> with WidgetsBindingObserver {
               ),
               const SizedBox(height: 12),
               KeyboardGuide(
+                language: widget.language,
                 model: widget.keyboard,
                 expected: run.typing.expected,
                 ru: widget.language == 'ru',

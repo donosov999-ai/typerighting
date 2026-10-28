@@ -449,6 +449,7 @@ class KidsPageState extends State<KidsPage> with WidgetsBindingObserver {
         ),
         const SizedBox(height: 12),
         KeyboardGuide(
+          language: widget.language,
           model: widget.keyboard,
           expected: engine.expected,
           ru: engine.level!.language == 'ru',

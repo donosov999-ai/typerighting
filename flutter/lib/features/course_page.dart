@@ -387,6 +387,7 @@ class CoursePageState extends State<CoursePage> {
           ),
         const SizedBox(height: 8),
         KeyboardGuide(
+          language: widget.language,
           model: widget.keyboard,
           expected: a.session.expected,
           ru: widget.language == 'ru',

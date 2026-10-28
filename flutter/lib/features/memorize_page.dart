@@ -424,6 +424,7 @@ class MemorizePageState extends State<MemorizePage> {
                 const SizedBox(height: 12),
                 // Deliberate fix: the old keyboard revealed every hidden expected letter.
                 KeyboardGuide(
+                  language: widget.language,
                   model: widget.keyboard,
                   expected: run.visible(run.typing.pos)
                       ? run.typing.expected

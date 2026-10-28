@@ -1501,6 +1501,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                           child: Padding(
                             padding: const EdgeInsets.all(8),
                             child: KeyboardGuide(
+                                language: language,
                               model: keyboard,
                               heat: heat,
                               expected: session.expected,

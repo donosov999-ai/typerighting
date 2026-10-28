@@ -94,6 +94,9 @@ class ExamSession {
     );
   }
 
+  /// Called on each wrong character (source exam beep()).
+  void Function()? onWrong;
+
   /// Returns true only on exercise rollover, not on exam completion.
   bool press(String character) {
     if (finished) return false;
@@ -109,6 +112,7 @@ class ExamSession {
     final expected = typing.expected ?? '',
         ch = character == 'Enter' ? '\n' : character;
     final outcome = typing.press(ch, blockOnError: false);
+    if (outcome.wrong) onWrong?.call();
     if (expected.isNotEmpty && expected != ' ' && expected != '\n') {
       record?.call(expected, !outcome.wrong, clock());
     }

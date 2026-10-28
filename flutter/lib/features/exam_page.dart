@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 
+import '../audio/typefree_sound.dart';
 import '../data/artifact_export.dart';
 import '../data/key_statistics_store.dart';
 import '../data/local_repository.dart';
@@ -187,7 +188,7 @@ class ExamPageState extends State<ExamPage> with WidgetsBindingObserver {
             )?['id'];
             if (key is String) widget.keyStatistics.record(key, ok, at);
           },
-        );
+        )..onWrong = () => appSound.effect('error');
         resetCheckpoint();
       });
       startHud();

@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
+import '../audio/typefree_sound.dart';
 import '../data/local_repository.dart';
 import '../data/key_statistics_store.dart';
 import '../domain/learning.dart';
@@ -129,9 +130,12 @@ class LearningPageState extends State<LearningPage> {
       return;
     }
     for (var i = previous.length; i < text.length; i++) {
-      final level = engine.kidsLevel;
+      final level = engine.kidsLevel, difficulty = engine.adultDifficulty;
       final ch = widget.keyboard.bridge(text[i], engine.typing.expected ?? '');
       final next = engine.press(ch);
+      if (engine.kidsLevel > level || engine.adultDifficulty > difficulty) {
+        appSound.effect('upgrade');
+      }
       if (engine.kidsLevel != level) unawaited(persistLevel());
       if (next) {
         clearInput();

@@ -24,6 +24,8 @@ import 'features/kids_page.dart';
 import 'domain/kids.dart';
 import 'domain/recall.dart';
 import 'features/progress_page.dart';
+import 'features/settings_pages.dart';
+import 'audio/typefree_sound.dart';
 import 'design_system/templates.dart';
 import 'design_system/synapse_header.dart';
 import 'domain/typing.dart';
@@ -137,6 +139,9 @@ Future<void> main() async {
   }
 }
 
+/// Version of the app this candidate replaces (package.json); shown in Settings.
+const appVersion = '2.60.4';
+
 enum AppSection {
   today,
   practiceMenu,
@@ -151,6 +156,9 @@ enum AppSection {
   progress,
   weakKeys,
   more,
+  settings,
+  settingsInput,
+  settingsSound,
 }
 
 class TypeFreeApp extends StatefulWidget {
@@ -207,6 +215,9 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       saved = false,
       saving = false,
       ignoreInput = false;
+  bool hidePattern = false, soundOn = true, voiceOn = false, metroOn = false;
+  int metroBpm = 120;
+  double textSize = 1;
   late AppSection section;
   int? courseStartLessonId;
   bool get historyPage => section == AppSection.progress;
@@ -276,6 +287,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     keyStatistics = KeyStatisticsStore(
       widget.repository,
       onAchievements: (ids) {
+        appSound.effect('star');
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
           progressMessenger.currentState?.showSnackBar(
@@ -309,6 +321,25 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     showKeyboard = p['keyboard'] != false;
     showHeat = p['heat'] == true;
     hardKeys = p['hardkeys'] == true;
+    // Settings not yet kept by Flutter fall back to the imported source keys.
+    final oldPrefs = widget.repository.data['legacy'] as Map;
+    bool flag(String key, String legacyKey, bool fallback) => p[key] is bool
+        ? p[key] as bool
+        : oldPrefs[legacyKey] is String
+        ? oldPrefs[legacyKey] == '1'
+        : fallback;
+    hidePattern = flag('hide', 'tr_hide', false);
+    soundOn = p['sound'] is bool ? p['sound'] as bool : oldPrefs['tr_sound'] != '0';
+    voiceOn = flag('voice', 'tr_voice', false);
+    metroOn = flag('metronome', 'tr_metro', false);
+    metroBpm = ((p['bpm'] as num?) ??
+            num.tryParse('${oldPrefs['tr_metro_bpm'] ?? ''}') ??
+            120)
+        .toInt()
+        .clamp(60, 200);
+    textSize = [.9, 1.0, 1.15].contains(p['textSize']) ? (p['textSize'] as num).toDouble() : 1;
+    appSound.enabled = () => soundOn;
+    appSound.voiceEnabled = () => voiceOn;
     final level = (widget.repository.data['legacy'] as Map)['tr_kids_ai_lvl'];
     learningAdaptation = LearningAdaptation(
       kidsLevel: level is String ? (jsonDecode(level) as num).toInt() : 0,
@@ -354,6 +385,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    appSound.stopMetronome();
     timer?.cancel();
     keyStatistics.dispose();
     entry.removeListener(edit);
@@ -370,6 +402,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     if (state == AppLifecycleState.resumed) {
       headerAssistant.wake();
     } else {
+      appSound.stopMetronome();
       headerAssistant.sleep();
       unawaited(
         keyStatistics.flush().catchError((Object e) {
@@ -471,6 +504,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     if (session.finished) return;
     final expected = session.expected ?? '';
     final result = session.press(ch, blockOnError: block);
+    if (result.wrong) appSound.effect('error');
     if (expected.isNotEmpty && expected != ' ' && expected != '\n') {
       final id = keyboard.hit(
         expected,
@@ -505,6 +539,12 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           'layout': layout,
           'pet': pet,
           'motion': motion,
+          'hide': hidePattern,
+          'sound': soundOn,
+          'voice': voiceOn,
+          'metronome': metroOn,
+          'bpm': metroBpm,
+          'textSize': textSize,
         });
       });
     } catch (_) {
@@ -555,11 +595,12 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     point['len'] = captured.len;
     point['errKeys'] = captured.errorKeys;
     final earlier = history;
-    var fresh = false;
+    var fresh = false, isRecord = false;
     try {
       await keyStatistics.commit((doc) {
         final sessions = doc['sessions'] as List, legacy = doc['legacy'] as Map;
         if (sessions.any((x) => x['id'] == id)) return;
+        isRecord = false;
         if (ex['bank'] != 'weak') {
           final key =
               'tr_progress_${ex['bank']}${plain && ex['bank'] != 'digits' ? '_plain' : ''}';
@@ -568,6 +609,9 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
               : <String, dynamic>{};
           final done = List<String>.from((record['done'] as List?) ?? []);
           if (!done.contains(ex['id'])) done.add(ex['id'] as String);
+          // Source recordFinish: a record is a positive WPM above the saved best.
+          isRecord =
+              stats.wpm > 0 && stats.wpm > ((record['bestWpm'] as num?) ?? 0);
           legacy[key] = jsonEncode({
             'done': done,
             'lastIdx': index,
@@ -590,6 +634,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
         }
       });
       if (mounted) setState(() => saved = true);
+      appSound.effect(isRecord ? 'record' : 'success');
       if (fresh && mounted) {
         try {
           await assistant.onGameSaved(
@@ -685,160 +730,104 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     if (mounted) inputFocus.requestFocus();
   }
 
-  Future<void> settings() async {
-    await showDialog<void>(
-      context: surface,
-      builder: (c) => StatefulBuilder(
-        builder: (c, update) => AlertDialog(
-          title: Text(tr('hub.settings')),
-          content: SizedBox(
-            width: 480,
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Text('Шаблон оформления'),
-                  for (final t in widget.appearance.registry.templates.values)
-                    ChoiceChip(
-                      label: Text(t.title),
-                      selected: widget.appearance.selection.templateId == t.id,
-                      onSelected: (_) {
-                        widget.appearance.preview(
-                          t.id,
-                          widget.appearance.selection.brightness,
-                        );
-                        update(() {});
-                      },
-                    ),
-                  DropdownButton<ThemeMode>(
-                    value: widget.appearance.selection.brightness,
-                    items: ThemeMode.values
-                        .map(
-                          (m) => DropdownMenuItem(
-                            value: m,
-                            child: Text(switch (m) {
-                              ThemeMode.system => 'Системная',
-                              ThemeMode.light => 'Светлая',
-                              ThemeMode.dark => 'Тёмная',
-                            }),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (m) {
-                      widget.appearance.preview(
-                        widget.appearance.selection.templateId,
-                        m!,
-                      );
-                      update(() {});
-                    },
-                  ),
-                  DropdownButton<String>(
-                    value: profile,
-                    items: ['m', 'f', 'kids']
-                        .map(
-                          (p) => DropdownMenuItem(
-                            value: p,
-                            child: Text(
-                              p == 'kids'
-                                  ? 'Детский профиль'
-                                  : p == 'f'
-                                  ? 'Мягкий профиль'
-                                  : 'Классический профиль',
-                            ),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: saving
-                        ? null
-                        : (p) async {
-                            if (!await finishLearning() || !mounted) return;
-                            setState(() {
-                              profile = p!;
-                              assistant.dispose();
-                              headerAssistant.dispose();
-                              createAssistant();
-                            });
-                            update(() {});
-                          },
-                  ),
-                  DropdownButton<String>(
-                    value: layout,
-                    items: ['auto', 'qwerty', 'azerty', 'qwertz']
-                        .map(
-                          (l) => DropdownMenuItem(
-                            value: l,
-                            child: Text(l.toUpperCase()),
-                          ),
-                        )
-                        .toList(),
-                    onChanged: (l) async {
-                      if (!await finishLearning() || !mounted) return;
-                      setState(() {
-                        layout = l!;
-                        loadKeyboard();
-                      });
-                      update(() {});
-                    },
-                  ),
-                  for (final row in <(String, bool, void Function(bool))>[
-                    (tr('tb.block'), block, (v) => block = v),
-                    (tr('tb.keyb'), showKeyboard, (v) => showKeyboard = v),
-                    (tr('tb.heat'), showHeat, (v) => showHeat = v),
-                    (tr('set.hardkeys'), hardKeys, (v) => hardKeys = v),
-                    (tr('set.bridge'), bridge, (v) => bridge = v),
-                    (
-                      'Синапс',
-                      pet,
-                      (v) {
-                        pet = v;
-                        assistant.enabled = v;
-                        headerAssistant.enabled = v;
-                      },
-                    ),
-                    ('Анимация Синапса', motion, (v) => motion = v),
-                  ])
-                    SwitchListTile(
-                      title: Text(row.$1),
-                      value: row.$2,
-                      onChanged: (v) {
-                        setState(() => row.$3(v));
-                        update(() {});
-                      },
-                    ),
-                  const Text(
-                    'Другие режимы ещё переносятся. Пробная версия хранит данные отдельно от установленного приложения.',
-                  ),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                widget.appearance.cancel();
-                Navigator.pop(c);
-              },
-              child: const Text('Отменить оформление'),
-            ),
-            FilledButton(
-              onPressed: () async {
-                final ok = await widget.appearance.apply();
-                await savePrefs();
-                if (!c.mounted) return;
-                if (ok) {
-                  Navigator.pop(c);
-                } else {
-                  update(() {});
-                }
-              },
-              child: const Text('Сохранить'),
-            ),
-          ],
-        ),
-      ),
-    );
-    widget.appearance.cancel();
-    if (mounted) inputFocus.requestFocus();
+  Future<void> settings() => showSection(AppSection.settings);
+
+  Future<void> changeProfile(String next) async {
+    if (saving || next == profile) return;
+    if (!await finishLearning() || !mounted) return;
+    setState(() {
+      profile = next;
+      assistant.dispose();
+      headerAssistant.dispose();
+      createAssistant();
+    });
+    await savePrefs();
+  }
+
+  int get targetWpm {
+    final raw = (widget.repository.data['legacy'] as Map)['tr_target_wpm'];
+    final v = raw is String ? num.tryParse(raw) : null;
+    return v != null && v.isFinite && v > 0 ? v.round() : 40;
+  }
+
+  /// One handler for every switch of the settings pages (source settings modal).
+  Future<void> changeSetting(String key, Object value) async {
+    if (key == 'layout') {
+      if (!await finishLearning() || !mounted) return;
+    }
+    if (key == 'targetWpm') {
+      await widget.repository.transaction((d) {
+        (d['legacy'] as Map)['tr_target_wpm'] = '$value';
+      });
+      if (mounted) setState(() {});
+      return;
+    }
+    setState(() {
+      switch (key) {
+        case 'hide':
+          hidePattern = value as bool;
+        case 'block':
+          block = value as bool;
+        case 'keyboard':
+          showKeyboard = value as bool;
+        case 'heat':
+          showHeat = value as bool;
+        case 'hardkeys':
+          hardKeys = value as bool;
+        case 'bridge':
+          bridge = value as bool;
+        case 'layout':
+          layout = value as String;
+          loadKeyboard();
+        case 'sound':
+          soundOn = value as bool;
+        case 'voice':
+          voiceOn = value as bool;
+        case 'metronome':
+          metroOn = value as bool;
+        case 'bpm':
+          metroBpm = value as int;
+        case 'textSize':
+          textSize = value as double;
+        case 'pet':
+          pet = value as bool;
+          assistant.enabled = pet;
+          headerAssistant.enabled = pet;
+        case 'motion':
+          motion = value as bool;
+      }
+    });
+    await savePrefs();
+  }
+
+  SettingsValues get settingsValues => SettingsValues(
+    hide: hidePattern,
+    block: block,
+    keyboard: showKeyboard,
+    layout: layout,
+    heat: showHeat,
+    hardKeys: hardKeys,
+    bridge: bridge,
+    targetWpm: targetWpm,
+    sound: soundOn,
+    voice: voiceOn,
+    voiceAvailable: language == 'ru' || language == 'en',
+    metronome: metroOn,
+    bpm: metroBpm,
+    pet: pet,
+    motion: motion,
+    textSize: textSize,
+    version: appVersion,
+  );
+
+  /// Source: the metronome ticks only in ordinary practice, never in menus,
+  /// modals, tests or other modes (src/main.ts syncMetronome).
+  void syncMetronome() {
+    if (metroOn && section == AppSection.practice) {
+      appSound.startMetronome(metroBpm);
+    } else {
+      appSound.stopMetronome();
+    }
   }
 
   Future<void> startWeak() async {
@@ -929,6 +918,19 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     listenable: widget.appearance,
     builder: (c, _) => MaterialApp(
       scaffoldMessengerKey: progressMessenger,
+      // «Размер текста» multiplies the user's system text scale.
+      builder: (context, child) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) syncMetronome();
+        });
+        final base = MediaQuery.of(context);
+        return MediaQuery(
+          data: base.copyWith(
+            textScaler: TextScaler.linear(base.textScaler.scale(1) * textSize),
+          ),
+          child: child!,
+        );
+      },
       debugShowCheckedModeBanner: false,
       title: 'TypeFree · пробная версия',
       theme: widget.appearance.theme(
@@ -1073,12 +1075,20 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                 section == AppSection.recall ||
                 section == AppSection.exam ||
                 section == AppSection.kids ||
-                section == AppSection.weakKeys
+                section == AppSection.weakKeys ||
+                section == AppSection.settings ||
+                section == AppSection.settingsInput ||
+                section == AppSection.settingsSound
             ? IconButton(
                 tooltip: tr('nav.back'),
                 onPressed: () => showSection(
                   section == AppSection.weakKeys
                       ? AppSection.progress
+                      : section == AppSection.settings
+                      ? AppSection.more
+                      : section == AppSection.settingsInput ||
+                            section == AppSection.settingsSound
+                      ? AppSection.settings
                       : AppSection.practiceMenu,
                 ),
                 icon: const Icon(Icons.arrow_back),
@@ -1118,6 +1128,12 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     ? shellText(language, 'progress')
                     : section == AppSection.more
                     ? shellText(language, 'more')
+                    : section == AppSection.settings
+                    ? tr('hub.settings')
+                    : section == AppSection.settingsInput
+                    ? settingsCopy(language, 'input')
+                    : section == AppSection.settingsSound
+                    ? settingsCopy(language, 'sound')
                     : section == AppSection.kids
                     ? tr('k.title')
                     : section == AppSection.exam
@@ -1190,7 +1206,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
             ? 0
             : historyPage || section == AppSection.weakKeys
             ? 2
-            : section == AppSection.more
+            : section == AppSection.more ||
+                  section == AppSection.settings ||
+                  section == AppSection.settingsInput ||
+                  section == AppSection.settingsSound
             ? 3
             : 1,
         onDestinationSelected: (v) => showSection(
@@ -1271,7 +1290,23 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       Card(
                         child: Padding(
                           padding: const EdgeInsets.all(8),
-                          child: PatternView(session: session),
+                          child: hidePattern
+                              ? SizedBox(
+                                  height: 62,
+                                  child: Center(
+                                    child: Text(
+                                      tr('hint.hidden'),
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontStyle: FontStyle.italic,
+                                        color: Theme.of(
+                                          c,
+                                        ).colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : PatternView(session: session),
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -1344,6 +1379,35 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     return practiceMenu(c);
                   }
                   if (section == AppSection.more) return moreView(c);
+                  if (section == AppSection.settings) {
+                    return SettingsHub(
+                      language: language,
+                      values: settingsValues,
+                      onInput: () => showSection(AppSection.settingsInput),
+                      onSound: () => showSection(AppSection.settingsSound),
+                    );
+                  }
+                  if (section == AppSection.settingsInput) {
+                    return InputSettingsPage(
+                      language: language,
+                      tr: tr,
+                      values: settingsValues,
+                      onChanged: (k, v) => unawaited(changeSetting(k, v)),
+                    );
+                  }
+                  if (section == AppSection.settingsSound) {
+                    return ListenableBuilder(
+                      listenable: widget.appearance,
+                      builder: (_, _) => SoundSettingsPage(
+                        language: language,
+                        tr: tr,
+                        values: settingsValues,
+                        appearance: widget.appearance,
+                        onChanged: (k, v) => unawaited(changeSetting(k, v)),
+                        onTestSound: () => appSound.effect('record'),
+                      ),
+                    );
+                  }
                   if (historyPage) return historyView(c);
                   if (section == AppSection.weakKeys) {
                     return WeakKeysPage(
@@ -1823,7 +1887,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
             c,
             Icons.settings_outlined,
             tr('hub.settings'),
-            shellText(language, 'more'),
+            settingsCopy(language, 'sound.d'),
             settings,
           ),
           modeTile(

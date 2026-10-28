@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../audio/typefree_sound.dart';
 import '../data/local_repository.dart';
 import '../domain/kids.dart';
 import 'competition_page.dart' show competitionCopy;
@@ -151,10 +152,21 @@ class KidsPageState extends State<KidsPage> with WidgetsBindingObserver {
       final outcome = engine.press(text[i]);
       if (outcome.wrong) {
         say = widget.tr('k.note1');
-      } else if (engine.wordIndex != word) {
-        say = widget.tr('k.noerr');
+        appSound.effect('catSad');
+      } else {
+        // Source kids.ts: speak(ch) after a correct letter (RU/EN samples).
+        appSound.speak(text[i], widget.language);
+        if (engine.wordIndex != word) {
+          say = widget.tr('k.noerr');
+          if (engine.phase != KidsPhase.done) appSound.effect('catHappy');
+        }
       }
       if (engine.phase == KidsPhase.done) {
+        // Source finishLevel: fanfare, then one chime per earned star.
+        appSound.effect('fanfare');
+        for (var s = 0; s < (engine.result?.stars ?? 0); s++) {
+          appSound.effect('star');
+        }
         unawaited(save());
         break;
       }

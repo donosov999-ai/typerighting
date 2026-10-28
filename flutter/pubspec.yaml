@@ -17,6 +17,7 @@ dependencies:
       ref: 7c5938ecb9c42f609c86b7d3f90cc1f9c9a4a949
       path: packages/synapse_pet
   file_picker: 13.1.0
+  audioplayers: 6.8.1
 dev_dependencies:
   flutter_lints: 6.0.0
   flutter_test:
@@ -28,4 +29,6 @@ flutter:
     - assets/baseline/
     - assets/artwork/
     - assets/learning/
+    - assets/voice/ru/
+    - assets/voice/en/
 

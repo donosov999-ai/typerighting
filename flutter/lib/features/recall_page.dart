@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../audio/typefree_sound.dart';
 import '../data/key_statistics_store.dart';
 import '../data/local_repository.dart';
 import '../domain/key_statistics.dart';
@@ -148,6 +149,8 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
         } else {
           engine!.startRound();
         }
+        // Source recall: start chime when the words are shown.
+        appSound.effect('start');
         id =
             'recall-${DateTime.now().microsecondsSinceEpoch}-${Random().nextInt(0x7fffffff)}';
         resetCheckpoint();
@@ -231,9 +234,18 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
     return success;
   }
 
+  String? soundedRound;
+
   Future<bool> finishAndSave({bool scheduleNext = true}) async {
     if (saving) return false;
     final run = engine, result = engine?.result;
+    if (result != null && soundedRound != id) {
+      soundedRound = id;
+      appSound.effect('fanfare');
+      for (var s = 0; s < result.stars; s++) {
+        appSound.effect('star');
+      }
+    }
     if (run == null || result == null) {
       try {
         await widget.keyStatistics.flush();

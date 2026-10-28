@@ -134,9 +134,13 @@ void main() {
       await tester.pump();
       await tester.tap(find.text('Настройки'));
       await tester.pump();
-      expect(find.text('Шаблон оформления'), findsOneWidget);
-      await tester.tap(find.text('Отменить оформление'));
+      expect(find.text('Настройки ввода'), findsOneWidget);
+      await tester.tap(find.text('Звук и оформление'));
       await tester.pump();
+      expect(find.text('Шаблон'), findsOneWidget);
+      await tester.tap(find.byTooltip('← Назад'));
+      await tester.pump();
+      expect(find.text('Настройки ввода'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox());
       appearance.dispose();

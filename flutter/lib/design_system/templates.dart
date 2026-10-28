@@ -223,6 +223,9 @@ class AppearanceController extends ChangeNotifier {
   AppearanceSelection get selection => _preview ?? _committed;
   bool get busy => _busy;
 
+  /// True between preview() and apply()/cancel(): the choice is not saved yet.
+  bool get previewing => _preview != null;
+
   void preview(String id, ThemeMode brightness) {
     if (_busy) throw StateError('Appearance save in progress');
     if (!registry.templates.containsKey(id)) {

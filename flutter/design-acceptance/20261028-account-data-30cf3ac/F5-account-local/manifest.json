@@ -1,0 +1,88 @@
+{
+  "screen": "F5-account-local",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "30cf3ac",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/06.png",
+    "sha256": "504625b570934712a9f155741526e547213e958214fc40d884870515bd443175",
+    "cropXYXY": [
+      560,
+      612,
+      985,
+      1012
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.8353
+  },
+  "actual": {
+    "sha256": "cff8b8829992b61e2dbdb814f8004a225c2bddf47695672f3aa2419cad508ad8",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Ещё → Аккаунт; аккаунта в этой сборке нет"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 734
+  },
+  "rows": [
+    [
+      "«Без аккаунта уже можно заниматься»",
+      "карточка с иконкой и пояснением",
+      "то же",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Вход (существующий аккаунт)",
+      "поля Ник / PIN, «Войти», «Забыли PIN?»",
+      "карточка «Вход по нику и PIN» + «В следующей версии», без полей",
+      "нет формы",
+      "—",
+      "ник/PIN не перенесены (задача 99f35605); рисовать нерабочую форму — выдумка",
+      "PASS"
+    ],
+    [
+      "Общий аккаунт — кандидат",
+      "«Сервис не подключён», «Подключить (план Flutter)» неактивна",
+      "то же без кнопки",
+      "нет неактивной кнопки",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в «viewport»",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "606f0c730a14725b347552598021955558fda6e98efc7e344624ac4dd0c963e1",
+    "overlay-50.png": "d0a39a604680ec60c263a944f72821e75c0d55238d8ca321d1c4f7b8bd51a374",
+    "comparison-panel.png": "cc6d4f38c7710d3a4b09a9f51e66e04bc41550ec94237b24495805aadef87ccd"
+  }
+}

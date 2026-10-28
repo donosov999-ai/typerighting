@@ -1,0 +1,79 @@
+{
+  "screen": "A5-more",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "30cf3ac",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/01.png",
+    "sha256": "0b882d194ac4fb72ec88c063aca27c458321be8aa9d9f30e46741dc9f15b53c0",
+    "cropXYXY": [
+      606,
+      592,
+      932,
+      1008
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 2.3926
+  },
+  "actual": {
+    "sha256": "43887c3dbfdd3d490cbdfce02448497bb3513541ad6d7c92fc296d6b23f3b9a6",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "вкладка «Ещё» после F5/F6"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 995
+  },
+  "rows": [
+    [
+      "Состав",
+      "7: задания, кабинет тренера, настройки, профиль и язык, достижения, аккаунт, справка",
+      "6: настройки, профиль и язык, достижения, аккаунт, данные и разрешения, прогресс",
+      "нет «Мои задания», «Кабинет тренера», «Справка»",
+      "функции",
+      "кабинеты — после аккаунта (0b753b64); справки как экрана в исходнике нет",
+      "открыто"
+    ],
+    [
+      "Шапка",
+      "без контролов",
+      "RU▾ + шестерёнка + Синапс",
+      "—",
+      "—",
+      "вопрос 4 в чек-листе",
+      "открыто"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в «viewport»",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "c7c70c9ee30736b709e9720ced6df910e6e059107c42d3a37e8d7f5e70399ac6",
+    "overlay-50.png": "925e06933297e879ec54130cea58a9fb943955cbe671ac353dbcec63dd0700a8",
+    "comparison-panel.png": "bbe22c44faf4afd664c4c5bec01488a27bd7d88498bba227c0a254dd3aeda930"
+  }
+}

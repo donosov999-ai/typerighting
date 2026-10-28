@@ -1,0 +1,88 @@
+{
+  "screen": "K4-certificate",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "30cf3ac",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/11.png",
+    "sha256": "749031bd8af59ad9367672471722b805195e96533a761875fd5992a8c20d6aab",
+    "cropXYXY": [
+      30,
+      690,
+      358,
+      992
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 3.6585
+  },
+  "actual": {
+    "sha256": "527b9a867747a62281ecab7d1d18e604ee1971d4c51b59d66556b674e8e08924",
+    "viewportCSS": [
+      1200,
+      850
+    ],
+    "devicePixelRatio": 1,
+    "screenshotSize": [
+      1200,
+      850
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "настоящий PNG, скачанный из веб-сборки после теста 1 мин (имя введено, 53 Net WPM)"
+  },
+  "method": {
+    "equalWidth": 1200,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 850
+  },
+  "rows": [
+    [
+      "Материал",
+      "пергамент, золотая рамка, лавры с клавиатурой",
+      "кремовый фон, двойная золотая рамка, без лавров",
+      "нет лавров",
+      "—",
+      "рисованного ассета нет",
+      "PASS"
+    ],
+    [
+      "Текст",
+      "«Сертификат · Настоящим подтверждается… · имя · успешно прошёл(а) экзамен»",
+      "СЕРТИФИКАТ · тест слепой печати · имя · Net WPM крупно · Gross/точность · время/длительность · СДАН/НЕ СДАН · дата",
+      "формулировки",
+      "—",
+      "значения исходника downloadCertificate",
+      "PASS"
+    ],
+    [
+      "Действия",
+      "Скачать / Распечатать / Опубликовать",
+      "Скачать PNG; печать и публикация — нет",
+      "—",
+      "—",
+      "публичный сервис не подключён (LOCAL)",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в «viewport»",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "72107357c25aa6277b984c99821145bfa943db34afd0e423ae2eadffc1679e13",
+    "overlay-50.png": "9b9767b4b96e090f3447772865151f0a4746e7c6cdb88727ff88c38c2da280e6",
+    "comparison-panel.png": "5b37bcb6ee10f2674f23cb1f61a4e5b49556d2093b0a291704b7b3d1dc954e5e"
+  }
+}

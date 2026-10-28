@@ -1,0 +1,97 @@
+{
+  "screen": "F6-data-permissions",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "30cf3ac",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/06.png",
+    "sha256": "504625b570934712a9f155741526e547213e958214fc40d884870515bd443175",
+    "cropXYXY": [
+      1040,
+      612,
+      1465,
+      1012
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.8353
+  },
+  "actual": {
+    "sha256": "de432281e91a14a27eff16029dadd66cec02d49ee48ce48fa232eb19a72785cf",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Ещё → Данные и разрешения"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 734
+  },
+  "rows": [
+    [
+      "Только локальные данные",
+      "зелёная карточка",
+      "то же",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Разрешения",
+      "облако / тренер — выключатели (план Flutter)",
+      "то же: выключатели неактивны, «Сервис не подключён»",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Экспорт и восстановление",
+      "Экспорт / Восстановление (план Flutter)",
+      "экспорт истории JSON работает; восстановление неактивно «В следующей версии»",
+      "экспорт рабочий",
+      "—",
+      "общий exportHistory с «Прогрессом»",
+      "PASS"
+    ],
+    [
+      "Удалить аккаунт",
+      "кнопка + подтверждение",
+      "красная карточка: аккаунта нет — удалять нечего",
+      "нет кнопки",
+      "—",
+      "нечего удалять; прогресс остаётся",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в «viewport»",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "3ac54d6444adba13a0638ea09a24dd89bcfe16bab00b91310f1e6ad7be4a6747",
+    "overlay-50.png": "cf304a1e95fee4158c205890c637ca56c9c50fb63bcd436db9d08b641d6c1781",
+    "comparison-panel.png": "8064cd794a48fa4941f52bb8797c65eb5671a69713c09061a276a4361a657dc8"
+  }
+}

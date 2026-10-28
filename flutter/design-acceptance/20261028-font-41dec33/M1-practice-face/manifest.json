@@ -1,0 +1,88 @@
+{
+  "screen": "M1-practice-face",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "41dec33",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/13-synapse-templates.png",
+    "sha256": "3989b2af4ee270669f13b85834bed24f10fe69be3b98a16c265d58d0d6d41a9a",
+    "cropXYXY": [
+      20,
+      44,
+      753,
+      506
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 3.4925
+  },
+  "actual": {
+    "sha256": "1d8fc5c2e0a5042a3d91195c13f8de6f310499906ec1f9da96f9a05d6df1e5b5",
+    "viewportCSS": [
+      1280,
+      800
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      2560,
+      1600
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Практика → Тренировка, ПК-ширина; демо seed.json; повтор 41dec33 (PT Mono)"
+  },
+  "method": {
+    "equalWidth": 2560,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 1600
+  },
+  "rows": [
+    [
+      "Лицо Синапса",
+      "справа в шапке, «Синапс» подписью",
+      "справа в шапке: лицо 40 + подпись «Синапс» (EN «Synapse») при ширине ≥960; уже — только лицо",
+      "—",
+      "—",
+      "реф §7: на узких имя скрыто",
+      "PASS"
+    ],
+    [
+      "Шапка",
+      "логотип + меню «Уроки / Практика / Статистика / Настройки»",
+      "заголовок целиком + Синапс; RU▾ убран, шестерёнка только в тренажёре/компаньоне",
+      "логотип TypeFree вместо заголовка раздела",
+      "—",
+      "a814c43: шапка по эскизам (вопрос 4 чек-листа, рекомендация; откат одним коммитом)",
+      "PASS"
+    ],
+    [
+      "Текст и клавиатура",
+      "карточка текста, моноширинный шрифт, 5 рядов",
+      "карточка текста PT Mono (41dec33), 5 рядов guide на всю колонку, справа «Параметры»",
+      "правая колонка",
+      "—",
+      "правая колонка — реф §6 (≥960 control pane); функции исходника",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "1280×800 CSS (M1–M3), 390×844 (M4), DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "9d894d42f27857c2474cdee023fc84ae854a5a200ee1d0005346cb9ceedf2ad9",
+    "overlay-50.png": "38ba528073ba0d6cb2096db21d80c04c7a4b3f59d44be637f5af8744477e3e07",
+    "comparison-panel.png": "a0982c10140b5fbabfcb7ab77ac29ec589060b5eaa1a32183eeb51f2608105f7"
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "screen": "J4-memorize-final",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "9883ec9",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/10.png",
+    "sha256": "43c3ffebffad9837adaaaa32cc4db190c86c8ceb688c13bde19298a068ef3e3c",
+    "cropXYXY": [
+      40,
+      560,
+      500,
+      1015
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.6957
+  },
+  "actual": {
+    "sha256": "f7e9f636c2c3bb7e445088479dd27549750c32a097e68ca6383fd974f4e9e02e",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "«Ворон — 1» пройден по-настоящему пять раз подряд (headless Chromium)"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 772
+  },
+  "rows": [
+    [
+      "Заголовок",
+      "кубок + «Все уровни пройдены! Вы отлично запомнили отрывок.»",
+      "«Проход 5/5 · по памяти», WPM, % запомнено, % от 1-го прохода, медаль",
+      "нет кубка-заголовка",
+      "—",
+      "цифры исходника (gain, медаль)",
+      "PASS"
+    ],
+    [
+      "Таблица проходов",
+      "5 строк: уровень · % · время",
+      "5 строк: уровень скрытия · % · WPM · время (passResults)",
+      "+ WPM",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Кнопки",
+      "Повторить / Другой отрывок",
+      "«Ещё раз» + «← К списку» сверху",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Текст ниже",
+      "—",
+      "«Длина повышена — теперь 7 слов» + подсказка исходника",
+      "добавлено",
+      "—",
+      "механика исходника",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "390×844, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "a65623a25787d0c8889f3264e8426e18a100579e909c3f919f704bb13ef6c6f1",
+    "overlay-50.png": "522d6cb2f112b970bafb8e0dca12cbffb43c65155bb6cfe64b1b8836574e2cba",
+    "comparison-panel.png": "4e172e68b89b1b27346611ed52d622e3a331d5ae3b2fd03c0103281a102eac11"
+  }
+}

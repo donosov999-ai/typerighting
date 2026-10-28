@@ -33,6 +33,46 @@ def key_of(screen):
     return screen.split(' ')[0].split('-')[0].split('·')[0].strip()
 
 
+ATLAS = Path('/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/SCREEN_ATLAS.md')
+
+
+def coverage(seen):
+    """All 71 atlas states: latest package status, or why there is none
+    (UNPACKAGED_REASONS.json) — so no designed state silently drops out."""
+    import re
+    if not ATLAS.exists():
+        return []
+    reasons = json.load(open('UNPACKAGED_REASONS.json')) if Path('UNPACKAGED_REASONS.json').exists() else {}
+    status = {}
+    for s, items in seen.items():
+        for st, _, p in items:
+            t = stamp(f'{p}/manifest.json')
+            k = key_of(s)
+            if k not in status or t >= status[k][0]:
+                status[k] = (t, st, p)
+    status = {k: (st, p) for k, (_, st, p) in status.items()}
+    rows, counts = [], {}
+    atlas = [(m.group(2), m.group(3)) for m in re.finditer(
+        r'^\| \[(\d+)\]\(\d+\.png\) \| ([A-M]\d+) \| (.+?) \|$', ATLAS.read_text(), re.M)]
+    # M1–M4 are listed in the atlas addendum (sheet 13), not in its table.
+    atlas += [('M1', 'Практика с лицом Синапса сверху'), ('M2', 'Панель помощника'),
+              ('M3', 'Реакция на фактический результат'), ('M4', 'Оформление и настройки')]
+    for sid, name in atlas:
+        if sid in status:
+            st, p = status[sid]
+            cell = f'{st} · [{p}]({p}/REPORT.md)'
+            k = st.split(' ')[0]
+        else:
+            cell = 'нет пакета — ' + reasons.get(sid, reasons.get(sid[0], '**причина не записана**'))
+            k = 'нет'
+        counts[k] = counts.get(k, 0) + 1
+        rows.append(f'| {sid} | {name} | {cell} |')
+    head = ['', f'## Покрытие всех {len(rows)} состояний атласа', '',
+            'Итог: ' + ' · '.join(f'{k} — {v}' for k, v in sorted(counts.items())), '',
+            '| состояние | что | статус / причина |', '|---|---|---|']
+    return head + rows
+
+
 def main():
     os.chdir(ROOT)
     rows, others = [], []
@@ -57,6 +97,7 @@ def main():
         for st, b, p in items:
             hist = '' if p == items[-1][2] else ' (история)'
             out.append(f'| {s} | {st}{hist} | `{b}` | [{p}]({p}/REPORT.md) |')
+    out += coverage(seen)
     out += ['', 'Пакеты Codex 25–26.10 (свой формат):', ''] + [f'- `{p}`' for p in sorted(set(others))] + ['', tail]
     Path('INDEX_20261028.md').write_text('\n'.join(out))
     latest = {}

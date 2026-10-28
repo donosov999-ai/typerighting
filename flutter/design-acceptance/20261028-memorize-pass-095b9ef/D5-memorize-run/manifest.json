@@ -1,0 +1,79 @@
+{
+  "screen": "D5-memorize-run",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "095b9ef",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/04.png",
+    "sha256": "47d54524b841e8ab44fb8de5aec22f22ef88896062566d94b73b8c954669b32a",
+    "cropXYXY": [
+      538,
+      588,
+      1022,
+      976
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 5.2893
+  },
+  "actual": {
+    "sha256": "387455c506f5e3d3f13e3fffa19cca2fb72f47f99bb8e193451ecfc7f4441854",
+    "viewportCSS": [
+      1280,
+      800
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      2560,
+      1600
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "«Ворон — 1», проход 1 набран по-настоящему, итог прохода"
+  },
+  "method": {
+    "equalWidth": 2560,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 1600
+  },
+  "rows": [
+    [
+      "Прогресс",
+      "полоса + «2/6 строк»",
+      "«Проход 1/5 · весь текст» + полоса",
+      "проходы вместо строк",
+      "—",
+      "механика исходника",
+      "PASS"
+    ],
+    [
+      "Итог прохода справа",
+      "«Уровень пройден!» точность / время / скорость, Далее / Ещё раз",
+      "справа: WPM, точность, «Теперь скрываем…», «Дальше»; слева набранный текст",
+      "нет кубка и времени",
+      "—",
+      "время прохода — в таблице J4",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз без viewport",
+      "1280×800, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "1c478d0fabc4dd1e86db1286fb3ead369866df4050a588baf42ef2dccc4b47e6",
+    "overlay-50.png": "81a3c07bef8b632ad63f5c7d9d245c33fd1af1f656f3ffb7c7b74443c42c337d",
+    "comparison-panel.png": "4293b8ceccb4e1622ae36ba198a8921b23040c0dd64b631a90aa670d4a6bd411"
+  }
+}

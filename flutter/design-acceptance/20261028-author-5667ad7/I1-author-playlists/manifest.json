@@ -1,0 +1,106 @@
+{
+  "screen": "I1-author-playlists",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "5667ad7",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/09.png",
+    "sha256": "2b4fda8fadb490dd4ae5fe68e6a872f840e306449516c9f7c0b6b60d3cc6420f",
+    "cropXYXY": [
+      16,
+      38,
+      758,
+      548
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 3.4501
+  },
+  "actual": {
+    "sha256": "90b33ba3e3494e4b7c52c70839aa668c9965a73f019bfd4670c287d076f5eea7",
+    "viewportCSS": [
+      1280,
+      800
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      2560,
+      1600
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "—",
+    "language": "ru",
+    "template": "— (отдельная страница)",
+    "brightness": "light",
+    "state": "приватный редактор автора ~/Downloads/Code claude/typefree-course-editor/typefree-editor.html, loopback 127.0.0.1:8045 (CSP connect self), стартовый вид; не часть приложения, публичного маршрута нет"
+  },
+  "method": {
+    "equalWidth": 2560,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 1600
+  },
+  "rows": [
+    [
+      "Где живёт",
+      "экран внутри приложения: левое меню «Управление (только Denis)»",
+      "отдельная локальная страница автора (Codex 24.10), не в приложении",
+      "место",
+      "—",
+      "FUNCTION_PARITY 45: «private build-tool, только Денис, без публичного route» — в приложение не встраивать",
+      "PASS"
+    ],
+    [
+      "Фильтры и поиск",
+      "язык · источник · статус · поиск",
+      "где (приложение/сайт) · язык (191 группа) · источник · поиск; «Включить/Выключить найденные»",
+      "+ «где», нет «статус»",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Карточки плейлистов",
+      "Шестов ×3 выключены; KTouch/TuxTyping/Monkeytype «PRIVATE», «ожидают проверки лицензии»",
+      "Шестов ×3 «выключены по умолчанию»; 803 готовых плейлиста с галочками; пометки лицензий — в задаче 8045a10d",
+      "нет метки лицензии на карточке",
+      "публикация",
+      "проверка лицензий/возраста — задача 8045a10d (до неё публикации нет)",
+      "открыто"
+    ],
+    [
+      "Вид",
+      "тёмная тема приложения",
+      "светлая отдельная страница",
+      "тема и рамка",
+      "—",
+      "перекрашивать ли личный инструмент автора — решение Дениса",
+      "открыто"
+    ],
+    [
+      "Просмотр (I2)",
+      "просмотр уроков, «сформировать релизный список»",
+      "«▶ Попробовать» материал, «Выгрузить курс для приложения», «Сохранить выбор»",
+      "состав",
+      "—",
+      "применение выбора к приложению — задача 9ba113a6 (проверка снимка/хэшей)",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз без viewport",
+      "1280×800 CSS, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "e410c72e5d5871e3b90eb5af5d832c1f228f9bcf27fa84ccc1b40a0ea7fd63ae",
+    "overlay-50.png": "fd9f31ed186d68067b3a7a22caf3d05ecc9fb779a65094d745156639e9479ac0",
+    "comparison-panel.png": "9298795402fd183cd5b17c733ac59793ee259b2c51d0527954d915883cdf9655"
+  }
+}

@@ -452,10 +452,14 @@ class _WelcomePageState extends State<WelcomePage> {
                         fit: BoxFit.cover,
                         alignment: Alignment.bottomCenter,
                         excludeFromSemantics: true,
+                        // Dusk tone so white text and the accent read on it.
+                        color: Colors.black.withValues(alpha: .38),
+                        colorBlendMode: BlendMode.darken,
                       ),
                     ),
                   ),
-                  Padding(
+                  Container(
+                    width: double.infinity,
                     padding: const EdgeInsets.fromLTRB(16, 28, 16, 64),
                     child: Column(
                       children: [
@@ -476,6 +480,9 @@ class _WelcomePageState extends State<WelcomePage> {
                             color: Colors.white,
                             fontSize: 38,
                             fontWeight: FontWeight.w800,
+                            shadows: [
+                              Shadow(color: Colors.black54, blurRadius: 12),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 6),
@@ -485,6 +492,9 @@ class _WelcomePageState extends State<WelcomePage> {
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 16,
+                            shadows: [
+                              Shadow(color: Colors.black54, blurRadius: 8),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 18),

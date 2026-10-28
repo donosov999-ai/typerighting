@@ -1,0 +1,88 @@
+{
+  "screen": "J6-recall-result",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "0f22554",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/10.png",
+    "sha256": "43c3ffebffad9837adaaaa32cc4db190c86c8ceb688c13bde19298a068ef3e3c",
+    "cropXYXY": [
+      1050,
+      560,
+      1495,
+      1015
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.7528
+  },
+  "actual": {
+    "sha256": "6716276ad3a3c18dafb6d7abfb11055f7c0579c7fea86261c91c5a1a45af5eca",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "раунд «Памяти» по-настоящему: перед первым словом нажата неверная клавиша (заблокирована и исправлена)"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 798
+  },
+  "rows": [
+    [
+      "Слова",
+      "список с ✓/✗, ошибка красным",
+      "«семь» ✗ (была заблокированная ошибка), остальные ✓",
+      "совпадает",
+      "—",
+      "исправлено по ревью Codex 28.10: missedAt",
+      "PASS"
+    ],
+    [
+      "Справа",
+      "Правильно 4/5 · Точность 80 % · Лучший 5 слов",
+      "Правильно 2/3 · Точность 94 % · Рекорд 4 слова · «4 слова в следующем наборе»",
+      "колонка → строки",
+      "—",
+      "телефон",
+      "PASS"
+    ],
+    [
+      "Заголовок",
+      "✓ «Задание выполнено!»",
+      "✓ «🔼 Отлично! Больше слов» + ★★☆",
+      "текст",
+      "—",
+      "span.up исходника",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "390×844, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "84b5ce1ed03d6cd00cc2df671d14d96e7acca014886e67bbb915f0b69453e7f8",
+    "overlay-50.png": "5673cf1496d99d8cde69398d682ab6def2d58bc4da4e9a21bfd51918b7483412",
+    "comparison-panel.png": "04034f1e042df8435b3ef3b37544243019e90e29e31f3266cf8e8e5d53e2eddc"
+  }
+}

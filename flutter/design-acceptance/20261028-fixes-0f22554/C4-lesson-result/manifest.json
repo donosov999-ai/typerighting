@@ -1,0 +1,97 @@
+{
+  "screen": "C4-lesson-result",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "0f22554",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/03.png",
+    "sha256": "107f8843c2e77bad125adedea576c0485b62f45d52cef94ece202c6d467e823f",
+    "cropXYXY": [
+      80,
+      612,
+      505,
+      1012
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.8353
+  },
+  "actual": {
+    "sha256": "1d25e2b2f3bc742a5ed5282106db0755b5847cfede77c51d475701a5edcf3c6f",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "урок «Домашний ряд» пройден по-настоящему (5 строк, headless Chromium)"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 734
+  },
+  "rows": [
+    [
+      "Цифры",
+      "Скорость 46 · Точность 98 % · Ошибки 2 · Время 2:36 плитками",
+      "«131 WPM · 100 % · 0 ошибок за урок» строкой",
+      "нет плиток и времени",
+      "читаемость",
+      "следующий шаг: ResultCard как в тренажёре",
+      "открыто"
+    ],
+    [
+      "Звёзды",
+      "5 звёзд крупно «Отличный результат!»",
+      "«Звёзд: 3 · скорость последней строки»",
+      "текстом, шкала 3",
+      "—",
+      "в курсе исходника 3 звезды",
+      "открыто"
+    ],
+    [
+      "Поток",
+      "переключатель «Поток» с пояснением",
+      "нет на экране итога",
+      "—",
+      "—",
+      "«Поток» — в параметрах тренировки",
+      "PASS"
+    ],
+    [
+      "Кнопки",
+      "Повторить / Далее",
+      "↻ Заново / Следующее →",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "390×844, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "286abdc6f9a82d457e369c43d2065439c65bcf11c4aeeb3ee27ba833b0693728",
+    "overlay-50.png": "cbcb6e31926c70efc7ad26981275244989f4408465bc7dc89faf4e77159c4a6a",
+    "comparison-panel.png": "8667c392fc8d409d74390268cfa82cf9e2149d2aedf609ec03ddb59a52dad007"
+  }
+}

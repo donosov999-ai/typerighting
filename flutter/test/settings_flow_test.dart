@@ -5,6 +5,7 @@ import 'package:typefree_flutter_foundation/data/local_repository.dart';
 import 'package:typefree_flutter_foundation/design_system/templates.dart';
 import 'package:typefree_flutter_foundation/main.dart';
 
+import 'practice_flow_test.dart' show AppearanceMemory;
 import 'storage_transfer_test.dart' show MemoryStore;
 
 class CountingAppearance implements AppearanceStore {
@@ -99,6 +100,37 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     appSound.stopMetronome();
     appearance.dispose();
+    await tester.binding.setSurfaceSize(null);
+  });
+
+  testWidgets('settings pages fit 320 px in seven languages at 100% and 200% text', (tester) async {
+    final resources = (await tester.runAsync(Resources.load))!;
+    await tester.binding.setSurfaceSize(const Size(320, 582));
+    for (final scale in [1.0, 2.0]) {
+      for (final lang in ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt']) {
+        final repo = LocalRepository(MemoryStore());
+        await repo.load();
+        await repo.transaction((d) {
+          (d['prefs'] as Map)['pet'] = false;
+          (d['prefs'] as Map)['lang'] = lang;
+        });
+        final appearance = AppearanceController(resources.registry, AppearanceMemory(), existingInstall: false);
+        final key = GlobalKey<TypeFreeAppState>();
+        await tester.pumpWidget(MediaQuery(
+          data: MediaQueryData(size: const Size(320, 582), textScaler: TextScaler.linear(scale)),
+          child: TypeFreeApp(key: key, resources: resources, repository: repo, appearance: appearance),
+        ));
+        await tester.pump();
+        for (final sec in [AppSection.more, AppSection.settings, AppSection.settingsInput, AppSection.settingsSound]) {
+          await key.currentState!.showSection(sec);
+          await tester.pump();
+          expect(tester.takeException(), isNull, reason: '$lang $scale $sec');
+        }
+        await tester.pumpWidget(const SizedBox());
+        appSound.stopMetronome();
+        appearance.dispose();
+      }
+    }
     await tester.binding.setSurfaceSize(null);
   });
 }

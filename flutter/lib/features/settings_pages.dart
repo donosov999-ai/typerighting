@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../design_system/templates.dart';
@@ -370,38 +372,43 @@ class InputSettingsPage extends StatelessWidget {
               icon: Icons.language,
               title: tr('set.layout'),
               subtitle: c('layout.d'),
-              trailing: DecoratedBox(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Theme.of(context).colorScheme.outline,
+              inline: true,
+              below: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 260),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10),
-                  child: DropdownButton<String>(
-                    value: values.layout,
-                    isDense: true,
-                    underline: const SizedBox.shrink(),
-                    items: [
-                      DropdownMenuItem(
-                        value: 'auto',
-                        child: Text(tr('set.layout.auto')),
-                      ),
-                      const DropdownMenuItem(
-                        value: 'qwerty',
-                        child: Text('QWERTY'),
-                      ),
-                      const DropdownMenuItem(
-                        value: 'azerty',
-                        child: Text('AZERTY · FR'),
-                      ),
-                      const DropdownMenuItem(
-                        value: 'qwertz',
-                        child: Text('QWERTZ · DE'),
-                      ),
-                    ],
-                    onChanged: (v) => onChanged('layout', v!),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: DropdownButton<String>(
+                      value: values.layout,
+                      isDense: true,
+                      isExpanded: true,
+                      underline: const SizedBox.shrink(),
+                      items: [
+                        DropdownMenuItem(
+                          value: 'auto',
+                          child: Text(tr('set.layout.auto')),
+                        ),
+                        const DropdownMenuItem(
+                          value: 'qwerty',
+                          child: Text('QWERTY'),
+                        ),
+                        const DropdownMenuItem(
+                          value: 'azerty',
+                          child: Text('AZERTY · FR'),
+                        ),
+                        const DropdownMenuItem(
+                          value: 'qwertz',
+                          child: Text('QWERTZ · DE'),
+                        ),
+                      ],
+                      onChanged: (v) => onChanged('layout', v!),
+                    ),
                   ),
                 ),
               ),
@@ -536,22 +543,14 @@ class SoundSettingsPage extends StatelessWidget {
               title: c('theme'),
               subtitle: '',
               inline: true,
-              below: SegmentedButton<ThemeMode>(
-                showSelectedIcon: false,
-                segments: [
-                  ButtonSegment(value: ThemeMode.dark, label: Text(c('dark'))),
-                  ButtonSegment(
-                    value: ThemeMode.light,
-                    label: Text(c('light')),
-                  ),
-                  ButtonSegment(
-                    value: ThemeMode.system,
-                    label: Text(c('system')),
-                  ),
+              below: _Choice<ThemeMode>(
+                options: [
+                  (ThemeMode.dark, Text(c('dark'))),
+                  (ThemeMode.light, Text(c('light'))),
+                  (ThemeMode.system, Text(c('system'))),
                 ],
-                selected: {sel.brightness},
-                onSelectionChanged: (m) =>
-                    appearance.preview(sel.templateId, m.first),
+                selected: sel.brightness,
+                onSelected: (m) => appearance.preview(sel.templateId, m),
               ),
             ),
             if (appearance.previewing)
@@ -577,24 +576,14 @@ class SoundSettingsPage extends StatelessWidget {
               title: c('textSize'),
               subtitle: '',
               inline: true,
-              below: SegmentedButton<double>(
-                showSelectedIcon: false,
-                segments: const [
-                  ButtonSegment(
-                    value: .9,
-                    label: Text('A', style: TextStyle(fontSize: 13)),
-                  ),
-                  ButtonSegment(
-                    value: 1,
-                    label: Text('A', style: TextStyle(fontSize: 16)),
-                  ),
-                  ButtonSegment(
-                    value: 1.15,
-                    label: Text('A', style: TextStyle(fontSize: 20)),
-                  ),
+              below: _Choice<double>(
+                options: const [
+                  (.9, Text('A', style: TextStyle(fontSize: 13))),
+                  (1.0, Text('A', style: TextStyle(fontSize: 16))),
+                  (1.15, Text('A', style: TextStyle(fontSize: 20))),
                 ],
-                selected: {values.textSize},
-                onSelectionChanged: (v) => onChanged('textSize', v.first),
+                selected: values.textSize,
+                onSelected: (v) => onChanged('textSize', v),
               ),
             ),
             _SwitchRow(
@@ -792,6 +781,14 @@ class _SliderRow extends StatelessWidget {
     final slider = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (leadingSwitch != null)
+          Padding(
+            padding: const EdgeInsets.only(left: 12),
+            child: Text(
+              '$value $unit',
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
         Slider(
           value: value.clamp(min, max).toDouble(),
           min: min.toDouble(),
@@ -803,12 +800,28 @@ class _SliderRow extends StatelessWidget {
         if (ticks.isNotEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                for (final t in ticks)
-                  Text('$t', style: TextStyle(fontSize: 11, color: muted)),
-              ],
+            child: LayoutBuilder(
+              builder: (context, box) {
+                // Thin the scale to what fits; the ends always stay.
+                final label =
+                    11 * 3.4 * MediaQuery.textScalerOf(context).scale(14) / 14;
+                final fit = math.max(
+                  2,
+                  math.min(ticks.length, (box.maxWidth / (label + 6)).floor()),
+                );
+                final shown = [
+                  for (var i = 0; i < fit; i++)
+                    ticks[(i * (ticks.length - 1) / math.max(1, fit - 1))
+                        .round()],
+                ];
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    for (final t in shown)
+                      Text('$t', style: TextStyle(fontSize: 11, color: muted)),
+                  ],
+                );
+              },
             ),
           ),
       ],
@@ -817,19 +830,14 @@ class _SliderRow extends StatelessWidget {
       icon: icon,
       title: title,
       subtitle: subtitle,
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+      // With a switch the value moves next to the slider, so large text
+      // never pushes the switch out of the row.
+      trailing:
+          leadingSwitch ??
           Text(
             '$value $unit',
             style: const TextStyle(fontWeight: FontWeight.w700),
           ),
-          if (leadingSwitch != null) ...[
-            const SizedBox(width: 8),
-            leadingSwitch!,
-          ],
-        ],
-      ),
       below: action == null
           ? slider
           : Wrap(
@@ -882,5 +890,46 @@ class _NavRow extends StatelessWidget {
       subtitle: Text(subtitle, style: const TextStyle(fontSize: 12.5)),
       trailing: const Icon(Icons.chevron_right),
     ),
+  );
+}
+
+/// Segmented control that never overflows: a SegmentedButton when it fits,
+/// otherwise wrapping chips (no scaling, no sideways scroll for a choice).
+class _Choice<T> extends StatelessWidget {
+  const _Choice({
+    required this.options,
+    required this.selected,
+    required this.onSelected,
+  });
+  final List<(T, Widget)> options;
+  final T selected;
+  final ValueChanged<T> onSelected;
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      final perItem = 92 * MediaQuery.textScalerOf(context).scale(14) / 14;
+      if (box.maxWidth >= perItem * options.length) {
+        return SegmentedButton<T>(
+          showSelectedIcon: false,
+          segments: [
+            for (final (v, w) in options) ButtonSegment(value: v, label: w),
+          ],
+          selected: {selected},
+          onSelectionChanged: (v) => onSelected(v.first),
+        );
+      }
+      return Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: [
+          for (final (v, w) in options)
+            ChoiceChip(
+              label: w,
+              selected: v == selected,
+              onSelected: (_) => onSelected(v),
+            ),
+        ],
+      );
+    },
   );
 }

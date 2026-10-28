@@ -446,10 +446,16 @@ class KidsPageState extends State<KidsPage> with WidgetsBindingObserver {
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                // Short reversed rows keep the gap on the
+                                // left so the path stays continuous.
+                                if (r.isOdd)
+                                  for (var k = row.length; k < per; k++)
+                                    SizedBox(width: size),
                                 for (final l in r.isOdd ? row.reversed : row)
                                   node(l, size),
-                                for (var k = row.length; k < per; k++)
-                                  SizedBox(width: size),
+                                if (r.isEven)
+                                  for (var k = row.length; k < per; k++)
+                                    SizedBox(width: size),
                               ],
                             ),
                           ],

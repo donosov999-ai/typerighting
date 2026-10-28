@@ -28,7 +28,10 @@ await p.waitForTimeout(800);
 for (const step of (args.steps || '').split(';').filter(Boolean)) {
   const [label, nth] = step.split('#');
   const box = await p.evaluate(({ label, nth }) => {
-    const hits = [...document.querySelectorAll('[aria-label]')].filter(e => { const a = e.getAttribute('aria-label'); return a === label || a.startsWith(label + '\n') || a.startsWith(label + ' '); });
+    const name = e => (e.getAttribute('aria-label') || e.innerText || '').trim();
+    const nodes = [...document.querySelectorAll('flt-semantics, [aria-label], [role=button]')];
+    const hits = nodes.filter(e => { const a = name(e); return a === label || a.startsWith(label + '\n') || a.startsWith(label + ' '); })
+      .sort((x, y) => name(x).length - name(y).length);
     const e = hits[nth]; if (!e) return null; e.scrollIntoView({ block: 'center' }); const r = e.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
   }, { label, nth: +(nth || 0) });
   if (!box) console.error('NOT FOUND step:', label); else await p.mouse.click(box.x, box.y);

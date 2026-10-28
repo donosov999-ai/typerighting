@@ -222,6 +222,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   int? courseStartLessonId;
   bool get historyPage => section == AppSection.progress;
   bool get coursePage => section == AppSection.course;
+  bool get inSettings =>
+      section == AppSection.settings ||
+      section == AppSection.settingsInput ||
+      section == AppSection.settingsSound;
   Future<bool> finishLearning() async {
     if (section == AppSection.kids) {
       return await kidsKey.currentState?.checkpointForExit() ?? true;
@@ -1158,7 +1162,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
               onPressed: () => showSection(AppSection.progress),
               icon: const Icon(Icons.calendar_today_outlined, size: 20),
             ),
-          if (section != AppSection.today)
+          if (section != AppSection.today && !inSettings)
             DropdownButton<String>(
               value: language,
               items: languages
@@ -1187,7 +1191,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       });
                     },
             ),
-          if (section != AppSection.today)
+          if (section != AppSection.today && !inSettings)
             IconButton(
               tooltip: tr('hub.settings'),
               onPressed: settings,

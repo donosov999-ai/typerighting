@@ -291,12 +291,16 @@ class AppearanceController extends ChangeNotifier {
           onPrimary: c['onPrimary'],
           surface: c['surface'],
           onSurface: c['text'],
+          onSurfaceVariant: c['mutedText'],
+          outline: c['border'],
+          outlineVariant: c['border'],
           error: c['danger'],
         );
     return ThemeData(
       colorScheme: scheme,
       scaffoldBackgroundColor: c['canvas'],
       appBarTheme: AppBarTheme(
+        centerTitle: false,
         backgroundColor: c['canvas'],
         foregroundColor: c['text'],
         surfaceTintColor: Colors.transparent,
@@ -330,6 +334,45 @@ class AppearanceController extends ChangeNotifier {
         ),
       ),
       extensions: [TypeFreeTokens(c)],
+      // Settings rows (F3/F4): white thumb, accent track when on, quiet
+      // track when off; shape plus position carry state, not colour alone.
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.disabled)
+              ? c['mutedText']
+              : Colors.white,
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? c['primary']
+              : c['raisedSurface'],
+        ),
+        trackOutlineColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? Colors.transparent
+              : c['border'],
+        ),
+      ),
+      segmentedButtonTheme: SegmentedButtonThemeData(
+        style: ButtonStyle(
+          visualDensity: VisualDensity.compact,
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? c['primary']
+                : Colors.transparent,
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? c['onPrimary']
+                : c['text'],
+          ),
+          side: WidgetStatePropertyAll(BorderSide(color: c['border']!)),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+        ),
+      ),
+      dividerTheme: DividerThemeData(color: c['border'], thickness: 1, space: 1),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           minimumSize: const Size(48, 48),

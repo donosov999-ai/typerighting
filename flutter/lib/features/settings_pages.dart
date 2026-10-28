@@ -38,35 +38,252 @@ typedef SettingChanged = void Function(String key, Object value);
 String settingsCopy(String language, String key) {
   const langs = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
   const words = <String, List<String>>{
-    'input': ['Настройки ввода', 'Input settings', 'Ajustes de escritura', 'Eingabe', 'Saisie', 'Impostazioni di input', 'Definições de entrada'],
-    'input.d': ['Текст, ошибки, клавиатура, раскладка', 'Text, errors, keyboard, layout', 'Texto, errores, teclado, distribución', 'Text, Fehler, Tastatur, Layout', 'Texte, erreurs, clavier, disposition', 'Testo, errori, tastiera, layout', 'Texto, erros, teclado, layout'],
-    'sound': ['Звук и оформление', 'Sound and appearance', 'Sonido y apariencia', 'Ton und Darstellung', 'Son et apparence', 'Suono e aspetto', 'Som e aparência'],
-    'sound.d': ['Звуки, метроном, тема, размер текста', 'Sounds, metronome, theme, text size', 'Sonidos, metrónomo, tema, tamaño del texto', 'Töne, Metronom, Thema, Textgröße', 'Sons, métronome, thème, taille du texte', 'Suoni, metronomo, tema, dimensione testo', 'Sons, metrónomo, tema, tamanho do texto'],
-    'hide.d': ['Тренировка по памяти', 'Practice from memory', 'Práctica de memoria', 'Aus dem Gedächtnis üben', 'S’entraîner de mémoire', 'Esercizio a memoria', 'Treino de memória'],
-    'block.d': ['Не идти дальше, пока символ неверный', 'Stay on a key until it is right', 'No avanzar hasta acertar', 'Erst weiter, wenn die Taste stimmt', 'Ne pas avancer avant la bonne touche', 'Non avanzare finché il tasto è errato', 'Não avançar até acertar'],
-    'keyb.d': ['Схема клавиатуры под текстом', 'Keyboard guide under the text', 'Guía del teclado bajo el texto', 'Tastaturhilfe unter dem Text', 'Guide du clavier sous le texte', 'Guida tastiera sotto il testo', 'Guia do teclado sob o texto'],
-    'layout.d': ['Как расположены буквы на вашей клавиатуре', 'Letter positions on your keyboard', 'Posición de letras en tu teclado', 'Buchstabenlage auf Ihrer Tastatur', 'Position des lettres sur votre clavier', 'Posizione lettere sulla tua tastiera', 'Posição das letras no seu teclado'],
-    'heat.d': ['Клавиши с ошибками на схеме', 'Keys you miss, on the guide', 'Teclas con errores en la guía', 'Fehlertasten auf der Hilfe', 'Touches fautives sur le guide', 'Tasti con errori sulla guida', 'Teclas com erros no guia'],
-    'hard.d': ['Только для русской раскладки', 'Russian layout only', 'Solo distribución rusa', 'Nur russisches Layout', 'Disposition russe uniquement', 'Solo layout russo', 'Apenas layout russo'],
-    'bridge.d': ['Не нужно переключать раскладку ОС', 'No need to switch the OS layout', 'Sin cambiar la distribución del sistema', 'Kein Umschalten des System-Layouts', 'Sans changer la disposition du système', 'Senza cambiare il layout di sistema', 'Sem mudar o layout do sistema'],
-    'target.d': ['Для прогноза в «Прогрессе»', 'Used by the forecast in Progress', 'Para el pronóstico en Progreso', 'Für die Prognose im Fortschritt', 'Pour la prévision dans Progrès', 'Per la previsione in Progressi', 'Para a previsão no Progresso'],
-    'sound.sfx.d': ['Ошибка, завершение, рекорд, звёзды', 'Error, finish, record, stars', 'Error, final, récord, estrellas', 'Fehler, Abschluss, Rekord, Sterne', 'Erreur, fin, record, étoiles', 'Errore, fine, record, stelle', 'Erro, fim, recorde, estrelas'],
-    'voice.d': ['Произносит верно набранную букву (RU/EN)', 'Says each correct letter (RU/EN)', 'Dice cada letra correcta (RU/EN)', 'Spricht jeden richtigen Buchstaben (RU/EN)', 'Dit chaque lettre juste (RU/EN)', 'Pronuncia ogni lettera giusta (RU/EN)', 'Diz cada letra certa (RU/EN)'],
-    'metro.d': ['Ровный тик в тренировке', 'Steady tick during practice', 'Tic constante al practicar', 'Gleichmäßiger Takt beim Üben', 'Tic régulier à l’entraînement', 'Tic costante in esercizio', 'Tique constante no treino'],
-    'look': ['Оформление', 'Appearance', 'Apariencia', 'Darstellung', 'Apparence', 'Aspetto', 'Aparência'],
-    'template': ['Шаблон', 'Template', 'Plantilla', 'Vorlage', 'Modèle', 'Modello', 'Modelo'],
+    'input': [
+      'Настройки ввода',
+      'Input settings',
+      'Ajustes de escritura',
+      'Eingabe',
+      'Saisie',
+      'Impostazioni di input',
+      'Definições de entrada',
+    ],
+    'input.d': [
+      'Текст, ошибки, клавиатура, раскладка',
+      'Text, errors, keyboard, layout',
+      'Texto, errores, teclado, distribución',
+      'Text, Fehler, Tastatur, Layout',
+      'Texte, erreurs, clavier, disposition',
+      'Testo, errori, tastiera, layout',
+      'Texto, erros, teclado, layout',
+    ],
+    'sound': [
+      'Звук и оформление',
+      'Sound and appearance',
+      'Sonido y apariencia',
+      'Ton und Darstellung',
+      'Son et apparence',
+      'Suono e aspetto',
+      'Som e aparência',
+    ],
+    'sound.d': [
+      'Звуки, метроном, тема, размер текста',
+      'Sounds, metronome, theme, text size',
+      'Sonidos, metrónomo, tema, tamaño del texto',
+      'Töne, Metronom, Thema, Textgröße',
+      'Sons, métronome, thème, taille du texte',
+      'Suoni, metronomo, tema, dimensione testo',
+      'Sons, metrónomo, tema, tamanho do texto',
+    ],
+    'hide.d': [
+      'Тренировка по памяти',
+      'Practice from memory',
+      'Práctica de memoria',
+      'Aus dem Gedächtnis üben',
+      'S’entraîner de mémoire',
+      'Esercizio a memoria',
+      'Treino de memória',
+    ],
+    'block.d': [
+      'Не идти дальше, пока символ неверный',
+      'Stay on a key until it is right',
+      'No avanzar hasta acertar',
+      'Erst weiter, wenn die Taste stimmt',
+      'Ne pas avancer avant la bonne touche',
+      'Non avanzare finché il tasto è errato',
+      'Não avançar até acertar',
+    ],
+    'keyb.d': [
+      'Схема клавиатуры под текстом',
+      'Keyboard guide under the text',
+      'Guía del teclado bajo el texto',
+      'Tastaturhilfe unter dem Text',
+      'Guide du clavier sous le texte',
+      'Guida tastiera sotto il testo',
+      'Guia do teclado sob o texto',
+    ],
+    'layout.d': [
+      'Как расположены буквы на вашей клавиатуре',
+      'Letter positions on your keyboard',
+      'Posición de letras en tu teclado',
+      'Buchstabenlage auf Ihrer Tastatur',
+      'Position des lettres sur votre clavier',
+      'Posizione lettere sulla tua tastiera',
+      'Posição das letras no seu teclado',
+    ],
+    'heat.d': [
+      'Клавиши с ошибками на схеме',
+      'Keys you miss, on the guide',
+      'Teclas con errores en la guía',
+      'Fehlertasten auf der Hilfe',
+      'Touches fautives sur le guide',
+      'Tasti con errori sulla guida',
+      'Teclas com erros no guia',
+    ],
+    'hard.d': [
+      'Только для русской раскладки',
+      'Russian layout only',
+      'Solo distribución rusa',
+      'Nur russisches Layout',
+      'Disposition russe uniquement',
+      'Solo layout russo',
+      'Apenas layout russo',
+    ],
+    'bridge.d': [
+      'Не нужно переключать раскладку ОС',
+      'No need to switch the OS layout',
+      'Sin cambiar la distribución del sistema',
+      'Kein Umschalten des System-Layouts',
+      'Sans changer la disposition du système',
+      'Senza cambiare il layout di sistema',
+      'Sem mudar o layout do sistema',
+    ],
+    'target.d': [
+      'Для прогноза в «Прогрессе»',
+      'Used by the forecast in Progress',
+      'Para el pronóstico en Progreso',
+      'Für die Prognose im Fortschritt',
+      'Pour la prévision dans Progrès',
+      'Per la previsione in Progressi',
+      'Para a previsão no Progresso',
+    ],
+    'sfx': [
+      'Звуковые эффекты',
+      'Sound effects',
+      'Efectos de sonido',
+      'Soundeffekte',
+      'Effets sonores',
+      'Effetti sonori',
+      'Efeitos sonoros',
+    ],
+    'sound.sfx.d': [
+      'Ошибка, завершение, рекорд, звёзды',
+      'Error, finish, record, stars',
+      'Error, final, récord, estrellas',
+      'Fehler, Abschluss, Rekord, Sterne',
+      'Erreur, fin, record, étoiles',
+      'Errore, fine, record, stelle',
+      'Erro, fim, recorde, estrelas',
+    ],
+    'voice.d': [
+      'Произносит верно набранную букву (RU/EN)',
+      'Says each correct letter (RU/EN)',
+      'Dice cada letra correcta (RU/EN)',
+      'Spricht jeden richtigen Buchstaben (RU/EN)',
+      'Dit chaque lettre juste (RU/EN)',
+      'Pronuncia ogni lettera giusta (RU/EN)',
+      'Diz cada letra certa (RU/EN)',
+    ],
+    'metro.d': [
+      'Ровный тик в тренировке',
+      'Steady tick during practice',
+      'Tic constante al practicar',
+      'Gleichmäßiger Takt beim Üben',
+      'Tic régulier à l’entraînement',
+      'Tic costante in esercizio',
+      'Tique constante no treino',
+    ],
+    'look': [
+      'Оформление',
+      'Appearance',
+      'Apariencia',
+      'Darstellung',
+      'Apparence',
+      'Aspetto',
+      'Aparência',
+    ],
+    'template': [
+      'Шаблон',
+      'Template',
+      'Plantilla',
+      'Vorlage',
+      'Modèle',
+      'Modello',
+      'Modelo',
+    ],
     'theme': ['Тема', 'Theme', 'Tema', 'Thema', 'Thème', 'Tema', 'Tema'],
     'dark': ['Тёмная', 'Dark', 'Oscuro', 'Dunkel', 'Sombre', 'Scuro', 'Escuro'],
     'light': ['Светлая', 'Light', 'Claro', 'Hell', 'Clair', 'Chiaro', 'Claro'],
-    'system': ['Системная', 'System', 'Sistema', 'System', 'Système', 'Sistema', 'Sistema'],
-    'preview': ['Предпросмотр — не сохранено', 'Preview — not saved', 'Vista previa: sin guardar', 'Vorschau – nicht gespeichert', 'Aperçu — non enregistré', 'Anteprima — non salvata', 'Pré-visualização — não guardada'],
-    'apply': ['Применить', 'Apply', 'Aplicar', 'Übernehmen', 'Appliquer', 'Applica', 'Aplicar'],
-    'cancel': ['Отмена', 'Cancel', 'Cancelar', 'Abbrechen', 'Annuler', 'Annulla', 'Cancelar'],
-    'textSize': ['Размер текста', 'Text size', 'Tamaño del texto', 'Textgröße', 'Taille du texte', 'Dimensione testo', 'Tamanho do texto'],
-    'pet.d': ['Синапс в шапке и его реплики', 'Synapse in the header and its notes', 'Synapse en la cabecera y sus frases', 'Synapse oben und seine Hinweise', 'Synapse en haut et ses remarques', 'Synapse in alto e i suoi messaggi', 'Synapse no topo e as suas falas'],
-    'motion': ['Анимация', 'Animation', 'Animación', 'Animation', 'Animation', 'Animazione', 'Animação'],
-    'motion.d': ['Выключите, если движение мешает', 'Turn off if motion distracts you', 'Desactívala si el movimiento molesta', 'Ausschalten, wenn Bewegung stört', 'Désactivez si le mouvement gêne', 'Disattiva se il movimento disturba', 'Desligue se o movimento incomodar'],
-    'version': ['Версия', 'Version', 'Versión', 'Version', 'Version', 'Versione', 'Versão'],
+    'system': [
+      'Системная',
+      'System',
+      'Sistema',
+      'System',
+      'Système',
+      'Sistema',
+      'Sistema',
+    ],
+    'preview': [
+      'Предпросмотр — не сохранено',
+      'Preview — not saved',
+      'Vista previa: sin guardar',
+      'Vorschau – nicht gespeichert',
+      'Aperçu — non enregistré',
+      'Anteprima — non salvata',
+      'Pré-visualização — não guardada',
+    ],
+    'apply': [
+      'Применить',
+      'Apply',
+      'Aplicar',
+      'Übernehmen',
+      'Appliquer',
+      'Applica',
+      'Aplicar',
+    ],
+    'cancel': [
+      'Отмена',
+      'Cancel',
+      'Cancelar',
+      'Abbrechen',
+      'Annuler',
+      'Annulla',
+      'Cancelar',
+    ],
+    'textSize': [
+      'Размер текста',
+      'Text size',
+      'Tamaño del texto',
+      'Textgröße',
+      'Taille du texte',
+      'Dimensione testo',
+      'Tamanho do texto',
+    ],
+    'pet.d': [
+      'Синапс в шапке и его реплики',
+      'Synapse in the header and its notes',
+      'Synapse en la cabecera y sus frases',
+      'Synapse oben und seine Hinweise',
+      'Synapse en haut et ses remarques',
+      'Synapse in alto e i suoi messaggi',
+      'Synapse no topo e as suas falas',
+    ],
+    'motion': [
+      'Анимация',
+      'Animation',
+      'Animación',
+      'Animation',
+      'Animation',
+      'Animazione',
+      'Animação',
+    ],
+    'motion.d': [
+      'Выключите, если движение мешает',
+      'Turn off if motion distracts you',
+      'Desactívala si el movimiento molesta',
+      'Ausschalten, wenn Bewegung stört',
+      'Désactivez si le mouvement gêne',
+      'Disattiva se il movimento disturba',
+      'Desligue se o movimento incomodar',
+    ],
+    'version': [
+      'Версия',
+      'Version',
+      'Versión',
+      'Version',
+      'Version',
+      'Versione',
+      'Versão',
+    ],
   };
   final i = langs.indexOf(language);
   return words[key]?[i < 0 ? 1 : i] ?? key;
@@ -128,28 +345,88 @@ class InputSettingsPage extends StatelessWidget {
       children: [
         _Card(
           children: [
-            _SwitchRow(Icons.visibility_off_outlined, tr('tb.hide'), c('hide.d'), values.hide, (v) => onChanged('hide', v)),
-            _SwitchRow(Icons.block_outlined, tr('tb.block'), c('block.d'), values.block, (v) => onChanged('block', v)),
-            _SwitchRow(Icons.keyboard_alt_outlined, tr('tb.keyb'), c('keyb.d'), values.keyboard, (v) => onChanged('keyboard', v)),
+            _SwitchRow(
+              Icons.visibility_off_outlined,
+              tr('tb.hide'),
+              c('hide.d'),
+              values.hide,
+              (v) => onChanged('hide', v),
+            ),
+            _SwitchRow(
+              Icons.block_outlined,
+              tr('tb.block'),
+              c('block.d'),
+              values.block,
+              (v) => onChanged('block', v),
+            ),
+            _SwitchRow(
+              Icons.keyboard_alt_outlined,
+              tr('tb.keyb'),
+              c('keyb.d'),
+              values.keyboard,
+              (v) => onChanged('keyboard', v),
+            ),
             _Row(
               icon: Icons.language,
               title: tr('set.layout'),
               subtitle: c('layout.d'),
-              trailing: DropdownButton<String>(
-                value: values.layout,
-                underline: const SizedBox.shrink(),
-                items: [
-                  DropdownMenuItem(value: 'auto', child: Text(tr('set.layout.auto'))),
-                  const DropdownMenuItem(value: 'qwerty', child: Text('QWERTY')),
-                  const DropdownMenuItem(value: 'azerty', child: Text('AZERTY · FR')),
-                  const DropdownMenuItem(value: 'qwertz', child: Text('QWERTZ · DE')),
-                ],
-                onChanged: (v) => onChanged('layout', v!),
+              trailing: DecoratedBox(
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outline,
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: DropdownButton<String>(
+                    value: values.layout,
+                    isDense: true,
+                    underline: const SizedBox.shrink(),
+                    items: [
+                      DropdownMenuItem(
+                        value: 'auto',
+                        child: Text(tr('set.layout.auto')),
+                      ),
+                      const DropdownMenuItem(
+                        value: 'qwerty',
+                        child: Text('QWERTY'),
+                      ),
+                      const DropdownMenuItem(
+                        value: 'azerty',
+                        child: Text('AZERTY · FR'),
+                      ),
+                      const DropdownMenuItem(
+                        value: 'qwertz',
+                        child: Text('QWERTZ · DE'),
+                      ),
+                    ],
+                    onChanged: (v) => onChanged('layout', v!),
+                  ),
+                ),
               ),
             ),
-            _SwitchRow(Icons.local_fire_department_outlined, tr('tb.heat'), c('heat.d'), values.heat, (v) => onChanged('heat', v)),
-            _SwitchRow(Icons.keyboard_double_arrow_up, tr('set.hardkeys'), c('hard.d'), values.hardKeys, (v) => onChanged('hardkeys', v)),
-            _SwitchRow(Icons.compare_arrows, tr('set.bridge'), c('bridge.d'), values.bridge, (v) => onChanged('bridge', v)),
+            _SwitchRow(
+              Icons.local_fire_department_outlined,
+              tr('tb.heat'),
+              c('heat.d'),
+              values.heat,
+              (v) => onChanged('heat', v),
+            ),
+            _SwitchRow(
+              Icons.keyboard_double_arrow_up,
+              tr('set.hardkeys'),
+              c('hard.d'),
+              values.hardKeys,
+              (v) => onChanged('hardkeys', v),
+            ),
+            _SwitchRow(
+              Icons.compare_arrows,
+              tr('set.bridge'),
+              c('bridge.d'),
+              values.bridge,
+              (v) => onChanged('bridge', v),
+            ),
             _SliderRow(
               icon: Icons.speed,
               title: tr('set.targetwpm'),
@@ -159,6 +436,7 @@ class InputSettingsPage extends StatelessWidget {
               max: 200,
               step: 5,
               unit: 'WPM',
+              ticks: const [10, 50, 100, 150, 200],
               onChanged: (v) => onChanged('targetWpm', v),
             ),
           ],
@@ -192,26 +470,38 @@ class SoundSettingsPage extends StatelessWidget {
       children: [
         _Card(
           children: [
-            _SwitchRow(Icons.volume_up_outlined, tr('tb.sound'), c('sound.sfx.d'), values.sound, (v) => onChanged('sound', v)),
-            if (values.voiceAvailable)
-              _SwitchRow(Icons.record_voice_over_outlined, tr('set.voice').replaceFirst('🔊 ', ''), c('voice.d'), values.voice, (v) => onChanged('voice', v)),
-            _SwitchRow(Icons.music_note_outlined, tr('set.metro'), c('metro.d'), values.metronome, (v) => onChanged('metronome', v)),
-            _SliderRow(
-              icon: Icons.av_timer,
-              title: tr('set.metro.bpm'),
-              subtitle: '',
-              value: values.bpm,
-              min: 60,
-              max: 200,
-              step: 10,
-              unit: 'BPM',
-              onChanged: (v) => onChanged('bpm', v),
+            _SwitchRow(
+              Icons.volume_up_outlined,
+              c('sfx'),
+              c('sound.sfx.d'),
+              values.sound,
+              (v) => onChanged('sound', v),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: OutlinedButton.icon(
+            if (values.voiceAvailable)
+              _SwitchRow(
+                Icons.record_voice_over_outlined,
+                tr('set.voice').replaceFirst('🔊 ', ''),
+                c('voice.d'),
+                values.voice,
+                (v) => onChanged('voice', v),
+              ),
+            MergeSemantics(
+              child: _SliderRow(
+                icon: Icons.music_note_outlined,
+                title: tr('set.metro'),
+                subtitle: c('metro.d'),
+                value: values.bpm,
+                min: 60,
+                max: 200,
+                step: 10,
+                unit: 'BPM',
+                ticks: const [60, 80, 100, 120, 140, 160, 180, 200],
+                leadingSwitch: Switch(
+                  value: values.metronome,
+                  onChanged: (v) => onChanged('metronome', v),
+                ),
+                onChanged: (v) => onChanged('bpm', v),
+                action: OutlinedButton.icon(
                   onPressed: onTestSound,
                   icon: const Icon(Icons.play_arrow),
                   label: Text(tr('set.soundtest')),
@@ -235,7 +525,8 @@ class SoundSettingsPage extends StatelessWidget {
                     ChoiceChip(
                       label: Text(t.title),
                       selected: sel.templateId == t.id,
-                      onSelected: (_) => appearance.preview(t.id, sel.brightness),
+                      onSelected: (_) =>
+                          appearance.preview(t.id, sel.brightness),
                     ),
                 ],
               ),
@@ -244,15 +535,23 @@ class SoundSettingsPage extends StatelessWidget {
               icon: Icons.contrast,
               title: c('theme'),
               subtitle: '',
+              inline: true,
               below: SegmentedButton<ThemeMode>(
                 showSelectedIcon: false,
                 segments: [
                   ButtonSegment(value: ThemeMode.dark, label: Text(c('dark'))),
-                  ButtonSegment(value: ThemeMode.light, label: Text(c('light'))),
-                  ButtonSegment(value: ThemeMode.system, label: Text(c('system'))),
+                  ButtonSegment(
+                    value: ThemeMode.light,
+                    label: Text(c('light')),
+                  ),
+                  ButtonSegment(
+                    value: ThemeMode.system,
+                    label: Text(c('system')),
+                  ),
                 ],
                 selected: {sel.brightness},
-                onSelectionChanged: (m) => appearance.preview(sel.templateId, m.first),
+                onSelectionChanged: (m) =>
+                    appearance.preview(sel.templateId, m.first),
               ),
             ),
             if (appearance.previewing)
@@ -261,9 +560,15 @@ class SoundSettingsPage extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(onPressed: appearance.cancel, child: Text(c('cancel'))),
+                    TextButton(
+                      onPressed: appearance.cancel,
+                      child: Text(c('cancel')),
+                    ),
                     const SizedBox(width: 8),
-                    FilledButton(onPressed: () => appearance.apply(), child: Text(c('apply'))),
+                    FilledButton(
+                      onPressed: () => appearance.apply(),
+                      child: Text(c('apply')),
+                    ),
                   ],
                 ),
               ),
@@ -271,19 +576,41 @@ class SoundSettingsPage extends StatelessWidget {
               icon: Icons.format_size,
               title: c('textSize'),
               subtitle: '',
+              inline: true,
               below: SegmentedButton<double>(
                 showSelectedIcon: false,
                 segments: const [
-                  ButtonSegment(value: .9, label: Text('A', style: TextStyle(fontSize: 13))),
-                  ButtonSegment(value: 1, label: Text('A', style: TextStyle(fontSize: 16))),
-                  ButtonSegment(value: 1.15, label: Text('A', style: TextStyle(fontSize: 20))),
+                  ButtonSegment(
+                    value: .9,
+                    label: Text('A', style: TextStyle(fontSize: 13)),
+                  ),
+                  ButtonSegment(
+                    value: 1,
+                    label: Text('A', style: TextStyle(fontSize: 16)),
+                  ),
+                  ButtonSegment(
+                    value: 1.15,
+                    label: Text('A', style: TextStyle(fontSize: 20)),
+                  ),
                 ],
                 selected: {values.textSize},
                 onSelectionChanged: (v) => onChanged('textSize', v.first),
               ),
             ),
-            _SwitchRow(Icons.pets_outlined, tr('set.pet').replaceFirst('🐾 ', ''), c('pet.d'), values.pet, (v) => onChanged('pet', v)),
-            _SwitchRow(Icons.animation, c('motion'), c('motion.d'), values.motion, (v) => onChanged('motion', v)),
+            _SwitchRow(
+              Icons.pets_outlined,
+              tr('set.pet').replaceFirst('🐾 ', ''),
+              c('pet.d'),
+              values.pet,
+              (v) => onChanged('pet', v),
+            ),
+            _SwitchRow(
+              Icons.animation,
+              c('motion'),
+              c('motion.d'),
+              values.motion,
+              (v) => onChanged('motion', v),
+            ),
           ],
         ),
       ],
@@ -298,7 +625,10 @@ class _Page extends StatelessWidget {
   Widget build(BuildContext context) => Center(
     child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 720),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: children,
+      ),
     ),
   );
 }
@@ -309,7 +639,11 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.fromLTRB(4, 20, 4, 8),
-    child: Text(text, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+    child: Text(
+      text,
+      style: Theme.of(context).textTheme.titleMedium
+          ?.copyWith(fontWeight: FontWeight.w700),
+    ),
   );
 }
 
@@ -321,37 +655,73 @@ class _Card extends StatelessWidget {
     margin: EdgeInsets.zero,
     child: Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Column(children: children),
+      child: Column(
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0) const Divider(indent: 56, endIndent: 16),
+            children[i],
+          ],
+        ],
+      ),
     ),
   );
 }
 
 class _Row extends StatelessWidget {
-  const _Row({required this.icon, required this.title, required this.subtitle, this.trailing, this.below});
+  const _Row({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.trailing,
+    this.below,
+    this.inline = false,
+  });
   final IconData icon;
   final String title, subtitle;
   final Widget? trailing, below;
+
+  /// Put [below] at the end of the row when there is room (F4 layout),
+  /// otherwise under the title — never clipped.
+  final bool inline;
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, box) {
+      // Room for the title plus a three-way control at the current text size.
+      final need = 400 * MediaQuery.textScalerOf(context).scale(14) / 14;
+      final side = inline && below != null && box.maxWidth >= need;
+      return _layout(context, side ? below : trailing, side ? null : below);
+    },
+  );
+
+  Widget _layout(BuildContext context, Widget? trailing, Widget? below) {
     final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: 56),
+      constraints: const BoxConstraints(minHeight: 48),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [
-                Icon(icon, size: 24, color: muted),
+                Icon(icon, size: 22, color: muted),
                 const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
                       if (subtitle.isNotEmpty)
-                        Text(subtitle, style: TextStyle(fontSize: 12.5, color: muted)),
+                        Text(
+                          subtitle,
+                          style: TextStyle(fontSize: 12, color: muted),
+                        ),
                     ],
                   ),
                 ),
@@ -360,7 +730,7 @@ class _Row extends StatelessWidget {
             ),
             if (below != null)
               Padding(
-                padding: const EdgeInsets.only(left: 40, top: 8),
+                padding: const EdgeInsets.only(left: 38, top: 4),
                 child: Align(alignment: Alignment.centerLeft, child: below),
               ),
           ],
@@ -371,7 +741,13 @@ class _Row extends StatelessWidget {
 }
 
 class _SwitchRow extends StatelessWidget {
-  const _SwitchRow(this.icon, this.title, this.subtitle, this.value, this.onChanged);
+  const _SwitchRow(
+    this.icon,
+    this.title,
+    this.subtitle,
+    this.value,
+    this.onChanged,
+  );
   final IconData icon;
   final String title, subtitle;
   final bool value;
@@ -398,30 +774,91 @@ class _SliderRow extends StatelessWidget {
     required this.step,
     required this.unit,
     required this.onChanged,
+    this.ticks = const [],
+    this.action,
+    this.leadingSwitch,
   });
   final IconData icon;
   final String title, subtitle, unit;
   final int value, min, max, step;
   final ValueChanged<int> onChanged;
+
+  /// Scale labels under the slider (F3/F4 sketches show them).
+  final List<int> ticks;
+  final Widget? action, leadingSwitch;
   @override
-  Widget build(BuildContext context) => _Row(
-    icon: icon,
-    title: title,
-    subtitle: subtitle,
-    trailing: Text('$value $unit', style: const TextStyle(fontWeight: FontWeight.w700)),
-    below: Slider(
-      value: value.clamp(min, max).toDouble(),
-      min: min.toDouble(),
-      max: max.toDouble(),
-      divisions: (max - min) ~/ step,
-      label: '$value',
-      onChanged: (v) => onChanged(v.round()),
-    ),
-  );
+  Widget build(BuildContext context) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    final slider = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Slider(
+          value: value.clamp(min, max).toDouble(),
+          min: min.toDouble(),
+          max: max.toDouble(),
+          divisions: (max - min) ~/ step,
+          label: '$value',
+          onChanged: (v) => onChanged(v.round()),
+        ),
+        if (ticks.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                for (final t in ticks)
+                  Text('$t', style: TextStyle(fontSize: 11, color: muted)),
+              ],
+            ),
+          ),
+      ],
+    );
+    return _Row(
+      icon: icon,
+      title: title,
+      subtitle: subtitle,
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            '$value $unit',
+            style: const TextStyle(fontWeight: FontWeight.w700),
+          ),
+          if (leadingSwitch != null) ...[
+            const SizedBox(width: 8),
+            leadingSwitch!,
+          ],
+        ],
+      ),
+      below: action == null
+          ? slider
+          : Wrap(
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 12,
+              runSpacing: 4,
+              children: [
+                ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minWidth: 220,
+                    maxWidth: 360,
+                  ),
+                  child: slider,
+                ),
+                action!,
+              ],
+            ),
+    );
+  }
 }
 
 class _NavRow extends StatelessWidget {
-  const _NavRow({required this.icon, required this.accent, required this.title, required this.subtitle, required this.onTap});
+  const _NavRow({
+    required this.icon,
+    required this.accent,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
   final IconData icon;
   final Color accent;
   final String title, subtitle;
@@ -435,7 +872,10 @@ class _NavRow extends StatelessWidget {
       leading: Container(
         width: 40,
         height: 40,
-        decoration: BoxDecoration(color: accent, borderRadius: BorderRadius.circular(10)),
+        decoration: BoxDecoration(
+          color: accent,
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: Icon(icon, color: Colors.white),
       ),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),

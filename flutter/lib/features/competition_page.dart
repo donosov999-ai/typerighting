@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../data/key_statistics_store.dart';
 import '../data/local_repository.dart';
+import '../design_system/templates.dart';
 import '../domain/competition.dart';
 import '../domain/key_statistics.dart';
 import 'keyboard_guide.dart';
@@ -316,6 +317,11 @@ class CompetitionPageState extends State<CompetitionPage> {
     super.dispose();
   }
 
+  List<String> get _alpha => competitionContent(
+    'alpha_fwd',
+    widget.language,
+  ).split('').where((c) => c.trim().isNotEmpty).toList();
+
   @override
   Widget build(BuildContext context) {
     final race = engine, result = engine?.result;
@@ -332,25 +338,39 @@ class CompetitionPageState extends State<CompetitionPage> {
                   padding: const EdgeInsets.symmetric(vertical: 8),
                   child: Text(competitionCopy(widget.language, 'english')),
                 ),
+              const SizedBox(height: 8),
+              // E1: a tile per discipline, a preview of what is typed and
+              // the personal best on the right (local, this device only).
               for (final d in competitionDisciplines)
-                Card(
-                  child: ListTile(
-                    key: ValueKey('competition-$d'),
-                    leading: const Icon(Icons.emoji_events_outlined),
-                    title: Text(widget.tr('comp.$d')),
-                    subtitle: Text(
-                      '${widget.tr('comp.best')}: ${best['${d}_${competitionLanguage(widget.language)}'] ?? '—'} ${widget.tr('st.wpm')}',
-                    ),
-                    trailing: storedReplay(d) == null
-                        ? const Icon(Icons.play_arrow)
-                        : IconButton(
-                            key: ValueKey('stored-replay-$d'),
-                            tooltip: competitionCopy(widget.language, 'ghost'),
-                            icon: const Icon(Icons.replay),
-                            onPressed: () => start(d, replay: storedReplay(d)),
-                          ),
-                    onTap: () => start(d),
-                  ),
+                _DisciplineRow(
+                  key: ValueKey('competition-$d'),
+                  badge: const {
+                    'alpha_fwd': 'АБ',
+                    'alpha_rev': 'ЯА',
+                    'words': 'Tt',
+                    'digits': '123',
+                  }[d],
+                  title: widget.tr('comp.$d'),
+                  preview: d == 'alpha_fwd'
+                      ? '${_alpha.take(4).join(' ')} … ${_alpha.last}'
+                      : d == 'alpha_rev'
+                      ? '${_alpha.reversed.take(4).join(' ')} … ${_alpha.first}'
+                      : d == 'digits'
+                      ? '0 1 2 3 4 5 6 7 8 9'
+                      : widget.tr('comp.hint'),
+                  bestLabel: widget.tr('comp.best'),
+                  best: best['${d}_${competitionLanguage(widget.language)}']
+                      ?.toString(),
+                  unit: widget.tr('st.wpm'),
+                  onTap: () => start(d),
+                  replay: storedReplay(d) == null
+                      ? null
+                      : IconButton(
+                          key: ValueKey('stored-replay-$d'),
+                          tooltip: competitionCopy(widget.language, 'ghost'),
+                          icon: const Icon(Icons.replay),
+                          onPressed: () => start(d, replay: storedReplay(d)),
+                        ),
                 ),
             ] else ...[
               Wrap(
@@ -581,4 +601,103 @@ String competitionCopy(String language, String key) {
   };
   final i = languages.indexOf(language);
   return values[key]![i < 0 ? 1 : i];
+}
+
+class _DisciplineRow extends StatelessWidget {
+  const _DisciplineRow({
+    super.key,
+    required this.badge,
+    required this.title,
+    required this.preview,
+    required this.bestLabel,
+    required this.best,
+    required this.unit,
+    required this.onTap,
+    this.replay,
+  });
+  final String? badge, best;
+  final String title, preview, bestLabel, unit;
+  final VoidCallback onTap;
+  final Widget? replay;
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final tokens = Theme.of(context).extension<TypeFreeTokens>()!;
+    final muted = scheme.onSurfaceVariant;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: tokens['raisedSurface'],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: tokens['border']),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+            child: Row(
+              children: [
+                Container(
+                  width: 42,
+                  height: 42,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(color: scheme.primary, width: 1.5),
+                  ),
+                  child: badge == null
+                      ? Icon(Icons.bolt, color: scheme.primary)
+                      : Text(
+                          badge!,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: scheme.primary,
+                          ),
+                        ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      Text(
+                        preview,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(fontSize: 12, color: muted),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      bestLabel,
+                      style: TextStyle(fontSize: 11, color: muted),
+                    ),
+                    Text(
+                      best == null ? '—' : '$best $unit',
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  ],
+                ),
+                replay ?? const Icon(Icons.chevron_right),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

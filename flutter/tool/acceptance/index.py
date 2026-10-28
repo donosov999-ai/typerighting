@@ -4,12 +4,14 @@ python3 tool/acceptance/index.py   (from flutter/)
 
 Run after EVERY new package — the index and sheets must point at the latest
 package of each screen (Codex review 28.10: D5 was stale).
-Latest = newest package folder (by name) containing that screen's manifest.
+Latest = the package whose manifest.json was committed last (folder names of
+one day do not sort by time; file time is the fallback for uncommitted ones).
 The «Открытые вопросы» section of the existing index is kept as is.
 """
 import glob
 import json
 import os
+import subprocess
 from pathlib import Path
 
 from PIL import Image
@@ -18,6 +20,13 @@ ROOT = Path(__file__).resolve().parents[2] / 'design-acceptance'
 GROUPS = {'A': '1_A_главные', 'F': '2_F_I_прогресс_настройки_тема', 'I': '2_F_I_прогресс_настройки_тема',
           'M': '3_M_синапс', 'B': '4_B_тренажёр', 'C': '5_C_J_библиотека_курс_режимы',
           'J': '5_C_J_библиотека_курс_режимы', 'D': '6_D_E_режимы', 'E': '6_D_E_режимы', 'K': '7_K_сертификат'}
+
+
+def stamp(manifest):
+    """Commit time of the manifest (stable after clone); file time if uncommitted."""
+    out = subprocess.run(['git', 'log', '-1', '--format=%ct', '--', manifest],
+                         capture_output=True, text=True).stdout.strip()
+    return float(out) if out else os.path.getmtime(manifest)
 
 
 def key_of(screen):
@@ -44,7 +53,7 @@ def main():
            'Статусы — самопроверка исполнителя; **решения Дениса нет ни по одному экрану**.', '',
            '| экран | статус | сборка | пакет |', '|---|---|---|---|']
     for s in sorted(seen):
-        items = sorted(seen[s], key=lambda x: x[2])
+        items = sorted(seen[s], key=lambda x: stamp(f'{x[2]}/manifest.json'))
         for st, b, p in items:
             hist = '' if p == items[-1][2] else ' (история)'
             out.append(f'| {s} | {st}{hist} | `{b}` | [{p}]({p}/REPORT.md) |')
@@ -55,8 +64,9 @@ def main():
         d = json.load(open(m))
         key = key_of(d.get('screen') or os.path.basename(os.path.dirname(m)))
         folder = os.path.dirname(m)
-        if key not in latest or folder.split('/')[0] >= latest[key][0]:
-            latest[key] = (folder.split('/')[0], folder, d.get('status', '?'))
+        t = stamp(m)
+        if key not in latest or t >= latest[key][0]:
+            latest[key] = (t, folder, d.get('status', '?'))
     by, lines = {}, []
     for key, (_, folder, st) in sorted(latest.items()):
         g = GROUPS.get(key[0])

@@ -6,7 +6,7 @@
 - A2 · draft - Today implemented; remaining differences documented; not accepted · 20261025-local-f5e556b/A2-today
 - A3 · готово к согласованию · 20261028-menus-9d6917f/A3-practice
 - A4 · готово к согласованию · 20261028-companion-d09c1b4/A4-companion
-- A5 · черновик — есть расхождения · 20261028-menus-9d6917f/A5-more
+- A5 · черновик — есть расхождения · 20261028-account-data-30cf3ac/A5-more
 - A6 · черновик — есть расхождения · 20261028-menus-9d6917f/A6-profile-language
 - F1 · черновик — есть расхождения · 20261028-progress-0d5b808/F1-progress
 - F2 · готово к согласованию · 20261028-achievements-763e4f9/F2-achievements
@@ -33,13 +33,13 @@
 - J3 · готово к согласованию · 20261028-kids-memory-b4d36ef/J3-kids-result
 - J4 · готово к согласованию · 20261028-results-9883ec9/J4-memorize-final
 - J5 · готово к согласованию · 20261028-modes-dj-ec41ca1/J5-recall-setup
-- J6 · готово к согласованию · 20261028-results-9883ec9/J6-recall-result
+- J6 · готово к согласованию · 20261028-fixes-0f22554/J6-recall-result
 - D1 · готово к согласованию · 20261028-modes-de-b44a6ab/D1-learning
 - D2 · черновик — есть расхождения · 20261028-kids-memory-b4d36ef/D2-kids-map
 - D3 · черновик — есть расхождения · 20261028-kids-ai2-6bb4277/D3-kids-learning
 - D4 · готово к согласованию · 20261028-modes-dj-ec41ca1/D4-memorize-setup
-- D5 · черновик — есть расхождения · 20261028-modes-dj-ec41ca1/D5-memorize-run
-- D6 · черновик — есть расхождения · 20261028-modes-dj-ec41ca1/D6-recall-show
+- D5 · готово к согласованию · 20261028-memorize-pass-095b9ef/D5-memorize-run
+- D6 · готово к согласованию · 20261028-kids-memory-b4d36ef/D6-recall-show
 - E1 · черновик — есть расхождения · 20261028-modes-de-b44a6ab/E1-competition
 - E2 · готово к согласованию · 20261028-race-0593e86/E2-competition-run
 - E3 · готово к согласованию · 20261028-race-result-5d877b6/E3-competition-result

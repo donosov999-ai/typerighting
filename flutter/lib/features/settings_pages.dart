@@ -26,6 +26,7 @@ class SettingsValues {
     required this.motion,
     required this.textSize,
     required this.version,
+    this.companion = false,
   });
   final bool hide, block, keyboard, heat, hardKeys, bridge;
   final String layout;
@@ -33,6 +34,9 @@ class SettingsValues {
   final bool sound, voice, voiceAvailable, metronome, pet, motion;
   final double textSize;
   final String version;
+
+  /// Phone mode (A4 companion) is the start screen.
+  final bool companion;
 }
 
 typedef SettingChanged = void Function(String key, Object value);
@@ -276,6 +280,24 @@ String settingsCopy(String language, String key) {
       'Désactivez si le mouvement gêne',
       'Disattiva se il movimento disturba',
       'Desligue se o movimento incomodar',
+    ],
+    'companion': [
+      'Компаньон',
+      'Companion',
+      'Compañero',
+      'Begleiter',
+      'Compagnon',
+      'Compagno',
+      'Companheiro',
+    ],
+    'companion.d': [
+      'На телефоне без клавиатуры открывать прогресс и обучение',
+      'On a phone without a keyboard, open progress and learning',
+      'En un móvil sin teclado, abrir progreso y aprendizaje',
+      'Auf dem Handy ohne Tastatur Fortschritt und Lernen öffnen',
+      'Sur un téléphone sans clavier, ouvrir progrès et apprentissage',
+      'Su un telefono senza tastiera, apri progressi e apprendimento',
+      'Num telemóvel sem teclado, abrir progresso e aprendizagem',
     ],
     'version': [
       'Версия',
@@ -585,6 +607,13 @@ class SoundSettingsPage extends StatelessWidget {
                 selected: values.textSize,
                 onSelected: (v) => onChanged('textSize', v),
               ),
+            ),
+            _SwitchRow(
+              Icons.smartphone_outlined,
+              c('companion'),
+              c('companion.d'),
+              values.companion,
+              (v) => onChanged('companion', v),
             ),
             _SwitchRow(
               Icons.pets_outlined,

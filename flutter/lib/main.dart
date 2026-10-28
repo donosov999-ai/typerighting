@@ -27,6 +27,10 @@ import 'features/progress_page.dart';
 import 'features/settings_pages.dart';
 import 'features/profile_page.dart';
 import 'features/achievements_page.dart';
+import 'features/companion_page.dart';
+import 'data/achievement_store.dart';
+import 'data/progress_view.dart';
+import 'domain/progress_metrics.dart' show utcStreak;
 import 'audio/typefree_sound.dart';
 import 'design_system/templates.dart';
 import 'design_system/synapse_header.dart';
@@ -165,6 +169,7 @@ enum AppSection {
   profileLanguage,
   achievements,
   welcome,
+  companion,
 }
 
 /// Source rule: onboarding while no profile was ever chosen (tr_profile,
@@ -182,6 +187,7 @@ class TypeFreeApp extends StatefulWidget {
     this.artifactExporter,
     this.initialSection = AppSection.today,
     this.welcome = false,
+    this.phone,
   });
   final Resources resources;
   final LocalRepository repository;
@@ -192,6 +198,9 @@ class TypeFreeApp extends StatefulWidget {
 
   /// Start on A1 «Добро пожаловать» (see [needsWelcome]).
   final bool welcome;
+
+  /// Phone without a physical keyboard (null = detect from the platform).
+  final bool? phone;
   @override
   State<TypeFreeApp> createState() => TypeFreeAppState();
 }
@@ -235,6 +244,16 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   double textSize = 1;
   late AppSection section;
   int? courseStartLessonId;
+
+  /// Companion (A4): started on a phone without a keyboard; learn/compete
+  /// opened from it return there (source companionMode).
+  bool companionMode = false;
+  late bool phone;
+
+  /// Saved choice: 'trainer' | 'companion' | null (source tr_mode).
+  String? appMode;
+  AppSection get menuHome =>
+      companionMode ? AppSection.companion : AppSection.practiceMenu;
 
   /// F2 opens from «Ещё» and from «Прогресс»; back and the tab follow it.
   AppSection achievementsBack = AppSection.more;
@@ -307,7 +326,20 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    final prefs = widget.repository.data['prefs'] as Map;
+    final savedMode =
+        prefs['appMode'] ??
+        (widget.repository.data['legacy'] as Map)['tr_mode'];
+    appMode = savedMode == 'trainer' || savedMode == 'companion'
+        ? savedMode as String
+        : null;
+    phone = widget.phone ?? detectPhone();
     section = widget.welcome ? AppSection.welcome : widget.initialSection;
+    if (section == AppSection.today && companionStart) {
+      section = AppSection.companion;
+      companionMode = true;
+    }
+    HardwareKeyboard.instance.addHandler(hardwareKey);
     keyStatistics = KeyStatisticsStore(
       widget.repository,
       onAchievements: (ids) {
@@ -412,8 +444,54 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     );
   }
 
+  /// Source isPhoneNoKeyboard: touch platform and the short side under 600.
+  static bool detectPhone() {
+    final mobile =
+        defaultTargetPlatform == TargetPlatform.android ||
+        defaultTargetPlatform == TargetPlatform.iOS;
+    final views = WidgetsBinding.instance.platformDispatcher.views;
+    if (!mobile || views.isEmpty) return false;
+    final v = views.first;
+    return v.physicalSize.shortestSide / v.devicePixelRatio < 600;
+  }
+
+  bool get companionStart =>
+      appMode != 'trainer' && (appMode == 'companion' || phone);
+
+  /// First real hardware key press on the companion opens the trainer, not
+  /// remembered (a keyboard plugged in for a minute must not lock the phone
+  /// into the trainer). Ignored inside learn/compete opened from it.
+  bool hardwareKey(KeyEvent e) {
+    if (section != AppSection.companion || e is! KeyDownEvent) return false;
+    final ch = e.character;
+    final k = HardwareKeyboard.instance;
+    if (ch == null || ch.length != 1 || k.isControlPressed) return false;
+    if (k.isMetaPressed || k.isAltPressed) return false;
+    openTrainerFromCompanion(false);
+    return true;
+  }
+
+  void openTrainerFromCompanion(bool persist) {
+    setState(() {
+      companionMode = false;
+      section = AppSection.practiceMenu;
+      if (persist) appMode = 'trainer';
+    });
+    if (persist) unawaited(savePrefs());
+  }
+
+  void openCompanion() {
+    setState(() {
+      appMode = 'companion';
+      companionMode = true;
+      section = AppSection.companion;
+    });
+    unawaited(savePrefs());
+  }
+
   @override
   void dispose() {
+    HardwareKeyboard.instance.removeHandler(hardwareKey);
     appSound.stopMetronome();
     timer?.cancel();
     keyStatistics.dispose();
@@ -574,6 +652,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           'metronome': metroOn,
           'bpm': metroBpm,
           'textSize': textSize,
+          'appMode': ?appMode,
         });
       });
     } catch (_) {
@@ -783,7 +862,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   Future<void> finishWelcome(String picked) async {
     setState(() {
       profile = picked;
-      section = AppSection.today;
+      companionMode = companionStart;
+      section = companionMode ? AppSection.companion : AppSection.today;
       assistant.dispose();
       headerAssistant.dispose();
       createAssistant();
@@ -854,6 +934,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           headerAssistant.enabled = pet;
         case 'motion':
           motion = value as bool;
+        case 'companion':
+          appMode = value as bool ? 'companion' : 'trainer';
+          companionMode = value;
+          if (value) section = AppSection.companion;
       }
     });
     await savePrefs();
@@ -876,6 +960,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     pet: pet,
     motion: motion,
     textSize: textSize,
+    companion: appMode == 'companion' || (appMode == null && phone),
     version: appVersion,
   );
 
@@ -1161,7 +1246,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       : section == AppSection.settingsInput ||
                             section == AppSection.settingsSound
                       ? AppSection.settings
-                      : AppSection.practiceMenu,
+                      : menuHome,
                 ),
                 icon: const Icon(Icons.arrow_back),
               )
@@ -1210,6 +1295,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     ? profileCopy(language, 'title')
                     : section == AppSection.achievements
                     ? tr('ach.title')
+                    : section == AppSection.companion
+                    ? settingsCopy(language, 'companion')
                     : section == AppSection.kids
                     ? tr('k.title')
                     : section == AppSection.exam
@@ -1260,7 +1347,9 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           ),
         ],
       ),
-      bottomNavigationBar: NavigationBar(
+      bottomNavigationBar: section == AppSection.companion
+          ? null
+          : NavigationBar(
         height: 56,
         selectedIndex: section == AppSection.today
             ? 0
@@ -1272,14 +1361,17 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
             : section == AppSection.more || inSettings
             ? 3
             : 1,
-        onDestinationSelected: (v) => showSection(
+        onDestinationSelected: (v) {
+          companionMode = false;
+          showSection(
           [
             AppSection.today,
             AppSection.practiceMenu,
             AppSection.progress,
             AppSection.more,
           ][v],
-        ),
+          );
+        },
         destinations: [
           NavigationDestination(
             icon: const Icon(Icons.home_outlined),
@@ -1447,6 +1539,35 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       onSound: () => showSection(AppSection.settingsSound),
                     );
                   }
+                  if (section == AppSection.companion) {
+                    final doc = widget.repository.data;
+                    final rows = ProgressView(doc).timeline
+                        .where((r) => r['historyEligible'] != false)
+                        .toList();
+                    return CompanionPage(
+                      tr: tr,
+                      language: language,
+                      streak: utcStreak(
+                        rows.map((r) => r['t'] as num),
+                        DateTime.now().millisecondsSinceEpoch,
+                      ),
+                      sessions: rows.length,
+                      best: rows.fold<num>(
+                        0,
+                        (n, r) => max(n, r['wpm'] as num),
+                      ),
+                      earned: {
+                        ...ProgressView(doc).achievements,
+                        ...eligibleAchievementIds(
+                          doc,
+                          DateTime.now().millisecondsSinceEpoch,
+                        ),
+                      },
+                      onTrainer: () => openTrainerFromCompanion(true),
+                      onLearn: () => showSection(AppSection.learn),
+                      onCompete: () => showSection(AppSection.compete),
+                    );
+                  }
                   if (section == AppSection.achievements) {
                     return AchievementsPage(
                       repository: widget.repository,
@@ -1543,7 +1664,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       keyboard: keyboard,
                       tr: tr,
                       clock: widget.clock,
-                      onExit: () => showSection(AppSection.practiceMenu),
+                      onExit: () => showSection(menuHome),
                       onTyping: () {
                         if (headerAssistant.pose != SynapsePose.idle) {
                           headerAssistant.preview(SynapsePreviewAction.idle);
@@ -1662,7 +1783,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       keyboard: keyboard,
                       tr: tr,
                       clock: widget.clock,
-                      onExit: () => showSection(AppSection.practiceMenu),
+                      onExit: () => showSection(menuHome),
                       onTyping: () {
                         if (headerAssistant.pose != SynapsePose.idle) {
                           headerAssistant.preview(SynapsePreviewAction.idle);
@@ -1713,7 +1834,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                           headerAssistant.preview(SynapsePreviewAction.idle);
                         }
                       },
-                      onExit: () => showSection(AppSection.practiceMenu),
+                      onExit: () => showSection(menuHome),
                       onSaved: (point, earlier) async {
                         if (!mounted ||
                             point['profile'] != profile ||

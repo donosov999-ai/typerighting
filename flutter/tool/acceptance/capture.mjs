@@ -38,6 +38,8 @@ for (const step of (args.steps || '').split(';').filter(Boolean)) {
   await p.waitForTimeout(+(args.stepWait || 1500));
 }
 if (args.dump) console.log(JSON.stringify(await p.evaluate(() => [...document.querySelectorAll('[aria-label]')].map(e => e.getAttribute('aria-label')).filter(Boolean)), null, 0));
+await p.mouse.move(1, 1); // no hover tooltip in the shot
+await p.waitForTimeout(400);
 await p.screenshot({ path: args.out || 'actual.png' });
 if (errs.length) console.error('page errors:', errs.slice(0, 3));
 await b.close();

@@ -135,7 +135,7 @@ class ProfileLanguagePage extends StatelessWidget {
           children: [
             _Title(c('style')),
             _Grid(
-              min: 150,
+              min: 110,
               children: [
                 for (final id in profileIds)
                   _Option(
@@ -185,7 +185,7 @@ class ProfileLanguagePage extends StatelessWidget {
             ),
             _Title(c('lang')),
             _Grid(
-              min: 112,
+              min: 84,
               children: [
                 for (final entry in languageNames.entries)
                   _Option(

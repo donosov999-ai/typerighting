@@ -875,19 +875,22 @@ class NavTile extends StatelessWidget {
   Widget build(BuildContext context) => Card(
     margin: const EdgeInsets.only(bottom: 8),
     child: ListTile(
-      minTileHeight: 60,
+      minTileHeight: 56,
       onTap: onTap,
       leading: Container(
-        width: 40,
-        height: 40,
+        width: 36,
+        height: 36,
         decoration: BoxDecoration(
           color: accent,
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(icon, color: Colors.white),
+        child: Icon(icon, size: 20, color: Colors.white),
       ),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-      subtitle: Text(subtitle, style: const TextStyle(fontSize: 12.5)),
+      title: Text(
+        title,
+        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+      ),
+      subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
       trailing: const Icon(Icons.chevron_right),
     ),
   );

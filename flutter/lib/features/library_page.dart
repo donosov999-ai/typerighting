@@ -38,14 +38,15 @@ const _bankIcon = {
 String libraryCopy(String language, String key) {
   const langs = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
   const words = <String, List<String>>{
+    // Short: it is the app bar title next to the language, gear and face.
     'title': [
-      'Библиотека упражнений',
-      'Exercise library',
-      'Biblioteca de ejercicios',
-      'Übungsbibliothek',
-      'Bibliothèque d’exercices',
-      'Libreria di esercizi',
-      'Biblioteca de exercícios',
+      'Библиотека',
+      'Library',
+      'Biblioteca',
+      'Bibliothek',
+      'Bibliothèque',
+      'Libreria',
+      'Biblioteca',
     ],
     'sub': [
       'Выберите набор, чтобы начать практику',

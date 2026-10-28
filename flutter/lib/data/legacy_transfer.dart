@@ -41,10 +41,9 @@ Map<String, dynamic> createTransfer(
   return {...body, 'sha256': _digest(body)};
 }
 
-Future<bool> importTransfer(
-  LocalRepository repo,
-  Map<String, dynamic> envelope,
-) async {
+/// Checks a transfer file without writing anything (I5 step 1): format,
+/// source build, checksum and every value. Returns the values to import.
+Map<String, dynamic> verifyTransfer(Map<String, dynamic> envelope) {
   if (envelope.keys.toSet().difference({
         'schema',
         'exportId',
@@ -74,6 +73,14 @@ Future<bool> importTransfer(
     }
     validateLegacyValue(e.key, e.value as String);
   }
+  return values;
+}
+
+Future<bool> importTransfer(
+  LocalRepository repo,
+  Map<String, dynamic> envelope,
+) async {
+  final values = verifyTransfer(envelope);
   var inserted = false;
   await repo.transaction((doc) {
     final receipts = doc['receipts'] as Map, legacy = doc['legacy'] as Map;

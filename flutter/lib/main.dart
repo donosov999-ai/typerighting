@@ -45,6 +45,7 @@ import 'features/keyboard_guide.dart';
 import 'features/practice_widgets.dart';
 import 'features/course_page.dart';
 import 'features/today_page.dart';
+import 'features/transfer_page.dart';
 import 'features/weak_keys_page.dart';
 import 'domain/today.dart';
 export 'features/practice_widgets.dart' show PracticeCommitFormatter;
@@ -178,6 +179,7 @@ enum AppSection {
   library,
   account,
   dataPermissions,
+  transfer,
 }
 
 /// Source rule: onboarding while no profile was ever chosen (tr_profile,
@@ -193,6 +195,7 @@ class TypeFreeApp extends StatefulWidget {
     required this.appearance,
     this.clock,
     this.artifactExporter,
+    this.transferPicker,
     this.initialSection = AppSection.today,
     this.welcome = false,
     this.phone,
@@ -202,6 +205,9 @@ class TypeFreeApp extends StatefulWidget {
   final AppearanceController appearance;
   final MillisecondClock? clock;
   final ArtifactExporter? artifactExporter;
+
+  /// I5 file source (tests); null = the system file picker.
+  final TransferFilePicker? transferPicker;
   final AppSection initialSection;
 
   /// Start on A1 «Добро пожаловать» (see [needsWelcome]).
@@ -313,7 +319,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       section == AppSection.profileLanguage ||
       section == AppSection.achievements ||
       section == AppSection.account ||
-      section == AppSection.dataPermissions;
+      section == AppSection.dataPermissions ||
+      section == AppSection.transfer;
   Future<bool> finishLearning() async {
     if (section == AppSection.kids) {
       return await kidsKey.currentState?.checkpointForExit() ?? true;
@@ -1412,6 +1419,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                 onPressed: () => showSection(
                   section == AppSection.weakKeys
                       ? AppSection.progress
+                      : section == AppSection.transfer
+                      ? AppSection.dataPermissions
                       : section == AppSection.achievements
                       ? achievementsBack
                       : section == AppSection.settings ||
@@ -1481,6 +1490,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     ? accountCopy(language, 'account')
                     : section == AppSection.dataPermissions
                     ? accountCopy(language, 'data')
+                    : section == AppSection.transfer
+                    ? transferCopy(language, 'title')
                     : section == AppSection.kids
                     ? tr('k.title')
                     : section == AppSection.exam
@@ -1753,6 +1764,14 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       repository: widget.repository,
                       exporter: widget.artifactExporter,
                       clock: widget.clock,
+                      onTransfer: () => showSection(AppSection.transfer),
+                    );
+                  }
+                  if (section == AppSection.transfer) {
+                    return TransferPage(
+                      language: language,
+                      repository: widget.repository,
+                      pick: widget.transferPicker ?? pickTransferFile,
                     );
                   }
                   if (section == AppSection.library) {

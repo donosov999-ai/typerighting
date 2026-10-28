@@ -4,6 +4,7 @@ import '../data/artifact_export.dart';
 import '../data/local_repository.dart';
 import '../design_system/templates.dart';
 import 'progress_page.dart' show exportHistory, progressCopy;
+import 'transfer_page.dart' show transferCopy;
 
 /// F5 «Аккаунт» and F6 «Данные и разрешения» as honest LOCAL states (sheet 06
 /// draws them with «(план Flutter)»): practice works without an account;
@@ -327,11 +328,15 @@ class DataPage extends StatefulWidget {
     required this.repository,
     this.exporter,
     this.clock,
+    this.onTransfer,
   });
   final String language;
   final LocalRepository repository;
   final ArtifactExporter? exporter;
   final int Function()? clock;
+
+  /// I5: opens «Переход на новую версию» (file from the previous version).
+  final VoidCallback? onTransfer;
   @override
   State<DataPage> createState() => _DataPageState();
 }
@@ -430,6 +435,13 @@ class _DataPageState extends State<DataPage> {
                       padding: const EdgeInsets.only(top: 6),
                       child: Text(status!, key: const ValueKey('data-status')),
                     ),
+                  const SizedBox(height: 8),
+                  OutlinedButton.icon(
+                    key: const ValueKey('data-transfer'),
+                    onPressed: widget.onTransfer,
+                    icon: const Icon(Icons.move_up_outlined),
+                    label: Text(transferCopy(widget.language, 'entry')),
+                  ),
                   const SizedBox(height: 8),
                   OutlinedButton.icon(
                     onPressed: null,

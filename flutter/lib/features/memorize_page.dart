@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../data/key_statistics_store.dart';
 import '../data/local_repository.dart';
+import '../design_system/templates.dart';
 import '../domain/key_statistics.dart';
 import '../domain/memorize.dart';
 import 'competition_page.dart' show competitionCopy;
@@ -294,80 +295,205 @@ class MemorizePageState extends State<MemorizePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (run == null) ...[
-              Text(widget.tr('mem.intro')),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final s in ['raven', 'classic'])
-                    ChoiceChip(
-                      key: ValueKey('memorize-source-$s'),
-                      label: Text(library.title(s, widget.language)),
-                      selected: source == s,
-                      onSelected: saving
-                          ? null
-                          : (_) => setState(() {
-                              source = s;
-                              page = 0;
-                            }),
+            if (run == null)
+              LayoutBuilder(
+                builder: (context, box) {
+                  final tokens = Theme.of(context).extension<TypeFreeTokens>()!;
+                  final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+                  Widget panel(Widget child) => Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: tokens['raisedSurface'],
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: tokens['border']),
                     ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(widget.tr('mem.len.label')),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (var i = 0; i < 4; i++)
-                    ChoiceChip(
-                      key: ValueKey('memorize-length-$i'),
-                      label: Text(lengthLabel(i)),
-                      selected: lengthIndex == i,
-                      onSelected: saving ? null : (_) => selectLength(i),
+                    child: child,
+                  );
+                  Widget chip(
+                    Key key,
+                    String label,
+                    bool on,
+                    VoidCallback? tap,
+                  ) => ChoiceChip(
+                    key: key,
+                    showCheckmark: false,
+                    label: SizedBox(
+                      width: double.infinity,
+                      child: Text(label, textAlign: TextAlign.center),
                     ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              for (
-                var i = page * 12;
-                i < min((page + 1) * 12, pieces.length);
-                i++
+                    selected: on,
+                    onSelected: tap == null ? null : (_) => tap(),
+                  );
+                  // D4: what to learn (work) and how long a fragment is.
+                  final setup = Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      panel(
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              memorizeCopy(widget.language, 'work'),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                for (final s in ['raven', 'classic']) ...[
+                                  if (s != 'raven') const SizedBox(width: 8),
+                                  Expanded(
+                                    child: chip(
+                                      ValueKey('memorize-source-$s'),
+                                      library.title(s, widget.language),
+                                      source == s,
+                                      saving
+                                          ? null
+                                          : () => setState(() {
+                                              source = s;
+                                              page = 0;
+                                            }),
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      panel(
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              widget.tr('mem.len.label'),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            for (var i = 0; i < 4; i++)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 6),
+                                child: chip(
+                                  ValueKey('memorize-length-$i'),
+                                  lengthLabel(i),
+                                  lengthIndex == i,
+                                  saving ? null : () => selectLength(i),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                  final list = Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      panel(
+                        Column(
+                          children: [
+                            for (
+                              var i = page * 12;
+                              i < min((page + 1) * 12, pieces.length);
+                              i++
+                            ) ...[
+                              if (i != page * 12) const Divider(height: 1),
+                              InkWell(
+                                key: ValueKey('memorize-piece-$i'),
+                                onTap: saving ? null : () => start(i),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 10,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 14,
+                                        child: Text(
+                                          '${i + 1}',
+                                          style: const TextStyle(fontSize: 12),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          pieces[i],
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      Icon(Icons.play_arrow, color: muted),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 8,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          IconButton(
+                            tooltip: widget.tr('nav.back'),
+                            onPressed: page == 0
+                                ? null
+                                : () => setState(() => page--),
+                            icon: const Icon(Icons.chevron_left),
+                          ),
+                          Text(
+                            '${page + 1}/${max(1, (pieces.length / 12).ceil())}',
+                          ),
+                          IconButton(
+                            tooltip: widget.tr('mem.next'),
+                            onPressed: (page + 1) * 12 >= pieces.length
+                                ? null
+                                : () => setState(() => page++),
+                            icon: const Icon(Icons.chevron_right),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                  final intro = Text(
+                    widget.tr('mem.intro'),
+                    style: TextStyle(color: muted),
+                  );
+                  if (box.maxWidth < 800) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        intro,
+                        const SizedBox(height: 12),
+                        setup,
+                        const SizedBox(height: 12),
+                        list,
+                      ],
+                    );
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      intro,
+                      const SizedBox(height: 12),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(child: list),
+                          const SizedBox(width: 16),
+                          SizedBox(width: 280, child: setup),
+                        ],
+                      ),
+                    ],
+                  );
+                },
               )
-                Card(
-                  child: ListTile(
-                    key: ValueKey('memorize-piece-$i'),
-                    title: Text(
-                      '${library.title(source, widget.language)} — ${i + 1}',
-                    ),
-                    subtitle: Text(pieces[i]),
-                    trailing: const Icon(Icons.play_arrow),
-                    onTap: saving ? null : () => start(i),
-                  ),
-                ),
-              Wrap(
-                spacing: 12,
-                runSpacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  IconButton(
-                    tooltip: widget.tr('nav.back'),
-                    onPressed: page == 0 ? null : () => setState(() => page--),
-                    icon: const Icon(Icons.chevron_left),
-                  ),
-                  Text('${page + 1}/${max(1, (pieces.length / 12).ceil())}'),
-                  IconButton(
-                    tooltip: widget.tr('mem.next'),
-                    onPressed: (page + 1) * 12 >= pieces.length
-                        ? null
-                        : () => setState(() => page++),
-                    icon: const Icon(Icons.chevron_right),
-                  ),
-                ],
-              ),
-            ] else ...[
+            else ...[
               Wrap(
                 spacing: 12,
                 runSpacing: 8,
@@ -520,4 +646,21 @@ class MemorizePageState extends State<MemorizePage> {
       ),
     );
   }
+}
+
+String memorizeCopy(String language, String key) {
+  const langs = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
+  const words = <String, List<String>>{
+    'work': [
+      'Выберите произведение',
+      'Choose a work',
+      'Elige una obra',
+      'Werk wählen',
+      'Choisissez une œuvre',
+      'Scegli un’opera',
+      'Escolha uma obra',
+    ],
+  };
+  final i = langs.indexOf(language);
+  return words[key]?[i < 0 ? 1 : i] ?? key;
 }

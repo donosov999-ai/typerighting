@@ -13,5 +13,8 @@ void main() {
     expect(spanWords(22, 'ru', tr), '22 слова');
     expect(spanWords(1, 'en', tr), '1 word');
     expect(spanWords(4, 'en', tr), '4 words');
+    expect(nextSetText(4, 'ru'), '4 слова в следующем наборе');
+    expect(nextSetText(5, 'ru'), '5 слов в следующем наборе');
+    expect(nextSetText(4, 'en'), '4 words in next set');
   });
 }

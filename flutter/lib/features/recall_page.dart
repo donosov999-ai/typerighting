@@ -632,7 +632,7 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
                   container: true,
                   excludeSemantics: true,
                   label:
-                      '${result.accuracy}% ${recallCopy(widget.language, 'accuracy')}, ${result.completedSpan} ${recallCopy(widget.language, 'completed')}, ${result.nextSpan} ${recallCopy(widget.language, 'nextLength')}, ${widget.tr('span.best')}: ${result.bestSpan}, ${result.stars} / 3 ★. ${recallCopy(widget.language, 'recordHint')}',
+                      '${result.accuracy}% ${recallCopy(widget.language, 'accuracy')}, ${result.completedSpan} ${recallCopy(widget.language, 'completed')}, ${nextSetText(result.nextSpan, widget.language)}, ${widget.tr('span.best')}: ${result.bestSpan}, ${result.stars} / 3 ★. ${recallCopy(widget.language, 'recordHint')}',
                   child: Builder(
                     builder: (context) {
                       // J6: which words came back right, from the typed marks
@@ -772,7 +772,7 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
                                   vertical: 4,
                                 ),
                                 child: Text(
-                                  '${result.nextSpan} ${recallCopy(widget.language, 'nextLength')}',
+                                  '${nextSetText(result.nextSpan, widget.language)}',
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -943,3 +943,8 @@ String spanWords(int n, String language, String Function(String) tr) {
   if (language == 'en' && n == 1) return '1 word';
   return '$n ${tr('span.words')}';
 }
+
+/// «4 слова в следующем наборе» (Russian needs the plural form).
+String nextSetText(int n, String language) => language == 'ru'
+    ? '${spanWords(n, 'ru', (_) => '')} в следующем наборе'
+    : '$n ${recallCopy(language, 'nextLength')}';

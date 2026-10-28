@@ -12,6 +12,8 @@
 - F2 · готово к согласованию · 20261028-achievements-763e4f9/F2-achievements
 - F3 · готово к согласованию · 20261028-settings-2e40bf5/F3-input-settings
 - F4 · готово к согласованию · 20261028-settings-f4-ad81586/F4-sound-appearance
+- F5 · готово к согласованию · 20261028-account-data-30cf3ac/F5-account-local
+- F6 · готово к согласованию · 20261028-account-data-30cf3ac/F6-data-permissions
 - I6 · черновик — есть расхождения · 20261028-light-21a6959/I6-light-practice
 - M1 · черновик — есть расхождения · 20261028-synapse-1e11624/M1-practice-face
 - M2 · готово к согласованию · 20261028-synapse-1e11624/M2-synapse-panel
@@ -43,3 +45,4 @@
 - E4 · готово к согласованию · 20261028-modes-de-b44a6ab/E4-exam-setup
 - E5 · черновик — есть расхождения · 20261028-modes-de-b44a6ab/E5-exam-run
 - E6 · готово к согласованию · 20261028-modes-de-b44a6ab/E6-exam-result
+- K4 · готово к согласованию · 20261028-account-data-30cf3ac/K4-certificate

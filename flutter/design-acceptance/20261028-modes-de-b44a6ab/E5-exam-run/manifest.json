@@ -1,0 +1,97 @@
+{
+  "screen": "E5-exam-run",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "b44a6ab",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/05.png",
+    "sha256": "fd562aaff0cf4fd3cb244c6722bc21686e4dbd36c2b5176e8d4cd3ebab90a7ff",
+    "cropXYXY": [
+      513,
+      592,
+      985,
+      998
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.6525
+  },
+  "actual": {
+    "sha256": "721fbbb82bee2c213ac290daa7b5a136c52d254a340263695bbbd997f82701b0",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "тест 10 мин идёт, набрано «Привет мир» поверх другого текста (проверка ошибок)"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 671
+  },
+  "rows": [
+    [
+      "Панель",
+      "Осталось 3:42 · скорость · точность, полоса",
+      "то же: Осталось · Net WPM · точность, полоса, «Завершить и засчитать»",
+      "кнопка вверху, а не внизу",
+      "—",
+      "видна без прокрутки на телефоне",
+      "PASS"
+    ],
+    [
+      "Текст",
+      "многострочный абзац",
+      "отрывок + название, текущая строка",
+      "—",
+      "—",
+      "механика исходника",
+      "PASS"
+    ],
+    [
+      "Клавиатура",
+      "укороченная",
+      "5 рядов, листается к клавише",
+      "—",
+      "—",
+      "реф §6",
+      "PASS"
+    ],
+    [
+      "Шапка",
+      "«← Тест-соревнование» полностью",
+      "заголовок обрезан на 390 (RU▾ + шестерёнка + Синапс)",
+      "обрезка",
+      "читаемость",
+      "решение в чек-листе (вопрос 4: убрать RU▾/шестерёнку со страниц-списков)",
+      "открыто"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в строке «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "ccba982a02cf695ed80f697352cdaccf47034fbb73f1b1d4647bb4d0a714ac76",
+    "overlay-50.png": "fc726e6096c779074ef9359f42909da8382270e006dbb2356ae407056f513468",
+    "comparison-panel.png": "f327ca5ed32be2184ca79fd79a024660ab6513309ac6595f5e3acc286c1cc23a"
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "screen": "E6-exam-result",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "b44a6ab",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/05.png",
+    "sha256": "fd562aaff0cf4fd3cb244c6722bc21686e4dbd36c2b5176e8d4cd3ebab90a7ff",
+    "cropXYXY": [
+      1010,
+      592,
+      1292,
+      1002
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 2.766
+  },
+  "actual": {
+    "sha256": "ebc622d9ad424d0d27595f289a2d00e8183670956e847ca10831009357950514",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "тест завершён сразу (досрочно, без ввода) — честный нулевой результат"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 1134
+  },
+  "rows": [
+    [
+      "Цифры",
+      "Чистая · Валовая · Точность",
+      "Net WPM · Gross WPM · точность",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Строки",
+      "Цель (35) Достигнута · Время · Набрано · Ошибок",
+      "цель (35) НЕ СДАН · Фактическое время · нажатий · Длительность",
+      "набор строк",
+      "—",
+      "значения исходника",
+      "PASS"
+    ],
+    [
+      "Баннер",
+      "«Цель достигнута!» зелёный",
+      "статус сдан/не сдан в строке цели и под заголовком",
+      "нет баннера",
+      "—",
+      "—",
+      "открыто"
+    ],
+    [
+      "Кнопки",
+      "Закрыть / Повторить тест",
+      "Сертификат (PNG) / Ещё раз / Выйти",
+      "+ сертификат",
+      "—",
+      "функция исходника",
+      "PASS"
+    ],
+    [
+      "Web-возможности",
+      "рейтинг, лига, вызов — «только при доступном сервисе»",
+      "нет",
+      "—",
+      "—",
+      "сервис не подключён (LOCAL)",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в строке «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "3f26e67a4ae426effa2351dc3f3695fe42e5c2a47458a9e146b3c1c1e1558319",
+    "overlay-50.png": "03e30987f9cef483c43351d5628ef579fa0df364a58123395acdb3f323a86aa8",
+    "comparison-panel.png": "453e66526035f28faeecd74b75f882e273c5f6094298fdb6429f77ffab532306"
+  }
+}

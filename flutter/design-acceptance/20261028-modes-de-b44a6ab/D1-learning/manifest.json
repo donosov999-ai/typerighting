@@ -1,0 +1,106 @@
+{
+  "screen": "D1-learning",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "b44a6ab",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/04.png",
+    "sha256": "47d54524b841e8ab44fb8de5aec22f22ef88896062566d94b73b8c954669b32a",
+    "cropXYXY": [
+      22,
+      108,
+      524,
+      532
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 5.0996
+  },
+  "actual": {
+    "sha256": "991557c995ac6aa4fa983144c6dd4b8141e1c72070bd2850880da609b468d372",
+    "viewportCSS": [
+      1280,
+      800
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      2560,
+      1600
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Практика → AI-обучение, ПК-ширина, новая сессия; демо seed.json"
+  },
+  "method": {
+    "equalWidth": 2560,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 1600
+  },
+  "rows": [
+    [
+      "Шапка режима",
+      "иконка мозга + «Адаптивное обучение» + пояснение",
+      "иконка + learn.intro исходника в карточке",
+      "заголовок в шапке приложения",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Рука",
+      "сегменты Левая / Обе / Правая",
+      "то же",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Цифры",
+      "Темп · Ритм · Точность · Освоение 3/5 над текстом",
+      "Темп · Ритмичность · точность · Мастерство с уровнем (старт/хорошо/рабочий/профи) над текстом",
+      "«Освоение 3/5» → мастерство",
+      "—",
+      "в исходнике нет «освоения N/5»; уровень мастерства — из learn.ts",
+      "PASS"
+    ],
+    [
+      "Правая панель",
+      "фокус «Правая рука», сложность, прогресс по рукам/темпу/точности полосами",
+      "фокус (рука), строк, подсказка, «Завершить»",
+      "нет полос по рукам",
+      "—",
+      "исходник не хранит прогресс по рукам — не рисую выдуманные полосы",
+      "PASS"
+    ],
+    [
+      "Клавиатура",
+      "укороченная",
+      "5 рядов guide",
+      "—",
+      "—",
+      "реф §6",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в строке «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "61d572d8b59a0d307a301a8dc1447774e00319ad96fc02c5342a51865d8b99a9",
+    "overlay-50.png": "a9246cd0ae41a285bd8ae7eff8b67c5e5583df0a17a4cf76b93c1676f140f336",
+    "comparison-panel.png": "02f79150ff801906dea5662b1e5a69abceed6161b1a24b84ddae1f2385c19b1c"
+  }
+}

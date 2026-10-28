@@ -1,0 +1,88 @@
+{
+  "screen": "E1-competition",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "b44a6ab",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/05.png",
+    "sha256": "fd562aaff0cf4fd3cb244c6722bc21686e4dbd36c2b5176e8d4cd3ebab90a7ff",
+    "cropXYXY": [
+      40,
+      62,
+      474,
+      518
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.7972
+  },
+  "actual": {
+    "sha256": "57b250602854d2e86ec568c7a423da580572f7dca916d22d74021e84f33a9c00",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Практика → Тест-соревнование, рекордов нет (демо)"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 820
+  },
+  "rows": [
+    [
+      "Строки",
+      "плитка АБ/ЯА/Tt/123/⚡, превью, «Лучший результат 98 зн/мин»",
+      "то же; «рекорд —» пока нет результата",
+      "нет чисел",
+      "—",
+      "честное пустое состояние; рекорды только локально",
+      "PASS"
+    ],
+    [
+      "Подпись внизу",
+      "«Личные рекорды сохраняются только на этом устройстве»",
+      "LOCAL · рейтинг/лига/вызовы не подключены",
+      "текст",
+      "—",
+      "честно о недоступном сервисе",
+      "PASS"
+    ],
+    [
+      "Шапка",
+      "«← Тест-соревнование» полностью",
+      "заголовок обрезан на 390 (RU▾ + шестерёнка + Синапс)",
+      "обрезка",
+      "читаемость",
+      "решение в чек-листе (вопрос 4: убрать RU▾/шестерёнку со страниц-списков)",
+      "открыто"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в строке «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "1641ed8cba0a1eb7418327fa87e6eb0560130df701ed718a9a3b35d579e3eca5",
+    "overlay-50.png": "2f440ce67dea60c541703ca99d79112a552196264e8b79aab67ba67ea58c3722",
+    "comparison-panel.png": "43edba41b5cf03e1122571b0dc60bd6c76bba817309b5cec70e67cf2884f02f6"
+  }
+}

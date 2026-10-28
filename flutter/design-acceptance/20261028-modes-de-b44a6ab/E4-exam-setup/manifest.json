@@ -1,0 +1,79 @@
+{
+  "screen": "E4-exam-setup",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "b44a6ab",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/05.png",
+    "sha256": "fd562aaff0cf4fd3cb244c6722bc21686e4dbd36c2b5176e8d4cd3ebab90a7ff",
+    "cropXYXY": [
+      40,
+      592,
+      474,
+      1002
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.7972
+  },
+  "actual": {
+    "sha256": "a0c1adbabd176351b57c730678f5b1301d2270d31a2f42567fe86da0a44e347c",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Практика → Тест печати"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 737
+  },
+  "rows": [
+    [
+      "Карточка",
+      "Длительность 1/5/10 мин, Целевая скорость, Имя, «Начать тест»",
+      "то же; «Выйти» ссылкой",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Единицы",
+      "зн/мин",
+      "Net WPM",
+      "единица",
+      "—",
+      "исходник: Net/Gross WPM",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в строке «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "3962c4975547463056b8910b377e2a7edcf8855088909cc31ce269ba0ad78632",
+    "overlay-50.png": "7a96d0793322591bae9af8e7697028274939682c732c95d1d14bd0c79b8a93e6",
+    "comparison-panel.png": "dc549465691048b7612aebe79c21e23e4ba359d522ab619f8ff8ead14a2da402"
+  }
+}

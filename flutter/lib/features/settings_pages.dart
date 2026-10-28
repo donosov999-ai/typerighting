@@ -551,11 +551,11 @@ class SoundSettingsPage extends StatelessWidget {
                 runSpacing: 8,
                 children: [
                   for (final t in appearance.registry.templates.values)
-                    ChoiceChip(
-                      label: Text(t.title),
+                    _TemplateCard(
+                      template: t,
+                      brightness: Theme.of(context).brightness,
                       selected: sel.templateId == t.id,
-                      onSelected: (_) =>
-                          appearance.preview(t.id, sel.brightness),
+                      onTap: () => appearance.preview(t.id, sel.brightness),
                     ),
                 ],
               ),
@@ -964,4 +964,90 @@ class _Choice<T> extends StatelessWidget {
       );
     },
   );
+}
+
+/// M4 template card: a miniature drawn from the template's own colours in
+/// the current brightness (one card per template, brightness chosen apart —
+/// DESIGN_TEMPLATE_REF §4).
+class _TemplateCard extends StatelessWidget {
+  const _TemplateCard({
+    required this.template,
+    required this.brightness,
+    required this.selected,
+    required this.onTap,
+  });
+  final DesignTemplate template;
+  final Brightness brightness;
+  final bool selected;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    final c = template.colors(brightness);
+    final accent = template.profileAccents['m']![brightness.name]!;
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: template.title,
+      excludeSemantics: true,
+      child: Material(
+        color: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: selected ? scheme.primary : scheme.outline,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 104,
+                  height: 58,
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: c['canvas'],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: c['border']!),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 8,
+                        width: 60,
+                        decoration: BoxDecoration(
+                          color: accent,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      for (final w in [88.0, 70.0])
+                        Container(
+                          margin: const EdgeInsets.only(bottom: 4),
+                          height: 6,
+                          width: w,
+                          decoration: BoxDecoration(
+                            color: c['raisedSurface'],
+                            borderRadius: BorderRadius.circular(3),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(template.title, style: const TextStyle(fontSize: 13)),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

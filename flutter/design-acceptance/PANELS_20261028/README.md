@@ -14,6 +14,8 @@
 - F4 · готово к согласованию · 20261028-settings-f4-ad81586/F4-sound-appearance
 - F5 · готово к согласованию · 20261028-account-data-30cf3ac/F5-account-local
 - F6 · готово к согласованию · 20261028-account-data-30cf3ac/F6-data-permissions
+- I3 · черновик — функции нет · 20261028-transfer-8e165b3/I3-backend-offline
+- I5 · готово к согласованию · 20261028-transfer-8e165b3/I5-transfer
 - I6 · готово к согласованию · 20261028-repeat-ea99bf9/I6-light-practice
 - M1 · готово к согласованию · 20261028-font-41dec33/M1-practice-face
 - M2 · готово к согласованию · 20261028-synapse-1e11624/M2-synapse-panel

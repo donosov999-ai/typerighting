@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../data/local_repository.dart';
+import '../design_system/templates.dart';
 import '../data/key_statistics_store.dart';
 import '../domain/key_statistics.dart';
 import '../domain/course.dart';
@@ -247,52 +248,29 @@ class CoursePageState extends State<CoursePage> {
           ),
           Text(widget.tr('course.intro')),
           const SizedBox(height: 12),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            children: [
-              for (final l in lessons)
-                SizedBox(
-                  width: 280,
-                  child: OutlinedButton(
-                    onPressed: courseUnlocked(l['id'] as int, stars)
-                        ? () => start(l)
-                        : null,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: Row(
-                        children: [
-                          Icon(
-                            courseUnlocked(l['id'] as int, stars)
-                                ? Icons.keyboard
-                                : Icons.lock_outline,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(child: Text('${l['id']}. ${title(l)}')),
-                          if ((stars['${l['id']}'] as num?) != null)
-                            Semantics(
-                              label: 'Звёзд: ${stars['${l['id']}']}',
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: List.generate(
-                                  stars['${l['id']}'] as int,
-                                  (_) => Icon(
-                                    Icons.star,
-                                    size: 16,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .primary,
-                                  ),
-                                ),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
+          // C2: a numbered timeline; the next lesson to take is highlighted.
+          for (final (i, l) in lessons.indexed)
+            _LessonRow(
+              key: ValueKey('course-lesson-${l['id']}'),
+              number: i + 1,
+              title: title(l),
+              keys: ((l['newKeys'] as String?)?.isNotEmpty ?? false)
+                  ? l['newKeys'] as String
+                  : (l['pool'] as String? ?? ''),
+              stars: (stars['${l['id']}'] as num?)?.toInt(),
+              unlocked: courseUnlocked(l['id'] as int, stars),
+              current:
+                  l ==
+                  lessons.firstWhere(
+                    (x) =>
+                        courseUnlocked(x['id'] as int, stars) &&
+                        stars['${x['id']}'] == null,
+                    orElse: () => lessons.last,
                   ),
-                ),
-            ],
-          ),
+              last: i == lessons.length - 1,
+              continueLabel: _courseCopy(widget.language, 'continue'),
+              onTap: () => start(l),
+            ),
         ],
       );
     }
@@ -391,6 +369,218 @@ class CoursePageState extends State<CoursePage> {
           model: widget.keyboard,
           expected: a.session.expected,
           ru: widget.language == 'ru',
+        ),
+      ],
+    );
+  }
+}
+
+String _courseCopy(String language, String key) {
+  const langs = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
+  const words = <String, List<String>>{
+    'continue': [
+      'Продолжить',
+      'Continue',
+      'Continuar',
+      'Weiter',
+      'Continuer',
+      'Continua',
+      'Continuar',
+    ],
+  };
+  final i = langs.indexOf(language);
+  return words[key]?[i < 0 ? 1 : i] ?? key;
+}
+
+class _LessonRow extends StatelessWidget {
+  const _LessonRow({
+    super.key,
+    required this.number,
+    required this.title,
+    required this.keys,
+    required this.stars,
+    required this.unlocked,
+    required this.current,
+    required this.last,
+    required this.continueLabel,
+    required this.onTap,
+  });
+  final int number;
+  final String title, keys, continueLabel;
+  final int? stars;
+  final bool unlocked, current, last;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final tokens = Theme.of(context).extension<TypeFreeTokens>()!;
+    final dot = current
+        ? scheme.primary
+        : unlocked
+        ? tokens['success']
+        : tokens['border'];
+    final chips = keys.split('').where((k) => k.trim().isNotEmpty).toList();
+    return Stack(
+      children: [
+        // Connector to the next lesson, as tall as this row.
+        if (!last)
+          Positioned(
+            left: 19,
+            top: 44,
+            bottom: 0,
+            child: Container(width: 2, color: tokens['border']),
+          ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 40,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 14),
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+                  child: Text(
+                    '$number',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w800,
+                      color: unlocked ? Colors.white : scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Semantics(
+                  button: unlocked,
+                  enabled: unlocked,
+                  child: Material(
+                    color: tokens['raisedSurface'],
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: current ? scheme.primary : tokens['border'],
+                        width: current ? 2 : 1,
+                      ),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: InkWell(
+                      onTap: unlocked ? onTap : null,
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
+                        child: LayoutBuilder(
+                          builder: (context, box) {
+                            final scale =
+                                MediaQuery.textScalerOf(context).scale(14) / 14;
+                            // «Продолжить» beside the text only when it fits.
+                            final side = box.maxWidth >= 330 * scale;
+                            final info = Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  title,
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                    color: unlocked
+                                        ? null
+                                        : scheme.onSurfaceVariant,
+                                  ),
+                                ),
+                                if (chips.isNotEmpty) ...[
+                                  const SizedBox(height: 6),
+                                  Wrap(
+                                    spacing: 4,
+                                    runSpacing: 4,
+                                    children: [
+                                      for (final k in chips.take(12))
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 1,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                            border: Border.all(
+                                              color: tokens['border'],
+                                            ),
+                                          ),
+                                          child: Text(
+                                            k,
+                                            style: const TextStyle(
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ],
+                                if (stars != null || unlocked) ...[
+                                  const SizedBox(height: 4),
+                                  Semantics(
+                                    label: 'Звёзд: ${stars ?? 0}',
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        for (var s = 1; s <= 3; s++)
+                                          Icon(
+                                            s <= (stars ?? 0)
+                                                ? Icons.star
+                                                : Icons.star_border,
+                                            size: 18,
+                                            color: scheme.primary,
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ],
+                            );
+                            final button = FilledButton(
+                              onPressed: onTap,
+                              child: Text(continueLabel),
+                            );
+                            if (current && !side) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  info,
+                                  const SizedBox(height: 8),
+                                  button,
+                                ],
+                              );
+                            }
+                            return Row(
+                              children: [
+                                Expanded(child: info),
+                                const SizedBox(width: 6),
+                                if (current)
+                                  button
+                                else
+                                  Icon(
+                                    unlocked
+                                        ? Icons.chevron_right
+                                        : Icons.lock_outline,
+                                    color: scheme.onSurfaceVariant,
+                                  ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ],
     );

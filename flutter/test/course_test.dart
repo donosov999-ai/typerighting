@@ -100,13 +100,7 @@ void main() {
       expect(find.byType(CoursePage), findsOneWidget);
       final course = tester.state<CoursePageState>(find.byType(CoursePage));
       expect(course.lessons.length, 19);
-      await tester.tap(
-        find
-            .byWidgetPredicate(
-              (w) => w is OutlinedButton && w.onPressed != null,
-            )
-            .first,
-      );
+      await tester.tap(find.byKey(const ValueKey('course-lesson-1')));
       await tester.pump();
       final attempt = course.attempt!;
       await tester.tap(find.byKey(const ValueKey('course-input')));

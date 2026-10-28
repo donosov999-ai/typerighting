@@ -19,8 +19,8 @@
 - M2 · готово к согласованию · 20261028-synapse-1e11624/M2-synapse-panel
 - M3 · черновик — есть расхождения · 20261028-synapse-1e11624/M3-result
 - M4 · готово к согласованию · 20261028-synapse-1e11624/M4-appearance
-- B1 · черновик — есть расхождения · 20261028-font-41dec33/B1-trainer-desktop
-- B2 · черновик — есть расхождения · 20261028-draftfix-4988a11/B2-trainer-web
+- B1 · черновик — есть расхождения · 20261028-arrows-badb450/B1-trainer-desktop
+- B2 · черновик — есть расхождения · 20261028-arrows-badb450/B2-trainer-web
 - B3 · черновик — есть расхождения · 20261028-repeat-ea99bf9/B3-trainer-landscape
 - C1 · готово к согласованию · 20261028-header-a814c43/C1-library
 - C2 · готово к согласованию · 20261028-header-a814c43/C2-course-map

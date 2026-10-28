@@ -1561,6 +1561,58 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                         onNext: () => next(),
                         onOptions: wide ? null : showOptions,
                       ),
+                      // Narrow: options live in the sheet, so show which
+                      // ones are on (J1/J2) — each can be switched off here.
+                      if (!wide && (plain || flow || showHeat || bank == 'digits'))
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Wrap(
+                            spacing: 8,
+                            runSpacing: 4,
+                            children: [
+                              for (final (on, label, off) in [
+                                (
+                                  bank == 'digits',
+                                  practiceCopy(language, 'digits'),
+                                  () => change(() {
+                                    bank = textBank;
+                                    index = 0;
+                                  }),
+                                ),
+                                (
+                                  plain,
+                                  practiceCopy(language, 'plain'),
+                                  () => change(() => plain = false),
+                                ),
+                                (
+                                  flow,
+                                  tr('tb.flow'),
+                                  () => change(() => flow = false),
+                                ),
+                                (
+                                  showHeat,
+                                  tr('tb.heat'),
+                                  () {
+                                    setState(() => showHeat = false);
+                                    unawaited(savePrefs());
+                                  },
+                                ),
+                              ])
+                                if (on)
+                                  InputChip(
+                                    label: Text(label),
+                                    selected: true,
+                                    showCheckmark: false,
+                                    onPressed: showOptions,
+                                    deleteIcon: const Icon(
+                                      Icons.close,
+                                      size: 18,
+                                    ),
+                                    onDeleted: saving ? null : off,
+                                  ),
+                            ],
+                          ),
+                        ),
                       if (custom != null || weakMode)
                         Padding(
                           padding: const EdgeInsets.only(top: 8),

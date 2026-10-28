@@ -46,6 +46,17 @@ void main() {
     expect(find.byType(BottomSheet), findsNothing);
     expect(key.currentState!.weakMode, true);
 
+    // J1/J2: active modes show as chips on the narrow trainer; ✕ turns off.
+    await key.currentState!.showSection(AppSection.practice);
+    key.currentState!.weakMode = false;
+    await key.currentState!.changeSetting('heat', true);
+    await tester.pump();
+    expect(find.widgetWithText(InputChip, 'Тепловая карта'), findsOneWidget);
+    await tester.tap(find.descendant(of: find.widgetWithText(InputChip, 'Тепловая карта'), matching: find.byIcon(Icons.close)));
+    await tester.pump();
+    expect(key.currentState!.showHeat, false);
+    expect(find.byType(InputChip), findsNothing);
+
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox());
     appSound.stopMetronome();

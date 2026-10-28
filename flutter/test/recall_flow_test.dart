@@ -167,7 +167,13 @@ void main() {
             find.byIcon(Icons.close).evaluate().length,
         words.length,
       );
-      expect(find.textContaining(' / ${words.length}'), findsOneWidget);
+      // The first key was wrong (blocked, then corrected): that word is not
+      // «remembered without a mistake» — exactly one ✗ (Codex review 28.10).
+      expect(find.byIcon(Icons.close), findsOneWidget);
+      expect(
+        find.textContaining('${words.length - 1} / ${words.length}'),
+        findsOneWidget,
+      );
       expect(
         find.text('Record means the next set size reached.'),
         findsOneWidget,

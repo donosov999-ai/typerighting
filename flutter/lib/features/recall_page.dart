@@ -635,8 +635,8 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
                       '${result.accuracy}% ${recallCopy(widget.language, 'accuracy')}, ${result.completedSpan} ${recallCopy(widget.language, 'completed')}, ${nextSetText(result.nextSpan, widget.language)}, ${widget.tr('span.best')}: ${result.bestSpan}, ${result.stars} / 3 ★. ${recallCopy(widget.language, 'recordHint')}',
                   child: Builder(
                     builder: (context) {
-                      // J6: which words came back right, from the typed marks
-                      // (a word is right when none of its letters was wrong).
+                      // J6: which words came back right — a word is right only if no
+                      // key was wrong in it, even a blocked and corrected one.
                       final pattern = run.typing.pattern;
                       final words = <(String, bool)>[];
                       var i = 0;
@@ -645,7 +645,8 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
                           var ok = true;
                           for (var k = i; k < i + w.length; k++) {
                             if (k >= run.typing.marks.length ||
-                                run.typing.marks[k] != 1) {
+                                run.typing.marks[k] != 1 ||
+                                run.typing.missedAt.contains(k)) {
                               ok = false;
                             }
                           }

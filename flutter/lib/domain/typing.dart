@@ -40,6 +40,11 @@ class TypingSession {
   final String pattern;
   final MillisecondClock clock;
   late final Uint8List marks;
+
+  /// Positions where any wrong key was pressed, even if blocked and then
+  /// corrected (marks keep only the last state). Used for «remembered without
+  /// a mistake» summaries; does not change typing behaviour.
+  final missedAt = <int>{};
   int pos = 0, errors = 0;
   int? startedAt, finishedAt;
   int attemptedKeys = 0;
@@ -55,6 +60,7 @@ class TypingSession {
     final ok = normalized == expected;
     if (!ok) {
       errors++;
+      missedAt.add(pos);
       if (blockOnError) return const KeyResult(false, true, false);
     }
     // TypedArray writes past the end in JS are ignored (empty-pattern fixture).

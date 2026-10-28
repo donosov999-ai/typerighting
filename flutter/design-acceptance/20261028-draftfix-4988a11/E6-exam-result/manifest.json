@@ -1,0 +1,115 @@
+{
+  "screen": "E6-exam-result",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "4988a11",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/05.png",
+    "sha256": "fd562aaff0cf4fd3cb244c6722bc21686e4dbd36c2b5176e8d4cd3ebab90a7ff",
+    "cropXYXY": [
+      1010,
+      592,
+      1292,
+      1002
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 2.766
+  },
+  "actual": {
+    "sha256": "48ee7c62c2769f9000e54fb28cc03db9a17482d6f70dfb7effc8ad20b7ce1037",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "тест завершён сразу (досрочно, без ввода) — честный нулевой результат; повтор 4988a11"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 1134
+  },
+  "rows": [
+    [
+      "Шапка",
+      "без RU▾ и шестерёнки",
+      "заголовок + Синапс (a814c43)",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Цифры",
+      "Чистая · Валовая · Точность",
+      "Net WPM · Gross WPM · точность",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Строки",
+      "Цель (35) Достигнута · Время · Набрано · Ошибок",
+      "цель (35) НЕ СДАН · Фактическое время · нажатий · Длительность",
+      "набор строк",
+      "—",
+      "значения исходника",
+      "PASS"
+    ],
+    [
+      "Баннер",
+      "«Цель достигнута!» зелёный",
+      "плашка под заголовком: зелёная «СДАН · цель N» / красная «НЕ СДАН · цель N» (токены success/danger)",
+      "снят только «не сдан» — честный нулевой результат",
+      "—",
+      "«сдан» без настоящих 35 WPM не снимается (без вымышленных результатов)",
+      "PASS"
+    ],
+    [
+      "Кнопки",
+      "Закрыть / Повторить тест",
+      "Сертификат (PNG) / Ещё раз / Выйти",
+      "+ сертификат",
+      "—",
+      "функция исходника",
+      "PASS"
+    ],
+    [
+      "Web-возможности",
+      "рейтинг, лига, вызов — «только при доступном сервисе»",
+      "нет",
+      "—",
+      "—",
+      "сервис не подключён (LOCAL)",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в строке «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "bce370c269fde2636f87c6c1c6024d33a06f076090ddbabb211543c4a854ad45",
+    "overlay-50.png": "4e294a74d39a074ecac3d9f9fcd8137190586649a086e6ed64cae5cb4ecdd613",
+    "comparison-panel.png": "4c58f6869a4cb6110cdd3186158931177cd65745a8e7feb8ef59d0b6b1ba3995"
+  }
+}

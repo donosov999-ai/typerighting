@@ -1,0 +1,97 @@
+{
+  "screen": "D3-kids-learning",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "4988a11",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/04.png",
+    "sha256": "47d54524b841e8ab44fb8de5aec22f22ef88896062566d94b73b8c954669b32a",
+    "cropXYXY": [
+      1040,
+      108,
+      1515,
+      532
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 5.3895
+  },
+  "actual": {
+    "sha256": "8d29bf8408469d9c9d79f55559442f0a26128c10d45d8b34ef6fb4f08dee60e1",
+    "viewportCSS": [
+      1280,
+      800
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      2560,
+      1600
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "профиль «Детский», Практика → AI-обучение, ПК-ширина; демо seed; повтор 4988a11"
+  },
+  "method": {
+    "equalWidth": 2560,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 1600
+  },
+  "rows": [
+    [
+      "Котик и звёзды",
+      "котик с облачком «Отлично!», ★ 24 · Уровень 3 полосой",
+      "котик (настроение по точности) + ★ очки + точность + уровень — над текстом",
+      "нет облачка",
+      "—",
+      "реплики котика в исходнике нет",
+      "PASS"
+    ],
+    [
+      "Буквы",
+      "крупные отдельные буквы «а о у ы э я», текущая в рамке",
+      "строка детской генерации 44 pt (было 28), текущая буква подсвечена",
+      "строкой, а не отдельными клетками",
+      "—",
+      "механика исходника — строка",
+      "PASS"
+    ],
+    [
+      "Подсказка",
+      "руки + «Используй указательный палец левой руки»",
+      "«Жми: указательный палец левой руки» над строкой — палец из homeOf исходной клавиатуры, 7 языков",
+      "нет картинки рук",
+      "—",
+      "текст из данных исходника; картинка рук — ассет (решение Дениса)",
+      "PASS"
+    ],
+    [
+      "Правая панель",
+      "Текущий набор «Гласные буквы» 5/6",
+      "Текущий фокус: уровень N, строк",
+      "другой состав",
+      "—",
+      "набора «Гласные» в исходнике нет",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз без viewport",
+      "1280×800, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "837c99d0afaae2a0233d32bf144b8cc37e641bd26f8e9aa2027c8caec237baca",
+    "overlay-50.png": "ad684ee5acb942a838856b02bffcc001508602a48103de562b9ee29de5ef897a",
+    "comparison-panel.png": "3057971e67b2d8472a755d6d9356ceeecf1ab69107c5bcf59c4cb84367c639de"
+  }
+}

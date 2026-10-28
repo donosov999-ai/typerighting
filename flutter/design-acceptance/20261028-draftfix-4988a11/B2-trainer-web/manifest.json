@@ -1,0 +1,97 @@
+{
+  "screen": "B2-trainer-web",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "4988a11",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/02-v2-synapse.png",
+    "sha256": "a303cde339cb83a90203dcde0e6eac5852f8721dcd16255ae3e4eae218a3dc5c",
+    "cropXYXY": [
+      16,
+      614,
+      836,
+      980
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 2.439
+  },
+  "actual": {
+    "sha256": "288ec2ddd0559dccdf9594a5170dc50ecb084b93635b8cfabb64009bd2c25d0d",
+    "viewportCSS": [
+      1000,
+      760
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      2000,
+      1520
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Практика → Тренировка, ширина 1000 (без правой колонки); демо seed.json; повтор 4988a11"
+  },
+  "method": {
+    "equalWidth": 2000,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 893
+  },
+  "rows": [
+    [
+      "Шапка",
+      "без RU▾ и шестерёнки",
+      "заголовок + Синапс (a814c43)",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Параметры",
+      "колонка справа",
+      "кнопка «Параметры» (⚙ tune) → шторка с теми же флажками и кнопками",
+      "нет колонки при 1000",
+      "—",
+      "колонка включается с 1100 (реф §6: при нехватке места — панель с явной кнопкой)",
+      "PASS"
+    ],
+    [
+      "Цифры",
+      "справа",
+      "строкой над полем ввода",
+      "положение",
+      "—",
+      "то же правило ширины",
+      "PASS"
+    ],
+    [
+      "Синапс",
+      "лицо + «Синапс · Тихо во время печати» слева в шапке",
+      "лицо справа в шапке (реф §7: рабочая позиция — справа), без статуса",
+      "позиция и подпись",
+      "—",
+      "реф §7 разрешает слева только как композиционный пример; статус «тихо» — нет такого поля в контроллере",
+      "PASS"
+    ],
+    [
+      "Клавиатура",
+      "5 рядов на всю ширину, подсветка клавиши, руки",
+      "5 рядов guide на всю ширину колонки (до модели 920 на экранах ≥860 px высотой, 820 на 720-высоких), подсветка, без рук",
+      "нет рук",
+      "—",
+      "ширина закрыта 4988a11; руки — отдельный ассет (генерация — решение Дениса)",
+      "открыто"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "6d120bf1ed60eb7c57dadc58a5f06b00b563b26d1886f59a06e2186d8e9a423b",
+    "overlay-50.png": "4be03ae20d3e9f71a7e20a34231b4928a38eaf406292d48bea07f4598f40c5c5",
+    "comparison-panel.png": "5135a863782eb61fd71f7e62b0b54d5c077ea4735ba4e8ec864a5c50760ed367"
+  }
+}

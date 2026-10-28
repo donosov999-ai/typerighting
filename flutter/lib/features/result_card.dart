@@ -158,7 +158,8 @@ class ResultCard extends StatelessWidget {
         ),
         if (saved && pet != null) ...[
           const SizedBox(height: 8),
-          SizedBox(height: 150, child: pet),
+          // Pet plus its speech bubble above it (the widget fits both).
+          SizedBox(height: 260, child: pet),
         ],
       ],
     );
@@ -239,5 +240,5 @@ String resultCopy(String language, String key) {
 /// The pet for the result card, asleep when motion is off.
 Widget resultPet(SynapseController controller, bool animate) => TickerMode(
   enabled: animate,
-  child: SynapsePet(controller: controller, size: 150),
+  child: SynapsePet(controller: controller, size: 110),
 );

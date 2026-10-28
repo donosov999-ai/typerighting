@@ -1,0 +1,97 @@
+{
+  "screen": "D3-kids-learning",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "6bb4277",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/04.png",
+    "sha256": "47d54524b841e8ab44fb8de5aec22f22ef88896062566d94b73b8c954669b32a",
+    "cropXYXY": [
+      1040,
+      108,
+      1515,
+      532
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 5.3895
+  },
+  "actual": {
+    "sha256": "d9762f9f27a1c87bb8f75f255a5f1a698836742ceaeaa3a1d1b121740247384a",
+    "viewportCSS": [
+      1280,
+      800
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      2560,
+      1600
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "профиль «Детский», Практика → AI-обучение, ПК-ширина; демо seed"
+  },
+  "method": {
+    "equalWidth": 2560,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 1600
+  },
+  "rows": [
+    [
+      "Котик и звёзды",
+      "котик с облачком «Отлично!», ★ 24 · Уровень 3 полосой",
+      "котик (настроение по точности) + ★ очки + точность + уровень — над текстом",
+      "нет облачка",
+      "—",
+      "реплики котика в исходнике нет",
+      "PASS"
+    ],
+    [
+      "Буквы",
+      "крупные отдельные буквы «а о у ы э я», текущая в рамке",
+      "строка детской генерации 44 pt (было 28), текущая буква подсвечена",
+      "строкой, а не отдельными клетками",
+      "—",
+      "механика исходника — строка",
+      "PASS"
+    ],
+    [
+      "Подсказка",
+      "руки + «Используй указательный палец левой руки»",
+      "нет",
+      "нет подсказки пальцев",
+      "обучение",
+      "данных о пальцах нет в исходнике детского AI",
+      "открыто"
+    ],
+    [
+      "Правая панель",
+      "Текущий набор «Гласные буквы» 5/6",
+      "Текущий фокус: уровень N, строк",
+      "другой состав",
+      "—",
+      "набора «Гласные» в исходнике нет",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз без viewport",
+      "1280×800, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "3808cb03fc43921efaa3456036628d878b8e71feec564b6514c152196bdf1143",
+    "overlay-50.png": "b35afb39055f71dd66516711174db6a1b7598c3961e39cd4132661abd1c8a3e0",
+    "comparison-panel.png": "77edb930b6dea7f615e52931dcbf8955e116de9ad3d324c629d866803a4643da"
+  }
+}

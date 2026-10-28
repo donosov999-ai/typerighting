@@ -27,13 +27,13 @@
 - C6 · черновик — есть расхождения · 20261028-library-course-dc28454/C6-weak-keys
 - J1 · готово к согласованию · 20261028-modes-009977a/J1-flow
 - J2 · готово к согласованию · 20261028-modes-009977a/J2-digits
-- J3 · draft - substantial differences, not accepted · 20261026-kids-candidate/J3-result
-- J4 · draft - substantial differences, not accepted · 20261026-memorize-candidate/J4-result
+- J3 · готово к согласованию · 20261028-kids-memory-b4d36ef/J3-kids-result
+- J4 · готово к согласованию · 20261028-results-9883ec9/J4-memorize-final
 - J5 · готово к согласованию · 20261028-modes-dj-ec41ca1/J5-recall-setup
-- J6 · draft - substantial differences, not accepted · 20261026-recall-candidate/J6-result
+- J6 · готово к согласованию · 20261028-results-9883ec9/J6-recall-result
 - D1 · готово к согласованию · 20261028-modes-de-b44a6ab/D1-learning
-- D2 · draft - substantial differences, not accepted · 20261026-kids-candidate/D2-map
-- D3 · draft - differences; NOT accepted · 20261026-learning-candidate/D3-child-learning
+- D2 · черновик — есть расхождения · 20261028-kids-memory-b4d36ef/D2-kids-map
+- D3 · черновик — есть расхождения · 20261028-kids-ai2-6bb4277/D3-kids-learning
 - D4 · готово к согласованию · 20261028-modes-dj-ec41ca1/D4-memorize-setup
 - D5 · черновик — есть расхождения · 20261028-modes-dj-ec41ca1/D5-memorize-run
 - D6 · черновик — есть расхождения · 20261028-modes-dj-ec41ca1/D6-recall-show

@@ -224,6 +224,9 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   double textSize = 1;
   late AppSection section;
   int? courseStartLessonId;
+
+  /// F2 opens from «Ещё» and from «Прогресс»; back and the tab follow it.
+  AppSection achievementsBack = AppSection.more;
   bool get historyPage => section == AppSection.progress;
   bool get coursePage => section == AppSection.course;
   bool get inSettings =>
@@ -1116,9 +1119,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                 onPressed: () => showSection(
                   section == AppSection.weakKeys
                       ? AppSection.progress
+                      : section == AppSection.achievements
+                      ? achievementsBack
                       : section == AppSection.settings ||
-                            section == AppSection.profileLanguage ||
-                            section == AppSection.achievements
+                            section == AppSection.profileLanguage
                       ? AppSection.more
                       : section == AppSection.settingsInput ||
                             section == AppSection.settingsSound
@@ -1226,7 +1230,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
         height: 56,
         selectedIndex: section == AppSection.today
             ? 0
-            : historyPage || section == AppSection.weakKeys
+            : historyPage ||
+                  section == AppSection.weakKeys ||
+                  (section == AppSection.achievements &&
+                      achievementsBack == AppSection.progress)
             ? 2
             : section == AppSection.more || inSettings
             ? 3
@@ -1928,7 +1935,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           0xFFF07B2B,
           tr('ach.title'),
           profileCopy(language, 'ach.d'),
-          () => showSection(AppSection.achievements),
+          () {
+            achievementsBack = AppSection.more;
+            showSection(AppSection.achievements);
+          },
         ),
         modeTile(
           Icons.insights_outlined,
@@ -1950,6 +1960,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     language: language,
     tr: tr,
     onWeak: () => unawaited(showSection(AppSection.weakKeys)),
+    onAchievements: () {
+      achievementsBack = AppSection.progress;
+      unawaited(showSection(AppSection.achievements));
+    },
     exporter: widget.artifactExporter,
     clock: widget.clock,
   );

@@ -47,6 +47,21 @@ void main() {
     expect(find.bySemanticsLabel('50 WPM · 35 / 50'), findsOneWidget);
     expect(find.textContaining('oldbadge'), findsOneWidget);
 
+    // Same F2 from «Прогресс»: back returns there, the tab stays «Прогресс».
+    await app.showSection(AppSection.progress);
+    await tester.pump();
+    await tester.tap(find.textContaining('Достижения · 3/11'));
+    await tester.pump();
+    expect(app.section, AppSection.achievements);
+    expect(app.achievementsBack, AppSection.progress);
+    await tester.tap(find.byTooltip('← Назад'));
+    await tester.pump();
+    expect(app.section, AppSection.progress);
+    await app.showSection(AppSection.more);
+    await tester.pump();
+    await tester.tap(find.text('Достижения'));
+    await tester.pump();
+
     await tester.tap(find.text('Получены'));
     await tester.pump();
     expect(find.byType(LinearProgressIndicator), findsNothing);
@@ -56,6 +71,19 @@ void main() {
     expect(find.byType(LinearProgressIndicator), findsNWidgets(8));
 
     expect(tester.takeException(), isNull);
+
+    // Filled progress and achievements fit 320 px at 200 % text.
+    await tester.binding.setSurfaceSize(const Size(320, 582));
+    await tester.pumpWidget(MediaQuery(
+      data: const MediaQueryData(size: Size(320, 582), textScaler: TextScaler.linear(2)),
+      child: TypeFreeApp(key: key, resources: resources, repository: repo, appearance: appearance),
+    ));
+    await tester.pump();
+    for (final sec in [AppSection.progress, AppSection.achievements]) {
+      await key.currentState!.showSection(sec);
+      await tester.pump();
+      expect(tester.takeException(), isNull, reason: '$sec');
+    }
     await tester.pumpWidget(const SizedBox());
     appSound.stopMetronome();
     appearance.dispose();

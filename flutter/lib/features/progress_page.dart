@@ -10,6 +10,7 @@ import '../data/progress_view.dart';
 import '../data/achievement_store.dart';
 import '../domain/progress_metrics.dart';
 import '../domain/session_context.dart';
+import '../design_system/templates.dart';
 
 class ProgressPage extends StatefulWidget {
   const ProgressPage({
@@ -19,6 +20,7 @@ class ProgressPage extends StatefulWidget {
     required this.language,
     required this.tr,
     required this.onWeak,
+    this.onAchievements,
     this.exporter,
     this.clock,
   });
@@ -26,6 +28,7 @@ class ProgressPage extends StatefulWidget {
   final String profile, language;
   final String Function(String) tr;
   final VoidCallback onWeak;
+  final VoidCallback? onAchievements;
   final ArtifactExporter? exporter;
   final int Function()? clock;
   @override
@@ -151,138 +154,262 @@ class _ProgressPageState extends State<ProgressPage> {
     final stamps = rows
         .where((r) => r['historyEligible'] != false)
         .map((r) => r['t'] as num);
+    final scheme = Theme.of(context).colorScheme;
+    final tokens = Theme.of(context).extension<TypeFreeTokens>()!;
+    final muted = scheme.onSurfaceVariant;
+    final recent = ordered.skip(max(0, ordered.length - 40)).toList();
+    final titles = <String, int>{};
+    for (final g in groups.values) {
+      final t = g.first['title'] as String;
+      titles[t] = (titles[t] ?? 0) + 1;
+    }
+    String seriesLabel(String key) {
+      final first = groups[key]!.first;
+      final t = first['title'] as String;
+      // Same exercise in two set-ups (layout, hidden text…): keep them apart.
+      return titles[t]! > 1 ? '$t · ${first['difficulty']}' : t;
+    }
+
+    final best = rows.fold<num>(0, (n, r) => max(n, r['wpm'] as num));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          widget.tr('prog.title'),
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        Text(copy('local')),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 16,
-          runSpacing: 8,
-          children: [
-            Text('${widget.tr('prog.sessions')}: ${rows.length}'),
-            Text('${copy('streak')}: ${utcStreak(stamps, now())}'),
-            Text('${copy('course')}: ${view.courseStars}'),
-            Text('${copy('kids')}: ${view.kidsStars}'),
-          ],
-        ),
-        const SizedBox(height: 12),
-        OutlinedButton.icon(
-          onPressed: widget.onWeak,
-          icon: const Icon(Icons.track_changes),
-          label: Text(widget.tr('weak.title')),
-        ),
-        const SizedBox(height: 12),
-        Text(copy('series'), style: Theme.of(context).textTheme.titleMedium),
-        Text(copy('seriesHint')),
-        if (groups.isNotEmpty)
-          DropdownButtonFormField<String>(
-            key: ValueKey('progress-series-$series'),
-            initialValue: series,
-            isExpanded: true,
-            items: groups.entries
-                .map(
-                  (e) => DropdownMenuItem(
-                    value: e.key,
-                    child: Text(
-                      '${e.value.first['title']} · ${e.value.first['difficulty']}',
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+        Text(copy('local'), style: TextStyle(color: muted)),
+        const SizedBox(height: 10),
+        _Panel(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 12,
+                runSpacing: 6,
+                children: [
+                  Text(
+                    copy('yours'),
+                    style: const TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
-                )
-                .toList(),
-            onChanged: (v) => setState(() => series = v),
-          ),
-        if (speeds.length >= 2) ...[
-          const SizedBox(height: 12),
-          Semantics(
-            label: 'WPM: ${speeds.join(', ')}',
-            child: SizedBox(
-              height: 160,
-              child: CustomPaint(
-                painter: _SpeedChart(
-                  speeds.skip(max(0, speeds.length - 40)).toList(),
-                  Theme.of(context).colorScheme.primary,
-                ),
+                  if (groups.length > 1)
+                    ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 260),
+                      child: DropdownButtonFormField<String>(
+                        key: ValueKey('progress-series-$series'),
+                        initialValue: series,
+                        isExpanded: true,
+                        isDense: true,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 8,
+                          ),
+                        ),
+                        items: [
+                          for (final key in groups.keys)
+                            DropdownMenuItem(
+                              value: key,
+                              child: Text(
+                                seriesLabel(key),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                        ],
+                        onChanged: (v) => setState(() => series = v),
+                      ),
+                    )
+                  else if (series != null)
+                    Text(seriesLabel(series!), style: TextStyle(color: muted)),
+                ],
               ),
-            ),
-          ),
-          Wrap(
-            spacing: 16,
-            runSpacing: 8,
-            children: [
-              Text('${widget.tr('prog.sessions')}: ${speeds.length}'),
-              Text('${widget.tr('prog.max')}: ${speeds.reduce(max)} WPM'),
-              Text('${widget.tr('prog.last')}: ${speeds.last} WPM'),
+              const SizedBox(height: 4),
+              Text(
+                copy('seriesHint'),
+                style: TextStyle(fontSize: 11.5, color: muted),
+              ),
+              if (speeds.length >= 2) ...[
+                const SizedBox(height: 12),
+                Semantics(
+                  label:
+                      'WPM: ${speeds.join(', ')}; ${copy('acc')}: ${recent.map((r) => (r['accuracy'] as num).round()).join(', ')}',
+                  child: SizedBox(
+                    height: 170,
+                    child: CustomPaint(
+                      painter: _DualChart(
+                        speeds: [for (final r in recent) r['wpm'] as num],
+                        accuracy: [
+                          for (final r in recent) r['accuracy'] as num,
+                        ],
+                        dates: [for (final r in recent) r['t'] as num],
+                        speedColor: scheme.primary,
+                        accuracyColor: tokens['success'],
+                        grid: tokens['border'],
+                        label: muted,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Wrap(
+                  alignment: WrapAlignment.center,
+                  spacing: 16,
+                  runSpacing: 4,
+                  children: [
+                    _Legend(scheme.primary, copy('speed')),
+                    _Legend(tokens['success'], copy('acc')),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${widget.tr('prog.sessions')}: ${speeds.length} · ${widget.tr('prog.max')}: ${speeds.reduce(max)} WPM · ${widget.tr('prog.last')}: ${speeds.last} WPM',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 12, color: muted),
+                ),
+              ] else
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Text(widget.tr('prog.empty')),
+                ),
             ],
           ),
-        ] else
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Text(widget.tr('prog.empty')),
-          ),
-        const SizedBox(height: 12),
-        TextField(
-          key: const ValueKey('progress-target'),
-          controller: target,
-          keyboardType: TextInputType.number,
-          decoration: InputDecoration(
-            labelText: widget.tr('set.targetwpm'),
-            border: const OutlineInputBorder(),
-          ),
         ),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton(
-            onPressed: saving ? null : saveTarget,
-            child: Text(copy('saveTarget')),
-          ),
-        ),
-        Text(
-          forecast == null
-              ? copy('noForecast')
-              : '${widget.tr('prog.to')} ${forecast.target} WPM ≈ ${forecast.sessions} ${widget.tr('prog.sess')} · R² ${forecast.certainty.toStringAsFixed(2)}',
-        ),
-        const SizedBox(height: 20),
-        ExpansionTile(
-          initiallyExpanded: true,
-          title: Text(
-            '${widget.tr('ach.title')} · ${milestones.where((b) => allEarned.contains(b.id)).length}/${milestones.length}',
-          ),
-          subtitle: Text(copy('globalBadges')),
-          children: [
-            Wrap(
-              spacing: 10,
-              runSpacing: 8,
-              children: [
-                for (final badge in milestones)
-                  Semantics(
-                    label:
-                        '${widget.tr('ach.${badge.id}')} · ${copy(allEarned.contains(badge.id) ? 'earned' : 'locked')}',
-                    child: Chip(
-                      avatar: Icon(
-                        allEarned.contains(badge.id)
-                            ? Icons.check_circle
-                            : Icons.lock_outline,
-                      ),
-                      label: Text(
-                        '${badge.icon} ${widget.tr('ach.${badge.id}')}',
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            if (earned.any((id) => !milestones.any((b) => b.id == id)))
-              Text(
-                '${copy('archivedBadges')}: ${earned.where((id) => !milestones.any((b) => b.id == id)).join(', ')}',
+        const SizedBox(height: 10),
+        LayoutBuilder(
+          builder: (context, box) {
+            final tiles = [
+              _Stat(
+                Icons.local_fire_department,
+                const Color(0xFFF07B2B),
+                '${utcStreak(stamps, now())}',
+                widget.tr('hub.streak'),
               ),
+              _Stat(
+                Icons.schedule,
+                const Color(0xFF14A3A3),
+                '${rows.length}',
+                widget.tr('prog.sessions'),
+              ),
+              _Stat(
+                Icons.bar_chart,
+                const Color(0xFF22B07D),
+                '$best',
+                copy('best'),
+              ),
+            ];
+            final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
+            final per = box.maxWidth >= 3 * 104 * scale ? 3 : 1;
+            const gap = 8.0;
+            final w = (box.maxWidth - gap * (per - 1)) / per;
+            return Wrap(
+              spacing: gap,
+              runSpacing: gap,
+              children: [for (final t in tiles) SizedBox(width: w, child: t)],
+            );
+          },
+        ),
+        const SizedBox(height: 6),
+        Text(
+          '${copy('course')}: ${view.courseStars} · ${copy('kids')}: ${view.kidsStars}',
+          style: TextStyle(fontSize: 12, color: muted),
+        ),
+        const SizedBox(height: 10),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            OutlinedButton.icon(
+              onPressed: widget.onWeak,
+              icon: const Icon(Icons.track_changes),
+              label: Text(widget.tr('weak.title')),
+            ),
+            OutlinedButton.icon(
+              onPressed: widget.onAchievements,
+              icon: const Icon(Icons.emoji_events_outlined),
+              label: Text(
+                '${widget.tr('ach.title')} · ${milestones.where((b) => allEarned.contains(b.id)).length}/${milestones.length}',
+              ),
+            ),
           ],
         ),
+        const SizedBox(height: 10),
+        _Panel(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                key: const ValueKey('progress-target'),
+                controller: target,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  isDense: true,
+                  labelText: widget.tr('set.targetwpm'),
+                  border: const OutlineInputBorder(),
+                  suffixIcon: TextButton(
+                    onPressed: saving ? null : saveTarget,
+                    child: Text(copy('saveTarget')),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                forecast == null
+                    ? copy('noForecast')
+                    : '${widget.tr('prog.to')} ${forecast.target} WPM ≈ ${forecast.sessions} ${widget.tr('prog.sess')} · R² ${forecast.certainty.toStringAsFixed(2)}',
+                style: TextStyle(fontSize: 13, color: muted),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          copy('recent'),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+        ),
+        if (view.legacyTimeline.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              copy('unknown'),
+              style: TextStyle(fontSize: 12, color: muted),
+            ),
+          ),
+        const SizedBox(height: 6),
+        if (rows.isEmpty)
+          _Panel(
+            child: Column(
+              children: [
+                Icon(Icons.description_outlined, color: muted, size: 32),
+                const SizedBox(height: 6),
+                Text(widget.tr('prog.empty'), textAlign: TextAlign.center),
+              ],
+            ),
+          )
+        else
+          _Panel(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Column(
+              children: [
+                for (var i = 0; i < rows.length; i++) ...[
+                  if (i > 0) const Divider(height: 1, indent: 52),
+                  _SessionRow(
+                    title: rows[i]['origin'] == 'legacy'
+                        ? copy('oldSession')
+                        : rows[i]['title'] as String,
+                    when: _when(rows[i]['t'] as num),
+                    detail: rows[i]['origin'] == 'flutter'
+                        ? '${rows[i]['profile']} / ${rows[i]['language']} / ${rows[i]['mode']}'
+                        : '',
+                    wpm: rows[i]['wpm'] as num,
+                    accuracy: rows[i]['accuracy'] as num,
+                  ),
+                ],
+              ],
+            ),
+          ),
         const SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: saving ? null : export,
@@ -292,27 +419,6 @@ class _ProgressPageState extends State<ProgressPage> {
         if (status != null)
           Text(status!, key: const ValueKey('progress-status')),
         if (saving) const LinearProgressIndicator(),
-        if (view.legacyTimeline.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Text(copy('unknown')),
-          ),
-        for (final row in rows)
-          Card(
-            child: ListTile(
-              title: Text(
-                row['origin'] == 'legacy'
-                    ? copy('oldSession')
-                    : row['title'] as String,
-              ),
-              subtitle: Text(
-                '${DateTime.fromMillisecondsSinceEpoch((row['t'] as num).toInt()).toLocal()}${row['origin'] == 'flutter' ? ' · ${row['profile']} / ${row['language']} / ${row['mode']}' : ''}',
-              ),
-              trailing: Text(
-                '${row['wpm']} WPM\n${(row['accuracy'] as num).toStringAsFixed(0)}%',
-              ),
-            ),
-          ),
         if (view.banks.isNotEmpty)
           ExpansionTile(
             title: Text(copy('banks')),
@@ -326,43 +432,242 @@ class _ProgressPageState extends State<ProgressPage> {
                 ),
             ],
           ),
+        if (earned.any((id) => !milestones.any((b) => b.id == id)))
+          Text(
+            '${copy('archivedBadges')}: ${earned.where((id) => !milestones.any((b) => b.id == id)).join(', ')}',
+            style: TextStyle(fontSize: 12, color: muted),
+          ),
       ],
     );
   }
 }
 
-class _SpeedChart extends CustomPainter {
-  _SpeedChart(this.values, this.color);
-  final List<num> values;
-  final Color color;
+String _two(int v) => v.toString().padLeft(2, '0');
+String _when(num t) {
+  final d = DateTime.fromMillisecondsSinceEpoch(t.toInt()).toLocal();
+  return '${_two(d.day)}.${_two(d.month)}.${d.year}, ${_two(d.hour)}:${_two(d.minute)}';
+}
+
+class _Panel extends StatelessWidget {
+  const _Panel({required this.child, this.padding});
+  final Widget child;
+  final EdgeInsets? padding;
   @override
-  void paint(Canvas canvas, Size size) {
-    if (values.length < 2) return;
-    final low = values.reduce(min),
-        high = values.reduce(max),
-        span = max(1, high - low);
-    final path = Path();
-    for (var i = 0; i < values.length; i++) {
-      final x = 8 + i / (values.length - 1) * (size.width - 16),
-          y = size.height - 12 - (values[i] - low) / span * (size.height - 24);
-      if (i == 0)
-        path.moveTo(x, y);
-      else
-        path.lineTo(x, y);
-      canvas.drawCircle(Offset(x, y), 3, Paint()..color = color);
-    }
-    canvas.drawPath(
-      path,
-      Paint()
-        ..color = color
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.5,
+  Widget build(BuildContext context) {
+    final tokens = Theme.of(context).extension<TypeFreeTokens>()!;
+    return Container(
+      padding: padding ?? const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: tokens['raisedSurface'],
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: tokens['border']),
+      ),
+      child: child,
     );
+  }
+}
+
+class _Legend extends StatelessWidget {
+  const _Legend(this.color, this.text);
+  final Color color;
+  final String text;
+  @override
+  Widget build(BuildContext context) => Row(
+    mainAxisSize: MainAxisSize.min,
+    children: [
+      Container(
+        width: 9,
+        height: 9,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+      ),
+      const SizedBox(width: 6),
+      Text(text, style: const TextStyle(fontSize: 12)),
+    ],
+  );
+}
+
+class _Stat extends StatelessWidget {
+  const _Stat(this.icon, this.color, this.value, this.label);
+  final IconData icon;
+  final Color color;
+  final String value, label;
+  @override
+  Widget build(BuildContext context) => _Panel(
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+    child: Row(
+      children: [
+        Icon(icon, color: color, size: 26),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11.5,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class _SessionRow extends StatelessWidget {
+  const _SessionRow({
+    required this.title,
+    required this.when,
+    required this.detail,
+    required this.wpm,
+    required this.accuracy,
+  });
+  final String title, when, detail;
+  final num wpm, accuracy;
+  @override
+  Widget build(BuildContext context) {
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      child: Row(
+        children: [
+          Icon(Icons.description_outlined, color: muted),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                Text(
+                  detail.isEmpty ? when : '$when · $detail',
+                  style: TextStyle(fontSize: 11.5, color: muted),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '$wpm WPM',
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+              Text(
+                '${accuracy.toStringAsFixed(0)}%',
+                style: TextStyle(fontSize: 12, color: muted),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Speed (left axis, WPM) and accuracy (right axis, 0–100 %) of one
+/// comparable series, as on sheet 06 F1.
+class _DualChart extends CustomPainter {
+  _DualChart({
+    required this.speeds,
+    required this.accuracy,
+    required this.dates,
+    required this.speedColor,
+    required this.accuracyColor,
+    required this.grid,
+    required this.label,
+  });
+  final List<num> speeds, accuracy, dates;
+  final Color speedColor, accuracyColor, grid, label;
+
+  void _text(Canvas canvas, String s, Offset at, {bool right = false}) {
+    final tp = TextPainter(
+      text: TextSpan(
+        text: s,
+        style: TextStyle(fontSize: 10, color: label),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(canvas, at - Offset(right ? tp.width : 0, tp.height / 2));
   }
 
   @override
-  bool shouldRepaint(covariant _SpeedChart old) =>
-      old.values != values || old.color != color;
+  void paint(Canvas canvas, Size size) {
+    if (speeds.length < 2) return;
+    const left = 30.0, right = 34.0, top = 8.0, bottom = 20.0;
+    final w = size.width - left - right, h = size.height - top - bottom;
+    final hi = (speeds.reduce(max) / 10).ceil() * 10;
+    final lo = max(0, (speeds.reduce(min) / 10).floor() * 10 - 10);
+    final span = max(10, hi - lo);
+    final gridPaint = Paint()
+      ..color = grid
+      ..strokeWidth = 1;
+    for (var i = 0; i <= 4; i++) {
+      final y = top + h * i / 4;
+      canvas.drawLine(Offset(left, y), Offset(left + w, y), gridPaint);
+      _text(
+        canvas,
+        '${(hi - span * i / 4).round()}',
+        Offset(left - 4, y),
+        right: true,
+      );
+      _text(canvas, '${100 - 25 * i}', Offset(left + w + 4, y));
+    }
+    double x(int i) => left + i / (speeds.length - 1) * w;
+    void line(List<num> v, double Function(num) y, Color color) {
+      final path = Path();
+      for (var i = 0; i < v.length; i++) {
+        final p = Offset(x(i), y(v[i]));
+        i == 0 ? path.moveTo(p.dx, p.dy) : path.lineTo(p.dx, p.dy);
+        canvas.drawCircle(p, 3, Paint()..color = color);
+      }
+      canvas.drawPath(
+        path,
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.5,
+      );
+    }
+
+    line(accuracy, (a) => top + h * (1 - a.clamp(0, 100) / 100), accuracyColor);
+    line(speeds, (s) => top + h * (1 - (s - lo) / span), speedColor);
+    final marks = {0, (speeds.length - 1) ~/ 2, speeds.length - 1};
+    for (final i in marks) {
+      final d = DateTime.fromMillisecondsSinceEpoch(dates[i].toInt()).toLocal();
+      final tp = TextPainter(
+        text: TextSpan(
+          text: '${_two(d.day)}.${_two(d.month)}',
+          style: TextStyle(fontSize: 10, color: label),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+      final cx = (x(i) - tp.width / 2).clamp(0.0, size.width - tp.width);
+      tp.paint(canvas, Offset(cx, size.height - tp.height));
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _DualChart old) =>
+      old.speeds != speeds ||
+      old.accuracy != accuracy ||
+      old.speedColor != speedColor;
 }
 
 String progressCopy(String language, String key) {
@@ -421,6 +726,51 @@ String progressCopy(String language, String key) {
       'Graphique et prévision : mêmes profil, langue, mode et difficulté.',
       'Grafico e previsione: stesso profilo, lingua, modalità e difficoltà.',
       'Gráfico e previsão: mesmo perfil, idioma, modo e dificuldade.',
+    ],
+    'yours': [
+      'Ваш прогресс',
+      'Your progress',
+      'Tu progreso',
+      'Dein Fortschritt',
+      'Vos progrès',
+      'I tuoi progressi',
+      'O seu progresso',
+    ],
+    'speed': [
+      'Скорость (WPM)',
+      'Speed (WPM)',
+      'Velocidad (WPM)',
+      'Tempo (WPM)',
+      'Vitesse (WPM)',
+      'Velocità (WPM)',
+      'Velocidade (WPM)',
+    ],
+    'acc': [
+      'Точность (%)',
+      'Accuracy (%)',
+      'Precisión (%)',
+      'Genauigkeit (%)',
+      'Précision (%)',
+      'Precisione (%)',
+      'Precisão (%)',
+    ],
+    'best': [
+      'лучшая скорость, WPM',
+      'best speed, WPM',
+      'mejor velocidad, WPM',
+      'Bestwert, WPM',
+      'meilleure vitesse, WPM',
+      'velocità migliore, WPM',
+      'melhor velocidade, WPM',
+    ],
+    'recent': [
+      'Последние тренировки',
+      'Recent sessions',
+      'Sesiones recientes',
+      'Letzte Sitzungen',
+      'Séances récentes',
+      'Sessioni recenti',
+      'Sessões recentes',
     ],
     'saveTarget': [
       'Сохранить цель',

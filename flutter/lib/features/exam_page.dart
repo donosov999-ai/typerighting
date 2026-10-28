@@ -9,6 +9,7 @@ import '../audio/typefree_sound.dart';
 import '../data/artifact_export.dart';
 import '../data/key_statistics_store.dart';
 import '../data/local_repository.dart';
+import '../design_system/templates.dart';
 import '../domain/exam.dart';
 import '../domain/key_statistics.dart';
 import 'exam_certificate.dart';
@@ -413,6 +414,29 @@ class ExamPageState extends State<ExamPage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final run = engine, result = engine?.result;
+    final tokens = Theme.of(context).extension<TypeFreeTokens>()!;
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    Widget panel(Widget child, {EdgeInsets? padding}) => Container(
+      padding: padding ?? const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: tokens['raisedSurface'],
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: tokens['border']),
+      ),
+      child: child,
+    );
+    Widget cell(String label, Widget value) => Expanded(
+      child: Column(
+        children: [
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 12, color: muted),
+          ),
+          value,
+        ],
+      ),
+    );
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1000),
@@ -420,79 +444,131 @@ class ExamPageState extends State<ExamPage> with WidgetsBindingObserver {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (run == null) ...[
-              Text(widget.tr('ex.desc')),
+              Text(widget.tr('ex.desc'), style: TextStyle(color: muted)),
               const SizedBox(height: 12),
-              Text(widget.tr('ex.duration')),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final minutes in [1, 5, 10])
-                    ChoiceChip(
-                      key: ValueKey('exam-duration-$minutes'),
-                      label: Text('$minutes ${widget.tr('ex.min')}'),
-                      selected: duration == minutes,
-                      onSelected: saving
-                          ? null
-                          : (_) => setState(() => duration = minutes),
+              panel(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      widget.tr('ex.duration'),
+                      style: const TextStyle(fontWeight: FontWeight.w700),
                     ),
-                ],
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        for (final minutes in [1, 5, 10]) ...[
+                          if (minutes != 1) const SizedBox(width: 8),
+                          Expanded(
+                            child: ChoiceChip(
+                              key: ValueKey('exam-duration-$minutes'),
+                              showCheckmark: false,
+                              label: SizedBox(
+                                width: double.infinity,
+                                child: Text(
+                                  '$minutes ${widget.tr('ex.min')}',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              selected: duration == minutes,
+                              onSelected: saving
+                                  ? null
+                                  : (_) => setState(() => duration = minutes),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 14),
+                    TextField(
+                      key: const ValueKey('exam-target'),
+                      controller: targetController,
+                      keyboardType: const TextInputType.numberWithOptions(
+                        decimal: true,
+                      ),
+                      decoration: InputDecoration(
+                        labelText: widget.tr('ex.target'),
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      key: const ValueKey('exam-name'),
+                      controller: nameController,
+                      maxLength: 120,
+                      decoration: InputDecoration(
+                        labelText: widget.tr('ex.name'),
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
-              TextField(
-                key: const ValueKey('exam-target'),
-                controller: targetController,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
+              FilledButton(
+                key: const ValueKey('exam-start'),
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52),
                 ),
-                decoration: InputDecoration(
-                  labelText: widget.tr('ex.target'),
-                  border: const OutlineInputBorder(),
-                ),
+                onPressed: saving ? null : start,
+                child: Text(widget.tr('ex.start')),
               ),
-              const SizedBox(height: 12),
-              TextField(
-                key: const ValueKey('exam-name'),
-                controller: nameController,
-                maxLength: 120,
-                decoration: InputDecoration(
-                  labelText: widget.tr('ex.name'),
-                  border: const OutlineInputBorder(),
-                ),
-              ),
-              Wrap(
-                spacing: 12,
-                runSpacing: 8,
-                children: [
-                  FilledButton(
-                    key: const ValueKey('exam-start'),
-                    onPressed: saving ? null : start,
-                    child: Text(widget.tr('ex.start')),
-                  ),
-                  OutlinedButton(
-                    onPressed: saving ? null : widget.onExit,
-                    child: Text(widget.tr('ex.cancel')),
-                  ),
-                ],
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: saving ? null : widget.onExit,
+                child: Text(widget.tr('ex.cancel')),
               ),
             ] else if (result == null) ...[
-              Wrap(
-                spacing: 16,
-                runSpacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
+              panel(
+                Row(
+                  children: [
+                    cell(
+                      examCopy(widget.language, 'left'),
+                      Semantics(
+                        excludeSemantics: true,
+                        label: examTime(run.remainingMs),
+                        child: Text(
+                          examTime(run.remainingMs),
+                          style: const TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                    ),
+                    cell(
+                      widget.tr('ex.net'),
+                      Text(
+                        '${run.metrics.net}',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                    cell(
+                      widget.tr('st.accuracy'),
+                      Text(
+                        '${run.metrics.accuracy}%',
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 8),
+              ),
+              const SizedBox(height: 6),
+              Row(
                 children: [
-                  Semantics(
-                    excludeSemantics: true,
-                    label: examTime(run.remainingMs),
+                  Expanded(
                     child: Text(
-                      examTime(run.remainingMs),
-                      style: Theme.of(context).textTheme.headlineMedium,
+                      '${widget.tr('ex.target.short')}: ${run.target}',
+                      style: TextStyle(color: muted),
                     ),
                   ),
-                  Text(
-                    '${widget.tr('ex.net')}: ${run.metrics.net} · ${widget.tr('st.accuracy')}: ${run.metrics.accuracy}%',
-                  ),
-                  Text('${widget.tr('ex.target.short')}: ${run.target}'),
                   OutlinedButton(
                     key: const ValueKey('exam-finish'),
                     onPressed: () => finishAndSave(),
@@ -553,31 +629,95 @@ class ExamPageState extends State<ExamPage> with WidgetsBindingObserver {
                 excludeSemantics: true,
                 label:
                     '${widget.tr('ex.net')}: ${result.net}, ${widget.tr('ex.gross')}: ${result.gross}, ${widget.tr('st.accuracy')}: ${result.accuracy}%, ${examCopy(widget.language, 'actual')}: ${examElapsedTime(result.elapsedMs)}, ${result.typed + result.errors} ${widget.tr('ex.keystrokes')}, ${widget.tr('ex.duration')}: ${run.durationMinutes} ${widget.tr('ex.min')}',
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Wrap(
-                      spacing: 24,
-                      runSpacing: 12,
-                      children: [
-                        Text(
-                          '${result.net} ${widget.tr('ex.net')}',
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
-                        Text('${result.gross} ${widget.tr('ex.gross')}'),
-                        Text('${result.accuracy}% ${widget.tr('st.accuracy')}'),
-                        Text(
-                          '${result.typed + result.errors} ${widget.tr('ex.keystrokes')}',
-                        ),
-                        Text(
-                          '${examCopy(widget.language, 'actual')}: ${examElapsedTime(result.elapsedMs)}',
-                        ),
-                        Text(
-                          '${widget.tr('ex.duration')}: ${run.durationMinutes} ${widget.tr('ex.min')}',
-                        ),
-                      ],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    panel(
+                      Row(
+                        children: [
+                          cell(
+                            widget.tr('ex.net'),
+                            Text(
+                              '${result.net}',
+                              style: const TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                          cell(
+                            widget.tr('ex.gross'),
+                            Text(
+                              '${result.gross}',
+                              style: const TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                          cell(
+                            widget.tr('st.accuracy'),
+                            Text(
+                              '${result.accuracy}%',
+                              style: const TextStyle(
+                                fontSize: 30,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
                     ),
-                  ),
+                    const SizedBox(height: 8),
+                    panel(
+                      Column(
+                        children: [
+                          for (final (icon, label, value) in [
+                            (
+                              Icons.flag_outlined,
+                              '${widget.tr('ex.target.short')} (${run.target})',
+                              widget.tr(run.goalMet ? 'ex.pass' : 'ex.fail'),
+                            ),
+                            (
+                              Icons.schedule,
+                              examCopy(widget.language, 'actual'),
+                              examElapsedTime(result.elapsedMs),
+                            ),
+                            (
+                              Icons.keyboard_outlined,
+                              widget.tr('ex.keystrokes'),
+                              '${result.typed + result.errors}',
+                            ),
+                            (
+                              Icons.timer_outlined,
+                              widget.tr('ex.duration'),
+                              '${run.durationMinutes} ${widget.tr('ex.min')}',
+                            ),
+                          ])
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                children: [
+                                  Icon(icon, size: 18, color: muted),
+                                  const SizedBox(width: 8),
+                                  Expanded(child: Text(label)),
+                                  Flexible(
+                                    child: Text(
+                                      value,
+                                      textAlign: TextAlign.end,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
               if (saving) const LinearProgressIndicator(),

@@ -8,6 +8,15 @@ import '../domain/exam.dart';
 String examCopy(String language, String key) {
   const langs = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
   const values = {
+    'left': [
+      'Осталось',
+      'Time left',
+      'Queda',
+      'Verbleibend',
+      'Restant',
+      'Rimanente',
+      'Restante',
+    ],
     'input': [
       'Печатайте здесь',
       'Type here',

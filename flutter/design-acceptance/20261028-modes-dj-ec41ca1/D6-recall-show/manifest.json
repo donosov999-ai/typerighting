@@ -1,0 +1,88 @@
+{
+  "screen": "D6-recall-show",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "ec41ca1",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/04.png",
+    "sha256": "47d54524b841e8ab44fb8de5aec22f22ef88896062566d94b73b8c954669b32a",
+    "cropXYXY": [
+      1040,
+      588,
+      1520,
+      976
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.625
+  },
+  "actual": {
+    "sha256": "7e1ec017f7f7057b6af8bd65686b50ce089ff5d65ffc0f4e572bee7f75842944",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Память → Начать, фаза показа 3 слов"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 630
+  },
+  "rows": [
+    [
+      "Фазы",
+      "«Запомните → Введите по памяти» шагами",
+      "«Запоминай…» + полоса времени, «Запомнил — печатать»",
+      "нет шагов-индикатора",
+      "—",
+      "—",
+      "открыто"
+    ],
+    [
+      "Слова",
+      "3 слова плитками",
+      "слова строкой в тексте",
+      "нет плиток",
+      "—",
+      "—",
+      "открыто"
+    ],
+    [
+      "Правая панель",
+      "Текущий набор / Максимум / Сегодня, «Ещё раз»",
+      "нет (телефон)",
+      "—",
+      "—",
+      "«Сегодня» в исходнике нет",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "48dd59796bc62eb8b5603cae652723b33e96e7589838343c4ca3854b386198da",
+    "overlay-50.png": "bd2f28ab31985362b5e4d6325028fa6f959a55cc5a6e24dbe187fae8d86a05d5",
+    "comparison-panel.png": "267ad8de8ab05c47c493e683c948906f43a93eba1bcd66e01bb6ca0151cddb93"
+  }
+}

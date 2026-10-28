@@ -1,0 +1,97 @@
+{
+  "screen": "D4-memorize-setup",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "ec41ca1",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/04.png",
+    "sha256": "47d54524b841e8ab44fb8de5aec22f22ef88896062566d94b73b8c954669b32a",
+    "cropXYXY": [
+      16,
+      588,
+      522,
+      976
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 5.0593
+  },
+  "actual": {
+    "sha256": "adca54fc91566cf318e97b990ba4795f3692960d8222744e4acf15da22c0a40c",
+    "viewportCSS": [
+      1280,
+      800
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      2560,
+      1600
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Практика → Наизусть, «Ворон», 5 слов"
+  },
+  "method": {
+    "equalWidth": 2560,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 1600
+  },
+  "rows": [
+    [
+      "Произведение",
+      "вкладки Классика/Ворон + список авторов радио",
+      "«Ворон» / «Пушкин — Евгений Онегин» (два источника исходника) в карточке",
+      "нет списка авторов",
+      "—",
+      "в исходнике два текста",
+      "PASS"
+    ],
+    [
+      "Длина",
+      "3 / 6 / 12 строк / Весь текст",
+      "5 / 7 / 10 слов / строфа целиком (исходник)",
+      "единицы",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Уровень тренировки",
+      "Полный текст / каждое третье / половина / первые буквы / по памяти — выбор",
+      "уровни скрытия идут сами по проходам 1→5 (исходник)",
+      "нет ручного выбора",
+      "—",
+      "не выдумываю функцию; ручной выбор — по решению Дениса",
+      "открыто"
+    ],
+    [
+      "Отрывки",
+      "—",
+      "нумерованный список отрывков, страницы по 12",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "c89286d2bba5c458fb0edafadf5debdbc692c3c175913803afb0e88cc8676edb",
+    "overlay-50.png": "7cfc8bd06aea4a1d99d2f000758e5d4d410c9de4246d7073704d00acdb6e60d2",
+    "comparison-panel.png": "f4bdaded77b56d4819b8d8d7e33bcc4ef999ddd40dad04f364f06cfe3475d271"
+  }
+}

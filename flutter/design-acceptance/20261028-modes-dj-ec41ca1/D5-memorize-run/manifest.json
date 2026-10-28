@@ -1,0 +1,88 @@
+{
+  "screen": "D5-memorize-run",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "ec41ca1",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/04.png",
+    "sha256": "47d54524b841e8ab44fb8de5aec22f22ef88896062566d94b73b8c954669b32a",
+    "cropXYXY": [
+      538,
+      588,
+      1022,
+      976
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 5.2893
+  },
+  "actual": {
+    "sha256": "caa8cc7d41cb5bb0bdfe60bfb86b79c7ff6886898d8622eeaa8280e79ef614b0",
+    "viewportCSS": [
+      1280,
+      800
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      2560,
+      1600
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Наизусть → отрывок 1, проход 1/5"
+  },
+  "method": {
+    "equalWidth": 2560,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 1600
+  },
+  "rows": [
+    [
+      "Прогресс",
+      "полоса + «2/6 строк»",
+      "«Проход 1/5 · весь текст» + полоса",
+      "проходы вместо строк",
+      "—",
+      "механика исходника",
+      "PASS"
+    ],
+    [
+      "Текст",
+      "первые буквы с точками",
+      "на проходе 1 текст целиком, дальше скрывается (исходник)",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Правая панель",
+      "«Уровень пройден!» точность/время/скорость, Далее/Ещё раз",
+      "итог прохода — карточкой на месте текста",
+      "нет правой панели",
+      "—",
+      "следующий шаг: итог в колонке справа на ПК",
+      "открыто"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "3097a8657b97a62073cc30160c857024423f160224e38ff68505fcd2e6f498cb",
+    "overlay-50.png": "2a7c2e07e1a4d000c9cf6fcfde3e2bc2df7160986545a70ca1e3848763b654f3",
+    "comparison-panel.png": "de547a9399f5e86a582f96eb7144715ed63266c310a5142ed08707d707d91fae"
+  }
+}

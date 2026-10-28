@@ -1,0 +1,79 @@
+{
+  "screen": "E2-competition-run",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "ec41ca1",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/05.png",
+    "sha256": "fd562aaff0cf4fd3cb244c6722bc21686e4dbd36c2b5176e8d4cd3ebab90a7ff",
+    "cropXYXY": [
+      513,
+      62,
+      1022,
+      518
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.5324
+  },
+  "actual": {
+    "sha256": "282ae0230161af1e8a737df239fcdc567c7e3936c0a8f368b336c1dbae7026de",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Тест-соревнование → Алфавит А→Я, до первого нажатия"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 699
+  },
+  "rows": [
+    [
+      "Таймер и цифры",
+      "0:24 крупно, полоса, текущая скорость, точность, призрачный результат",
+      "нет таймера и живых цифр; полосы — только при «призраке»",
+      "нет панели",
+      "основное",
+      "следующий шаг: панель время/скорость/точность/рекорд",
+      "открыто"
+    ],
+    [
+      "Текст и клавиатура",
+      "текст + укороченная клавиатура",
+      "текст + 5 рядов guide",
+      "—",
+      "—",
+      "реф §6",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "a5b9f80ffb8935f626a2aeb127f9dfa426d99d9b9263d34b3c609e9ce3114e4a",
+    "overlay-50.png": "da6b56e9b4ccb0249f45efc5abdd4ccec9ba22ea9e01b7c0bb1183283fb4a2fa",
+    "comparison-panel.png": "3334bbba76dc5edf2655dda6a8279c37e5068c1cb6d4670a3cfc3dd9abca90a6"
+  }
+}

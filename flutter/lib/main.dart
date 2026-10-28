@@ -32,6 +32,7 @@ import 'features/synapse_panel.dart';
 import 'features/result_card.dart';
 import 'features/trainer_parts.dart';
 import 'features/library_page.dart';
+import 'features/account_pages.dart';
 import 'data/achievement_store.dart';
 import 'data/progress_view.dart';
 import 'domain/progress_metrics.dart' show utcStreak;
@@ -175,6 +176,8 @@ enum AppSection {
   welcome,
   companion,
   library,
+  account,
+  dataPermissions,
 }
 
 /// Source rule: onboarding while no profile was ever chosen (tr_profile,
@@ -308,7 +311,9 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       section == AppSection.settingsInput ||
       section == AppSection.settingsSound ||
       section == AppSection.profileLanguage ||
-      section == AppSection.achievements;
+      section == AppSection.achievements ||
+      section == AppSection.account ||
+      section == AppSection.dataPermissions;
   Future<bool> finishLearning() async {
     if (section == AppSection.kids) {
       return await kidsKey.currentState?.checkpointForExit() ?? true;
@@ -1410,7 +1415,9 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       : section == AppSection.achievements
                       ? achievementsBack
                       : section == AppSection.settings ||
-                            section == AppSection.profileLanguage
+                            section == AppSection.profileLanguage ||
+                            section == AppSection.account ||
+                            section == AppSection.dataPermissions
                       ? AppSection.more
                       : section == AppSection.settingsInput ||
                             section == AppSection.settingsSound
@@ -1470,6 +1477,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     ? settingsCopy(language, 'companion')
                     : section == AppSection.library
                     ? libraryCopy(language, 'title')
+                    : section == AppSection.account
+                    ? accountCopy(language, 'account')
+                    : section == AppSection.dataPermissions
+                    ? accountCopy(language, 'data')
                     : section == AppSection.kids
                     ? tr('k.title')
                     : section == AppSection.exam
@@ -1724,6 +1735,17 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       values: settingsValues,
                       onInput: () => showSection(AppSection.settingsInput),
                       onSound: () => showSection(AppSection.settingsSound),
+                    );
+                  }
+                  if (section == AppSection.account) {
+                    return AccountPage(language: language);
+                  }
+                  if (section == AppSection.dataPermissions) {
+                    return DataPage(
+                      language: language,
+                      repository: widget.repository,
+                      exporter: widget.artifactExporter,
+                      clock: widget.clock,
                     );
                   }
                   if (section == AppSection.library) {
@@ -2299,6 +2321,20 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
             achievementsBack = AppSection.more;
             showSection(AppSection.achievements);
           },
+        ),
+        modeTile(
+          Icons.cloud_outlined,
+          0xFF3B82F6,
+          accountCopy(language, 'account'),
+          accountCopy(language, 'account.d'),
+          () => showSection(AppSection.account),
+        ),
+        modeTile(
+          Icons.verified_user_outlined,
+          0xFF22B07D,
+          accountCopy(language, 'data'),
+          accountCopy(language, 'data.d'),
+          () => showSection(AppSection.dataPermissions),
         ),
         modeTile(
           Icons.insights_outlined,

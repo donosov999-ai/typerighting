@@ -88,22 +88,10 @@ class _ProgressPageState extends State<ProgressPage> {
     if (saving) return;
     setState(() => saving = true);
     try {
-      final rows = ProgressView(widget.repository.data).timeline;
-      // Explicit export of local history only: no credentials, preferences,
-      // teacher permissions, names or private source texts.
-      final bytes = Uint8List.fromList(
-        utf8.encode(
-          jsonEncode({
-            'schema': 'typefree.history/1',
-            'exportedAt': now(),
-            'sessions': rows,
-          }),
-        ),
-      );
-      final result = await (widget.exporter ?? saveArtifact)(
-        'TypeFree-history-${now()}.json',
-        bytes,
-        'application/json',
+      final result = await exportHistory(
+        widget.repository,
+        widget.exporter,
+        now(),
       );
       if (mounted)
         setState(
@@ -675,6 +663,31 @@ class _DualChart extends CustomPainter {
       old.speeds != speeds ||
       old.accuracy != accuracy ||
       old.speedColor != speedColor;
+}
+
+/// Explicit export of local history only: no credentials, preferences,
+/// teacher permissions, names or private source texts. Used by «Прогресс»
+/// and «Данные и разрешения» (F6).
+Future<ArtifactExportOutcome> exportHistory(
+  LocalRepository repository,
+  ArtifactExporter? exporter,
+  int now,
+) {
+  final rows = ProgressView(repository.data).timeline;
+  final bytes = Uint8List.fromList(
+    utf8.encode(
+      jsonEncode({
+        'schema': 'typefree.history/1',
+        'exportedAt': now,
+        'sessions': rows,
+      }),
+    ),
+  );
+  return (exporter ?? saveArtifact)(
+    'TypeFree-history-$now.json',
+    bytes,
+    'application/json',
+  );
 }
 
 String progressCopy(String language, String key) {

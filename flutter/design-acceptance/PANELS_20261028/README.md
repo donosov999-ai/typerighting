@@ -3,7 +3,7 @@
 Последняя панель каждого экрана: эскиз | сборка | наложение 50/50. Таблица — REPORT.md пакета. Решения Дениса нет.
 
 - A1 · черновик — есть расхождения · 20261028-welcome-85f0c4d/A1-welcome
-- A2 · draft - Today implemented; remaining differences documented; not accepted · 20261025-local-f5e556b/A2-today
+- A2 · готово к согласованию · 20261028-repeat-ea99bf9/A2-today
 - A3 · готово к согласованию · 20261028-menus-9d6917f/A3-practice
 - A4 · готово к согласованию · 20261028-companion-d09c1b4/A4-companion
 - A5 · черновик — есть расхождения · 20261028-account-data-30cf3ac/A5-more
@@ -14,18 +14,18 @@
 - F4 · готово к согласованию · 20261028-settings-f4-ad81586/F4-sound-appearance
 - F5 · готово к согласованию · 20261028-account-data-30cf3ac/F5-account-local
 - F6 · готово к согласованию · 20261028-account-data-30cf3ac/F6-data-permissions
-- I6 · черновик — есть расхождения · 20261028-light-21a6959/I6-light-practice
+- I6 · готово к согласованию · 20261028-repeat-ea99bf9/I6-light-practice
 - M1 · черновик — есть расхождения · 20261028-synapse-1e11624/M1-practice-face
 - M2 · готово к согласованию · 20261028-synapse-1e11624/M2-synapse-panel
 - M3 · черновик — есть расхождения · 20261028-synapse-1e11624/M3-result
 - M4 · готово к согласованию · 20261028-synapse-1e11624/M4-appearance
 - B1 · черновик — есть расхождения · 20261028-trainer-rail-6d7ebb3/B1-trainer-desktop
 - B2 · черновик — есть расхождения · 20261028-trainer-14e83ee/B2-trainer-web
-- B3 · черновик — есть расхождения · 20261028-trainer-14e83ee/B3-trainer-landscape
+- B3 · черновик — есть расхождения · 20261028-repeat-ea99bf9/B3-trainer-landscape
 - C1 · готово к согласованию · 20261028-library-course-dc28454/C1-library
 - C2 · готово к согласованию · 20261028-library-course-dc28454/C2-course-map
-- C3 · черновик — есть расхождения · 20261028-library-course-dc28454/C3-lesson
-- C4 · черновик — есть расхождения · 20261028-fixes-0f22554/C4-lesson-result
+- C3 · готово к согласованию · 20261028-repeat-ea99bf9/C3-lesson
+- C4 · готово к согласованию · 20261028-repeat-ea99bf9/C4-lesson-result
 - C5 · готово к согласованию · 20261028-library-course-dc28454/C5-custom-text
 - C6 · черновик — есть расхождения · 20261028-library-course-dc28454/C6-weak-keys
 - J1 · готово к согласованию · 20261028-modes-009977a/J1-flow

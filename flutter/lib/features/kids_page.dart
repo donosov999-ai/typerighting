@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 
 import '../audio/typefree_sound.dart';
 import '../data/local_repository.dart';
+import '../design_system/templates.dart';
 import '../domain/kids.dart';
 import 'competition_page.dart' show competitionCopy;
 import 'keyboard_guide.dart';
@@ -277,50 +278,197 @@ class KidsPageState extends State<KidsPage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final tr = widget.tr;
     if (engine.phase == KidsPhase.map) {
+      final scheme = Theme.of(context).colorScheme;
+      final tokens = Theme.of(context).extension<TypeFreeTokens>()!;
+      final stars = widget.levels.fold<int>(
+        0,
+        (n, l) => n + (engine.progress.stars[l.id] ?? 0),
+      );
+      final current = widget.levels.firstWhere(
+        (l) =>
+            engine.progress.unlocked(l.id) &&
+            (engine.progress.stars[l.id] ?? 0) == 0,
+        orElse: () => widget.levels.last,
+      );
+      // D2: one level as a round node with its stars (or a lock).
+      Widget node(KidsLevel level, double size) {
+        final open = engine.progress.unlocked(level.id);
+        final got = engine.progress.stars[level.id] ?? 0;
+        final now = level.id == current.id;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            OutlinedButton(
+              key: ValueKey('kids-level-${level.id}'),
+              onPressed: open ? () => start(level.id) : null,
+              style: OutlinedButton.styleFrom(
+                shape: const CircleBorder(),
+                fixedSize: Size.square(size),
+                minimumSize: Size.square(size),
+                padding: EdgeInsets.zero,
+                backgroundColor: now
+                    ? tokens['success']
+                    : open
+                    ? tokens['raisedSurface']
+                    : tokens['canvas'],
+                side: BorderSide(
+                  color: now
+                      ? scheme.primary
+                      : open
+                      ? const Color(0xFFF5B82E)
+                      : tokens['border'],
+                  width: now ? 3 : 2,
+                ),
+              ),
+              child: Text(
+                '${level.id}',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: open ? scheme.onSurface : scheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            const SizedBox(height: 2),
+            open
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      for (var i = 1; i <= 3; i++)
+                        Icon(
+                          i <= got ? Icons.star : Icons.star_border,
+                          size: 13,
+                          color: const Color(0xFFF5B82E),
+                        ),
+                    ],
+                  )
+                : Icon(Icons.lock, size: 14, color: scheme.onSurfaceVariant),
+          ],
+        );
+      }
+
+      BoxDecoration box() => BoxDecoration(
+        color: tokens['raisedSurface'],
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: tokens['border']),
+      );
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text(tr('k.hello')),
-          const SizedBox(height: 12),
-          if (engine.restSuggested) Text(tr('k.rest')),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              onPressed: widget.onAI,
-              icon: const Icon(Icons.auto_awesome),
-              label: Text(tr('learn.title')),
-            ),
+          // Cat with the greeting, and the honest star count.
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Image.asset(
+                'assets/learning/typing-cat.webp',
+                height: 96,
+                excludeFromSemantics: true,
+              ),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 320),
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: box(),
+                  child: Text(tr('k.hello')),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: box(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.star, color: Color(0xFFF5B82E)),
+                        const SizedBox(width: 4),
+                        Text(
+                          '$stars / ${widget.levels.length * 3}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text('${tr('k.level')} ${current.id}'),
+                  ],
+                ),
+              ),
+            ],
           ),
+          const SizedBox(height: 8),
+          if (engine.restSuggested) Text(tr('k.rest')),
           for (final language in ['ru', 'en']) ...[
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.symmetric(vertical: 10),
               child: Text(
                 tr('k.block.$language'),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
-              children: [
-                for (final level in widget.levels.where(
-                  (l) => l.language == language,
-                ))
-                  OutlinedButton(
-                    key: ValueKey('kids-level-${level.id}'),
-                    onPressed: engine.progress.unlocked(level.id)
-                        ? () => start(level.id)
-                        : null,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Text(
-                        '${tr('k.level')} ${level.id}\n${engine.progress.unlocked(level.id) ? '⭐' * (engine.progress.stars[level.id] ?? 0) : '🔒'}',
+            LayoutBuilder(
+              builder: (context, box) {
+                final levels = widget.levels
+                    .where((l) => l.language == language)
+                    .toList();
+                final per = box.maxWidth >= 600 ? 6 : 5;
+                final size = box.maxWidth >= 600 ? 60.0 : 48.0;
+                final rows = <List<KidsLevel>>[
+                  for (var i = 0; i < levels.length; i += per)
+                    levels.sublist(i, min(i + per, levels.length)),
+                ];
+                // A winding path: every other row runs right-to-left.
+                return Column(
+                  children: [
+                    for (final (r, row) in rows.indexed)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: Stack(
+                          children: [
+                            Positioned(
+                              left: 24,
+                              right: 24,
+                              top: size / 2 - 2,
+                              child: Container(
+                                height: 4,
+                                decoration: BoxDecoration(
+                                  color: tokens['border'],
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                for (final l in r.isOdd ? row.reversed : row)
+                                  node(l, size),
+                                for (var k = row.length; k < per; k++)
+                                  SizedBox(width: size),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
-              ],
+                  ],
+                );
+              },
             ),
           ],
+          const SizedBox(height: 8),
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+            ),
+            onPressed: widget.onAI,
+            icon: const Icon(Icons.auto_awesome),
+            label: Text(tr('learn.title')),
+          ),
         ],
       );
     }
@@ -345,16 +493,57 @@ class KidsPageState extends State<KidsPage> with WidgetsBindingObserver {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            cat(),
-            Text(
-              '${tr('k.level')} ${result.levelId} ${tr('k.passed')}',
-              style: Theme.of(context).textTheme.headlineSmall,
+            // J3: happy cat, the level, big stars and the note.
+            Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: 16,
+              runSpacing: 8,
+              children: [
+                Image.asset(
+                  'assets/learning/typing-cat.webp',
+                  height: 140,
+                  excludeFromSemantics: true,
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      '${tr('k.level')} ${result.levelId} ${tr('k.passed')}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Semantics(
+                      label: '${result.stars} / 3 ★',
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          for (var i = 1; i <= 3; i++)
+                            Icon(
+                              i <= result.stars
+                                  ? Icons.star_rounded
+                                  : Icons.star_outline_rounded,
+                              size: 56,
+                              color: const Color(0xFFF5B82E),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
+            const SizedBox(height: 8),
             Text(
-              '⭐' * result.stars + '☆' * (3 - result.stars),
-              style: const TextStyle(fontSize: 36),
+              tr('k.note${result.stars}'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 16),
             ),
-            Text(tr('k.note${result.stars}')),
+            const SizedBox(height: 12),
             if (engine.restSuggested)
               Padding(
                 padding: const EdgeInsets.all(12),
@@ -372,25 +561,32 @@ class KidsPageState extends State<KidsPage> with WidgetsBindingObserver {
                 child: Text(kidsRetry(widget.language)),
               ),
             ],
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
+            if (engine.hasNext)
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52),
+                ),
+                onPressed: saved && !saving ? next : null,
+                child: Text(tr('k.next')),
+              ),
+            const SizedBox(height: 8),
+            Row(
               children: [
-                OutlinedButton(
-                  onPressed: saved && !saving
-                      ? () => start(result.levelId)
-                      : null,
-                  child: Text(tr('k.again')),
-                ),
-                OutlinedButton(
-                  onPressed: saved && !saving ? toMap : null,
-                  child: Text(tr('k.map')),
-                ),
-                if (engine.hasNext)
-                  FilledButton(
-                    onPressed: saved && !saving ? next : null,
-                    child: Text(tr('k.next')),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: saved && !saving
+                        ? () => start(result.levelId)
+                        : null,
+                    child: Text(tr('k.again')),
                   ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: saved && !saving ? toMap : null,
+                    child: Text(tr('k.map')),
+                  ),
+                ),
               ],
             ),
             if (engine.hasNext)

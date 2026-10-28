@@ -1,0 +1,97 @@
+{
+  "screen": "E2-competition-run",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "0593e86",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/05.png",
+    "sha256": "fd562aaff0cf4fd3cb244c6722bc21686e4dbd36c2b5176e8d4cd3ebab90a7ff",
+    "cropXYXY": [
+      513,
+      62,
+      1022,
+      518
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.5324
+  },
+  "actual": {
+    "sha256": "58c293d7aadfc0d8b2805a391c0f260552b1d6cbd984e64a5b4fe381040435ca",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Алфавит А→Я, набрано «абвгдежзий» по-настоящему (150 мс/знак), рекордов нет"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 699
+  },
+  "rows": [
+    [
+      "Цифры",
+      "0:24 крупно, текущая скорость, точность, призрачный результат",
+      "время · WPM · точность · рекорд («—», пока нет)",
+      "время не обратным отсчётом",
+      "—",
+      "в соревновании исходника нет лимита времени — время идёт вперёд",
+      "PASS"
+    ],
+    [
+      "Полосы",
+      "полоса прогресса",
+      "полосы «призрак / ты» — когда есть сохранённый призрак",
+      "нет полосы без призрака",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Текст и клавиатура",
+      "текст + укороченная клавиатура",
+      "текст + 5 рядов guide",
+      "—",
+      "—",
+      "реф §6",
+      "PASS"
+    ],
+    [
+      "Шапка",
+      "«← Спринт»",
+      "заголовок обрезан (RU▾ + шестерёнка)",
+      "обрезка",
+      "читаемость",
+      "вопрос 4 в чек-листе",
+      "открыто"
+    ],
+    [
+      "Масштаб",
+      "эскиз без viewport",
+      "390×844, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "4a8adf25d08fa42da721ed2405b170bedde6e7f85fba213f56fff51e10803cce",
+    "overlay-50.png": "ef87228f5f2191a1876584ca836428501c1c80209e7cdaeddc17e1b0ad932bef",
+    "comparison-panel.png": "f86906b67095b8ad8b0b31e8102ef637b3a040f630855a7d1a446ebcc2595038"
+  }
+}

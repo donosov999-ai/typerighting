@@ -38,6 +38,16 @@ for (const step of (args.steps || '').split(';').filter(Boolean)) {
   await p.waitForTimeout(+(args.stepWait || 1500));
 }
 if (args.dump) console.log(JSON.stringify(await p.evaluate(() => [...document.querySelectorAll('[aria-label]')].map(e => e.getAttribute('aria-label')).filter(Boolean)), null, 0));
+if (args.type) { // type an exercise for real (M3 result); \n = Enter
+  // Focus the field first with a step (e.g. «Печатайте здесь»); Enter only
+  // between lines, never at the end (it would press a focused Back button).
+  const parts = args.type.split('\\n');
+  for (let i = 0; i < parts.length; i++) {
+    if (i) await p.keyboard.press('Enter');
+    await p.keyboard.type(parts[i], { delay: +(args.typeDelay || 40) });
+  }
+  await p.waitForTimeout(+(args.stepWait || 1500));
+}
 await p.mouse.move(1, 1); // no hover tooltip in the shot
 await p.waitForTimeout(400);
 await p.screenshot({ path: args.out || 'actual.png' });

@@ -29,6 +29,7 @@ import 'features/profile_page.dart';
 import 'features/achievements_page.dart';
 import 'features/companion_page.dart';
 import 'features/synapse_panel.dart';
+import 'features/result_card.dart';
 import 'data/achievement_store.dart';
 import 'data/progress_view.dart';
 import 'domain/progress_metrics.dart' show utcStreak;
@@ -557,6 +558,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     sessionId =
         '${DateTime.now().microsecondsSinceEpoch}-${Random().nextInt(0x7fffffff)}';
     saved = false;
+    lastRecord = false;
     recordedHistory = null;
     saving = false;
     error = null;
@@ -742,7 +744,12 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           );
         }
       });
-      if (mounted) setState(() => saved = true);
+      if (mounted) {
+        setState(() {
+          saved = true;
+          lastRecord = isRecord;
+        });
+      }
       appSound.effect(isRecord ? 'record' : 'success');
       if (fresh && mounted) {
         try {
@@ -786,12 +793,19 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       reset();
     });
     unawaited(savePrefs());
-    inputFocus.requestFocus();
+    // The field was disabled while the result showed; focus it after the
+    // rebuild re-enables it, or the next keystrokes go nowhere.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) inputFocus.requestFocus();
+    });
   }
 
   /// Desktop: the Synapse panel sits beside the content (never over the
   /// active text); phones get a sheet. Both have Close (§7).
   bool synapseSide = false;
+
+  /// The last saved result beat the bank's best WPM (source recordFinish).
+  bool lastRecord = false;
 
   Widget synapsePanel(BuildContext c, VoidCallback close) => SynapsePanel(
     language: language,
@@ -1190,32 +1204,23 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
         ),
       ],
     );
-    final completion = Wrap(
-      spacing: 12,
-      children: [
-        if (saving)
-          const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text('Сохранение…'),
-          ),
-        if (!saved && !saving)
-          FilledButton(
-            onPressed: saveResult,
-            child: const Text('Повторить сохранение'),
-          ),
-        if (saved)
-          FilledButton(onPressed: () => next(), child: Text(tr('done.next'))),
-        if (saved)
-          OutlinedButton(
-            onPressed: () => next(0),
-            child: Text(tr('done.again')),
-          ),
-        if (saved && pet)
-          TextButton(
-            onPressed: openAssistant,
-            child: const Text('Синапс · мой результат'),
-          ),
-      ],
+    final completion = ResultCard(
+      language: language,
+      tr: tr,
+      profile: profile,
+      wpm: stats.wpm,
+      accuracy: stats.accuracy,
+      errors: stats.errors,
+      saved: saved,
+      saving: saving,
+      record: lastRecord,
+      onNext: () => next(),
+      onAgain: () => next(0),
+      onRetrySave: saveResult,
+      pet: pet
+          ? resultPet(assistant, motion && !MediaQuery.disableAnimationsOf(c))
+          : null,
+      onSynapse: pet ? openAssistant : null,
     );
     if (section == AppSection.welcome) {
       return Scaffold(
@@ -1922,6 +1927,12 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
+                            // The result is what matters once the text is
+                            // done: on top of the pane, visible without scroll.
+                            if (session.finished) ...[
+                              completion,
+                              const SizedBox(height: 20),
+                            ],
                             const Text(
                               'Настройки практики',
                               style: TextStyle(
@@ -1931,10 +1942,6 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                             ),
                             const SizedBox(height: 12),
                             controls,
-                            if (session.finished) ...[
-                              const SizedBox(height: 16),
-                              completion,
-                            ],
                             const SizedBox(height: 24),
                             const Text(
                               'Пробная версия Flutter. Данные хранятся отдельно от установленного приложения.',

@@ -1954,7 +1954,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       Expanded(child: practice),
                       const SizedBox(width: 20),
                       SizedBox(
-                        width: 240,
+                        width: 300,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [

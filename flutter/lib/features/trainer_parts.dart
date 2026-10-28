@@ -250,22 +250,43 @@ class StatTiles extends StatelessWidget {
       ),
     );
     final divider = Container(width: 1, height: 36, color: tokens['border']);
+    final cells = [
+      cell('$wpm', '', 'WPM · ${c('speed')}'),
+      cell('${accuracy.round()}', '%', c('accuracy')),
+      cell('$errors', '', c('errors')),
+      cell((elapsedMs / 1000).toStringAsFixed(1), 's', c('time')),
+    ];
     return Container(
       decoration: BoxDecoration(
         color: tokens['raisedSurface'],
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: tokens['border']),
       ),
-      child: Row(
-        children: [
-          cell('$wpm', '', 'WPM · ${c('speed')}'),
-          divider,
-          cell('${accuracy.round()}', '%', c('accuracy')),
-          divider,
-          cell('$errors', '', c('errors')),
-          divider,
-          cell((elapsedMs / 1000).toStringAsFixed(1), 's', c('time')),
-        ],
+      child: LayoutBuilder(
+        builder: (context, box) {
+          final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
+          // Four numbers in one row need ~80 px each; otherwise 2 x 2.
+          if (box.maxWidth >= 4 * 80 * scale) {
+            return Row(
+              children: [
+                cells[0],
+                divider,
+                cells[1],
+                divider,
+                cells[2],
+                divider,
+                cells[3],
+              ],
+            );
+          }
+          return Column(
+            children: [
+              Row(children: [cells[0], divider, cells[1]]),
+              Divider(height: 1, color: tokens['border']),
+              Row(children: [cells[2], divider, cells[3]]),
+            ],
+          );
+        },
       ),
     );
   }

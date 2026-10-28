@@ -29,9 +29,15 @@ void main() {
     await tester.tap(find.text('Свой текст'));
     await tester.pumpAndSettle();
     expect(find.byType(BottomSheet), findsNothing);
-    expect(find.byType(AlertDialog), findsOneWidget);
-    await tester.tap(find.text('Отмена'));
+    // C5 is a page now: type, start, and the trainer runs that text.
+    expect(find.text('Символов: 0'), findsOneWidget);
+    await tester.enterText(find.byType(TextField).last, 'мой текст');
+    await tester.pump();
+    expect(find.text('Символов: 9'), findsOneWidget);
+    await tester.tap(find.text(key.currentState!.tr('custom.start')));
     await tester.pumpAndSettle();
+    expect(key.currentState!.custom, 'мой текст');
+    expect(key.currentState!.session.pattern, contains('мой текст'));
 
     await tester.tap(find.byTooltip('Параметры'));
     await tester.pumpAndSettle();

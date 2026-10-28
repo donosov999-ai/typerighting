@@ -291,3 +291,135 @@ class StatTiles extends StatelessWidget {
     );
   }
 }
+
+/// C5 «Свой текст» as a page (was a small dialog): a large field, character
+/// count, «Очистить» and the start button; Back/«Отмена» returns nothing.
+class CustomTextPage extends StatefulWidget {
+  const CustomTextPage({
+    super.key,
+    required this.tr,
+    required this.language,
+    this.initial,
+  });
+  final String Function(String) tr;
+  final String language;
+  final String? initial;
+  @override
+  State<CustomTextPage> createState() => _CustomTextPageState();
+}
+
+String customCopy(String language, String key) {
+  const langs = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
+  const words = <String, List<String>>{
+    'sub': [
+      'Практикуйтесь на любом тексте',
+      'Practise on any text',
+      'Practica con cualquier texto',
+      'Übe mit beliebigem Text',
+      'Entraînez-vous sur n’importe quel texte',
+      'Esercitati su qualsiasi testo',
+      'Pratique com qualquer texto',
+    ],
+    'count': [
+      'Символов',
+      'Characters',
+      'Caracteres',
+      'Zeichen',
+      'Caractères',
+      'Caratteri',
+      'Caracteres',
+    ],
+    'clear': [
+      'Очистить',
+      'Clear',
+      'Borrar',
+      'Leeren',
+      'Effacer',
+      'Cancella',
+      'Limpar',
+    ],
+  };
+  final i = langs.indexOf(language);
+  return words[key]?[i < 0 ? 1 : i] ?? key;
+}
+
+class _CustomTextPageState extends State<CustomTextPage> {
+  late final editor = TextEditingController(text: widget.initial);
+  @override
+  void dispose() {
+    editor.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    String c(String k) => customCopy(widget.language, k);
+    final muted = Theme.of(context).colorScheme.onSurfaceVariant;
+    final ready = editor.text.trim().isNotEmpty;
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          tooltip: widget.tr('custom.cancel'),
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back),
+        ),
+        title: Text(widget.tr('custom.title')),
+      ),
+      body: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 720),
+            child: ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                Text(c('sub'), style: TextStyle(color: muted)),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: editor,
+                  autofocus: true,
+                  minLines: 8,
+                  maxLines: 14,
+                  style: const TextStyle(fontSize: 18, height: 1.5),
+                  onChanged: (_) => setState(() {}),
+                  decoration: InputDecoration(
+                    hintText: widget.tr('custom.ph'),
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${c('count')}: ${editor.text.characters.length}',
+                        style: TextStyle(fontSize: 12, color: muted),
+                      ),
+                    ),
+                    TextButton.icon(
+                      onPressed: editor.text.isEmpty
+                          ? null
+                          : () => setState(editor.clear),
+                      icon: const Icon(Icons.delete_outline, size: 18),
+                      label: Text(c('clear')),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(52),
+                  ),
+                  onPressed: ready
+                      ? () => Navigator.pop(context, editor.text)
+                      : null,
+                  icon: const Icon(Icons.play_arrow),
+                  label: Text(widget.tr('custom.start')),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

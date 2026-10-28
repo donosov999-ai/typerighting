@@ -1118,34 +1118,13 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   }
 
   Future<void> customText() async {
-    final editor = TextEditingController(text: custom);
-    final result = await showDialog<String>(
-      context: surface,
-      builder: (c) => AlertDialog(
-        title: Text(tr('custom.title')),
-        content: SizedBox(
-          width: 500,
-          child: TextField(
-            controller: editor,
-            maxLines: 6,
-            autofocus: true,
-            decoration: InputDecoration(hintText: tr('custom.ph')),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(c),
-            child: Text(tr('custom.cancel')),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(c, editor.text),
-            child: Text(tr('custom.start')),
-          ),
-        ],
+    final result = await Navigator.of(surface).push<String>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (c) =>
+            CustomTextPage(tr: tr, language: language, initial: custom),
       ),
     );
-    // Dispose after the dialog's closing animation releases EditableText.
-    Future<void>.delayed(const Duration(milliseconds: 400), editor.dispose);
     if (result != null && result.trim().isNotEmpty) {
       setState(() {
         weakMode = false;

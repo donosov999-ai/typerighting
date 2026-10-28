@@ -49,8 +49,8 @@ void main() {
         ),
       );
       await tester.pump();
-      await tester.ensureVisible(find.byIcon(Icons.psychology_outlined));
-      await tester.tap(find.byIcon(Icons.psychology_outlined));
+      await tester.ensureVisible(find.byIcon(Icons.description_outlined));
+      await tester.tap(find.byIcon(Icons.description_outlined));
       await tester.pump();
       final page = key.currentState!.memorizeKey.currentState!;
       expect(find.byType(MemorizePage), findsOneWidget);

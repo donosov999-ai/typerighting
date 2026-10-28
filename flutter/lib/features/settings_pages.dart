@@ -305,14 +305,14 @@ class SettingsHub extends StatelessWidget {
   @override
   Widget build(BuildContext context) => _Page(
     children: [
-      _NavRow(
+      NavTile(
         icon: Icons.keyboard_outlined,
         accent: const Color(0xFF4F8DFD),
         title: settingsCopy(language, 'input'),
         subtitle: settingsCopy(language, 'input.d'),
         onTap: onInput,
       ),
-      _NavRow(
+      NavTile(
         icon: Icons.volume_up_outlined,
         accent: const Color(0xFF8B5CF6),
         title: settingsCopy(language, 'sound'),
@@ -859,8 +859,8 @@ class _SliderRow extends StatelessWidget {
   }
 }
 
-class _NavRow extends StatelessWidget {
-  const _NavRow({
+class NavTile extends StatelessWidget {
+  const NavTile({
     required this.icon,
     required this.accent,
     required this.title,
@@ -873,9 +873,9 @@ class _NavRow extends StatelessWidget {
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) => Card(
-    margin: const EdgeInsets.only(bottom: 10),
+    margin: const EdgeInsets.only(bottom: 8),
     child: ListTile(
-      minTileHeight: 64,
+      minTileHeight: 60,
       onTap: onTap,
       leading: Container(
         width: 40,

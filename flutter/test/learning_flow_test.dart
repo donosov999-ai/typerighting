@@ -65,7 +65,7 @@ void main() {
         ),
       );
       await tester.pump();
-      await tester.tap(find.byIcon(Icons.auto_awesome_outlined));
+      await tester.tap(find.byIcon(Icons.psychology_alt_outlined));
       await tester.pump();
       expect(find.byType(LearningPage), findsOneWidget);
       final page = key.currentState!.learningKey.currentState!,
@@ -153,7 +153,7 @@ void main() {
         jsonDecode(reload.data['legacy']['tr_history'] as String),
         hasLength(1),
       );
-      await tester.tap(find.byIcon(Icons.auto_awesome_outlined));
+      await tester.tap(find.byIcon(Icons.psychology_alt_outlined));
       await tester.pump();
       expect(key.currentState!.learningKey.currentState!.engine.hand, 'left');
       expect(tester.takeException(), isNull);

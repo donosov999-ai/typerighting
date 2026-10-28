@@ -103,6 +103,49 @@ void main() {
     await tester.binding.setSurfaceSize(null);
   });
 
+  testWidgets('A6 profile, language and theme change from «Профиль и язык»', (tester) async {
+    final resources = (await tester.runAsync(Resources.load))!;
+    final repo = LocalRepository(MemoryStore());
+    await repo.load();
+    await repo.transaction((d) => (d['prefs'] as Map)['pet'] = false);
+    final store = CountingAppearance();
+    final appearance = AppearanceController(resources.registry, store, existingInstall: true);
+    final key = GlobalKey<TypeFreeAppState>();
+    await tester.binding.setSurfaceSize(const Size(1280, 900));
+    await tester.pumpWidget(TypeFreeApp(key: key, resources: resources, repository: repo, appearance: appearance));
+    await tester.pump();
+    final app = key.currentState!;
+
+    // Reachable from «Ещё» (the profile switch lived in the old settings dialog).
+    await app.showSection(AppSection.more);
+    await tester.pump();
+    await tester.tap(find.text('Профиль и язык'));
+    await tester.pump();
+    expect(app.section, AppSection.profileLanguage);
+
+    await tester.tap(find.text('Мягкий'));
+    await tester.pumpAndSettle(const Duration(milliseconds: 300));
+    expect(app.profile, 'f');
+    expect((repo.data['prefs'] as Map)['profile'], 'f');
+
+    await tester.tap(find.text('English'));
+    await tester.pumpAndSettle(const Duration(milliseconds: 300));
+    expect(app.language, 'en');
+    expect((repo.data['prefs'] as Map)['lang'], 'en');
+    expect(find.text('Profile and language'), findsWidgets);
+
+    await tester.tap(find.text('Light'));
+    await tester.pumpAndSettle(const Duration(milliseconds: 300));
+    expect(appearance.selection.brightness, ThemeMode.light);
+    expect(store.saved.single['brightness'], 'light');
+
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox());
+    appSound.stopMetronome();
+    appearance.dispose();
+    await tester.binding.setSurfaceSize(null);
+  });
+
   testWidgets('settings pages fit 320 px in seven languages at 100% and 200% text', (tester) async {
     final resources = (await tester.runAsync(Resources.load))!;
     await tester.binding.setSurfaceSize(const Size(320, 582));
@@ -121,7 +164,7 @@ void main() {
           child: TypeFreeApp(key: key, resources: resources, repository: repo, appearance: appearance),
         ));
         await tester.pump();
-        for (final sec in [AppSection.more, AppSection.settings, AppSection.settingsInput, AppSection.settingsSound]) {
+        for (final sec in [AppSection.practiceMenu, AppSection.more, AppSection.settings, AppSection.settingsInput, AppSection.settingsSound, AppSection.profileLanguage]) {
           await key.currentState!.showSection(sec);
           await tester.pump();
           expect(tester.takeException(), isNull, reason: '$lang $scale $sec');

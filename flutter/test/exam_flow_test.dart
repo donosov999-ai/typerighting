@@ -75,8 +75,8 @@ void main() {
         ),
       );
       await tester.pump();
-      await tester.ensureVisible(find.byIcon(Icons.timer_outlined));
-      await tester.tap(find.byIcon(Icons.timer_outlined));
+      await tester.ensureVisible(find.byIcon(Icons.speed));
+      await tester.tap(find.byIcon(Icons.speed));
       await tester.pump();
       final page = key.currentState!.examKey.currentState!;
       for (final duration in [1, 5, 10]) {

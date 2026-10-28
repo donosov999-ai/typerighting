@@ -25,6 +25,7 @@ import 'domain/kids.dart';
 import 'domain/recall.dart';
 import 'features/progress_page.dart';
 import 'features/settings_pages.dart';
+import 'features/profile_page.dart';
 import 'audio/typefree_sound.dart';
 import 'design_system/templates.dart';
 import 'design_system/synapse_header.dart';
@@ -159,6 +160,7 @@ enum AppSection {
   settings,
   settingsInput,
   settingsSound,
+  profileLanguage,
 }
 
 class TypeFreeApp extends StatefulWidget {
@@ -225,7 +227,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   bool get inSettings =>
       section == AppSection.settings ||
       section == AppSection.settingsInput ||
-      section == AppSection.settingsSound;
+      section == AppSection.settingsSound ||
+      section == AppSection.profileLanguage;
   Future<bool> finishLearning() async {
     if (section == AppSection.kids) {
       return await kidsKey.currentState?.checkpointForExit() ?? true;
@@ -333,15 +336,20 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
         ? oldPrefs[legacyKey] == '1'
         : fallback;
     hidePattern = flag('hide', 'tr_hide', false);
-    soundOn = p['sound'] is bool ? p['sound'] as bool : oldPrefs['tr_sound'] != '0';
+    soundOn = p['sound'] is bool
+        ? p['sound'] as bool
+        : oldPrefs['tr_sound'] != '0';
     voiceOn = flag('voice', 'tr_voice', false);
     metroOn = flag('metronome', 'tr_metro', false);
-    metroBpm = ((p['bpm'] as num?) ??
-            num.tryParse('${oldPrefs['tr_metro_bpm'] ?? ''}') ??
-            120)
-        .toInt()
-        .clamp(60, 200);
-    textSize = [.9, 1.0, 1.15].contains(p['textSize']) ? (p['textSize'] as num).toDouble() : 1;
+    metroBpm =
+        ((p['bpm'] as num?) ??
+                num.tryParse('${oldPrefs['tr_metro_bpm'] ?? ''}') ??
+                120)
+            .toInt()
+            .clamp(60, 200);
+    textSize = [.9, 1.0, 1.15].contains(p['textSize'])
+        ? (p['textSize'] as num).toDouble()
+        : 1;
     appSound.enabled = () => soundOn;
     appSound.voiceEnabled = () => voiceOn;
     final level = (widget.repository.data['legacy'] as Map)['tr_kids_ai_lvl'];
@@ -736,6 +744,25 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
 
   Future<void> settings() => showSection(AppSection.settings);
 
+  Future<void> changeLanguage(String next) async {
+    if (saving || next == language) return;
+    if (!await finishLearning() || !mounted || saving) return;
+    setState(() {
+      weakMode = false;
+      language = next;
+      custom = null;
+      bank = language == 'ru' ? 'ruWords' : 'classic';
+      textBank = bank;
+      index = 0;
+      loadKeyboard();
+      assistant.dispose();
+      headerAssistant.dispose();
+      createAssistant();
+      reset();
+    });
+    await savePrefs();
+  }
+
   Future<void> changeProfile(String next) async {
     if (saving || next == profile) return;
     if (!await finishLearning() || !mounted) return;
@@ -1080,15 +1107,14 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                 section == AppSection.exam ||
                 section == AppSection.kids ||
                 section == AppSection.weakKeys ||
-                section == AppSection.settings ||
-                section == AppSection.settingsInput ||
-                section == AppSection.settingsSound
+                inSettings
             ? IconButton(
                 tooltip: tr('nav.back'),
                 onPressed: () => showSection(
                   section == AppSection.weakKeys
                       ? AppSection.progress
-                      : section == AppSection.settings
+                      : section == AppSection.settings ||
+                            section == AppSection.profileLanguage
                       ? AppSection.more
                       : section == AppSection.settingsInput ||
                             section == AppSection.settingsSound
@@ -1138,6 +1164,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     ? settingsCopy(language, 'input')
                     : section == AppSection.settingsSound
                     ? settingsCopy(language, 'sound')
+                    : section == AppSection.profileLanguage
+                    ? profileCopy(language, 'title')
                     : section == AppSection.kids
                     ? tr('k.title')
                     : section == AppSection.exam
@@ -1173,23 +1201,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     ),
                   )
                   .toList(),
-              onChanged: saving
-                  ? null
-                  : (l) async {
-                      if (!await finishLearning() || !mounted) return;
-                      change(() {
-                        weakMode = false;
-                        language = l!;
-                        custom = null;
-                        bank = language == 'ru' ? 'ruWords' : 'classic';
-                        textBank = bank;
-                        index = 0;
-                        loadKeyboard();
-                        assistant.dispose();
-                        headerAssistant.dispose();
-                        createAssistant();
-                      });
-                    },
+              onChanged: saving ? null : (l) => changeLanguage(l!),
             ),
           if (section != AppSection.today && !inSettings)
             IconButton(
@@ -1210,10 +1222,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
             ? 0
             : historyPage || section == AppSection.weakKeys
             ? 2
-            : section == AppSection.more ||
-                  section == AppSection.settings ||
-                  section == AppSection.settingsInput ||
-                  section == AppSection.settingsSound
+            : section == AppSection.more || inSettings
             ? 3
             : 1,
         onDestinationSelected: (v) => showSection(
@@ -1303,9 +1312,9 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                                       style: TextStyle(
                                         fontSize: 16,
                                         fontStyle: FontStyle.italic,
-                                        color: Theme.of(
-                                          c,
-                                        ).colorScheme.onSurfaceVariant,
+                                        color: Theme.of(c)
+                                            .colorScheme
+                                            .onSurfaceVariant,
                                       ),
                                     ),
                                   ),
@@ -1389,6 +1398,20 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       values: settingsValues,
                       onInput: () => showSection(AppSection.settingsInput),
                       onSound: () => showSection(AppSection.settingsSound),
+                    );
+                  }
+                  if (section == AppSection.profileLanguage) {
+                    return ListenableBuilder(
+                      listenable: widget.appearance,
+                      builder: (c, _) => ProfileLanguagePage(
+                        language: language,
+                        profile: profile,
+                        tr: tr,
+                        appearance: widget.appearance,
+                        busy: saving,
+                        onProfile: (p) => unawaited(changeProfile(p)),
+                        onLanguage: (l) => unawaited(changeLanguage(l)),
+                      ),
                     );
                   }
                   if (section == AppSection.settingsInput) {
@@ -1772,144 +1795,133 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     );
   }
 
-  Widget practiceMenu(BuildContext c) => Center(
+  Widget practiceMenu(BuildContext c) =>
+      menuPage(c, shellText(language, 'choose'), [
+        modeTile(
+          Icons.bolt,
+          0xFFF07B2B,
+          tr('hub.train'),
+          tr('hub.train.d'),
+          () => showSection(AppSection.practice),
+        ),
+        modeTile(
+          Icons.menu_book_outlined,
+          0xFF3B82F6,
+          tr('course.title'),
+          tr('hub.course.d'),
+          () {
+            setState(() {
+              courseStartLessonId = null;
+              section = AppSection.course;
+            });
+          },
+        ),
+        modeTile(
+          Icons.psychology_alt_outlined,
+          0xFF8B5CF6,
+          tr('learn.title'),
+          tr('hub.learn.d'),
+          () => showSection(AppSection.learn),
+        ),
+        modeTile(
+          Icons.emoji_events_outlined,
+          0xFFE5484D,
+          tr('compete.title'),
+          tr('hub.compete.d.store'),
+          () => showSection(AppSection.compete),
+        ),
+        modeTile(
+          Icons.description_outlined,
+          0xFF22B07D,
+          tr('mem.title'),
+          tr('hub.mem.d'),
+          () => showSection(AppSection.memorize),
+        ),
+        modeTile(
+          Icons.extension_outlined,
+          0xFFF5B82E,
+          tr('span.title'),
+          tr('hub.span.d'),
+          () => showSection(AppSection.recall),
+        ),
+        modeTile(
+          Icons.speed,
+          0xFF14A3A3,
+          tr('ex.title'),
+          tr('hub.exam.d'),
+          () => showSection(AppSection.exam),
+        ),
+        modeTile(
+          Icons.pets_outlined,
+          0xFFE879A6,
+          tr('k.title'),
+          tr('profile.kids.desc'),
+          () => showSection(AppSection.kids),
+        ),
+      ]);
+
+  /// A3/A5 list page: subtitle under the app bar title, then coloured rows.
+  Widget menuPage(BuildContext c, String subtitle, List<Widget> rows) => Center(
     child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 620),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            shellText(language, 'choose'),
-            style: Theme.of(c).textTheme.bodySmall,
+            subtitle,
+            style: Theme.of(c).textTheme.bodyMedium
+                ?.copyWith(color: Theme.of(c).colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 12),
-          modeTile(
-            c,
-            Icons.bolt,
-            tr('hub.train'),
-            tr('hub.train.d'),
-            () => showSection(AppSection.practice),
-          ),
-          modeTile(
-            c,
-            Icons.school_outlined,
-            tr('course.title'),
-            tr('hub.course.d'),
-            () {
-              setState(() {
-                courseStartLessonId = null;
-                section = AppSection.course;
-              });
-            },
-          ),
-          modeTile(
-            c,
-            Icons.auto_awesome_outlined,
-            tr('learn.title'),
-            tr('hub.learn.d'),
-            () => showSection(AppSection.learn),
-          ),
-          modeTile(
-            c,
-            Icons.emoji_events_outlined,
-            tr('compete.title'),
-            tr('compete.intro.store'),
-            () => showSection(AppSection.compete),
-          ),
-          modeTile(
-            c,
-            Icons.psychology_outlined,
-            tr('mem.title'),
-            tr('mem.intro'),
-            () => showSection(AppSection.memorize),
-          ),
-          modeTile(
-            c,
-            Icons.extension_outlined,
-            tr('span.title'),
-            tr('hub.span.d'),
-            () => showSection(AppSection.recall),
-          ),
-          modeTile(
-            c,
-            Icons.timer_outlined,
-            tr('ex.title'),
-            tr('ex.desc'),
-            () => showSection(AppSection.exam),
-          ),
-          modeTile(
-            c,
-            Icons.pets_outlined,
-            tr('k.title'),
-            tr('k.hello'),
-            () => showSection(AppSection.kids),
-          ),
+          ...rows,
         ],
       ),
     ),
   );
+
   Widget modeTile(
-    BuildContext c,
     IconData icon,
+    int accent,
     String title,
     String subtitle,
     VoidCallback action,
-  ) => Padding(
-    padding: const EdgeInsets.only(bottom: 10),
-    child: Card(
-      margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: BorderSide(
-          color: Theme.of(c).extension<TypeFreeTokens>()!['border'],
-        ),
-      ),
-      child: ListTile(
-        onTap: action,
-        leading: Container(
-          width: 40,
-          height: 44,
-          decoration: BoxDecoration(
-            color: Theme.of(c).colorScheme.primary.withValues(alpha: .18),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Icon(icon, color: Theme.of(c).colorScheme.primary),
-        ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-        subtitle: Text(subtitle, style: const TextStyle(fontSize: 12)),
-        trailing: const Icon(Icons.chevron_right),
-      ),
-    ),
+  ) => NavTile(
+    icon: icon,
+    accent: Color(accent),
+    title: title,
+    subtitle: subtitle,
+    onTap: action,
   );
-  Widget moreView(BuildContext c) => Center(
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 620),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          modeTile(
-            c,
-            Icons.settings_outlined,
-            tr('hub.settings'),
-            settingsCopy(language, 'sound.d'),
-            settings,
-          ),
-          modeTile(
-            c,
-            Icons.insights_outlined,
-            shellText(language, 'progress'),
-            tr('hub.progress.d'),
-            () => showSection(AppSection.progress),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            shellText(language, 'local'),
-            style: Theme.of(c).textTheme.bodySmall,
-          ),
-        ],
-      ),
-    ),
-  );
+
+  Widget moreView(BuildContext c) =>
+      menuPage(c, profileCopy(language, 'more.d'), [
+        modeTile(
+          Icons.settings_outlined,
+          0xFF64748B,
+          tr('hub.settings'),
+          settingsCopy(language, 'sound.d'),
+          settings,
+        ),
+        modeTile(
+          Icons.person_outline,
+          0xFF4F8DFD,
+          profileCopy(language, 'title'),
+          profileCopy(language, 'title.d'),
+          () => showSection(AppSection.profileLanguage),
+        ),
+        modeTile(
+          Icons.insights_outlined,
+          0xFF14A3A3,
+          shellText(language, 'progress'),
+          tr('hub.progress.d'),
+          () => showSection(AppSection.progress),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          shellText(language, 'local'),
+          style: Theme.of(c).textTheme.bodySmall,
+        ),
+      ]);
 
   Widget historyView(BuildContext c) => ProgressPage(
     repository: widget.repository,

@@ -95,7 +95,7 @@ void main() {
         ),
       );
       await tester.pump();
-      await tester.tap(find.byIcon(Icons.school_outlined));
+      await tester.tap(find.byIcon(Icons.menu_book_outlined));
       await tester.pump();
       expect(find.byType(CoursePage), findsOneWidget);
       final course = tester.state<CoursePageState>(find.byType(CoursePage));

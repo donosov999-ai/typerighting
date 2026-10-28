@@ -1,0 +1,97 @@
+{
+  "screen": "D6-recall-show",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "b4d36ef",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/04.png",
+    "sha256": "47d54524b841e8ab44fb8de5aec22f22ef88896062566d94b73b8c954669b32a",
+    "cropXYXY": [
+      1040,
+      588,
+      1520,
+      976
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.625
+  },
+  "actual": {
+    "sha256": "a57b9ac9927be28fbf4dcee309895730d9ecd8ba517cafa657c7b6bc4e85b6d6",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Память → Начать, показ 3 слов"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 630
+  },
+  "rows": [
+    [
+      "Шаги",
+      "«● Запомните — ○ Введите по памяти»",
+      "то же (span.show / span.recall)",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Слова",
+      "плитками",
+      "плитками на время показа, затем маскированная строка",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Правая панель",
+      "Текущий набор / Максимум / Сегодня",
+      "нет на телефоне",
+      "—",
+      "—",
+      "«Сегодня» в исходнике нет",
+      "PASS"
+    ],
+    [
+      "Шапка",
+      "«← TypeFree»",
+      "«Котик-печа…» обрезан (RU▾ + шестерёнка)",
+      "обрезка",
+      "—",
+      "вопрос 4 в чек-листе",
+      "открыто"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "390×844, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "e97b11776fc9d7024896e523ce2d46b58c73512db9b9bf6da934fcc206ca4738",
+    "overlay-50.png": "31be7d714f44cf23815e8856547599ead714c8f4c0609e4bebb5957bee412a7d",
+    "comparison-panel.png": "855ddd142615a7a268381e4ed3c575352c1b21598a487b55fed83c75714e5be9"
+  }
+}

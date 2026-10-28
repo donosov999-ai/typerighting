@@ -1,0 +1,106 @@
+{
+  "screen": "D2-kids-map",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "b4d36ef",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/04.png",
+    "sha256": "47d54524b841e8ab44fb8de5aec22f22ef88896062566d94b73b8c954669b32a",
+    "cropXYXY": [
+      543,
+      108,
+      1010,
+      532
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.6702
+  },
+  "actual": {
+    "sha256": "5eb07a7b88e8736a95b2a2f291f377bbd0bf167012424ed84aad8e43d80abad6",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Практика → Котик-печатник, новая детская карта (0 звёзд)"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 708
+  },
+  "rows": [
+    [
+      "Карта",
+      "рисованный пейзаж, извилистая дорожка, кружки с номерами, звёзды, замки",
+      "извилистая дорожка змейкой (5 в ряд), кружки, 3 звезды или замок, текущий подсвечен",
+      "нет рисованного фона",
+      "атмосфера",
+      "иллюстрации фона в ассетах нет; генерация — по решению Дениса",
+      "открыто"
+    ],
+    [
+      "Котик и реплика",
+      "котик + облачко «Привет! Давай учиться…»",
+      "котик исходника + k.hello в облачке",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Прогресс",
+      "«Твой прогресс ★ 12/30 · Уровень 2»",
+      "★ 0/99 · Уровень 1 (все 33 уровня RU+EN исходника)",
+      "масштаб чисел",
+      "—",
+      "реальные уровни исходника",
+      "PASS"
+    ],
+    [
+      "Кнопка",
+      "«Обычная тренировка →»",
+      "«AI-обучение» во всю ширину (кнопка исходника на карте)",
+      "другая функция",
+      "—",
+      "на карте исходника — AI-обучение",
+      "PASS"
+    ],
+    [
+      "Шапка",
+      "«← TypeFree»",
+      "«Котик-печа…» обрезан (RU▾ + шестерёнка)",
+      "обрезка",
+      "—",
+      "вопрос 4 в чек-листе",
+      "открыто"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "390×844, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "188ac52a04f78eac83b37278cdc6eec7150054bcef0dba09bdafcf084a5142e3",
+    "overlay-50.png": "e4f50618e64a92d5fa5ccfb95840beb0145a86e7ced9ee7dcd61fe95497a9a48",
+    "comparison-panel.png": "240c46725b1561c1844352dbbb2c5175b05104f9f047439b553be2f32385e2d1"
+  }
+}

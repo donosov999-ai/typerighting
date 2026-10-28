@@ -1,0 +1,106 @@
+{
+  "screen": "J3-kids-result",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "b4d36ef",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/10.png",
+    "sha256": "43c3ffebffad9837adaaaa32cc4db190c86c8ceb688c13bde19298a068ef3e3c",
+    "cropXYXY": [
+      1050,
+      40,
+      1495,
+      515
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.7528
+  },
+  "actual": {
+    "sha256": "fb8a0e6aa362de8a21b3c07c19c0c9185bbd34390039fb27ec132ae492f834ed",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "уровень 1 пройден по-настоящему без ошибок (кот, дом, сок, лес, мяч)"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 833
+  },
+  "rows": [
+    [
+      "Котик и заголовок",
+      "радостный котик, «Урок завершён! Отличная работа!»",
+      "котик исходника, «Уровень 1 пройден!» + заметка k.note3",
+      "другой кадр котика",
+      "—",
+      "радостного кадра нет в ассетах; используется кадр исходника",
+      "PASS"
+    ],
+    [
+      "Звёзды",
+      "три крупные",
+      "три крупные (56 px) по результату",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Цифры",
+      "Скорость 126 зн/мин · Точность 100 %",
+      "нет",
+      "нет цифр",
+      "—",
+      "детский режим исходника не показывает скорость (тест)",
+      "PASS"
+    ],
+    [
+      "Кнопки",
+      "«Следующий урок →», «Небольшой перерыв», «Обычная практика»",
+      "«Дальше» во всю ширину, «Ещё раз» / «К карте», «следующий сам»",
+      "набор кнопок",
+      "—",
+      "перерыв — подсказка k.rest каждые 3 уровня (исходник)",
+      "PASS"
+    ],
+    [
+      "Шапка",
+      "«← TypeFree»",
+      "«Котик-печа…» обрезан (RU▾ + шестерёнка)",
+      "обрезка",
+      "—",
+      "вопрос 4 в чек-листе",
+      "открыто"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "390×844, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "bdd35581e45f75bd4e995f169a14f57c61390813ea125878e7a001632ceea547",
+    "overlay-50.png": "a927200080e38ea719e8eea570d34f733b7464006b208353e68d8c4b00829b0c",
+    "comparison-panel.png": "cfd599d98259d1aef897c0e7e3ce1dc6bd7570d8e468a1df6319257ab7300b08"
+  }
+}

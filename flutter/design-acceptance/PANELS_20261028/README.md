@@ -14,6 +14,7 @@
 - F4 · готово к согласованию · 20261028-settings-f4-ad81586/F4-sound-appearance
 - F5 · готово к согласованию · 20261028-account-data-30cf3ac/F5-account-local
 - F6 · готово к согласованию · 20261028-account-data-30cf3ac/F6-data-permissions
+- I1 · черновик — есть расхождения · 20261028-author-5667ad7/I1-author-playlists
 - I3 · черновик — функции нет · 20261028-transfer-8e165b3/I3-backend-offline
 - I5 · готово к согласованию · 20261028-transfer-8e165b3/I5-transfer
 - I6 · готово к согласованию · 20261028-repeat-ea99bf9/I6-light-practice

@@ -1,0 +1,79 @@
+{
+  "screen": "I3-backend-offline",
+  "status": "черновик — функции нет",
+  "ownerAcceptance": null,
+  "sourceCommit": "8e165b3",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/09.png",
+    "sha256": "2b4fda8fadb490dd4ae5fe68e6a872f840e306449516c9f7c0b6b60d3cc6420f",
+    "cropXYXY": [
+      20,
+      596,
+      362,
+      1016
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 2.2807
+  },
+  "actual": {
+    "sha256": "047a336dd97d988bfc340ecc7cbb97a4f93bbf5f70ef4a2cf41defadbabd853d",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "«Сегодня» на телефоне; демо seed.json; 8e165b3"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 958
+  },
+  "rows": [
+    [
+      "Баннер «Сервер сейчас недоступен»",
+      "красная плашка: практика работает локально, прогресс на устройстве",
+      "нет плашки",
+      "нет баннера",
+      "—",
+      "в этой сборке нет сервера вообще (LOCAL): показывать «недоступен» было бы неправдой; честное состояние — F5 «Сервис не подключён»; баннер — вместе с аккаунтом 99f35605",
+      "открыто"
+    ],
+    [
+      "Практика без сервера",
+      "быстрый старт, последние результаты",
+      "«Пора потренироваться», «Начать курс», серия дней, последний результат — всё локально",
+      "состав карточек",
+      "—",
+      "функция есть: вся практика локальная",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз без viewport",
+      "390×844 CSS, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "c0447e715514f044ae683dd54fd13e30bbcbba50ebdfc4061a06cff6324872e0",
+    "overlay-50.png": "8431752054d799f8d6a41116cc01647162a12883f9ee7407912e079ce70cd5bc",
+    "comparison-panel.png": "3b547a50aed6b18e4351dea58ea0cec72f6c86a6e0b1b7b8c8af954113003299"
+  }
+}

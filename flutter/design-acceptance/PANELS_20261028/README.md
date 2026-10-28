@@ -15,11 +15,11 @@
 - F5 · готово к согласованию · 20261028-account-data-30cf3ac/F5-account-local
 - F6 · готово к согласованию · 20261028-account-data-30cf3ac/F6-data-permissions
 - I6 · готово к согласованию · 20261028-repeat-ea99bf9/I6-light-practice
-- M1 · черновик — есть расхождения · 20261028-draftfix-4988a11/M1-practice-face
+- M1 · готово к согласованию · 20261028-font-41dec33/M1-practice-face
 - M2 · готово к согласованию · 20261028-synapse-1e11624/M2-synapse-panel
 - M3 · черновик — есть расхождения · 20261028-synapse-1e11624/M3-result
 - M4 · готово к согласованию · 20261028-synapse-1e11624/M4-appearance
-- B1 · черновик — есть расхождения · 20261028-draftfix-4988a11/B1-trainer-desktop
+- B1 · черновик — есть расхождения · 20261028-font-41dec33/B1-trainer-desktop
 - B2 · черновик — есть расхождения · 20261028-draftfix-4988a11/B2-trainer-web
 - B3 · черновик — есть расхождения · 20261028-repeat-ea99bf9/B3-trainer-landscape
 - C1 · готово к согласованию · 20261028-header-a814c43/C1-library
@@ -36,7 +36,7 @@
 - J6 · готово к согласованию · 20261028-fixes-0f22554/J6-recall-result
 - D1 · готово к согласованию · 20261028-modes-de-b44a6ab/D1-learning
 - D2 · черновик — есть расхождения · 20261028-header-a814c43/D2-kids-map
-- D3 · готово к согласованию · 20261028-draftfix-4988a11/D3-kids-learning
+- D3 · готово к согласованию · 20261028-font-41dec33/D3-kids-learning
 - D4 · готово к согласованию · 20261028-modes-dj-ec41ca1/D4-memorize-setup
 - D5 · готово к согласованию · 20261028-memorize-pass-095b9ef/D5-memorize-run
 - D6 · готово к согласованию · 20261028-kids-memory-b4d36ef/D6-recall-show

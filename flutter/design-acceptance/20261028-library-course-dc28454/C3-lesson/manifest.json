@@ -1,0 +1,88 @@
+{
+  "screen": "C3-lesson",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "dc28454",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/03.png",
+    "sha256": "107f8843c2e77bad125adedea576c0485b62f45d52cef94ece202c6d467e823f",
+    "cropXYXY": [
+      1036,
+      62,
+      1456,
+      545
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.8571
+  },
+  "actual": {
+    "sha256": "36feb7cc7e32abf7d207eb7c401925c31d507a00d8fed9871ecdbdff3953ba83",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Курс печати → Домашний ряд, строка 1 из 5"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 897
+  },
+  "rows": [
+    [
+      "Шапка урока",
+      "«← Главный ряд» · «Выйти», «Упражнение 2 из 5» с полосой 40 %",
+      "«← Курс печати · Домашний ряд · 1/5»",
+      "нет полосы, нет «Выйти»",
+      "—",
+      "возврат — «← Курс печати»; полоса — следующий шаг",
+      "открыто"
+    ],
+    [
+      "Клавиатура",
+      "укороченная ЙЦУКЕН 4 ряда",
+      "5 рядов guide, листается к нужной клавише",
+      "нет укороченной",
+      "—",
+      "реф §6: 5 рядов обязательны",
+      "PASS"
+    ],
+    [
+      "Текст",
+      "3 строки текста",
+      "одна строка урока крупно (строки по очереди)",
+      "объём на экране",
+      "—",
+      "механика курса исходника: 5 строк по одной",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка телефона без viewport",
+      "390×844 CSS, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "1ae554fa18d48f230cbcc52f8ba76b3d3cb3f8007627094552a7ca79f4735003",
+    "overlay-50.png": "b9a03e31c0c78e20c9e779526b9a7507fc0c9ac6215be8a049d8e1dc80ebe3ed",
+    "comparison-panel.png": "b257df603e622826cac64b0ad0e21e6801074dd949e63a4c7b2aa94a138de276"
+  }
+}

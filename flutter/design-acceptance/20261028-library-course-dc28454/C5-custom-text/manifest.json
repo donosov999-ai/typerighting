@@ -1,0 +1,79 @@
+{
+  "screen": "C5-custom-text",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "dc28454",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/03.png",
+    "sha256": "107f8843c2e77bad125adedea576c0485b62f45d52cef94ece202c6d467e823f",
+    "cropXYXY": [
+      560,
+      612,
+      980,
+      1012
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.8571
+  },
+  "actual": {
+    "sha256": "030c9250ea8ece8317ff925be1353ff91e0fa65cd00849da4d1f1ad9a6df6ecc",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Сегодня → Начать тренировку → Параметры → Свой текст"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 743
+  },
+  "rows": [
+    [
+      "Страница",
+      "заголовок, подзаголовок, большое поле, «Символов: 78», «Очистить», «Начать печатать»",
+      "то же (пустое поле: «Символов: 0», кнопка неактивна)",
+      "текст кнопки «Тренировать»",
+      "—",
+      "custom.start исходника",
+      "PASS"
+    ],
+    [
+      "Нижняя панель",
+      "есть",
+      "нет (страница поверх)",
+      "—",
+      "—",
+      "полноэкранная страница ввода",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка телефона без viewport",
+      "390×844 CSS, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "0fe7dd18e0353a6acf06783fc2ea972d3ff7908144f2ad2f3aae5135ea8cd377",
+    "overlay-50.png": "9e55426a6af830a46d3a124f174da7937efe133aff9a2745493e2b3deb24f681",
+    "comparison-panel.png": "cb6a8964027bef78ce58b8f676c286c1c849b1d07b4cdf120cd3ca9e04f4bd2b"
+  }
+}

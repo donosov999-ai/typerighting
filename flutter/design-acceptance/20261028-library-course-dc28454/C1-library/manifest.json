@@ -1,0 +1,106 @@
+{
+  "screen": "C1-library",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "dc28454",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/03.png",
+    "sha256": "107f8843c2e77bad125adedea576c0485b62f45d52cef94ece202c6d467e823f",
+    "cropXYXY": [
+      86,
+      62,
+      500,
+      545
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.8841
+  },
+  "actual": {
+    "sha256": "4a254101febcdf657ccdbf3afa4f88912bd7eabca42102ffde3514e0bff9cf59",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Практика → Тренировка; демо seed.json"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 910
+  },
+  "rows": [
+    [
+      "Карточки",
+      "5 наборов с описанием и числом упражнений (24/18/36/28/16)",
+      "5 наборов ru с реальными числами 2/6/22/50/6 и «пройдено N»",
+      "числа",
+      "—",
+      "числа эскиза выдуманы; в каталоге — реальные",
+      "PASS"
+    ],
+    [
+      "Фильтры",
+      "Все / Классика / Слова / Фразы / Цифры",
+      "Все + все наборы языка",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Поиск",
+      "поле «Найти упражнения…»",
+      "поиск по названию и описанию набора",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Сетка",
+      "2 колонки",
+      "1 колонка при 390, 2–3 шире",
+      "колонки",
+      "—",
+      "при 390 две колонки дают 170 px — подпись не помещается",
+      "PASS"
+    ],
+    [
+      "Язык",
+      "«Русский ▾» в теле",
+      "RU▾ в шапке",
+      "положение",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка телефона без viewport",
+      "390×844 CSS, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "94f76e17e5138f24d9b03952c91ffa85e7871b93ecac4c177317a8b0ed986090",
+    "overlay-50.png": "f4c2a9954676ef9b8d057ded3f11bbc88c70d82ba92167929c633efa30063523",
+    "comparison-panel.png": "9459763feb713768949a771d096cdfe8e7eedad3edef216ed402c4577718cb50"
+  }
+}

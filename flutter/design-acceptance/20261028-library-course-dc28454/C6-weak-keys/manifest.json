@@ -1,0 +1,88 @@
+{
+  "screen": "C6-weak-keys",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "dc28454",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/03.png",
+    "sha256": "107f8843c2e77bad125adedea576c0485b62f45d52cef94ece202c6d467e823f",
+    "cropXYXY": [
+      1036,
+      612,
+      1456,
+      1012
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.8571
+  },
+  "actual": {
+    "sha256": "c7365e91dbfb584862e44dd58e9396cc486ebf4e45cf193f7acefe9708bd041b",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Прогресс → Слабые клавиши; мало данных (демо)"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 743
+  },
+  "rows": [
+    [
+      "Карта",
+      "компактная ЙЦУКЕН с цветом клавиш вверху",
+      "5-рядный guide с тепловой картой, листается",
+      "размер/обрезка",
+      "—",
+      "реф §6; страница — Codex 8d7be68",
+      "открыто"
+    ],
+    [
+      "Слабые клавиши",
+      "чипы «о л к е н г» + «Сгенерировать упражнение»",
+      "«Пока мало данных…» + «Сгенерировать упражнение»",
+      "нет чипов при малых данных",
+      "—",
+      "честное пустое состояние",
+      "PASS"
+    ],
+    [
+      "Оригинал / Без пунктуации",
+      "две плитки WPM и %",
+      "две плитки; «—» где нет результата",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка телефона без viewport",
+      "390×844 CSS, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "7564cec54d77488eac80cef570eb6447eb67f29d535e3d9433329d2b46b69d26",
+    "overlay-50.png": "bd5eb6807bf6947fcabf08b439d2081827e625480624cdb4e20be059909fa433",
+    "comparison-panel.png": "926c2649d30c46e5a70f189439afcc0f1e055a1d91acd650bb74cb78b9a68925"
+  }
+}

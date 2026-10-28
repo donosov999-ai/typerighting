@@ -139,6 +139,14 @@ void main() {
         find.byKey(const ValueKey('memorize-result-4')),
       );
       expect(summary.properties.label, contains('100% recall'));
+      // J4: the final lists all five passes with their numbers.
+      expect(
+        find.descendant(
+          of: find.byKey(const ValueKey('memorize-passes')),
+          matching: find.byIcon(Icons.check_circle),
+        ),
+        findsNWidgets(5),
+      );
       expect(page.saved, false);
       expect(page.error, isNotNull);
       expect(repo.data['sessions'], hasLength(4));

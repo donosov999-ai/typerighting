@@ -591,6 +591,54 @@ class MemorizePageState extends State<MemorizePage> {
                   ),
                 ),
                 if (run.finished) ...[
+                  // J4: every pass of the piece with its real numbers.
+                  Card(
+                    key: const ValueKey('memorize-passes'),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      child: Column(
+                        children: [
+                          for (final (i, p) in run.passResults.indexed)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.check_circle,
+                                    size: 18,
+                                    color: Theme.of(
+                                      context,
+                                    ).extension<TypeFreeTokens>()!['success'],
+                                  ),
+                                  const SizedBox(width: 8),
+                                  // Label and numbers wrap at 320 px / 200 %.
+                                  Expanded(
+                                    child: Wrap(
+                                      alignment: WrapAlignment.spaceBetween,
+                                      spacing: 12,
+                                      children: [
+                                        Text(
+                                          '${i + 1}. ${widget.tr('mem.lvl.${memorizeLevels[min(i, memorizeLevels.length - 1)]}')}',
+                                        ),
+                                        Text(
+                                          '${p.accuracy}% · ${p.wpm} ${widget.tr('st.wpm')} · ${p.elapsedMs ~/ 60000}:${((p.elapsedMs ~/ 1000) % 60).toString().padLeft(2, '0')}',
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
                   Text(
                     widget.tr(run.lengthIncreased ? 'mem.lenup' : 'mem.done'),
                   ),

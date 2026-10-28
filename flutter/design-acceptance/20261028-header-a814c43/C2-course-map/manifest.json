@@ -1,0 +1,97 @@
+{
+  "screen": "C2-course-map",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "a814c43",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/03.png",
+    "sha256": "107f8843c2e77bad125adedea576c0485b62f45d52cef94ece202c6d467e823f",
+    "cropXYXY": [
+      560,
+      62,
+      980,
+      545
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.8571
+  },
+  "actual": {
+    "sha256": "e65cb850900621369adffeb8cd361a6e317e5534ee6fe6c818c164ee78079c23",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Практика → Курс печати; уроки 1–2 со звёздами (демо); повтор после шапки a814c43"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 897
+  },
+  "rows": [
+    [
+      "Шапка",
+      "без RU▾ и шестерёнки",
+      "заголовок + Синапс (a814c43)",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Лента",
+      "номера в кругах, линия",
+      "то же; текущий — оранжевый, открытые — зелёные, закрытые — серые",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Карточка",
+      "название, клавиши-чипы, звёзды, «Продолжить» у текущего",
+      "то же; «Продолжить» под текстом при узкой ширине",
+      "кнопка ниже",
+      "—",
+      "не помещается рядом на 390 (тест 320/200 %)",
+      "PASS"
+    ],
+    [
+      "Названия",
+      "Главный / Верхний / Нижний ряд…",
+      "уроки исходника: «Домашний ряд», «Новые клавиши: В Л»…",
+      "названия",
+      "—",
+      "исключение: 19 уроков исходника",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка телефона без viewport",
+      "390×844 CSS, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "8d41b80bd1998cc0c4d257b0c82a3c706be8ff8829ac449a047fde80fb6eb126",
+    "overlay-50.png": "cb888eb50b2f56f8627b3080ff44a34f3d7a21310453f13ac4354c2810ba4d32",
+    "comparison-panel.png": "6dc440efa65737d831d92688949f56aab65b6e2e5baad714cb8c7eed161bda3f"
+  }
+}

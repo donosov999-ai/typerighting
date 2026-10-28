@@ -1,0 +1,97 @@
+{
+  "screen": "E5-exam-run",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "a814c43",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/05.png",
+    "sha256": "fd562aaff0cf4fd3cb244c6722bc21686e4dbd36c2b5176e8d4cd3ebab90a7ff",
+    "cropXYXY": [
+      513,
+      592,
+      985,
+      998
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.6525
+  },
+  "actual": {
+    "sha256": "ceb79bd48631ff69758efb2e4f1e6913dbbf203ad1537a89821fe91c95a19e5f",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "тест 10 мин идёт, набрано «Привет мир» поверх другого текста (проверка ошибок); повтор после шапки a814c43"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 671
+  },
+  "rows": [
+    [
+      "Панель",
+      "Осталось 3:42 · скорость · точность, полоса",
+      "то же: Осталось · Net WPM · точность, полоса, «Завершить и засчитать»",
+      "кнопка вверху, а не внизу",
+      "—",
+      "видна без прокрутки на телефоне",
+      "PASS"
+    ],
+    [
+      "Текст",
+      "многострочный абзац",
+      "отрывок + название, текущая строка",
+      "—",
+      "—",
+      "механика исходника",
+      "PASS"
+    ],
+    [
+      "Клавиатура",
+      "укороченная",
+      "5 рядов, листается к клавише",
+      "—",
+      "—",
+      "реф §6",
+      "PASS"
+    ],
+    [
+      "Шапка",
+      "«← Тест-соревнование» полностью",
+      "заголовок целиком + Синапс; RU▾ убран, шестерёнка только в тренажёре/компаньоне",
+      "—",
+      "читаемость",
+      "a814c43: шапка по эскизам (вопрос 4 чек-листа, рекомендация; откат одним коммитом)",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в строке «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "e496497bc591562a0a472804b586501790ae25f4c1f4a628578d8930141295a3",
+    "overlay-50.png": "5ca865c3a2f85b1be80893faed676b21b421d43ccbeb8170ebd731fa12e53022",
+    "comparison-panel.png": "bf3aec434db3e6580e8ab42641f8bcdc9f425870510028c4bda9e1f68b6e7770"
+  }
+}

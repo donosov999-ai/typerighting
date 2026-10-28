@@ -1,0 +1,115 @@
+{
+  "screen": "C1-library",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "a814c43",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/03.png",
+    "sha256": "107f8843c2e77bad125adedea576c0485b62f45d52cef94ece202c6d467e823f",
+    "cropXYXY": [
+      86,
+      62,
+      500,
+      545
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.8841
+  },
+  "actual": {
+    "sha256": "6b6b55c9d094b12e69ca3530f48c5ceff30019e0bbf29ac19d9d09ddb05258e6",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Практика → Тренировка; демо seed.json; повтор после шапки a814c43"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 910
+  },
+  "rows": [
+    [
+      "Шапка",
+      "без RU▾ и шестерёнки",
+      "заголовок + Синапс (a814c43)",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Карточки",
+      "5 наборов с описанием и числом упражнений (24/18/36/28/16)",
+      "5 наборов ru с реальными числами 2/6/22/50/6 и «пройдено N»",
+      "числа",
+      "—",
+      "числа эскиза выдуманы; в каталоге — реальные",
+      "PASS"
+    ],
+    [
+      "Фильтры",
+      "Все / Классика / Слова / Фразы / Цифры",
+      "Все + все наборы языка",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Поиск",
+      "поле «Найти упражнения…»",
+      "поиск по названию и описанию набора",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Сетка",
+      "2 колонки",
+      "1 колонка при 390, 2–3 шире",
+      "колонки",
+      "—",
+      "при 390 две колонки дают 170 px — подпись не помещается",
+      "PASS"
+    ],
+    [
+      "Язык",
+      "«Русский ▾» в теле",
+      "RU▾ в шапке",
+      "положение",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка телефона без viewport",
+      "390×844 CSS, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "cbd01dc9d485bb50451fd668e93e2e69e41cac713beddb4a2e9b5ff298ebc761",
+    "overlay-50.png": "5c8264a5e1d14d8ee38d472762a0f38558ef69ef71fdb624d77a51306867a4cf",
+    "comparison-panel.png": "4282b3619ad53bab1a49da3c46eb3bf5c2f102f13de3fc3e93cf12c96a62bff0"
+  }
+}

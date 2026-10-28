@@ -1,0 +1,79 @@
+{
+  "screen": "A5-more",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "a814c43",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/01.png",
+    "sha256": "0b882d194ac4fb72ec88c063aca27c458321be8aa9d9f30e46741dc9f15b53c0",
+    "cropXYXY": [
+      606,
+      592,
+      932,
+      1008
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 2.3926
+  },
+  "actual": {
+    "sha256": "708d06aa00bc65533cd71408a0ec49aa3632755e6d84737631fa9e50b8f4cf2a",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "вкладка «Ещё» после F5/F6; повтор после шапки a814c43"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 995
+  },
+  "rows": [
+    [
+      "Состав",
+      "7: задания, кабинет тренера, настройки, профиль и язык, достижения, аккаунт, справка",
+      "6: настройки, профиль и язык, достижения, аккаунт, данные и разрешения, прогресс",
+      "нет «Мои задания», «Кабинет тренера», «Справка»",
+      "функции",
+      "кабинеты — после аккаунта (0b753b64); справки как экрана в исходнике нет",
+      "открыто"
+    ],
+    [
+      "Шапка",
+      "без контролов",
+      "заголовок целиком + Синапс; RU▾ убран, шестерёнка только в тренажёре/компаньоне",
+      "—",
+      "—",
+      "a814c43: шапка по эскизам (вопрос 4 чек-листа, рекомендация; откат одним коммитом)",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в «viewport»",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "c9f13f45cdbac9b33af92319fbe756bc1deaa73df393400dfbdf7ae0dc7dced7",
+    "overlay-50.png": "151813ec5abf689f7e2b4607e424f05a803e0936ecafc213d4a4616f425863f6",
+    "comparison-panel.png": "5354205780a97c926af8c3f625045ea8fd06b49153b96414b20f797940dbc620"
+  }
+}

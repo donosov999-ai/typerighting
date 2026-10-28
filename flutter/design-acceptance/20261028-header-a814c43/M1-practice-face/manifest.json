@@ -1,0 +1,88 @@
+{
+  "screen": "M1-practice-face",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "a814c43",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/13-synapse-templates.png",
+    "sha256": "3989b2af4ee270669f13b85834bed24f10fe69be3b98a16c265d58d0d6d41a9a",
+    "cropXYXY": [
+      20,
+      44,
+      753,
+      506
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 3.4925
+  },
+  "actual": {
+    "sha256": "67663d5a975de3dc4cbf91fcaff6e3a8cbf0027fe13d21f2648ed28fcbe8afe4",
+    "viewportCSS": [
+      1280,
+      800
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      2560,
+      1600
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Практика → Тренировка, ПК-ширина; демо seed.json; повтор после шапки a814c43"
+  },
+  "method": {
+    "equalWidth": 2560,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 1600
+  },
+  "rows": [
+    [
+      "Лицо Синапса",
+      "справа в шапке, «Синапс» подписью",
+      "справа в шапке, лицо 40/цель 48, подпись — во всплывающей подсказке и семантике",
+      "нет текстовой подписи",
+      "—",
+      "реф §7: на узких ширинах имя можно скрыть; подпись на ПК — по решению Дениса",
+      "открыто"
+    ],
+    [
+      "Шапка",
+      "логотип + меню «Уроки / Практика / Статистика / Настройки»",
+      "заголовок целиком + Синапс; RU▾ убран, шестерёнка только в тренажёре/компаньоне",
+      "логотип TypeFree вместо заголовка раздела",
+      "—",
+      "a814c43: шапка по эскизам (вопрос 4 чек-листа, рекомендация; откат одним коммитом)",
+      "PASS"
+    ],
+    [
+      "Текст и клавиатура",
+      "карточка текста, моноширинный шрифт, 5 рядов",
+      "карточка текста, 5 рядов guide, справа «Настройки практики»",
+      "шрифт, правая колонка",
+      "—",
+      "правая колонка — реф §6 (≥960 control pane); шрифт — B1–B3",
+      "открыто"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "1280×800 CSS (M1–M3), 390×844 (M4), DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "d7bc42b0a2d18568d66d726cca5dda15b5f5fe9995c20e69a3d4cd9a498dce52",
+    "overlay-50.png": "040bd7ee43b6c0d8e1007f48f28ac0e0ba3f3e645fa9614c3116875de961faa1",
+    "comparison-panel.png": "1190f0b2f61a90cbbae209d8b36c685d832f3327021a447c61ebabbe02173831"
+  }
+}

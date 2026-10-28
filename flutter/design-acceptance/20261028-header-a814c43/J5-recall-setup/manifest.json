@@ -1,0 +1,88 @@
+{
+  "screen": "J5-recall-setup",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "a814c43",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/10.png",
+    "sha256": "43c3ffebffad9837adaaaa32cc4db190c86c8ceb688c13bde19298a068ef3e3c",
+    "cropXYXY": [
+      548,
+      560,
+      995,
+      1015
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.745
+  },
+  "actual": {
+    "sha256": "a6d5fe1636c55c31e6021c82814c668fa9472cdd69fb1e3bd0e703aab5ef9e17",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Практика → Память, набор 3 слова; повтор после шапки a814c43"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 794
+  },
+  "rows": [
+    [
+      "Шапка",
+      "иконка мозга + «Тренировка памяти» + пояснение",
+      "заголовок целиком + Синапс; RU▾ убран, шестерёнка только в тренажёре/компаньоне",
+      "—",
+      "—",
+      "a814c43: шапка по эскизам (вопрос 4 чек-листа, рекомендация; откат одним коммитом)",
+      "PASS"
+    ],
+    [
+      "Набор / рекорд",
+      "«Текущий набор: 3 слова» с примерами слов, «Лучший результат: 5 слов»",
+      "Текущий набор / Рекорд памяти строками (правильные формы «3 слова»)",
+      "нет примеров слов",
+      "—",
+      "слова заранее не показываю — иначе подсказка",
+      "PASS"
+    ],
+    [
+      "Кнопка",
+      "«Начать»",
+      "«▶ Начать» во всю ширину",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "1fd2c1fc00147071c09fd64d5544f20de2365fad589b239c2b56956b136d952e",
+    "overlay-50.png": "570ca6cf65d4866cfa3360f01fbe2fb787d9be76c51bafa75874403620bc16ad",
+    "comparison-panel.png": "e07b88a3631aca5d1522a9b18ac8c37bef7d73bcecfc4c9447babbc9861ab6e3"
+  }
+}

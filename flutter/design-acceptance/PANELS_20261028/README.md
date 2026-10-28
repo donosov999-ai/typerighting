@@ -4,46 +4,46 @@
 
 - A1 · черновик — есть расхождения · 20261028-welcome-85f0c4d/A1-welcome
 - A2 · готово к согласованию · 20261028-repeat-ea99bf9/A2-today
-- A3 · готово к согласованию · 20261028-menus-9d6917f/A3-practice
+- A3 · готово к согласованию · 20261028-header-a814c43/A3-practice
 - A4 · готово к согласованию · 20261028-companion-d09c1b4/A4-companion
-- A5 · черновик — есть расхождения · 20261028-account-data-30cf3ac/A5-more
+- A5 · черновик — есть расхождения · 20261028-header-a814c43/A5-more
 - A6 · черновик — есть расхождения · 20261028-menus-9d6917f/A6-profile-language
-- F1 · черновик — есть расхождения · 20261028-progress-0d5b808/F1-progress
-- F2 · готово к согласованию · 20261028-achievements-763e4f9/F2-achievements
+- F1 · черновик — есть расхождения · 20261028-header-a814c43/F1-progress
+- F2 · черновик — есть расхождения · 20261028-header-a814c43/F2-achievements
 - F3 · готово к согласованию · 20261028-settings-2e40bf5/F3-input-settings
 - F4 · готово к согласованию · 20261028-settings-f4-ad81586/F4-sound-appearance
 - F5 · готово к согласованию · 20261028-account-data-30cf3ac/F5-account-local
 - F6 · готово к согласованию · 20261028-account-data-30cf3ac/F6-data-permissions
 - I6 · готово к согласованию · 20261028-repeat-ea99bf9/I6-light-practice
-- M1 · черновик — есть расхождения · 20261028-synapse-1e11624/M1-practice-face
+- M1 · черновик — есть расхождения · 20261028-header-a814c43/M1-practice-face
 - M2 · готово к согласованию · 20261028-synapse-1e11624/M2-synapse-panel
 - M3 · черновик — есть расхождения · 20261028-synapse-1e11624/M3-result
 - M4 · готово к согласованию · 20261028-synapse-1e11624/M4-appearance
-- B1 · черновик — есть расхождения · 20261028-trainer-rail-6d7ebb3/B1-trainer-desktop
-- B2 · черновик — есть расхождения · 20261028-trainer-14e83ee/B2-trainer-web
+- B1 · черновик — есть расхождения · 20261028-header-a814c43/B1-trainer-desktop
+- B2 · черновик — есть расхождения · 20261028-header-a814c43/B2-trainer-web
 - B3 · черновик — есть расхождения · 20261028-repeat-ea99bf9/B3-trainer-landscape
-- C1 · готово к согласованию · 20261028-library-course-dc28454/C1-library
-- C2 · готово к согласованию · 20261028-library-course-dc28454/C2-course-map
+- C1 · готово к согласованию · 20261028-header-a814c43/C1-library
+- C2 · готово к согласованию · 20261028-header-a814c43/C2-course-map
 - C3 · готово к согласованию · 20261028-repeat-ea99bf9/C3-lesson
 - C4 · готово к согласованию · 20261028-repeat-ea99bf9/C4-lesson-result
 - C5 · готово к согласованию · 20261028-library-course-dc28454/C5-custom-text
-- C6 · черновик — есть расхождения · 20261028-library-course-dc28454/C6-weak-keys
+- C6 · черновик — есть расхождения · 20261028-header-a814c43/C6-weak-keys
 - J1 · готово к согласованию · 20261028-modes-009977a/J1-flow
 - J2 · готово к согласованию · 20261028-modes-009977a/J2-digits
 - J3 · готово к согласованию · 20261028-kids-memory-b4d36ef/J3-kids-result
 - J4 · готово к согласованию · 20261028-results-9883ec9/J4-memorize-final
-- J5 · готово к согласованию · 20261028-modes-dj-ec41ca1/J5-recall-setup
+- J5 · готово к согласованию · 20261028-header-a814c43/J5-recall-setup
 - J6 · готово к согласованию · 20261028-fixes-0f22554/J6-recall-result
 - D1 · готово к согласованию · 20261028-modes-de-b44a6ab/D1-learning
-- D2 · черновик — есть расхождения · 20261028-kids-memory-b4d36ef/D2-kids-map
+- D2 · черновик — есть расхождения · 20261028-header-a814c43/D2-kids-map
 - D3 · черновик — есть расхождения · 20261028-kids-ai2-6bb4277/D3-kids-learning
 - D4 · готово к согласованию · 20261028-modes-dj-ec41ca1/D4-memorize-setup
 - D5 · готово к согласованию · 20261028-memorize-pass-095b9ef/D5-memorize-run
 - D6 · готово к согласованию · 20261028-kids-memory-b4d36ef/D6-recall-show
-- E1 · черновик — есть расхождения · 20261028-modes-de-b44a6ab/E1-competition
-- E2 · готово к согласованию · 20261028-race-0593e86/E2-competition-run
-- E3 · готово к согласованию · 20261028-race-result-5d877b6/E3-competition-result
-- E4 · готово к согласованию · 20261028-modes-de-b44a6ab/E4-exam-setup
-- E5 · черновик — есть расхождения · 20261028-modes-de-b44a6ab/E5-exam-run
-- E6 · готово к согласованию · 20261028-modes-de-b44a6ab/E6-exam-result
+- E1 · готово к согласованию · 20261028-header-a814c43/E1-competition
+- E2 · готово к согласованию · 20261028-header-a814c43/E2-competition-run
+- E3 · готово к согласованию · 20261028-header-a814c43/E3-competition-result
+- E4 · готово к согласованию · 20261028-header-a814c43/E4-exam-setup
+- E5 · готово к согласованию · 20261028-header-a814c43/E5-exam-run
+- E6 · черновик — есть расхождения · 20261028-header-a814c43/E6-exam-result
 - K4 · готово к согласованию · 20261028-account-data-30cf3ac/K4-certificate

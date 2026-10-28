@@ -1,0 +1,115 @@
+{
+  "screen": "E6-exam-result",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "a814c43",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/05.png",
+    "sha256": "fd562aaff0cf4fd3cb244c6722bc21686e4dbd36c2b5176e8d4cd3ebab90a7ff",
+    "cropXYXY": [
+      1010,
+      592,
+      1292,
+      1002
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 2.766
+  },
+  "actual": {
+    "sha256": "13db8d76c62f75a2505a6d349c283a1f95c88750cfbc5c888a0ce5d54e594f9d",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "тест завершён сразу (досрочно, без ввода) — честный нулевой результат; повтор после шапки a814c43"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 1134
+  },
+  "rows": [
+    [
+      "Шапка",
+      "без RU▾ и шестерёнки",
+      "заголовок + Синапс (a814c43)",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Цифры",
+      "Чистая · Валовая · Точность",
+      "Net WPM · Gross WPM · точность",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Строки",
+      "Цель (35) Достигнута · Время · Набрано · Ошибок",
+      "цель (35) НЕ СДАН · Фактическое время · нажатий · Длительность",
+      "набор строк",
+      "—",
+      "значения исходника",
+      "PASS"
+    ],
+    [
+      "Баннер",
+      "«Цель достигнута!» зелёный",
+      "статус сдан/не сдан в строке цели и под заголовком",
+      "нет баннера",
+      "—",
+      "—",
+      "открыто"
+    ],
+    [
+      "Кнопки",
+      "Закрыть / Повторить тест",
+      "Сертификат (PNG) / Ещё раз / Выйти",
+      "+ сертификат",
+      "—",
+      "функция исходника",
+      "PASS"
+    ],
+    [
+      "Web-возможности",
+      "рейтинг, лига, вызов — «только при доступном сервисе»",
+      "нет",
+      "—",
+      "—",
+      "сервис не подключён (LOCAL)",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в строке «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "4ac45663aad01c5a69fe3c1526b7ec29b050a60dbaca3933b481fdbcd8056b8d",
+    "overlay-50.png": "52245f6cbe7829627e9a458031389f36764eb7a1487784fbe475e9dc79c86c63",
+    "comparison-panel.png": "afea97d780a9576b057254f28b818361d0921d8440a5647ce65488eb9f08d79d"
+  }
+}

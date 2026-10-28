@@ -1,0 +1,88 @@
+{
+  "screen": "E4-exam-setup",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "a814c43",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/05.png",
+    "sha256": "fd562aaff0cf4fd3cb244c6722bc21686e4dbd36c2b5176e8d4cd3ebab90a7ff",
+    "cropXYXY": [
+      40,
+      592,
+      474,
+      1002
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.7972
+  },
+  "actual": {
+    "sha256": "31e195b88a72292a76841ce5d715891c0b1a530d6861c24e40963bbd8ef24e77",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Практика → Тест печати; повтор после шапки a814c43"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 737
+  },
+  "rows": [
+    [
+      "Шапка",
+      "без RU▾ и шестерёнки",
+      "заголовок + Синапс (a814c43)",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Карточка",
+      "Длительность 1/5/10 мин, Целевая скорость, Имя, «Начать тест»",
+      "то же; «Выйти» ссылкой",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Единицы",
+      "зн/мин",
+      "Net WPM",
+      "единица",
+      "—",
+      "исходник: Net/Gross WPM",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в строке «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "26a43635cc3f087ccdab46202169f21800623177c9f6f5a33da834f07db44d62",
+    "overlay-50.png": "749a1afe45f09096f6b034436e5d96f12c012deeaa57219fa104dd548970802d",
+    "comparison-panel.png": "56ed89f6e71ce88a5a408839412ecc0686a5a07775f7bb5bcb6cc66454808308"
+  }
+}

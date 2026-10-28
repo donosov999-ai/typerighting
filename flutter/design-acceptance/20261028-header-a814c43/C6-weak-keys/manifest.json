@@ -1,0 +1,97 @@
+{
+  "screen": "C6-weak-keys",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "a814c43",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/03.png",
+    "sha256": "107f8843c2e77bad125adedea576c0485b62f45d52cef94ece202c6d467e823f",
+    "cropXYXY": [
+      1036,
+      612,
+      1456,
+      1012
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.8571
+  },
+  "actual": {
+    "sha256": "2f2f0c92370b8b985f853682a3761c042251ad093af1ed9b342e41efd567bdb9",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Прогресс → Слабые клавиши; мало данных (демо); повтор после шапки a814c43"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 743
+  },
+  "rows": [
+    [
+      "Шапка",
+      "без RU▾ и шестерёнки",
+      "заголовок + Синапс (a814c43)",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Карта",
+      "компактная ЙЦУКЕН с цветом клавиш вверху",
+      "5-рядный guide с тепловой картой, листается",
+      "размер/обрезка",
+      "—",
+      "реф §6; страница — Codex 8d7be68",
+      "открыто"
+    ],
+    [
+      "Слабые клавиши",
+      "чипы «о л к е н г» + «Сгенерировать упражнение»",
+      "«Пока мало данных…» + «Сгенерировать упражнение»",
+      "нет чипов при малых данных",
+      "—",
+      "честное пустое состояние",
+      "PASS"
+    ],
+    [
+      "Оригинал / Без пунктуации",
+      "две плитки WPM и %",
+      "две плитки; «—» где нет результата",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка телефона без viewport",
+      "390×844 CSS, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "97bbcbfdd43e16de733b82f1b20355a068095476a0859b36a5a6468219665007",
+    "overlay-50.png": "dd078d8ecd561a7c9ecd7c445fad16d7bbc435016a883296952ddc2ccf2cfd18",
+    "comparison-panel.png": "2a0faaf0957b4fd29da5e2ec6811406663627e4e207fa9a464a29b79ebcef821"
+  }
+}

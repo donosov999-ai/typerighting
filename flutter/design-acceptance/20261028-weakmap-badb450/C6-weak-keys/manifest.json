@@ -1,0 +1,97 @@
+{
+  "screen": "C6-weak-keys",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "badb450",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/03.png",
+    "sha256": "107f8843c2e77bad125adedea576c0485b62f45d52cef94ece202c6d467e823f",
+    "cropXYXY": [
+      1036,
+      612,
+      1456,
+      1012
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.8571
+  },
+  "actual": {
+    "sha256": "ae0fae30c6ddbbe37cfed7e366cb9750a7083f622b4e995b01096e67fc9d3aee",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Прогресс → Слабые клавиши; мало данных (демо); повтор badb450"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 743
+  },
+  "rows": [
+    [
+      "Шапка",
+      "без RU▾ и шестерёнки",
+      "заголовок + Синапс (a814c43)",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Карта",
+      "компактная ЙЦУКЕН с цветом клавиш вверху",
+      "компактная карта: 3 ряда букв ЙЦУКЕН из геометрии исходника, целиком на 390; цвет по доле ошибок (при малых данных — без цвета); ≥740 — полный guide",
+      "—",
+      "—",
+      "цвет — то же правило, что у полного guide; демо мало данных — карта без цвета (тест проверяет окраску)",
+      "PASS"
+    ],
+    [
+      "Слабые клавиши",
+      "чипы «о л к е н г» + «Сгенерировать упражнение»",
+      "«Пока мало данных…» + «Сгенерировать упражнение»",
+      "нет чипов при малых данных",
+      "—",
+      "честное пустое состояние",
+      "PASS"
+    ],
+    [
+      "Оригинал / Без пунктуации",
+      "две плитки WPM и %",
+      "две плитки; «—» где нет результата",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка телефона без viewport",
+      "390×844 CSS, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "f41452034aa1da428df39947e704e76cc871e4fda9589b98da7dfbc5d6c915fb",
+    "overlay-50.png": "c20ab9c056907620f2c7f838511ec7c7edf4ac65e45827b65252780e6442d184",
+    "comparison-panel.png": "2673ec0d3ab3612b5a37be73397a30dcac052d8c808afea40176f0c799ec9dc1"
+  }
+}

@@ -113,9 +113,26 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  test('I5 count: Russian plural forms, English singular', () {
+    expect(transferCount(1, 'ru'), '1 запись');
+    expect(transferCount(2, 'ru'), '2 записи');
+    expect(transferCount(5, 'ru'), '5 записей');
+    expect(transferCount(12, 'ru'), '12 записей');
+    expect(transferCount(21, 'ru'), '21 запись');
+    expect(transferCount(1, 'en'), '1 entry');
+    expect(transferCount(3, 'en'), '3 entries');
+  });
+
   testWidgets('I5 copy exists in all seven languages', (tester) async {
     for (final l in ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt']) {
-      for (final k in ['title', 'entry', 'retry', 'safe', 'conflict']) {
+      for (final k in [
+        'title',
+        'short',
+        'entry',
+        'retry',
+        'safe',
+        'conflict',
+      ]) {
         expect(transferCopy(l, k), isNot(k), reason: '$l/$k');
       }
     }

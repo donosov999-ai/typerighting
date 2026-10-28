@@ -1491,7 +1491,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     : section == AppSection.dataPermissions
                     ? accountCopy(language, 'data')
                     : section == AppSection.transfer
-                    ? transferCopy(language, 'title')
+                    ? transferCopy(language, 'short')
                     : section == AppSection.kids
                     ? tr('k.title')
                     : section == AppSection.exam

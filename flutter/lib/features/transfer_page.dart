@@ -33,6 +33,15 @@ String transferCopy(String language, String key) {
       'Passaggio alla nuova versione',
       'Passagem para a nova versão',
     ],
+    'short': [
+      'Перенос данных',
+      'Data transfer',
+      'Traspaso de datos',
+      'Datenübernahme',
+      'Transfert des données',
+      'Trasferimento dati',
+      'Transferência de dados',
+    ],
     'entry': [
       'Перенести прогресс из прежней версии',
       'Move progress from the previous version',
@@ -191,6 +200,23 @@ String transferCopy(String language, String key) {
   return words[key]?[i < 0 ? 1 : i] ?? key;
 }
 
+/// «1 запись», «2 записи», «5 записей»; English singular; others plural.
+String transferCount(int n, String language) {
+  if (language == 'ru') {
+    final d10 = n % 10, d100 = n % 100;
+    final form = d100 >= 11 && d100 <= 14
+        ? 'записей'
+        : d10 == 1
+        ? 'запись'
+        : d10 >= 2 && d10 <= 4
+        ? 'записи'
+        : 'записей';
+    return '$n $form';
+  }
+  if (language == 'en' && n == 1) return '1 entry';
+  return '$n ${transferCopy(language, 'values')}';
+}
+
 enum _Step { waiting, ok, failed }
 
 /// I5 (sheet 09): moving progress from the previous version as three steps —
@@ -317,7 +343,7 @@ class _TransferPageState extends State<TransferPage> {
                 padding: const EdgeInsets.only(top: 6),
                 child: check == _Step.ok
                     ? Text(
-                        '${c('checked')} · $count ${c('values')}',
+                        '${c('checked')} · ${transferCount(count, widget.language)}',
                         key: const ValueKey('transfer-checked'),
                         style: TextStyle(color: tokens['success']),
                       )

@@ -822,6 +822,84 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     },
   );
 
+  int get navIndex => section == AppSection.today
+      ? 0
+      : historyPage ||
+            section == AppSection.weakKeys ||
+            (section == AppSection.achievements &&
+                achievementsBack == AppSection.progress)
+      ? 2
+      : section == AppSection.more || inSettings
+      ? 3
+      : 1;
+
+  void navGo(int v) {
+    companionMode = false;
+    showSection(
+      [
+        AppSection.today,
+        AppSection.practiceMenu,
+        AppSection.progress,
+        AppSection.more,
+      ][v],
+    );
+  }
+
+  List<(IconData, IconData, String)> get navItems => [
+    (Icons.home_outlined, Icons.home, shellText(language, 'today')),
+    (
+      Icons.grid_view_outlined,
+      Icons.grid_view_rounded,
+      shellText(language, 'practice'),
+    ),
+    (Icons.insights_outlined, Icons.insights, shellText(language, 'progress')),
+    (Icons.more_horiz, Icons.more_horiz, shellText(language, 'more')),
+  ];
+
+  /// B1: on wide screens the sections sit in a side rail, not a bottom bar.
+  bool railShown(BuildContext c) =>
+      section != AppSection.companion && MediaQuery.sizeOf(c).width >= 1100;
+
+  Widget withRail(BuildContext c, Widget body) {
+    if (!railShown(c)) return body;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        NavigationRail(
+          selectedIndex: navIndex,
+          onDestinationSelected: navGo,
+          labelType: NavigationRailLabelType.all,
+          minWidth: 88,
+          leading: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text.rich(
+              TextSpan(
+                children: [
+                  const TextSpan(text: 'Type'),
+                  TextSpan(
+                    text: 'Free',
+                    style: TextStyle(color: Theme.of(c).colorScheme.primary),
+                  ),
+                ],
+              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+            ),
+          ),
+          destinations: [
+            for (final d in navItems)
+              NavigationRailDestination(
+                icon: Icon(d.$1),
+                selectedIcon: Icon(d.$2),
+                label: Text(d.$3),
+              ),
+          ],
+        ),
+        const VerticalDivider(width: 1),
+        Expanded(child: body),
+      ],
+    );
+  }
+
   Widget withSynapseSide(BuildContext c, Widget body) {
     if (!synapseSide || !pet || MediaQuery.sizeOf(c).width < 960) return body;
     return Row(
@@ -1403,53 +1481,22 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           ),
         ],
       ),
-      bottomNavigationBar: section == AppSection.companion
+      bottomNavigationBar: section == AppSection.companion || railShown(c)
           ? null
           : NavigationBar(
-        height: 56,
-        selectedIndex: section == AppSection.today
-            ? 0
-            : historyPage ||
-                  section == AppSection.weakKeys ||
-                  (section == AppSection.achievements &&
-                      achievementsBack == AppSection.progress)
-            ? 2
-            : section == AppSection.more || inSettings
-            ? 3
-            : 1,
-        onDestinationSelected: (v) {
-          companionMode = false;
-          showSection(
-          [
-            AppSection.today,
-            AppSection.practiceMenu,
-            AppSection.progress,
-            AppSection.more,
-          ][v],
-          );
-        },
-        destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.home_outlined),
-            selectedIcon: const Icon(Icons.home),
-            label: shellText(language, 'today'),
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.grid_view_outlined),
-            selectedIcon: const Icon(Icons.grid_view_rounded),
-            label: shellText(language, 'practice'),
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.insights_outlined),
-            label: shellText(language, 'progress'),
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.more_horiz),
-            label: shellText(language, 'more'),
-          ),
-        ],
-      ),
-      body: withSynapseSide(c, SafeArea(
+              height: 56,
+              selectedIndex: navIndex,
+              onDestinationSelected: navGo,
+              destinations: [
+                for (final d in navItems)
+                  NavigationDestination(
+                    icon: Icon(d.$1),
+                    selectedIcon: Icon(d.$2),
+                    label: d.$3,
+                  ),
+              ],
+            ),
+      body: withRail(c, withSynapseSide(c, SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(
             12,
@@ -1995,7 +2042,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
             ),
           ),
         ),
-      )),
+      ))),
     );
   }
 

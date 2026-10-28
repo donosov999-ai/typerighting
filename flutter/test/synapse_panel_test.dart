@@ -7,6 +7,7 @@ import 'package:synapse_advisor/synapse_advisor.dart';
 import 'package:typefree_flutter_foundation/audio/typefree_sound.dart';
 import 'package:typefree_flutter_foundation/data/local_repository.dart';
 import 'package:typefree_flutter_foundation/design_system/templates.dart';
+import 'package:typefree_flutter_foundation/features/keyboard_guide.dart';
 import 'package:typefree_flutter_foundation/features/synapse_panel.dart';
 import 'package:typefree_flutter_foundation/main.dart';
 
@@ -53,6 +54,27 @@ void main() {
     await tester.pump();
     expect(app.synapseSide, false);
     expect(find.text('Мой прогресс'), findsNothing);
+    expect(tester.takeException(), isNull);
+    await stop(tester, a);
+  });
+
+  testWidgets('desktop shell: side rail instead of the bottom bar (B1)', (tester) async {
+    final (app, a) = await start(tester, const Size(1280, 800));
+    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.byType(NavigationBar), findsNothing);
+    // With the rail and the 300 px pane the full keyboard still fits 720 high.
+    tester.view.physicalSize = const Size(1280, 720);
+    await tester.pump();
+    final guide = tester.getRect(find.byType(KeyboardGuide));
+    expect(guide.width, greaterThanOrEqualTo(740));
+    expect(guide.bottom, lessThanOrEqualTo(720));
+    await tester.tap(find.descendant(of: find.byType(NavigationRail), matching: find.text('Прогресс')));
+    await tester.pump();
+    expect(app.section, AppSection.progress);
+    tester.view.physicalSize = const Size(900, 800);
+    await tester.pump();
+    expect(find.byType(NavigationRail), findsNothing);
+    expect(find.byType(NavigationBar), findsOneWidget);
     expect(tester.takeException(), isNull);
     await stop(tester, a);
   });

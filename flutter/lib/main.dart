@@ -1234,7 +1234,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
             }),
     );
     // Options of the exercise (B1 right pane; a sheet on narrow screens).
-    Widget options(VoidCallback refresh) {
+    // [close] dismisses the sheet before an action that leaves the options.
+    Widget options(VoidCallback refresh, {VoidCallback? close}) {
       Widget check(String label, bool value, ValueChanged<bool> on) =>
           CheckboxListTile(
             value: value,
@@ -1282,7 +1283,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
             onPressed: saving
                 ? null
                 : () {
-                    refresh();
+                    close?.call();
                     if (weakMode) {
                       exitWeak();
                     } else {
@@ -1298,7 +1299,12 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
               minimumSize: const Size.fromHeight(48),
               alignment: Alignment.centerLeft,
             ),
-            onPressed: saving ? null : customText,
+            onPressed: saving
+                ? null
+                : () {
+                    close?.call();
+                    unawaited(customText());
+                  },
             icon: const Icon(Icons.edit_outlined),
             label: Text(tr('custom.title')),
           ),
@@ -1314,7 +1320,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           child: SingleChildScrollView(
             padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
             child: StatefulBuilder(
-              builder: (sheet, set) => options(() => set(() {})),
+              builder: (sheet, set) => options(
+                () => set(() {}),
+                close: () => Navigator.pop(sheet),
+              ),
             ),
           ),
         ),

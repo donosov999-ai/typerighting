@@ -101,6 +101,9 @@ void main() {
       await tester.pump();
       expect(page.engine.errors, 1);
       expect(page.engine.typing!.pos, 0);
+      // Source kids.ts OOPS_L: the cat reacts to a wrong key, it does not
+      // announce «Уровень пройден» mid-level (seen on the Android emulator).
+      expect(kidsOops['ru'], contains(page.say));
       tester.testTextInput.updateEditingValue(const TextEditingValue());
       await tester.pump();
       expect(page.entry.text, '§');

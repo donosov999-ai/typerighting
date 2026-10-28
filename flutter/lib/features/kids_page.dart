@@ -51,6 +51,7 @@ class KidsPageState extends State<KidsPage> with WidgetsBindingObserver {
       exiting = false,
       ignore = false;
   String previous = '', say = '';
+  final rng = Random();
   String? error;
 
   @override
@@ -152,13 +153,13 @@ class KidsPageState extends State<KidsPage> with WidgetsBindingObserver {
       final word = engine.wordIndex;
       final outcome = engine.press(text[i]);
       if (outcome.wrong) {
-        say = widget.tr('k.note1');
+        say = kidsPick(kidsOops, widget.language, rng);
         appSound.effect('catSad');
       } else {
         // Source kids.ts: speak(ch) after a correct letter (RU/EN samples).
         appSound.speak(text[i], widget.language);
         if (engine.wordIndex != word) {
-          say = widget.tr('k.noerr');
+          say = kidsPick(kidsPraise, widget.language, rng);
           if (engine.phase != KidsPhase.done) appSound.effect('catHappy');
         }
       }
@@ -672,3 +673,34 @@ String kidsRetry(String language) =>
       'pt': 'Tentar salvar novamente',
     }[language] ??
     'Retry saving';
+
+/// Source kids.ts PRAISE_L / OOPS_L — the cat's reaction to a finished word
+/// and to a wrong key (the port had shown the level-result note mid-level).
+/// The source has RU/EN only; other languages use the English lines.
+const kidsPraise = {
+  'ru': [
+    'Молодец!',
+    'Здорово!',
+    'Так держать!',
+    'Ты супер!',
+    'Отлично!',
+    'Вот это да!',
+  ],
+  'en': [
+    'Well done!',
+    'Great!',
+    'Keep it up!',
+    'You rock!',
+    'Awesome!',
+    'Wow!',
+  ],
+};
+const kidsOops = {
+  'ru': ['Ой! Попробуй ещё', 'Чуть-чуть мимо', 'Не спеши', 'Почти попал!'],
+  'en': ['Oops! Try again', 'Almost!', 'Take your time', 'So close!'],
+};
+
+String kidsPick(Map<String, List<String>> lines, String language, Random rng) {
+  final list = lines[language] ?? lines['en']!;
+  return list[rng.nextInt(list.length)];
+}

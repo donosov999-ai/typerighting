@@ -28,6 +28,7 @@ import 'features/settings_pages.dart';
 import 'features/profile_page.dart';
 import 'features/achievements_page.dart';
 import 'features/companion_page.dart';
+import 'features/synapse_panel.dart';
 import 'data/achievement_store.dart';
 import 'data/progress_view.dart';
 import 'domain/progress_metrics.dart' show utcStreak;
@@ -788,50 +789,61 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     inputFocus.requestFocus();
   }
 
+  /// Desktop: the Synapse panel sits beside the content (never over the
+  /// active text); phones get a sheet. Both have Close (§7).
+  bool synapseSide = false;
+
+  Widget synapsePanel(BuildContext c, VoidCallback close) => SynapsePanel(
+    language: language,
+    tr: tr,
+    history: history,
+    controller: assistant,
+    portrait: face(c),
+    animate: motion && !MediaQuery.disableAnimationsOf(c),
+    onClose: close,
+    onWeak: () {
+      close();
+      unawaited(showSection(AppSection.weakKeys));
+    },
+  );
+
+  Widget withSynapseSide(BuildContext c, Widget body) {
+    if (!synapseSide || !pet || MediaQuery.sizeOf(c).width < 960) return body;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(child: body),
+        const VerticalDivider(width: 1),
+        SizedBox(
+          width: 360,
+          child: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: synapsePanel(c, () {
+                setState(() => synapseSide = false);
+                inputFocus.requestFocus();
+              }),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Future<void> openAssistant() async {
     if (!pet) return;
     headerAssistant.preview(SynapsePreviewAction.greeting);
+    if (MediaQuery.sizeOf(surface).width >= 960) {
+      setState(() => synapseSide = !synapseSide);
+      return;
+    }
     await showModalBottomSheet<void>(
       context: surface,
       isScrollControlled: true,
       builder: (c) => SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Text(
-                        'Синапс',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    IconButton(
-                      tooltip: 'Закрыть',
-                      onPressed: () => Navigator.pop(c),
-                      icon: const Icon(Icons.close),
-                    ),
-                  ],
-                ),
-                TickerMode(
-                  enabled: motion && !MediaQuery.disableAnimationsOf(c),
-                  child: SynapsePet(controller: assistant, size: 180),
-                ),
-                if (assistant.current == null)
-                  Text(
-                    history.isEmpty
-                        ? 'Начните тренировку — здесь появится ваш прогресс.'
-                        : 'Сохранено тренировок: ${history.length}. Последняя точность: ${history.last['accuracy']}%.',
-                  ),
-              ],
-            ),
-          ),
+          padding: const EdgeInsets.all(20),
+          child: synapsePanel(c, () => Navigator.pop(c)),
         ),
       ),
     );
@@ -1393,7 +1405,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           ),
         ],
       ),
-      body: SafeArea(
+      body: withSynapseSide(c, SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(
             12,
@@ -1938,7 +1950,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
             ),
           ),
         ),
-      ),
+      )),
     );
   }
 

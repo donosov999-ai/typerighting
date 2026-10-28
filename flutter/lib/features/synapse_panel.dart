@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:synapse_pet/synapse_pet.dart';
 
+import '../design_system/synapse_header.dart';
 import '../design_system/templates.dart';
 
 /// «Синапс» panel (M2, DESIGN_TEMPLATE_REF §7): own progress, the last saved
@@ -168,9 +169,12 @@ class _SynapsePanelState extends State<SynapsePanel> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Синапс',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800),
+                  Text(
+                    synapseName(widget.language),
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                   Text(c('tagline'), style: TextStyle(color: muted)),
                 ],

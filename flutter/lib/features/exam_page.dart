@@ -621,7 +621,41 @@ class ExamPageState extends State<ExamPage> with WidgetsBindingObserver {
                 widget.tr('ex.result'),
                 style: Theme.of(context).textTheme.titleLarge,
               ),
-              Text(widget.tr(run.goalMet ? 'ex.pass' : 'ex.fail')),
+              // E6: the verdict is a coloured banner, not a plain line.
+              const SizedBox(height: 8),
+              Container(
+                key: const ValueKey('exam-goal-banner'),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: (run.goalMet ? tokens['success'] : tokens['danger'])
+                      .withValues(alpha: 0.14),
+                  border: Border.all(
+                    color: run.goalMet ? tokens['success'] : tokens['danger'],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      run.goalMet
+                          ? Icons.emoji_events_outlined
+                          : Icons.flag_outlined,
+                      color: run.goalMet ? tokens['success'] : tokens['danger'],
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        '${widget.tr(run.goalMet ? 'ex.pass' : 'ex.fail')} · ${widget.tr('ex.target.short')} ${run.target}',
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
               if (!run.fullDuration) Text(examCopy(widget.language, 'early')),
               Semantics(
                 key: ValueKey('exam-result-$id'),

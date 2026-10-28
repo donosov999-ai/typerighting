@@ -1520,6 +1520,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
             enabled: pet,
             portrait: face(c),
             onOpen: openAssistant,
+            label: synapseName(language),
+            showLabel: MediaQuery.sizeOf(c).width >= 960,
           ),
         ],
       ),

@@ -120,7 +120,10 @@ class _KeyboardGuideState extends State<KeyboardGuide> {
     final tokens = Theme.of(context).extension<TypeFreeTokens>()!;
     return LayoutBuilder(
       builder: (context, c) {
-        width = math.max(740.0, math.min(820.0, c.maxWidth));
+        // B1/B2: the model's full 920 on tall screens; on 720-high laptops
+        // 820 keeps the guide above the fold.
+        final cap = MediaQuery.sizeOf(context).height >= 860 ? 920.0 : 820.0;
+        width = math.max(740.0, math.min(cap, c.maxWidth));
         viewport = c.maxWidth;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) follow();
@@ -319,4 +322,137 @@ class _GuidePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _GuidePainter old) => true;
+}
+
+/// «Which finger» for the next key, derived from the source keyboard data:
+/// homeOf maps a key to its finger's home key; home keys map to themselves.
+/// D3 shows it to children. Null when the key has no finger (e.g. Enter).
+String? fingerHint(
+  KeyboardModel model,
+  String? expected,
+  bool ru,
+  String language,
+) {
+  if (expected == null) return null;
+  final hit = model.hit(expected, ru: ru);
+  final id = hit?['id'] as String?;
+  if (id == null) return null;
+  const homes = {'a', 's', 'd', 'f', 'j', 'k', 'l', 'semi'};
+  final langs = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
+  final i = langs.indexOf(language) < 0 ? 1 : langs.indexOf(language);
+  if (id == 'space') {
+    return const [
+      'Большой палец',
+      'Thumb',
+      'Pulgar',
+      'Daumen',
+      'Pouce',
+      'Pollice',
+      'Polegar',
+    ][i];
+  }
+  final home =
+      (model.snapshot['homeOf'] as Map)[id] as String? ??
+      (homes.contains(id) ? id : null);
+  if (home == null) return null;
+  const fingers = {
+    'f': [
+      'указательный',
+      'index',
+      'índice',
+      'Zeigefinger',
+      'index',
+      'indice',
+      'indicador',
+    ],
+    'j': [
+      'указательный',
+      'index',
+      'índice',
+      'Zeigefinger',
+      'index',
+      'indice',
+      'indicador',
+    ],
+    'd': [
+      'средний',
+      'middle',
+      'corazón',
+      'Mittelfinger',
+      'majeur',
+      'medio',
+      'médio',
+    ],
+    'k': [
+      'средний',
+      'middle',
+      'corazón',
+      'Mittelfinger',
+      'majeur',
+      'medio',
+      'médio',
+    ],
+    's': [
+      'безымянный',
+      'ring',
+      'anular',
+      'Ringfinger',
+      'annulaire',
+      'anulare',
+      'anelar',
+    ],
+    'l': [
+      'безымянный',
+      'ring',
+      'anular',
+      'Ringfinger',
+      'annulaire',
+      'anulare',
+      'anelar',
+    ],
+    'a': [
+      'мизинец',
+      'little',
+      'meñique',
+      'kleiner Finger',
+      'auriculaire',
+      'mignolo',
+      'mínimo',
+    ],
+    'semi': [
+      'мизинец',
+      'little',
+      'meñique',
+      'kleiner Finger',
+      'auriculaire',
+      'mignolo',
+      'mínimo',
+    ],
+  };
+  final left = const {'a', 's', 'd', 'f'}.contains(home);
+  final hand = left
+      ? const [
+          'левой руки',
+          'left hand',
+          'mano izquierda',
+          'linke Hand',
+          'main gauche',
+          'mano sinistra',
+          'mão esquerda',
+        ][i]
+      : const [
+          'правой руки',
+          'right hand',
+          'mano derecha',
+          'rechte Hand',
+          'main droite',
+          'mano destra',
+          'mão direita',
+        ][i];
+  final finger = fingers[home]![i];
+  return language == 'ru'
+      ? 'Жми: $finger палец $hand'
+      : language == 'en'
+      ? 'Use your ${left ? 'left' : 'right'} $finger finger'
+      : '$finger · $hand';
 }

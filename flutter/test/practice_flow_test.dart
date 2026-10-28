@@ -171,6 +171,27 @@ void main() {
     final guide = tester.getRect(find.byType(KeyboardGuide));
     expect(guide.bottom, lessThanOrEqualTo(664));
     expect(guide.width, greaterThanOrEqualTo(740));
+    // B1/B2: on a tall screen the guide fills its column (up to the model's
+    // 920), no fixed 820 gap at the sides.
+    tester.view.physicalSize = const Size(1920, 1080);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pump();
+    final card = tester.getSize(
+      find
+          .ancestor(of: find.byType(KeyboardGuide), matching: find.byType(Card))
+          .first,
+    );
+    final full = tester.getSize(find.byType(KeyboardGuide)).width;
+    expect(full, greaterThan(740));
+    // Card margin 4+4, padding 8+8.
+    expect(full, closeTo(card.width - 24 > 920 ? 920 : card.width - 24, 1));
+    expect(
+      tester.getRect(find.byType(KeyboardGuide)).bottom,
+      lessThanOrEqualTo(1024),
+    );
+    tester.view.reset();
+    await tester.pump();
     expect(find.text('Без пунктуации'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await tester.binding.setSurfaceSize(const Size(390, 844));

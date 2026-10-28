@@ -529,6 +529,14 @@ class LearningPageState extends State<LearningPage> {
     return LayoutBuilder(
       builder: (context, box) {
         final wide = box.maxWidth >= 1000;
+        final hint = kids && !paused
+            ? fingerHint(
+                widget.keyboard,
+                engine.typing.expected,
+                widget.language == 'ru',
+                widget.language,
+              )
+            : null;
         final main = Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -536,7 +544,30 @@ class LearningPageState extends State<LearningPage> {
             const SizedBox(height: 10),
             if (!kids) ...[hands, const SizedBox(height: 10)],
             kpis,
-            const SizedBox(height: 10),
+            // D3: children see which finger presses the next key (from the
+            // source keyboard's homeOf data, not invented).
+            if (hint != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  children: [
+                    Icon(Icons.back_hand_outlined, color: muted),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        hint,
+                        key: const ValueKey('kids-finger-hint'),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              const SizedBox(height: 10),
             typing,
             if (!wide) ...[
               const SizedBox(height: 12),

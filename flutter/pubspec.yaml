@@ -31,4 +31,8 @@ flutter:
     - assets/learning/
     - assets/voice/ru/
     - assets/voice/en/
+  fonts:
+    - family: PT Mono
+      fonts:
+        - asset: assets/fonts/PTMono-Regular.ttf
 

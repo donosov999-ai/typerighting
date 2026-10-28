@@ -38,7 +38,10 @@ class _PatternViewState extends State<PatternView> {
       style: TextStyle(
         fontSize: widget.fontSize,
         height: 1.6,
-        fontFamily: 'monospace',
+        // Bundled PT Mono (OFL, Cyrillic + Latin): web cannot reach system
+        // monospace fonts, the generic name fell back to a proportional face.
+        fontFamily: 'PT Mono',
+        fontFamilyFallback: const ['monospace'],
         color: t['text'],
       ),
       children: List.generate(

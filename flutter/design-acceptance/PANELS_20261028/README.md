@@ -1,0 +1,45 @@
+# Листы сравнения для приёмки, 28.10.2026 [Claude·MAC]
+
+Последняя панель каждого экрана: эскиз | сборка | наложение 50/50 (метод DESIGN_COMPARISON_ACCEPTANCE.md). Таблица расхождений — REPORT.md в папке пакета. Решения Дениса нет.
+
+- A1 · черновик — есть расхождения · 20261028-welcome-85f0c4d/A1-welcome
+- A2 · draft - Today implemented; remaining differences documented; not accepted · 20261025-local-f5e556b/A2-today
+- A3 · готово к согласованию · 20261028-menus-9d6917f/A3-practice
+- A4 · готово к согласованию · 20261028-companion-d09c1b4/A4-companion
+- A5 · черновик — есть расхождения · 20261028-menus-9d6917f/A5-more
+- A6 · черновик — есть расхождения · 20261028-menus-9d6917f/A6-profile-language
+- F1 · черновик — есть расхождения · 20261028-progress-0d5b808/F1-progress
+- F2 · готово к согласованию · 20261028-achievements-763e4f9/F2-achievements
+- F3 · готово к согласованию · 20261028-settings-2e40bf5/F3-input-settings
+- F4 · готово к согласованию · 20261028-settings-f4-ad81586/F4-sound-appearance
+- I6 · черновик — есть расхождения · 20261028-light-21a6959/I6-light-practice
+- M1 · черновик — есть расхождения · 20261028-synapse-1e11624/M1-practice-face
+- M2 · готово к согласованию · 20261028-synapse-1e11624/M2-synapse-panel
+- M3 · черновик — есть расхождения · 20261028-synapse-1e11624/M3-result
+- M4 · готово к согласованию · 20261028-synapse-1e11624/M4-appearance
+- B1 · черновик — есть расхождения · 20261028-trainer-rail-6d7ebb3/B1-trainer-desktop
+- B2 · черновик — есть расхождения · 20261028-trainer-14e83ee/B2-trainer-web
+- B3 · черновик — есть расхождения · 20261028-trainer-14e83ee/B3-trainer-landscape
+- C1 · готово к согласованию · 20261028-library-course-dc28454/C1-library
+- C2 · готово к согласованию · 20261028-library-course-dc28454/C2-course-map
+- C3 · черновик — есть расхождения · 20261028-library-course-dc28454/C3-lesson
+- C5 · готово к согласованию · 20261028-library-course-dc28454/C5-custom-text
+- C6 · черновик — есть расхождения · 20261028-library-course-dc28454/C6-weak-keys
+- J1 · готово к согласованию · 20261028-modes-009977a/J1-flow
+- J2 · готово к согласованию · 20261028-modes-009977a/J2-digits
+- J3 · draft - substantial differences, not accepted · 20261026-kids-candidate/J3-result
+- J4 · draft - substantial differences, not accepted · 20261026-memorize-candidate/J4-result
+- J5 · готово к согласованию · 20261028-modes-dj-ec41ca1/J5-recall-setup
+- J6 · draft - substantial differences, not accepted · 20261026-recall-candidate/J6-result
+- D1 · готово к согласованию · 20261028-modes-de-b44a6ab/D1-learning
+- D2 · draft - substantial differences, not accepted · 20261026-kids-candidate/D2-map
+- D3 · draft - differences; NOT accepted · 20261026-learning-candidate/D3-child-learning
+- D4 · готово к согласованию · 20261028-modes-dj-ec41ca1/D4-memorize-setup
+- D5 · черновик — есть расхождения · 20261028-modes-dj-ec41ca1/D5-memorize-run
+- D6 · черновик — есть расхождения · 20261028-modes-dj-ec41ca1/D6-recall-show
+- E1 · черновик — есть расхождения · 20261028-modes-de-b44a6ab/E1-competition
+- E2 · черновик — есть расхождения · 20261028-modes-dj-ec41ca1/E2-competition-run
+- E3 · draft - substantial differences, not accepted · 20261026-competition-candidate/E3-result
+- E4 · готово к согласованию · 20261028-modes-de-b44a6ab/E4-exam-setup
+- E5 · черновик — есть расхождения · 20261028-modes-de-b44a6ab/E5-exam-run
+- E6 · готово к согласованию · 20261028-modes-de-b44a6ab/E6-exam-result

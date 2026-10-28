@@ -500,29 +500,139 @@ class CompetitionPageState extends State<CompetitionPage> {
                   ru: race.language == 'ru',
                 ),
               ] else ...[
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Wrap(
-                      spacing: 24,
-                      runSpacing: 12,
+                // E3: the three big numbers, the details, record banner.
+                Builder(
+                  builder: (context) {
+                    final tokens = Theme.of(context)
+                        .extension<TypeFreeTokens>()!;
+                    final scheme = Theme.of(context).colorScheme;
+                    final muted = scheme.onSurfaceVariant;
+                    final record =
+                        best['${race.discipline}_${competitionLanguage(widget.language)}'];
+                    BoxDecoration box([Color? border]) => BoxDecoration(
+                      color: tokens['raisedSurface'],
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: border ?? tokens['border']),
+                    );
+                    Widget big(String label, String value) => Expanded(
+                      child: Column(
+                        children: [
+                          Text(
+                            label,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 12, color: muted),
+                          ),
+                          Text(
+                            value,
+                            maxLines: 1,
+                            style: const TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(
-                          '${result.wpm} ${widget.tr('st.wpm')}',
-                          style: Theme.of(context).textTheme.headlineMedium,
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          decoration: box(),
+                          child: Row(
+                            children: [
+                              big(widget.tr('st.wpm'), '${result.wpm}'),
+                              big(
+                                widget.tr('st.accuracy'),
+                                '${result.accuracy}%',
+                              ),
+                              big(
+                                widget.tr('comp.best'),
+                                '${record ?? result.wpm}',
+                              ),
+                            ],
+                          ),
                         ),
-                        Text(
-                          '${result.accuracy}% · ${widget.tr('st.accuracy')}',
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: box(),
+                          child: Column(
+                            children: [
+                              for (final (icon, label, value) in [
+                                (
+                                  Icons.schedule,
+                                  competitionCopy(widget.language, 'time'),
+                                  '${(result.elapsedMs / 1000).toStringAsFixed(1)} s',
+                                ),
+                                (
+                                  Icons.keyboard_outlined,
+                                  competitionCopy(widget.language, 'chars'),
+                                  '${result.characters}',
+                                ),
+                                (
+                                  Icons.error_outline,
+                                  widget.tr('st.errors'),
+                                  '${result.errors}',
+                                ),
+                                (
+                                  Icons.military_tech_outlined,
+                                  competitionCopy(widget.language, 'medal'),
+                                  competitionCopy(
+                                    widget.language,
+                                    result.medal,
+                                  ),
+                                ),
+                              ])
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(icon, size: 18, color: muted),
+                                      const SizedBox(width: 8),
+                                      Expanded(child: Text(label)),
+                                      Text(
+                                        value,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
-                        Text('${result.errors} · ${widget.tr('st.errors')}'),
-                        Text(
-                          '${(result.elapsedMs / 1000).toStringAsFixed(1)} s',
-                        ),
-                        Text(competitionCopy(widget.language, result.medal)),
-                        if (result.isRecord) Text(widget.tr('comp.record')),
+                        if (result.isRecord) ...[
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: box(tokens['success']),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.emoji_events_outlined,
+                                  color: tokens['success'],
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    widget.tr('comp.record'),
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      color: tokens['success'],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
-                    ),
-                  ),
+                    );
+                  },
                 ),
                 if (saving) const LinearProgressIndicator(),
                 if (saved) Text(competitionCopy(widget.language, 'saved')),
@@ -569,6 +679,24 @@ String competitionCopy(String language, String key) {
   const languages = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
   const values = {
     'time': ['время', 'time', 'tiempo', 'Zeit', 'temps', 'tempo', 'tempo'],
+    'chars': [
+      'Набрано символов',
+      'Characters typed',
+      'Caracteres',
+      'Zeichen',
+      'Caractères',
+      'Caratteri',
+      'Caracteres',
+    ],
+    'medal': [
+      'Медаль',
+      'Medal',
+      'Medalla',
+      'Medaille',
+      'Médaille',
+      'Medaglia',
+      'Medalha',
+    ],
     'gold': ['Золото', 'Gold', 'Oro', 'Gold', 'Or', 'Oro', 'Ouro'],
     'silver': [
       'Серебро',

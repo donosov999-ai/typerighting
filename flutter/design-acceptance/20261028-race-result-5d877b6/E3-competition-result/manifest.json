@@ -1,0 +1,106 @@
+{
+  "screen": "E3-competition-result",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "5d877b6",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/05.png",
+    "sha256": "fd562aaff0cf4fd3cb244c6722bc21686e4dbd36c2b5176e8d4cd3ebab90a7ff",
+    "cropXYXY": [
+      1060,
+      62,
+      1500,
+      518
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.7727
+  },
+  "actual": {
+    "sha256": "a68a968f3e708eeb49ad36f89303045b1d7c1640f2e943a53aabb8118843d204",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Алфавит А→Я набран по-настоящему (120 мс/знак), первый результат = рекорд"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 808
+  },
+  "rows": [
+    [
+      "Цифры",
+      "Скорость · Точность · Лучший результат + «НОВЫЙ РЕКОРД»",
+      "WPM · точность · рекорд",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Детали",
+      "Время · Набрано символов · Ошибок",
+      "то же + медаль исходника",
+      "+ медаль",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Баннер",
+      "«Отличный результат! новый личный рекорд»",
+      "«Новый личный рекорд!» — только при подтверждённом рекорде",
+      "текст короче",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Кнопки",
+      "Закрыть / Повторить",
+      "Заново / Гонка со своим повтором; «← К списку» сверху",
+      "+ повтор-призрак",
+      "—",
+      "функция исходника",
+      "PASS"
+    ],
+    [
+      "Шапка",
+      "«Результат: Спринт»",
+      "заголовок раздела обрезан",
+      "обрезка",
+      "—",
+      "вопрос 4 в чек-листе",
+      "открыто"
+    ],
+    [
+      "Масштаб",
+      "эскиз без viewport",
+      "390×844, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "58bea64bea34d6b38dae6195efb3ef9568d038531baf5069a809e3ecc2d8cf50",
+    "overlay-50.png": "75bc233dab741a0912fa6aa124f196c2307f76a468bdfffc458db1e2ba3ebb6f",
+    "comparison-panel.png": "8874c1ac131994d2796c695be36b03ab84607115787914da79f478b3360c1fd1"
+  }
+}

@@ -1,6 +1,6 @@
 # Листы сравнения для приёмки, 28.10.2026 [Claude·MAC]
 
-Последняя панель каждого экрана: эскиз | сборка | наложение 50/50 (метод DESIGN_COMPARISON_ACCEPTANCE.md). Таблица расхождений — REPORT.md в папке пакета. Решения Дениса нет.
+Последняя панель каждого экрана: эскиз | сборка | наложение 50/50. Таблица — REPORT.md пакета. Решения Дениса нет.
 
 - A1 · черновик — есть расхождения · 20261028-welcome-85f0c4d/A1-welcome
 - A2 · draft - Today implemented; remaining differences documented; not accepted · 20261025-local-f5e556b/A2-today
@@ -38,8 +38,8 @@
 - D5 · черновик — есть расхождения · 20261028-modes-dj-ec41ca1/D5-memorize-run
 - D6 · черновик — есть расхождения · 20261028-modes-dj-ec41ca1/D6-recall-show
 - E1 · черновик — есть расхождения · 20261028-modes-de-b44a6ab/E1-competition
-- E2 · черновик — есть расхождения · 20261028-modes-dj-ec41ca1/E2-competition-run
-- E3 · draft - substantial differences, not accepted · 20261026-competition-candidate/E3-result
+- E2 · готово к согласованию · 20261028-race-0593e86/E2-competition-run
+- E3 · готово к согласованию · 20261028-race-result-5d877b6/E3-competition-result
 - E4 · готово к согласованию · 20261028-modes-de-b44a6ab/E4-exam-setup
 - E5 · черновик — есть расхождения · 20261028-modes-de-b44a6ab/E5-exam-run
 - E6 · готово к согласованию · 20261028-modes-de-b44a6ab/E6-exam-result

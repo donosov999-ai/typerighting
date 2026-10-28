@@ -26,6 +26,7 @@ import 'domain/recall.dart';
 import 'features/progress_page.dart';
 import 'features/settings_pages.dart';
 import 'features/profile_page.dart';
+import 'features/achievements_page.dart';
 import 'audio/typefree_sound.dart';
 import 'design_system/templates.dart';
 import 'design_system/synapse_header.dart';
@@ -161,6 +162,7 @@ enum AppSection {
   settingsInput,
   settingsSound,
   profileLanguage,
+  achievements,
 }
 
 class TypeFreeApp extends StatefulWidget {
@@ -228,7 +230,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       section == AppSection.settings ||
       section == AppSection.settingsInput ||
       section == AppSection.settingsSound ||
-      section == AppSection.profileLanguage;
+      section == AppSection.profileLanguage ||
+      section == AppSection.achievements;
   Future<bool> finishLearning() async {
     if (section == AppSection.kids) {
       return await kidsKey.currentState?.checkpointForExit() ?? true;
@@ -1114,7 +1117,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                   section == AppSection.weakKeys
                       ? AppSection.progress
                       : section == AppSection.settings ||
-                            section == AppSection.profileLanguage
+                            section == AppSection.profileLanguage ||
+                            section == AppSection.achievements
                       ? AppSection.more
                       : section == AppSection.settingsInput ||
                             section == AppSection.settingsSound
@@ -1166,6 +1170,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     ? settingsCopy(language, 'sound')
                     : section == AppSection.profileLanguage
                     ? profileCopy(language, 'title')
+                    : section == AppSection.achievements
+                    ? tr('ach.title')
                     : section == AppSection.kids
                     ? tr('k.title')
                     : section == AppSection.exam
@@ -1398,6 +1404,14 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       values: settingsValues,
                       onInput: () => showSection(AppSection.settingsInput),
                       onSound: () => showSection(AppSection.settingsSound),
+                    );
+                  }
+                  if (section == AppSection.achievements) {
+                    return AchievementsPage(
+                      repository: widget.repository,
+                      language: language,
+                      tr: tr,
+                      clock: widget.clock,
                     );
                   }
                   if (section == AppSection.profileLanguage) {
@@ -1908,6 +1922,13 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           profileCopy(language, 'title'),
           profileCopy(language, 'title.d'),
           () => showSection(AppSection.profileLanguage),
+        ),
+        modeTile(
+          Icons.emoji_events_outlined,
+          0xFFF07B2B,
+          tr('ach.title'),
+          profileCopy(language, 'ach.d'),
+          () => showSection(AppSection.achievements),
         ),
         modeTile(
           Icons.insights_outlined,

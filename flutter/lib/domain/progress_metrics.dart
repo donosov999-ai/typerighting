@@ -55,23 +55,28 @@ int utcStreak(Iterable<num> timestamps, int now) {
   return count;
 }
 
+/// Source BADGES (src/achievements.ts): one metric and the value it needs.
 class Milestone {
-  const Milestone(this.id, this.icon);
+  const Milestone(this.id, this.icon, this.metric, this.goal);
   final String id, icon;
+
+  /// sessions · streak · wpm · accuracy · languages
+  final String metric;
+  final num goal;
 }
 
 const milestones = [
-  Milestone('first', '🌱'),
-  Milestone('sessions10', '📈'),
-  Milestone('sessions50', '🏅'),
-  Milestone('streak3', '🔥'),
-  Milestone('streak7', '🔥'),
-  Milestone('streak30', '💎'),
-  Milestone('wpm30', '⚡'),
-  Milestone('wpm50', '🚀'),
-  Milestone('wpm70', '👑'),
-  Milestone('acc99', '🎯'),
-  Milestone('polyglot', '🌍'),
+  Milestone('first', '🌱', 'sessions', 1),
+  Milestone('sessions10', '📈', 'sessions', 10),
+  Milestone('sessions50', '🏅', 'sessions', 50),
+  Milestone('streak3', '🔥', 'streak', 3),
+  Milestone('streak7', '🔥', 'streak', 7),
+  Milestone('streak30', '💎', 'streak', 30),
+  Milestone('wpm30', '⚡', 'wpm', 30),
+  Milestone('wpm50', '🚀', 'wpm', 50),
+  Milestone('wpm70', '👑', 'wpm', 70),
+  Milestone('acc99', '🎯', 'accuracy', 99),
+  Milestone('polyglot', '🌍', 'languages', 3),
 ];
 List<String> unlockedMilestones({
   required int sessions,
@@ -80,21 +85,15 @@ List<String> unlockedMilestones({
   required num maxAccuracy,
   required int languages,
 }) {
-  final enabled = [
-    sessions >= 1,
-    sessions >= 10,
-    sessions >= 50,
-    streak >= 3,
-    streak >= 7,
-    streak >= 30,
-    maxWpm >= 30,
-    maxWpm >= 50,
-    maxWpm >= 70,
-    maxAccuracy >= 99,
-    languages >= 3,
-  ];
+  final value = {
+    'sessions': sessions,
+    'streak': streak,
+    'wpm': maxWpm,
+    'accuracy': maxAccuracy,
+    'languages': languages,
+  };
   return [
-    for (var i = 0; i < milestones.length; i++)
-      if (enabled[i]) milestones[i].id,
+    for (final m in milestones)
+      if (value[m.metric]! >= m.goal) m.id,
   ];
 }

@@ -7,6 +7,18 @@ import 'progress_view.dart';
 /// Global device milestones match the legacy global scope. Unknown old metadata
 /// does not become current-profile activity or evidence of a particular language.
 List<String> eligibleAchievementIds(Map<String, dynamic> doc, int now) {
+  final m = milestoneMetrics(doc, now);
+  return unlockedMilestones(
+    sessions: m['sessions']!.toInt(),
+    streak: m['streak']!.toInt(),
+    maxWpm: m['wpm']!,
+    maxAccuracy: m['accuracy']!,
+    languages: m['languages']!.toInt(),
+  );
+}
+
+/// Current value of every milestone metric (progress toward locked badges).
+Map<String, num> milestoneMetrics(Map<String, dynamic> doc, int now) {
   final view = ProgressView(doc);
   final rows = view.timeline
       .where((r) => r['historyEligible'] != false)
@@ -27,13 +39,13 @@ List<String> eligibleAchievementIds(Map<String, dynamic> doc, int now) {
       languages.add(language);
     }
   }
-  return unlockedMilestones(
-    sessions: rows.length,
-    streak: utcStreak(rows.map((r) => r['t'] as num), now),
-    maxWpm: rows.fold<num>(0, (n, r) => max(n, r['wpm'] as num)),
-    maxAccuracy: rows.fold<num>(0, (n, r) => max(n, r['accuracy'] as num)),
-    languages: languages.length,
-  );
+  return {
+    'sessions': rows.length,
+    'streak': utcStreak(rows.map((r) => r['t'] as num), now),
+    'wpm': rows.fold<num>(0, (n, r) => max(n, r['wpm'] as num)),
+    'accuracy': rows.fold<num>(0, (n, r) => max(n, r['accuracy'] as num)),
+    'languages': languages.length,
+  };
 }
 
 /// Called inside the result transaction. Preserve imported/unknown badge IDs;

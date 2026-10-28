@@ -103,6 +103,59 @@ void main() {
     await tester.binding.setSurfaceSize(null);
   });
 
+  testWidgets('A1 welcome on first run: language, profile, continue', (tester) async {
+    final resources = (await tester.runAsync(Resources.load))!;
+    final repo = LocalRepository(MemoryStore());
+    await repo.load();
+    await repo.transaction((d) => (d['prefs'] as Map)['pet'] = false);
+    expect(needsWelcome(repo.data), true);
+    final appearance = AppearanceController(resources.registry, AppearanceMemory(), existingInstall: false);
+    final key = GlobalKey<TypeFreeAppState>();
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    await tester.pumpWidget(TypeFreeApp(key: key, resources: resources, repository: repo, appearance: appearance, welcome: needsWelcome(repo.data)));
+    await tester.pump();
+    final app = key.currentState!;
+    expect(app.section, AppSection.welcome);
+    expect(find.byType(NavigationBar), findsNothing);
+    final cont = find.widgetWithText(FilledButton, 'Продолжить');
+    expect(tester.widget<FilledButton>(cont).onPressed, isNull, reason: 'pick a profile first');
+
+    await tester.tap(find.text('Русский'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('English').last);
+    await tester.pumpAndSettle();
+    expect(app.language, 'en');
+    await tester.tap(find.text('Soft'));
+    await tester.pump();
+    await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
+    await tester.pumpAndSettle(const Duration(milliseconds: 300));
+    expect(app.section, AppSection.today);
+    expect(app.profile, 'f');
+    expect((repo.data['prefs'] as Map)['profile'], 'f');
+    expect(needsWelcome(repo.data), false);
+
+    // Fits 320 px at 200 % text in every language.
+    for (final lang in ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt']) {
+      final r = LocalRepository(MemoryStore());
+      await r.load();
+      await r.transaction((d) {
+        (d['prefs'] as Map)['pet'] = false;
+        (d['prefs'] as Map)['lang'] = lang;
+      });
+      await tester.binding.setSurfaceSize(const Size(320, 582));
+      await tester.pumpWidget(MediaQuery(
+        data: const MediaQueryData(size: Size(320, 582), textScaler: TextScaler.linear(2)),
+        child: TypeFreeApp(resources: resources, repository: r, appearance: appearance, welcome: true),
+      ));
+      await tester.pump();
+      expect(tester.takeException(), isNull, reason: lang);
+    }
+    await tester.pumpWidget(const SizedBox());
+    appSound.stopMetronome();
+    appearance.dispose();
+    await tester.binding.setSurfaceSize(null);
+  });
+
   testWidgets('A6 profile, language and theme change from «Профиль и язык»', (tester) async {
     final resources = (await tester.runAsync(Resources.load))!;
     final repo = LocalRepository(MemoryStore());

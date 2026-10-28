@@ -112,6 +112,7 @@ Future<void> main() async {
       TypeFreeApp(
         resources: resources,
         repository: repo,
+        welcome: needsWelcome(repo.data),
         appearance: AppearanceController(
           resources.registry,
           PreferenceStore(),
@@ -163,7 +164,13 @@ enum AppSection {
   settingsSound,
   profileLanguage,
   achievements,
+  welcome,
 }
+
+/// Source rule: onboarding while no profile was ever chosen (tr_profile,
+/// imported into prefs.profile).
+bool needsWelcome(Map<String, dynamic> doc) =>
+    !const ['m', 'f', 'kids'].contains((doc['prefs'] as Map)['profile']);
 
 class TypeFreeApp extends StatefulWidget {
   const TypeFreeApp({
@@ -174,6 +181,7 @@ class TypeFreeApp extends StatefulWidget {
     this.clock,
     this.artifactExporter,
     this.initialSection = AppSection.today,
+    this.welcome = false,
   });
   final Resources resources;
   final LocalRepository repository;
@@ -181,6 +189,9 @@ class TypeFreeApp extends StatefulWidget {
   final MillisecondClock? clock;
   final ArtifactExporter? artifactExporter;
   final AppSection initialSection;
+
+  /// Start on A1 «Добро пожаловать» (see [needsWelcome]).
+  final bool welcome;
   @override
   State<TypeFreeApp> createState() => TypeFreeAppState();
 }
@@ -296,7 +307,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    section = widget.initialSection;
+    section = widget.welcome ? AppSection.welcome : widget.initialSection;
     keyStatistics = KeyStatisticsStore(
       widget.repository,
       onAchievements: (ids) {
@@ -769,6 +780,17 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     await savePrefs();
   }
 
+  Future<void> finishWelcome(String picked) async {
+    setState(() {
+      profile = picked;
+      section = AppSection.today;
+      assistant.dispose();
+      headerAssistant.dispose();
+      createAssistant();
+    });
+    await savePrefs();
+  }
+
   Future<void> changeProfile(String next) async {
     if (saving || next == profile) return;
     if (!await finishLearning() || !mounted) return;
@@ -1098,6 +1120,18 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           ),
       ],
     );
+    if (section == AppSection.welcome) {
+      return Scaffold(
+        body: SafeArea(
+          child: WelcomePage(
+            language: language,
+            tr: tr,
+            onLanguage: (l) => unawaited(changeLanguage(l)),
+            onDone: (p) => unawaited(finishWelcome(p)),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: section == AppSection.today

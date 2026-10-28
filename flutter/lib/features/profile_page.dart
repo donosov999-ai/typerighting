@@ -90,6 +90,24 @@ String profileCopy(String language, String key) {
       'Tutto TypeFree in un unico posto',
       'Tudo do TypeFree num só lugar',
     ],
+    'continue': [
+      'Продолжить',
+      'Continue',
+      'Continuar',
+      'Weiter',
+      'Continuer',
+      'Continua',
+      'Continuar',
+    ],
+    'ob.note': [
+      'Профиль и язык можно сменить в любой момент: «Ещё → Профиль и язык».',
+      'Change profile and language any time: More → Profile and language.',
+      'Cambia perfil e idioma cuando quieras: Más → Perfil e idioma.',
+      'Profil und Sprache jederzeit ändern: Mehr → Profil und Sprache.',
+      'Changez profil et langue à tout moment : Plus → Profil et langue.',
+      'Cambia profilo e lingua quando vuoi: Altro → Profilo e lingua.',
+      'Mude perfil e idioma a qualquer momento: Mais → Perfil e idioma.',
+    ],
     'ach.d': [
       'Награды за вехи и прогресс к ним',
       'Milestone badges and progress towards them',
@@ -134,54 +152,10 @@ class ProfileLanguagePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             _Title(c('style')),
-            _Grid(
-              min: 110,
-              children: [
-                for (final id in profileIds)
-                  _Option(
-                    selected: profile == id,
-                    label: tr('profile.$id'),
-                    onTap: busy ? null : () => onProfile(id),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: 52,
-                          height: 52,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: profileAccent[id]!.withValues(alpha: .22),
-                            border: Border.all(color: profileAccent[id]!),
-                          ),
-                          child: Text(
-                            profileEmoji[id]!,
-                            style: const TextStyle(fontSize: 26),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          tr('profile.$id'),
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          tr('profile.$id.desc'),
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 11.5,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
+            ProfileCards(
+              tr: tr,
+              selected: profile,
+              onPick: busy ? null : onProfile,
             ),
             _Title(c('lang')),
             _Grid(
@@ -253,6 +227,67 @@ class ProfileLanguagePage extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Three source profiles as cards (A1 and A6).
+class ProfileCards extends StatelessWidget {
+  const ProfileCards({
+    super.key,
+    required this.tr,
+    required this.selected,
+    required this.onPick,
+  });
+  final String Function(String) tr;
+  final String? selected;
+  final ValueChanged<String>? onPick;
+  @override
+  Widget build(BuildContext context) => _Grid(
+    min: 110,
+    children: [
+      for (final id in profileIds)
+        _Option(
+          selected: selected == id,
+          label: tr('profile.$id'),
+          onTap: onPick == null ? null : () => onPick!(id),
+          child: Column(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: profileAccent[id]!.withValues(alpha: .22),
+                  border: Border.all(color: profileAccent[id]!),
+                ),
+                child: Text(
+                  profileEmoji[id]!,
+                  style: const TextStyle(fontSize: 26),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                tr('profile.$id'),
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                tr('profile.$id.desc'),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 11.5,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+    ],
+  );
 }
 
 class _Title extends StatelessWidget {
@@ -356,6 +391,191 @@ class _Option extends StatelessWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+/// «Добро пожаловать» (A1): first run without a saved profile, as the source
+/// renderOnboarding (language switcher, three profile cards). The source
+/// starts on a tap of a card; here a card selects and «Продолжить» confirms.
+class WelcomePage extends StatefulWidget {
+  const WelcomePage({
+    super.key,
+    required this.language,
+    required this.tr,
+    required this.onLanguage,
+    required this.onDone,
+  });
+  final String language;
+  final String Function(String) tr;
+  final ValueChanged<String> onLanguage, onDone;
+  @override
+  State<WelcomePage> createState() => _WelcomePageState();
+}
+
+class _WelcomePageState extends State<WelcomePage> {
+  String? picked;
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final sub = widget.tr('ob.sub');
+    // ob.sub = «Тренажёр слепой печати. Для кого настроить?»: the first
+    // sentence is the tagline, the question heads the cards.
+    final cut = sub.indexOf('. ');
+    final tagline = cut < 0 ? sub : sub.substring(0, cut + 1);
+    final question = cut < 0 ? '' : sub.substring(cut + 2);
+    return SingleChildScrollView(
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Stack(
+                children: [
+                  Positioned.fill(
+                    child: ShaderMask(
+                      shaderCallback: (r) => const LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.white,
+                          Colors.white,
+                          Colors.transparent,
+                        ],
+                        stops: [0, .7, 1],
+                      ).createShader(r),
+                      blendMode: BlendMode.dstIn,
+                      child: Image.asset(
+                        'assets/artwork/today-mountains-v1.png',
+                        fit: BoxFit.cover,
+                        alignment: Alignment.bottomCenter,
+                        excludeFromSemantics: true,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 28, 16, 64),
+                    child: Column(
+                      children: [
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              const TextSpan(text: 'Type'),
+                              TextSpan(
+                                text: 'Free',
+                                style: TextStyle(
+                                  color: scheme.primary,
+                                  fontStyle: FontStyle.italic,
+                                ),
+                              ),
+                            ],
+                          ),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 38,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          tagline,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: .45),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: Colors.white24),
+                          ),
+                          constraints: const BoxConstraints(maxWidth: 240),
+                          child: DropdownButton<String>(
+                            isExpanded: true,
+                            value: widget.language,
+                            underline: const SizedBox(),
+                            dropdownColor: scheme.surface,
+                            icon: const Icon(Icons.expand_more),
+                            items: [
+                              for (final e in languageNames.entries)
+                                DropdownMenuItem(
+                                  value: e.key,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(Icons.language, size: 18),
+                                      const SizedBox(width: 8),
+                                      Flexible(
+                                        child: Text(
+                                          e.value,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                            onChanged: (l) => widget.onLanguage(l!),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (question.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: Text(
+                          question,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ProfileCards(
+                      tr: widget.tr,
+                      selected: picked,
+                      onPick: (p) => setState(() => picked = p),
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        minimumSize: const Size.fromHeight(48),
+                      ),
+                      onPressed: picked == null
+                          ? null
+                          : () => widget.onDone(picked!),
+                      child: Text(profileCopy(widget.language, 'continue')),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      profileCopy(widget.language, 'ob.note'),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

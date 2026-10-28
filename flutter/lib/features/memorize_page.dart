@@ -557,132 +557,174 @@ class MemorizePageState extends State<MemorizePage> {
                       : null,
                   ru: widget.language == 'ru',
                 ),
-              ] else ...[
-                Semantics(
-                  key: ValueKey('memorize-result-${run.level}'),
-                  container: true,
-                  excludeSemantics: true,
-                  label:
-                      '${result.wpm} ${widget.tr('st.wpm')}, ${result.accuracy}% ${widget.tr(run.finished ? 'mem.recall' : 'st.accuracy')}${run.finished ? ', ${run.gain}% ${widget.tr('mem.gain')}' : ''}',
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Wrap(
-                        spacing: 24,
-                        runSpacing: 16,
-                        children: [
-                          Text(
-                            '${result.wpm} ${widget.tr('st.wpm')}',
-                            style: Theme.of(context).textTheme.headlineMedium,
-                          ),
-                          Text(
-                            '${result.accuracy}% · ${widget.tr(run.finished ? 'mem.recall' : 'st.accuracy')}',
-                          ),
-                          if (run.finished)
-                            Text('${run.gain}% · ${widget.tr('mem.gain')}'),
-                          if (run.finished)
-                            Text(
-                              run.medal,
-                              style: Theme.of(context).textTheme.headlineMedium,
-                            ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                if (run.finished) ...[
-                  // J4: every pass of the piece with its real numbers.
-                  Card(
-                    key: const ValueKey('memorize-passes'),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      child: Column(
-                        children: [
-                          for (final (i, p) in run.passResults.indexed)
-                            Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 5),
-                              child: Row(
+              ] else
+                // D5: on wide screens the pass result sits beside the typed
+                // text, as on the sketch; narrow keeps it in one column.
+                LayoutBuilder(
+                  builder: (context, box) {
+                    final panel = Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Semantics(
+                          key: ValueKey('memorize-result-${run.level}'),
+                          container: true,
+                          excludeSemantics: true,
+                          label:
+                              '${result.wpm} ${widget.tr('st.wpm')}, ${result.accuracy}% ${widget.tr(run.finished ? 'mem.recall' : 'st.accuracy')}${run.finished ? ', ${run.gain}% ${widget.tr('mem.gain')}' : ''}',
+                          child: Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Wrap(
+                                spacing: 24,
+                                runSpacing: 16,
                                 children: [
-                                  Icon(
-                                    Icons.check_circle,
-                                    size: 18,
-                                    color: Theme.of(
-                                      context,
-                                    ).extension<TypeFreeTokens>()!['success'],
+                                  Text(
+                                    '${result.wpm} ${widget.tr('st.wpm')}',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineMedium,
                                   ),
-                                  const SizedBox(width: 8),
-                                  // Label and numbers wrap at 320 px / 200 %.
-                                  Expanded(
-                                    child: Wrap(
-                                      alignment: WrapAlignment.spaceBetween,
-                                      spacing: 12,
-                                      children: [
-                                        Text(
-                                          '${i + 1}. ${widget.tr('mem.lvl.${memorizeLevels[min(i, memorizeLevels.length - 1)]}')}',
-                                        ),
-                                        Text(
-                                          '${p.accuracy}% · ${p.wpm} ${widget.tr('st.wpm')} · ${p.elapsedMs ~/ 60000}:${((p.elapsedMs ~/ 1000) % 60).toString().padLeft(2, '0')}',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ],
+                                  Text(
+                                    '${result.accuracy}% · ${widget.tr(run.finished ? 'mem.recall' : 'st.accuracy')}',
+                                  ),
+                                  if (run.finished)
+                                    Text(
+                                      '${run.gain}% · ${widget.tr('mem.gain')}',
                                     ),
-                                  ),
+                                  if (run.finished)
+                                    Text(
+                                      run.medal,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineMedium,
+                                    ),
                                 ],
                               ),
                             ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Text(
-                    widget.tr(run.lengthIncreased ? 'mem.lenup' : 'mem.done'),
-                  ),
-                  if (run.lengthIncreased) Text(lengthLabel(run.lengthIndex)),
-                  Text(widget.tr('mem.gain.hint')),
-                ] else
-                  Text(
-                    '${widget.tr('mem.next.hint')} ${widget.tr('mem.lvl.${memorizeLevels[run.level + 1]}')}',
-                  ),
-                if (saving) const LinearProgressIndicator(),
-                if (saved) Text(competitionCopy(widget.language, 'saved')),
-                const SizedBox(height: 12),
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 8,
-                  children: [
-                    if (!saved)
-                      FilledButton(
-                        onPressed: saving ? null : finishAndSave,
-                        child: Text(widget.tr('ex.finish')),
-                      ),
-                    if (saved)
-                      FilledButton(
-                        key: const ValueKey('memorize-next'),
-                        onPressed: saving
-                            ? null
-                            : () {
-                                setState(() {
-                                  if (run.finished) {
-                                    run.nextPiece();
-                                  } else {
-                                    run.nextPass();
-                                  }
-                                  resetCheckpoint();
-                                });
-                                focus.requestFocus();
-                              },
-                        child: Text(
-                          widget.tr(run.finished ? 'k.again' : 'mem.next'),
+                          ),
                         ),
-                      ),
-                  ],
+                        if (run.finished) ...[
+                          // J4: every pass of the piece with its real numbers.
+                          Card(
+                            key: const ValueKey('memorize-passes'),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              child: Column(
+                                children: [
+                                  for (final (i, p) in run.passResults.indexed)
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 5,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            Icons.check_circle,
+                                            size: 18,
+                                            color: Theme.of(context)
+                                                .extension<
+                                                  TypeFreeTokens
+                                                >()!['success'],
+                                          ),
+                                          const SizedBox(width: 8),
+                                          // Label and numbers wrap at 320 px / 200 %.
+                                          Expanded(
+                                            child: Wrap(
+                                              alignment:
+                                                  WrapAlignment.spaceBetween,
+                                              spacing: 12,
+                                              children: [
+                                                Text(
+                                                  '${i + 1}. ${widget.tr('mem.lvl.${memorizeLevels[min(i, memorizeLevels.length - 1)]}')}',
+                                                ),
+                                                Text(
+                                                  '${p.accuracy}% · ${p.wpm} ${widget.tr('st.wpm')} · ${p.elapsedMs ~/ 60000}:${((p.elapsedMs ~/ 1000) % 60).toString().padLeft(2, '0')}',
+                                                  style: const TextStyle(
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Text(
+                            widget.tr(
+                              run.lengthIncreased ? 'mem.lenup' : 'mem.done',
+                            ),
+                          ),
+                          if (run.lengthIncreased)
+                            Text(lengthLabel(run.lengthIndex)),
+                          Text(widget.tr('mem.gain.hint')),
+                        ] else
+                          Text(
+                            '${widget.tr('mem.next.hint')} ${widget.tr('mem.lvl.${memorizeLevels[run.level + 1]}')}',
+                          ),
+                        if (saving) const LinearProgressIndicator(),
+                        if (saved)
+                          Text(competitionCopy(widget.language, 'saved')),
+                        const SizedBox(height: 12),
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 8,
+                          children: [
+                            if (!saved)
+                              FilledButton(
+                                onPressed: saving ? null : finishAndSave,
+                                child: Text(widget.tr('ex.finish')),
+                              ),
+                            if (saved)
+                              FilledButton(
+                                key: const ValueKey('memorize-next'),
+                                onPressed: saving
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          if (run.finished) {
+                                            run.nextPiece();
+                                          } else {
+                                            run.nextPass();
+                                          }
+                                          resetCheckpoint();
+                                        });
+                                        focus.requestFocus();
+                                      },
+                                child: Text(
+                                  widget.tr(
+                                    run.finished ? 'k.again' : 'mem.next',
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ],
+                    );
+                    if (box.maxWidth < 900) return panel;
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: PatternView(session: run.typing),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        SizedBox(width: 340, child: panel),
+                      ],
+                    );
+                  },
                 ),
-              ],
             ],
             if (error != null)
               Text(

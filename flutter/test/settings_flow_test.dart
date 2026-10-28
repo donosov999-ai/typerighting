@@ -217,7 +217,7 @@ void main() {
           child: TypeFreeApp(key: key, resources: resources, repository: repo, appearance: appearance),
         ));
         await tester.pump();
-        for (final sec in [AppSection.practiceMenu, AppSection.more, AppSection.settings, AppSection.settingsInput, AppSection.settingsSound, AppSection.profileLanguage, AppSection.achievements, AppSection.progress, AppSection.companion, AppSection.practice, AppSection.course]) {
+        for (final sec in [AppSection.practiceMenu, AppSection.more, AppSection.settings, AppSection.settingsInput, AppSection.settingsSound, AppSection.profileLanguage, AppSection.achievements, AppSection.progress, AppSection.companion, AppSection.practice, AppSection.course, AppSection.library]) {
           await key.currentState!.showSection(sec);
           await tester.pump();
           expect(tester.takeException(), isNull, reason: '$lang $scale $sec');

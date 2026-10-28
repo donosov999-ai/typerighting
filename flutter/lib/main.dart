@@ -31,6 +31,7 @@ import 'features/companion_page.dart';
 import 'features/synapse_panel.dart';
 import 'features/result_card.dart';
 import 'features/trainer_parts.dart';
+import 'features/library_page.dart';
 import 'data/achievement_store.dart';
 import 'data/progress_view.dart';
 import 'domain/progress_metrics.dart' show utcStreak;
@@ -173,6 +174,7 @@ enum AppSection {
   achievements,
   welcome,
   companion,
+  library,
 }
 
 /// Source rule: onboarding while no profile was ever chosen (tr_profile,
@@ -258,6 +260,45 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   AppSection get menuHome =>
       companionMode ? AppSection.companion : AppSection.practiceMenu;
 
+  /// The trainer opened from C1 returns to the library, not the menu.
+  bool practiceFromLibrary = false;
+
+  List<LibraryBank> get libraryBanks {
+    final all = List<Map<String, dynamic>>.from(
+      (widget.resources.content['catalog'] as Map)[language] as List,
+    );
+    final legacy = widget.repository.data['legacy'] as Map;
+    return [
+      for (final id in {for (final e in all) e['bank'] as String})
+        LibraryBank(
+          id,
+          all.where((e) => e['bank'] == id).length,
+          legacy['tr_progress_$id'] is String
+              ? ((jsonDecode(legacy['tr_progress_$id'] as String)
+                            as Map)['done']
+                        as List? ??
+                    [])
+                .length
+              : 0,
+        ),
+    ];
+  }
+
+  void openBank(String id) {
+    if (saving) return;
+    setState(() {
+      custom = null;
+      weakMode = false;
+      bank = id;
+      if (bank != 'digits') textBank = bank;
+      index = 0;
+      reset();
+      practiceFromLibrary = true;
+      section = AppSection.practice;
+    });
+    unawaited(savePrefs());
+  }
+
   /// F2 opens from «Ещё» and from «Прогресс»; back and the tab follow it.
   AppSection achievementsBack = AppSection.more;
   bool get historyPage => section == AppSection.progress;
@@ -290,7 +331,12 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
 
   Future<void> showSection(AppSection next) async {
     if (next != section && !await finishLearning()) return;
-    if (mounted) setState(() => section = next);
+    if (!mounted) return;
+    setState(() {
+      // Only openBank enters the trainer «from the library».
+      if (next != section) practiceFromLibrary = false;
+      section = next;
+    });
   }
 
   int index = 0;
@@ -1354,6 +1400,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                 section == AppSection.exam ||
                 section == AppSection.kids ||
                 section == AppSection.weakKeys ||
+                section == AppSection.library ||
                 inSettings
             ? IconButton(
                 tooltip: tr('nav.back'),
@@ -1368,6 +1415,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       : section == AppSection.settingsInput ||
                             section == AppSection.settingsSound
                       ? AppSection.settings
+                      : section == AppSection.practice && practiceFromLibrary
+                      ? AppSection.library
                       : menuHome,
                 ),
                 icon: const Icon(Icons.arrow_back),
@@ -1419,6 +1468,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                     ? tr('ach.title')
                     : section == AppSection.companion
                     ? settingsCopy(language, 'companion')
+                    : section == AppSection.library
+                    ? libraryCopy(language, 'title')
                     : section == AppSection.kids
                     ? tr('k.title')
                     : section == AppSection.exam
@@ -1621,6 +1672,15 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       values: settingsValues,
                       onInput: () => showSection(AppSection.settingsInput),
                       onSound: () => showSection(AppSection.settingsSound),
+                    );
+                  }
+                  if (section == AppSection.library) {
+                    return LibraryPage(
+                      key: ValueKey('library-$language'),
+                      language: language,
+                      tr: tr,
+                      banks: libraryBanks,
+                      onOpen: openBank,
                     );
                   }
                   if (section == AppSection.companion) {
@@ -2071,7 +2131,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           0xFFF07B2B,
           tr('hub.train'),
           tr('hub.train.d'),
-          () => showSection(AppSection.practice),
+          () => showSection(AppSection.library),
         ),
         modeTile(
           Icons.menu_book_outlined,

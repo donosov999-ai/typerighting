@@ -1505,20 +1505,12 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
               onPressed: () => showSection(AppSection.progress),
               icon: const Icon(Icons.calendar_today_outlined, size: 20),
             ),
-          if (section != AppSection.today && !inSettings)
-            DropdownButton<String>(
-              value: language,
-              items: languages
-                  .map(
-                    (l) => DropdownMenuItem(
-                      value: l,
-                      child: Text(l.toUpperCase()),
-                    ),
-                  )
-                  .toList(),
-              onChanged: saving ? null : (l) => changeLanguage(l!),
-            ),
-          if (section != AppSection.today && !inSettings)
+          // Sheets A–M draw no language picker or gear in the header: the
+          // language lives in «Ещё → Профиль и язык», settings in «Ещё».
+          // The gear stays where settings are needed mid-task: the trainer
+          // and the companion (its F4 switch).
+          if (section == AppSection.practice ||
+              section == AppSection.companion)
             IconButton(
               tooltip: tr('hub.settings'),
               onPressed: settings,

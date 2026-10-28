@@ -501,7 +501,45 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
                   ],
                 ),
                 const SizedBox(height: 8),
-                Text(widget.tr(run.revealing ? 'span.show' : 'span.recall')),
+                // D6: two steps — remember, then type from memory.
+                Row(
+                  children: [
+                    for (final (i, key) in [
+                      (0, 'span.show'),
+                      (1, 'span.recall'),
+                    ]) ...[
+                      if (i == 1)
+                        Expanded(
+                          child: Divider(
+                            indent: 8,
+                            endIndent: 8,
+                            color: Theme.of(context).colorScheme.outline,
+                          ),
+                        ),
+                      Icon(
+                        (i == 0) == run.revealing
+                            ? Icons.radio_button_checked
+                            : Icons.radio_button_unchecked,
+                        size: 18,
+                        color: (i == 0) == run.revealing
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 6),
+                      Flexible(
+                        child: Text(
+                          widget.tr(key),
+                          style: TextStyle(
+                            fontWeight: (i == 0) == run.revealing
+                                ? FontWeight.w700
+                                : FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 6),
                 SizedBox(
                   height: 8,
                   child: run.revealing
@@ -517,11 +555,41 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
                 Card(
                   child: Padding(
                     padding: const EdgeInsets.all(12),
-                    child: PatternView(
-                      key: const ValueKey('recall-pattern'),
-                      session: run.typing,
-                      displayPattern: run.displayPattern,
-                    ),
+                    // While showing: the words as tiles; then the masked line.
+                    child: run.revealing
+                        ? Wrap(
+                            key: const ValueKey('recall-tiles'),
+                            spacing: 8,
+                            runSpacing: 8,
+                            alignment: WrapAlignment.center,
+                            children: [
+                              for (final w in run.typing.pattern.split(' '))
+                                if (w.isNotEmpty)
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                      vertical: 12,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .outline,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      w,
+                                      style: const TextStyle(fontSize: 24),
+                                    ),
+                                  ),
+                            ],
+                          )
+                        : PatternView(
+                            key: const ValueKey('recall-pattern'),
+                            session: run.typing,
+                            displayPattern: run.displayPattern,
+                          ),
                   ),
                 ),
                 const SizedBox(height: 12),

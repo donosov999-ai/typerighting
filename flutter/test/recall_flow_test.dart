@@ -107,10 +107,13 @@ void main() {
       now += 3599;
       await tester.pump(const Duration(milliseconds: 3599));
       expect(run.revealing, true);
+      // D6: words shown as tiles while remembering, gone once hidden.
+      expect(find.byKey(const ValueKey('recall-tiles')), findsOneWidget);
       now++;
       await tester.pump(const Duration(milliseconds: 1));
       await tester.pump();
       expect(run.revealing, false);
+      expect(find.byKey(const ValueKey('recall-tiles')), findsNothing);
       expect(
         tester.widget<PatternView>(find.byType(PatternView)).displayPattern,
         pattern.replaceAll(RegExp(r'[^ ]'), '·'),

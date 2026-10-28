@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../audio/typefree_sound.dart';
 import '../data/local_repository.dart';
+import '../design_system/templates.dart';
 import '../data/key_statistics_store.dart';
 import '../domain/learning.dart';
 import '../domain/key_statistics.dart';
@@ -257,175 +258,306 @@ class LearningPageState extends State<LearningPage> {
     super.dispose();
   }
 
+  /// Source learn.ts masteryLevel: start <70 ≤ good <200 ≤ working <300 ≤ pro.
+  String masteryLabel(int v) => widget.tr(
+    v >= 300
+        ? 'learn.lvl.pro'
+        : v >= 200
+        ? 'learn.lvl.work'
+        : v >= 70
+        ? 'learn.lvl.good'
+        : 'learn.lvl.start',
+  );
+
   @override
   Widget build(BuildContext context) {
     final m = engine.metrics, kids = widget.profile == 'kids';
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1000),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(widget.tr(kids ? 'learn.intro.kids' : 'learn.intro')),
-            const SizedBox(height: 12),
-            if (!kids)
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Text(widget.tr('learn.hand')),
-                  for (final hand in ['both', 'left', 'right'])
-                    ChoiceChip(
-                      label: Text(widget.tr('learn.hand.$hand')),
-                      selected: engine.hand == hand,
-                      onSelected: paused || saving
-                          ? null
-                          : (_) {
-                              setState(() {
-                                engine.changeHand(hand);
-                                clearInput();
-                              });
-                              focus.requestFocus();
-                            },
-                    ),
-                ],
-              ),
-            const SizedBox(height: 8),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: PatternView(session: engine.typing),
-              ),
+    final scheme = Theme.of(context).colorScheme;
+    final tokens = Theme.of(context).extension<TypeFreeTokens>()!;
+    final muted = scheme.onSurfaceVariant;
+    Widget panel(Widget child, {EdgeInsets? padding}) => Container(
+      padding: padding ?? const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: tokens['raisedSurface'],
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: tokens['border']),
+      ),
+      child: child,
+    );
+    // D1 header: what this mode does.
+    final header = panel(
+      Row(
+        children: [
+          Icon(
+            Icons.psychology_alt_outlined,
+            size: 34,
+            color: tokens['success'],
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              widget.tr(kids ? 'learn.intro.kids' : 'learn.intro'),
+              style: TextStyle(fontSize: 13, color: muted),
             ),
-            const SizedBox(height: 8),
-            if (!paused)
-              TextField(
-                key: const ValueKey('learning-input'),
-                controller: entry,
-                focusNode: focus,
-                autofocus: true,
-                autocorrect: false,
-                enableSuggestions: false,
-                enableInteractiveSelection: false,
-                smartDashesType: SmartDashesType.disabled,
-                smartQuotesType: SmartQuotesType.disabled,
-                inputFormatters: [PracticeCommitFormatter()],
-                onEditingComplete: () {},
-                onSubmitted: (_) {
-                  if (!paused && !saving) {
-                    engine.press('\n');
-                    setState(() {});
-                  }
-                },
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  labelText: learningCopy(widget.language, 'input'),
-                ),
-              ),
-            const SizedBox(height: 12),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: KeyboardGuide(
-                    language: widget.language,
-                  model: widget.keyboard,
-                  expected: paused ? null : engine.typing.expected,
-                  ru: widget.language == 'ru',
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            if (kids)
-              Wrap(
-                spacing: 16,
-                runSpacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Image.asset(
-                    'assets/learning/kids-cat-${engine.mood}.webp',
-                    width: 90,
-                    height: 90,
-                    semanticLabel: learningCopy(widget.language, 'cat'),
-                  ),
-                  Text(
-                    '★ ${engine.kidsScore}',
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                  Text(
-                    '${m['accuracy']}% · ${widget.tr('st.accuracy')} · ${widget.tr('span.level')} ${engine.kidsLevel + 1}',
-                  ),
-                ],
-              )
-            else
-              Wrap(
-                spacing: 20,
-                runSpacing: 12,
-                children: [
-                  for (final row in [
-                    ('mastery', 'learn.mastery'),
-                    ('tempo', 'learn.tempo'),
-                    ('rhythm', 'learn.rhythm'),
-                    ('accuracy', 'st.accuracy'),
-                  ])
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${m[row.$1]}${['rhythm', 'accuracy'].contains(row.$1) ? '%' : ''}',
-                          style: Theme.of(context).textTheme.titleLarge,
-                        ),
-                        Text(widget.tr(row.$2)),
-                      ],
-                    ),
-                  Text('${engine.lines} ${widget.tr('learn.lines')}'),
-                ],
-              ),
-            if (!kids)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text(widget.tr('learn.tip')),
-              ),
-            if (levelSaveFailed)
-              Text(
-                learningCopy(widget.language, 'levelError'),
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-            if (error != null)
-              Text(
-                error!,
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 12,
-              runSpacing: 8,
+          ),
+        ],
+      ),
+    );
+    final hands = SegmentedButton<String>(
+      showSelectedIcon: false,
+      segments: [
+        for (final hand in ['left', 'both', 'right'])
+          ButtonSegment(
+            value: hand,
+            label: Text(widget.tr('learn.hand.$hand')),
+          ),
+      ],
+      selected: {engine.hand},
+      onSelectionChanged: paused || saving
+          ? null
+          : (sel) {
+              setState(() {
+                engine.changeHand(sel.first);
+                clearInput();
+              });
+              focus.requestFocus();
+            },
+    );
+    Widget kpi(IconData icon, String value, String label, Color color) =>
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+            child: Column(
               children: [
-                FilledButton(
-                  onPressed: saving
-                      ? null
-                      : () async {
-                          if (await finishAndSave()) widget.onExit();
-                        },
-                  child: Text(
-                    saving
-                        ? learningCopy(widget.language, 'saving')
-                        : widget.tr('ex.finish'),
+                Icon(icon, size: 20, color: color),
+                Text(
+                  value,
+                  maxLines: 1,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
-                if (paused && saved)
-                  OutlinedButton(
-                    onPressed: () {
-                      setState(startRun);
-                      focus.requestFocus();
-                    },
-                    child: Text(widget.tr('done.again')),
-                  ),
+                Text(
+                  label,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 11.5, color: muted),
+                ),
               ],
             ),
-          ],
+          ),
+        );
+    final kpis = kids
+        ? panel(
+            Row(
+              children: [
+                Image.asset(
+                  'assets/learning/kids-cat-${engine.mood}.webp',
+                  width: 72,
+                  height: 72,
+                  semanticLabel: learningCopy(widget.language, 'cat'),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '★ ${engine.kidsScore}',
+                        style: Theme.of(context).textTheme.headlineMedium,
+                      ),
+                      Text(
+                        '${m['accuracy']}% · ${widget.tr('st.accuracy')} · ${widget.tr('span.level')} ${engine.kidsLevel + 1}',
+                        style: TextStyle(color: muted),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          )
+        : panel(
+            Row(
+              children: [
+                kpi(
+                  Icons.speed,
+                  '${m['tempo']}',
+                  widget.tr('learn.tempo'),
+                  scheme.primary,
+                ),
+                kpi(
+                  Icons.graphic_eq,
+                  '${m['rhythm']}%',
+                  widget.tr('learn.rhythm'),
+                  tokens['success'],
+                ),
+                kpi(
+                  Icons.track_changes,
+                  '${m['accuracy']}%',
+                  widget.tr('st.accuracy'),
+                  tokens['success'],
+                ),
+                kpi(
+                  Icons.bar_chart,
+                  '${m['mastery']}',
+                  '${widget.tr('learn.mastery')} · ${masteryLabel(m['mastery']!)}',
+                  scheme.primary,
+                ),
+              ],
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 4),
+          );
+    final typing = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: PatternView(session: engine.typing),
+          ),
         ),
+        const SizedBox(height: 8),
+        if (!paused)
+          TextField(
+            key: const ValueKey('learning-input'),
+            controller: entry,
+            focusNode: focus,
+            autofocus: true,
+            autocorrect: false,
+            enableSuggestions: false,
+            enableInteractiveSelection: false,
+            smartDashesType: SmartDashesType.disabled,
+            smartQuotesType: SmartQuotesType.disabled,
+            inputFormatters: [PracticeCommitFormatter()],
+            onEditingComplete: () {},
+            onSubmitted: (_) {
+              if (!paused && !saving) {
+                engine.press('\n');
+                setState(() {});
+              }
+            },
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: learningCopy(widget.language, 'input'),
+            ),
+          ),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: KeyboardGuide(
+              language: widget.language,
+              model: widget.keyboard,
+              expected: paused ? null : engine.typing.expected,
+              ru: widget.language == 'ru',
+            ),
+          ),
+        ),
+      ],
+    );
+    final status = <Widget>[
+      if (levelSaveFailed)
+        Text(
+          learningCopy(widget.language, 'levelError'),
+          style: TextStyle(color: scheme.error),
+        ),
+      if (error != null) Text(error!, style: TextStyle(color: scheme.error)),
+    ];
+    final actions = Wrap(
+      spacing: 12,
+      runSpacing: 8,
+      children: [
+        FilledButton(
+          onPressed: saving
+              ? null
+              : () async {
+                  if (await finishAndSave()) widget.onExit();
+                },
+          child: Text(
+            saving
+                ? learningCopy(widget.language, 'saving')
+                : widget.tr('ex.finish'),
+          ),
+        ),
+        if (paused && saved)
+          OutlinedButton(
+            onPressed: () {
+              setState(startRun);
+              focus.requestFocus();
+            },
+            child: Text(widget.tr('done.again')),
+          ),
+      ],
+    );
+    // Right panel (D1): the current focus and the honest session facts —
+    // the source keeps no per-hand progress, so none is drawn.
+    final side = panel(
+      Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            learningCopy(widget.language, 'focus'),
+            style: TextStyle(fontSize: 12, color: muted),
+          ),
+          Text(
+            kids
+                ? '${widget.tr('span.level')} ${engine.kidsLevel + 1}'
+                : widget.tr('learn.hand.${engine.hand}'),
+            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            '${engine.lines} ${widget.tr('learn.lines')}',
+            style: TextStyle(color: muted),
+          ),
+          if (!kids) ...[
+            const SizedBox(height: 10),
+            Text(
+              widget.tr('learn.tip'),
+              style: TextStyle(fontSize: 12, color: muted),
+            ),
+          ],
+          const SizedBox(height: 12),
+          ...status,
+          actions,
+        ],
       ),
+    );
+    return LayoutBuilder(
+      builder: (context, box) {
+        final wide = box.maxWidth >= 1000;
+        final main = Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            header,
+            const SizedBox(height: 10),
+            if (!kids) ...[hands, const SizedBox(height: 10)],
+            kpis,
+            const SizedBox(height: 10),
+            typing,
+            if (!wide) ...[
+              const SizedBox(height: 12),
+              if (!kids)
+                Text(
+                  widget.tr('learn.tip'),
+                  style: TextStyle(fontSize: 12, color: muted),
+                ),
+              ...status,
+              const SizedBox(height: 12),
+              actions,
+            ],
+          ],
+        );
+        if (!wide) return main;
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(child: main),
+            const SizedBox(width: 16),
+            SizedBox(width: 260, child: side),
+          ],
+        );
+      },
     );
   }
 }
@@ -468,6 +600,15 @@ String learningCopy(String language, String key) {
       'Niveau non enregistré. Terminez la séance pour réessayer.',
       'Livello non salvato. Termina la sessione per riprovare.',
       'Nível ainda não salvo. Termine a sessão para tentar novamente.',
+    ],
+    'focus': [
+      'Текущий фокус',
+      'Current focus',
+      'Enfoque actual',
+      'Aktueller Fokus',
+      'Focus actuel',
+      'Focus attuale',
+      'Foco atual',
     ],
     'cat': [
       'Котик: настроение по точности и очкам',

@@ -42,6 +42,7 @@ void main() {
     expect(prefs['profile'], 'f');
     final view = ProgressView(repo.data);
     expect(view.previousSessions.length, 2);
+    expect(view.timeline.length, 2, reason: 'identical old sessions are separate rows');
     expect(view.previousSessions.first['accuracy'], 97);
     expect(view.previousSessions.first.containsKey('profile'), false);
     expect(view.previousSessions.first.containsKey('language'), false);

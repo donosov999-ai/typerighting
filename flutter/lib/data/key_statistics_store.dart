@@ -3,11 +3,13 @@ import 'dart:convert';
 
 import '../domain/key_statistics.dart';
 import 'local_repository.dart';
+import 'achievement_store.dart';
 
 /// Debounced key evidence and completion share the repository's atomic document.
 /// Failed batches remain queued in order; retry never repeats a committed batch.
 class KeyStatisticsStore {
-  KeyStatisticsStore(this.repository);
+  KeyStatisticsStore(this.repository, {this.onAchievements});
+  final void Function(List<String>)? onAchievements;
   final LocalRepository repository;
   final recorder = KeyRecorder();
   final _pending = <KeyEvidence>[];
@@ -47,7 +49,9 @@ class KeyStatisticsStore {
     _timer = null;
     final result = _tail.then((_) async {
       final batch = List<KeyEvidence>.of(_pending);
+      var freshBadges = <String>[];
       await repository.transaction((doc) {
+        final beforeHistory = (doc['legacy'] as Map)['tr_history'];
         final legacy = doc['legacy'] as Map;
         final stats = legacy['tr_keystats'] is String
             ? Map<String, dynamic>.from(
@@ -59,9 +63,22 @@ class KeyStatisticsStore {
         }
         if (batch.isNotEmpty) legacy['tr_keystats'] = jsonEncode(stats);
         apply(doc);
+        if ((doc['legacy'] as Map)['tr_history'] != beforeHistory) {
+          freshBadges = awardAchievements(
+            doc,
+            DateTime.now().millisecondsSinceEpoch,
+          );
+        }
       });
       _pending.removeRange(0, batch.length);
       lastError = null;
+      if (freshBadges.isNotEmpty) {
+        try {
+          onAchievements?.call(freshBadges);
+        } catch (_) {
+          /* Optional UI. */
+        }
+      }
     });
     _tail = result.then<void>((_) {}, onError: (Object _, StackTrace _) {});
     return result;

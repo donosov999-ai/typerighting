@@ -227,7 +227,7 @@ void main() {
       await tester.tap(find.byIcon(Icons.insights_outlined));
       await tester.pump();
       expect(find.text('Тренировка из прежней версии'), findsOneWidget);
-      expect(find.textContaining('звёзд курса: 3'), findsOneWidget);
+      expect(find.textContaining('Звёзды курса: 3'), findsOneWidget);
       expect(find.textContaining('42 WPM'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await tester.pumpWidget(const SizedBox());

@@ -23,10 +23,11 @@ import 'features/exam_page.dart';
 import 'features/kids_page.dart';
 import 'domain/kids.dart';
 import 'domain/recall.dart';
-import 'data/progress_view.dart';
+import 'features/progress_page.dart';
 import 'design_system/templates.dart';
 import 'design_system/synapse_header.dart';
 import 'domain/typing.dart';
+import 'domain/session_context.dart';
 import 'features/keyboard_guide.dart';
 import 'features/practice_widgets.dart';
 import 'features/course_page.dart';
@@ -188,6 +189,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   List<String> weakLines = [];
   late TypingSession session;
   late KeyStatisticsStore keyStatistics;
+  final progressMessenger = GlobalKey<ScaffoldMessengerState>();
   RecordedHistory? recordedHistory;
   late KeyboardModel keyboard;
   late SynapseController assistant, headerAssistant;
@@ -271,7 +273,21 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     section = widget.initialSection;
-    keyStatistics = KeyStatisticsStore(widget.repository);
+    keyStatistics = KeyStatisticsStore(
+      widget.repository,
+      onAchievements: (ids) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          progressMessenger.currentState?.showSnackBar(
+            SnackBar(
+              content: Text(
+                '${tr('ach.unlocked')} ${ids.map((id) => tr('ach.$id')).join(', ')}',
+              ),
+            ),
+          );
+        });
+      },
+    );
     WidgetsBinding.instance.addObserver(this);
     final p = widget.repository.data['prefs'] as Map;
     language = languages.contains(p['lang']) ? p['lang'] as String : 'ru';
@@ -501,7 +517,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   }
 
   SessionFact fact(Map<String, dynamic> p) => SessionFact(
-    gameId: p['mode'] == 'course' ? 'typefree.course' : 'typefree.practice',
+    gameId: typefreeGameId(p['mode'] as String),
     outcome: Outcome.finished,
     at: DateTime.fromMillisecondsSinceEpoch(p['t'] as int),
     score: p['wpm'] as int,
@@ -578,10 +594,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
         try {
           await assistant.onGameSaved(
             fact(point),
-            earlier
-                .where((p) => p['profile'] == currentProfile)
-                .map(fact)
-                .toList(),
+            comparableHistory(point, earlier).map(fact).toList(),
             game: GameInfo(
               id: 'typefree.practice',
               name: tr('hub.train'),
@@ -915,6 +928,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   Widget build(BuildContext context) => ListenableBuilder(
     listenable: widget.appearance,
     builder: (c, _) => MaterialApp(
+      scaffoldMessengerKey: progressMessenger,
       debugShowCheckedModeBanner: false,
       title: 'TypeFree · пробная версия',
       theme: widget.appearance.theme(
@@ -1397,10 +1411,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                         }
                         await assistant.onGameSaved(
                           fact(point),
-                          earlier
-                              .where((p) => p['profile'] == profile)
-                              .map(fact)
-                              .toList(),
+                          comparableHistory(point, earlier).map(fact).toList(),
                           game: GameInfo(
                             id: 'typefree.exam',
                             name: tr('ex.title'),
@@ -1441,10 +1452,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                         }
                         await assistant.onGameSaved(
                           fact(point),
-                          earlier
-                              .where((p) => p['profile'] == profile)
-                              .map(fact)
-                              .toList(),
+                          comparableHistory(point, earlier).map(fact).toList(),
                           game: GameInfo(
                             id: 'typefree.recall',
                             name: tr('span.title'),
@@ -1484,10 +1492,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                         }
                         await assistant.onGameSaved(
                           fact(point),
-                          earlier
-                              .where((p) => p['profile'] == profile)
-                              .map(fact)
-                              .toList(),
+                          comparableHistory(point, earlier).map(fact).toList(),
                           game: GameInfo(
                             id: 'typefree.memorize',
                             name: tr('mem.title'),
@@ -1525,10 +1530,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                         }
                         await assistant.onGameSaved(
                           fact(point),
-                          earlier
-                              .where((p) => p['profile'] == profile)
-                              .map(fact)
-                              .toList(),
+                          comparableHistory(point, earlier).map(fact).toList(),
                           game: GameInfo(
                             id: 'typefree.compete',
                             name: tr('compete.title'),
@@ -1574,10 +1576,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                         }
                         await assistant.onGameSaved(
                           fact(point),
-                          earlier
-                              .where((p) => p['profile'] == profile)
-                              .map(fact)
-                              .toList(),
+                          comparableHistory(point, earlier).map(fact).toList(),
                           game: GameInfo(
                             id: 'typefree.learn',
                             name: tr('learn.title'),
@@ -1612,10 +1611,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                         try {
                           await assistant.onGameSaved(
                             fact(point),
-                            earlier
-                                .where((p) => p['profile'] == profile)
-                                .map(fact)
-                                .toList(),
+                            comparableHistory(
+                              point,
+                              earlier,
+                            ).map(fact).toList(),
                             game: GameInfo(
                               id: 'typefree.course',
                               name: tr('course.title'),
@@ -1844,89 +1843,13 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     ),
   );
 
-  Widget historyView(BuildContext c) {
-    final view = ProgressView(widget.repository.data);
-    final rows = view.timeline;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(tr('prog.title'), style: Theme.of(c).textTheme.headlineMedium),
-        modeTile(
-          c,
-          Icons.track_changes,
-          tr('weak.title'),
-          tr('tb.heat'),
-          () => showSection(AppSection.weakKeys),
-        ),
-        if (view.archive.isNotEmpty)
-          Card(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Сохранено из прежней версии',
-                    style: TextStyle(fontWeight: FontWeight.w700),
-                  ),
-                  Text(
-                    'Тренировок: ${view.previousSessions.length} · звёзд курса: ${view.courseStars} · звёзд детского режима: ${view.kidsStars} · достижений: ${view.achievements.length}',
-                  ),
-                  const Text(
-                    'Старая история не содержит языка, профиля и названия упражнения. Эти данные не восстанавливаются предположениями.',
-                  ),
-                ],
-              ),
-            ),
-          ),
-        if (rows.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 32),
-            child: Text(tr('prog.empty')),
-          ),
-        for (final row in rows)
-          Card(
-            child: ListTile(
-              title: Text(
-                row['origin'] == 'legacy'
-                    ? 'Тренировка из прежней версии'
-                    : row['title'] as String,
-              ),
-              subtitle: Text(
-                DateTime.fromMillisecondsSinceEpoch((row['t'] as num).toInt())
-                    .toLocal()
-                    .toString(),
-              ),
-              trailing: Text(
-                '${row['wpm']} WPM · ${(row['accuracy'] as num).toStringAsFixed(0)}%',
-              ),
-            ),
-          ),
-        if (view.banks.isNotEmpty)
-          ExpansionTile(
-            title: const Text('Прогресс по наборам'),
-            children: [
-              for (final e in view.banks.entries)
-                ListTile(
-                  title: Text(
-                    [
-                          'abandon',
-                          'engRus',
-                          'letterByLetter',
-                        ].any((b) => e.key == b || e.key == '${b}_plain')
-                        ? '${e.key} · архив, временно отключён'
-                        : tr('bank.${e.key.replaceFirst('_plain', '')}') +
-                              (e.key.endsWith('_plain')
-                                  ? ' · без пунктуации'
-                                  : ''),
-                  ),
-                  subtitle: Text(
-                    'Пройдено: ${(e.value['done'] as List).length} · рекорд: ${e.value['bestWpm']} WPM · ${e.value['bestAcc']}%',
-                  ),
-                ),
-            ],
-          ),
-      ],
-    );
-  }
+  Widget historyView(BuildContext c) => ProgressPage(
+    repository: widget.repository,
+    profile: profile,
+    language: language,
+    tr: tr,
+    onWeak: () => unawaited(showSection(AppSection.weakKeys)),
+    exporter: widget.artifactExporter,
+    clock: widget.clock,
+  );
 }

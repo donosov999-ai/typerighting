@@ -1660,7 +1660,20 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                               : PatternView(session: session),
                         ),
                       ),
-                      if (!wide) ...[
+                      // B3: a short landscape screen keeps one thin line of
+                      // numbers so the keyboard moves up.
+                      if (!wide && MediaQuery.sizeOf(c).height < 500)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Text(
+                            '${stats.wpm} WPM · ${stats.accuracy}% · ${stats.errors} · ${(stats.elapsedMs / 1000).toStringAsFixed(1)} s',
+                            style: TextStyle(
+                              fontSize: 12.5,
+                              color: Theme.of(c).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        )
+                      else if (!wide) ...[
                         const SizedBox(height: 8),
                         StatTiles(
                           language: language,

@@ -5,9 +5,17 @@ import '../domain/typing.dart';
 import '../design_system/templates.dart';
 
 class PatternView extends StatefulWidget {
-  const PatternView({super.key, required this.session, this.displayPattern});
+  const PatternView({
+    super.key,
+    required this.session,
+    this.displayPattern,
+    this.fontSize = 28,
+  });
   final TypingSession session;
   final String? displayPattern;
+
+  /// 28 by default; larger for the child profile (D3).
+  final double fontSize;
   @override
   State<PatternView> createState() => _PatternViewState();
 }
@@ -28,7 +36,7 @@ class _PatternViewState extends State<PatternView> {
     final t = Theme.of(context).extension<TypeFreeTokens>()!;
     final span = TextSpan(
       style: TextStyle(
-        fontSize: 28,
+        fontSize: widget.fontSize,
         height: 1.6,
         fontFamily: 'monospace',
         color: t['text'],
@@ -51,7 +59,8 @@ class _PatternViewState extends State<PatternView> {
       ),
     );
     return SizedBox(
-      height: 62,
+      // One line and a bit: 62 at the default 28.
+      height: widget.fontSize * 62 / 28,
       child: LayoutBuilder(
         builder: (context, bounds) {
           final painter = TextPainter(

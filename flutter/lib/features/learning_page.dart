@@ -413,7 +413,10 @@ class LearningPageState extends State<LearningPage> {
         Card(
           child: Padding(
             padding: const EdgeInsets.all(12),
-            child: PatternView(session: engine.typing),
+            child: PatternView(
+              session: engine.typing,
+              fontSize: kids ? 44 : 28,
+            ),
           ),
         ),
         const SizedBox(height: 8),

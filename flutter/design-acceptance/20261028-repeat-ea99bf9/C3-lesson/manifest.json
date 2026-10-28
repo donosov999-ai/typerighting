@@ -1,0 +1,88 @@
+{
+  "screen": "C3-lesson",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "ea99bf9",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/03.png",
+    "sha256": "107f8843c2e77bad125adedea576c0485b62f45d52cef94ece202c6d467e823f",
+    "cropXYXY": [
+      1036,
+      62,
+      1456,
+      545
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.8571
+  },
+  "actual": {
+    "sha256": "bc2070b37aa044c0c562cde656c3fb2fca01627706307598522cec1767c2ff6b",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Курс → Домашний ряд, строка 1 из 5"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 897
+  },
+  "rows": [
+    [
+      "Шапка урока",
+      "«← Главный ряд» · «Выйти» · «Упражнение 2 из 5» с полосой",
+      "«← Курс печати · Домашний ряд · 1 / 5» + полоса по строкам",
+      "«Выйти» = «← Курс печати»",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Клавиатура",
+      "укороченная",
+      "5 рядов guide, листается к клавише",
+      "—",
+      "—",
+      "реф §6",
+      "PASS"
+    ],
+    [
+      "Текст",
+      "3 строки",
+      "одна строка урока (механика исходника: 5 строк по очереди)",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "fa7af2a1db077389d8a08b0111ab46e212b2fd26ab53deaa448ce6e3dbe594ea",
+    "overlay-50.png": "c5e5dc5172a87f67418a41a8775d7a9e1c7d83e8835c0775adcdb6116e983e1f",
+    "comparison-panel.png": "c2ea1b225bf2687453e6826c1fe2438db6b7821fac47404662114b7f57c6bde6"
+  }
+}

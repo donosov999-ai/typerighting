@@ -1,0 +1,97 @@
+{
+  "screen": "I6-light-practice",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "ea99bf9",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/09.png",
+    "sha256": "2b4fda8fadb490dd4ae5fe68e6a872f840e306449516c9f7c0b6b60d3cc6420f",
+    "cropXYXY": [
+      1180,
+      622,
+      1510,
+      1008
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 2.3636
+  },
+  "actual": {
+    "sha256": "17dc00bd7c72fa5d3483521df71cc39b77f2ecbbc562085b728545b5e4c7b4a7",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "light",
+    "state": "Сегодня → Начать тренировку, светлая системная тема"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 912
+  },
+  "rows": [
+    [
+      "Тема",
+      "светлый фон, оранжевый акцент",
+      "то же из токенов шаблона",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Шапка упражнения",
+      "«Практика · Простые слова 5/20»",
+      "набор ▾ · «Упражнение 1 из 22» с полосой · ⚙ · ← Назад / Далее →",
+      "кнопки на месте",
+      "—",
+      "чипы режимов убраны в «Параметры» (B1–B3)",
+      "PASS"
+    ],
+    [
+      "Цифры",
+      "время · точность · зн/мин крупно",
+      "WPM · точность · ошибки · время плитками",
+      "WPM",
+      "—",
+      "единица исходника",
+      "PASS"
+    ],
+    [
+      "Клавиатура",
+      "укороченная",
+      "5 рядов, листается к клавише, подсказка",
+      "—",
+      "—",
+      "реф §6",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "abdd6372374895fef2da677437b531e4147ee647c23496ad2fa2065cd3facebe",
+    "overlay-50.png": "67bd533bc3f76c24b6c3f3dc0e6d7c57554a9dddfbb82970460eba5eb3203558",
+    "comparison-panel.png": "acea03091f3bea516c2974adefa7c9009083dbe2f19b1ff1ddd6d2d76cb342ff"
+  }
+}

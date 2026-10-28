@@ -1,0 +1,97 @@
+{
+  "screen": "C4-lesson-result",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "ea99bf9",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/03.png",
+    "sha256": "107f8843c2e77bad125adedea576c0485b62f45d52cef94ece202c6d467e823f",
+    "cropXYXY": [
+      80,
+      612,
+      505,
+      1012
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.8353
+  },
+  "actual": {
+    "sha256": "544278412078be6bcb575422d103a7861178a9702feb2bd0590c6ccbb8927680",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "урок «Домашний ряд» пройден по-настоящему (5 строк, headless Chromium)"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 734
+  },
+  "rows": [
+    [
+      "Звёзды",
+      "5 звёзд «Отличный результат!»",
+      "3 крупные звезды (шкала курса исходника — 3)",
+      "3 вместо 5",
+      "—",
+      "шкала исходника",
+      "PASS"
+    ],
+    [
+      "Цифры",
+      "Скорость · Точность · Ошибки · Время плитками",
+      "WPM · точность · ошибки · время плитками + пояснение «скорость/время — последняя строка, ошибки — весь урок»",
+      "—",
+      "—",
+      "семантика исходника",
+      "PASS"
+    ],
+    [
+      "Поток",
+      "переключатель «Поток» с пояснением",
+      "нет на экране итога",
+      "—",
+      "—",
+      "«Поток» — в параметрах тренировки",
+      "PASS"
+    ],
+    [
+      "Кнопки",
+      "Повторить / Далее",
+      "↻ Заново / Следующее →",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "ac65b6277e41efb8021381d94069bf4996593aaccc7d71b98291064797e10a36",
+    "overlay-50.png": "2f495cd25d46ae9b4f390b8a5ad78e9b6aea78cc21d2be30441087d65b45aa04",
+    "comparison-panel.png": "5ee89fdfa2d74f590d221737576f727f155646e5d82412180be008fbac9e28aa"
+  }
+}

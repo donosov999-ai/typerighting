@@ -1,0 +1,79 @@
+{
+  "screen": "B3-trainer-landscape",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "ea99bf9",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/02-v2-synapse.png",
+    "sha256": "a303cde339cb83a90203dcde0e6eac5852f8721dcd16255ae3e4eae218a3dc5c",
+    "cropXYXY": [
+      858,
+      614,
+      1520,
+      980
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 2.5498
+  },
+  "actual": {
+    "sha256": "e5c0d10998924614c50ea73aec75b6464ae89a286ac93ce9338a0de6a8581633",
+    "viewportCSS": [
+      844,
+      390
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      1688,
+      780
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "телефон в горизонтальном положении 844×390"
+  },
+  "method": {
+    "equalWidth": 1688,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 780
+  },
+  "rows": [
+    [
+      "Цифры",
+      "нет",
+      "одна тонкая строка вместо плиток",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Клавиатура",
+      "на первом экране",
+      "начинается у нижнего края, нужна прокрутка",
+      "не на первом экране",
+      "основное",
+      "реф §6 допускает прокрутку на низком landscape; поле ввода и строка упражнения остаются",
+      "открыто"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "4f34868bdf1156bfb41ea2456d86a7c44ae4fb7baa1f538dda2a7e7ef65261e8",
+    "overlay-50.png": "dfd0f37281bd111cbbd715ad84048bc201b98dd10be4064967b144bae53583ba",
+    "comparison-panel.png": "82df34ad6874a56484e9ec4b1254700c5f65091c47abcee0bdf50f16059159cb"
+  }
+}

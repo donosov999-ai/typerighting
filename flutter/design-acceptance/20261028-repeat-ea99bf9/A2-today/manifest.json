@@ -1,0 +1,88 @@
+{
+  "screen": "A2-today",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "ea99bf9",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/01.png",
+    "sha256": "0b882d194ac4fb72ec88c063aca27c458321be8aa9d9f30e46741dc9f15b53c0",
+    "cropXYXY": [
+      606,
+      68,
+      932,
+      522
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 2.3926
+  },
+  "actual": {
+    "sha256": "047a336dd97d988bfc340ecc7cbb97a4f93bbf5f70ef4a2cf41defadbabd853d",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "вкладка «Сегодня», демо seed.json (5 дней подряд, 36 WPM)"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 1086
+  },
+  "rows": [
+    [
+      "Герой",
+      "горы, «Доброе утро!», «Начать тренировку»",
+      "горы, «Пора потренироваться», «Начать тренировку»",
+      "приветствие",
+      "—",
+      "текст по времени суток — не в исходнике",
+      "PASS"
+    ],
+    [
+      "Продолжить курс",
+      "«Урок 3. Верхний ряд» 60 %",
+      "«Урок 3. Новые клавиши: Ы Д» 11 % — реальные данные",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Плитки",
+      "Серия дней 12 · Последний результат 92 сл/мин · 98 %",
+      "Серия 5 · Последний результат 36 WPM · 96 %",
+      "единица",
+      "—",
+      "WPM — исходник",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "a751223a6193904546ec85de31880008ffa16dde6c1e6644213dabf22c2b62e9",
+    "overlay-50.png": "cde914c2ae41a328f1f8ae62524f9d1f5dbc44bfd4b0aed4da3bac6e9bc295bf",
+    "comparison-panel.png": "b8e5f9c3f8be294484481e4c4c04ef4742dcc2623bbfed868792c5ac0f05f8fc"
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "screen": "B3-trainer-landscape",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "14e83ee",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/02-v2-synapse.png",
+    "sha256": "a303cde339cb83a90203dcde0e6eac5852f8721dcd16255ae3e4eae218a3dc5c",
+    "cropXYXY": [
+      858,
+      614,
+      1520,
+      980
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 2.5498
+  },
+  "actual": {
+    "sha256": "807492f2415fb9fbaa160b6b1c8228c3ec1f461fbf044f04f4e2c3358e34732e",
+    "viewportCSS": [
+      844,
+      390
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      1688,
+      780
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "телефон в горизонтальном положении 844×390; демо seed.json"
+  },
+  "method": {
+    "equalWidth": 1688,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 780
+  },
+  "rows": [
+    [
+      "Состав экрана",
+      "только текст + клавиатура",
+      "строка упражнения + текст + цифры + поле; клавиатура ниже (вертикальная прокрутка)",
+      "клавиатура не на первом экране",
+      "основное",
+      "реф §6 допускает прокрутку на низком landscape; компактный режим (скрыть цифры/поле при высоте <500) — следующий шаг",
+      "открыто"
+    ],
+    [
+      "Синапс",
+      "лицо + «Синапс · Тихо во время печати» слева в шапке",
+      "лицо справа в шапке (реф §7: рабочая позиция — справа), без статуса",
+      "позиция и подпись",
+      "—",
+      "реф §7 разрешает слева только как композиционный пример; статус «тихо» — нет такого поля в контроллере",
+      "PASS"
+    ],
+    [
+      "Клавиатура",
+      "5 рядов на всю ширину, подсветка клавиши, руки",
+      "5 рядов guide (920×380 модель, до 820 px), подсветка, без рук",
+      "нет рук, ширина ≤820",
+      "—",
+      "реф §6: геометрия по src/keyboard.ts; руки — отдельный ассет",
+      "открыто"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "fed941d6567915b0ede7dad9522f6486e9fc292dc741619d2f76d005c30e2003",
+    "overlay-50.png": "9cab1ad1c1a3cf2d2a662d476c6931111d725c400ed5c959ad6509a72eba5e9e",
+    "comparison-panel.png": "9afa4f454b25064e50ffb2302fd7908c94b86f072611f823c9562ee4aa26dba1"
+  }
+}

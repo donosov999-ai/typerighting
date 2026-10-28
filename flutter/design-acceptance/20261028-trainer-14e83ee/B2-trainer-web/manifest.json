@@ -1,0 +1,88 @@
+{
+  "screen": "B2-trainer-web",
+  "status": "черновик — есть расхождения",
+  "ownerAcceptance": null,
+  "sourceCommit": "14e83ee",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/02-v2-synapse.png",
+    "sha256": "a303cde339cb83a90203dcde0e6eac5852f8721dcd16255ae3e4eae218a3dc5c",
+    "cropXYXY": [
+      16,
+      614,
+      836,
+      980
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 2.439
+  },
+  "actual": {
+    "sha256": "de3a62a5740a7102ee2105c528c3ae6bd3252cccae793585a7c409d8af91a2d5",
+    "viewportCSS": [
+      1000,
+      760
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      2000,
+      1520
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Практика → Тренировка, ширина 1000 (без правой колонки); демо seed.json"
+  },
+  "method": {
+    "equalWidth": 2000,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 893
+  },
+  "rows": [
+    [
+      "Параметры",
+      "колонка справа",
+      "кнопка «Параметры» (⚙ tune) → шторка с теми же флажками и кнопками",
+      "нет колонки при 1000",
+      "—",
+      "колонка включается с 1100 (реф §6: при нехватке места — панель с явной кнопкой)",
+      "PASS"
+    ],
+    [
+      "Цифры",
+      "справа",
+      "строкой над полем ввода",
+      "положение",
+      "—",
+      "то же правило ширины",
+      "PASS"
+    ],
+    [
+      "Синапс",
+      "лицо + «Синапс · Тихо во время печати» слева в шапке",
+      "лицо справа в шапке (реф §7: рабочая позиция — справа), без статуса",
+      "позиция и подпись",
+      "—",
+      "реф §7 разрешает слева только как композиционный пример; статус «тихо» — нет такого поля в контроллере",
+      "PASS"
+    ],
+    [
+      "Клавиатура",
+      "5 рядов на всю ширину, подсветка клавиши, руки",
+      "5 рядов guide (920×380 модель, до 820 px), подсветка, без рук",
+      "нет рук, ширина ≤820",
+      "—",
+      "реф §6: геометрия по src/keyboard.ts; руки — отдельный ассет",
+      "открыто"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "60adb67f32572eb385552aac32699cafedde815736e7be03b2df679162e4876b",
+    "overlay-50.png": "ac8599e45e0c67db011102db295871db78e0ccf1ae3b0484258c2f70905300f6",
+    "comparison-panel.png": "2a5907fcf083242ee812a68b89d786716a03ec8316c730c02f00a4e87590c79e"
+  }
+}

@@ -54,12 +54,22 @@ class WeakKeysPage extends StatelessWidget {
             Card(
               child: Padding(
                 padding: const EdgeInsets.all(8),
-                child: KeyboardGuide(
-                    language: language,
-                  model: keyboard,
-                  expected: null,
-                  ru: language == 'ru',
-                  heat: heat,
+                // C6: phones get the compact three letter rows of the
+                // reference instead of the sideways-scrolling guide.
+                child: LayoutBuilder(
+                  builder: (context, box) => box.maxWidth < 740
+                      ? CompactHeatMap(
+                          model: keyboard,
+                          ru: language == 'ru',
+                          heat: heat,
+                        )
+                      : KeyboardGuide(
+                          language: language,
+                          model: keyboard,
+                          expected: null,
+                          ru: language == 'ru',
+                          heat: heat,
+                        ),
                 ),
               ),
             ),
@@ -155,6 +165,83 @@ class WeakKeysPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Three letter rows of the source geometry (y 84/154/224), each key tinted
+/// like the full guide: mastered → weak by error rate, no data = plain face.
+class CompactHeatMap extends StatelessWidget {
+  const CompactHeatMap({
+    super.key,
+    required this.model,
+    required this.ru,
+    required this.heat,
+  });
+  final KeyboardModel model;
+  final bool ru;
+  final Map<String, double> heat;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = Theme.of(context).extension<TypeFreeTokens>()!;
+    final letter = RegExp(r'^\p{L}$', unicode: true);
+    final rows = <List<Map>>[
+      for (final y in const [84, 154, 224])
+        [
+          for (final g in (model.snapshot['keys'] as List).cast<Map>())
+            if (g['y'] == y &&
+                letter.hasMatch(((ru ? g['ru'] : g['en']) ?? '').toString()))
+              g,
+        ],
+    ];
+    final widest = rows.fold<int>(0, (m, r) => r.length > m ? r.length : m);
+    return Column(
+      key: const ValueKey('compact-heat-map'),
+      children: [
+        for (final row in rows)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (final g in row)
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.all(2),
+                      child: AspectRatio(
+                        aspectRatio: .9,
+                        child: Container(
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: heat[g['id']] == null
+                                ? tokens['keyboardFace']
+                                : Color.lerp(
+                                    tokens['success'],
+                                    tokens['danger'],
+                                    (heat[g['id']]! * 3).clamp(0, 1),
+                                  )!.withValues(alpha: .45),
+                            border: Border.all(color: tokens['border']),
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            (ru ? g['ru'] : g['en']).toString().toUpperCase(),
+                            style: TextStyle(
+                              color: tokens['keyboardLegend'],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                // Shorter rows keep the key size of the widest one.
+                for (var i = row.length; i < widest; i++)
+                  const Expanded(child: SizedBox()),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }

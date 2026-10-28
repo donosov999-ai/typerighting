@@ -396,31 +396,92 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(widget.tr('span.intro')),
-              const SizedBox(height: 12),
+              if (run != null) ...[
+                Text(widget.tr('span.intro')),
+                const SizedBox(height: 12),
+              ],
               if (run == null) ...[
+                // J5: what the mode is, the current set and the record.
+                Row(
+                  children: [
+                    Icon(
+                      Icons.psychology_outlined,
+                      size: 44,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        widget.tr('span.intro'),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
                 Card(
+                  margin: EdgeInsets.zero,
                   child: Padding(
-                    padding: const EdgeInsets.all(20),
-                    child: Wrap(
-                      spacing: 24,
-                      runSpacing: 12,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Text(
-                          spanWords(widget.adaptation.span, widget.language, widget.tr),
-                          style: Theme.of(context).textTheme.headlineMedium,
-                        ),
-                        Text(
-                          '${widget.tr('span.best')}: ${widget.adaptation.bestSpan}',
-                        ),
+                        for (final (label, value) in [
+                          (
+                            recallCopy(widget.language, 'current'),
+                            spanWords(
+                              widget.adaptation.span,
+                              widget.language,
+                              widget.tr,
+                            ),
+                          ),
+                          (
+                            widget.tr('span.best'),
+                            spanWords(
+                              widget.adaptation.bestSpan.toInt(),
+                              widget.language,
+                              widget.tr,
+                            ),
+                          ),
+                        ])
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6),
+                            child: Wrap(
+                              alignment: WrapAlignment.spaceBetween,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              spacing: 12,
+                              children: [
+                                Text(label),
+                                Text(
+                                  value,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                       ],
                     ),
                   ),
                 ),
-                Text(recallCopy(widget.language, 'recordHint')),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
+                Text(
+                  recallCopy(widget.language, 'recordHint'),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 16),
                 FilledButton(
                   key: const ValueKey('recall-start'),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(52),
+                  ),
                   onPressed: startRound,
                   child: Text(widget.tr('span.start')),
                 ),
@@ -590,6 +651,15 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
 String recallCopy(String language, String key) {
   const languages = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
   const values = {
+    'current': [
+      'Текущий набор',
+      'Current set',
+      'Conjunto actual',
+      'Aktueller Satz',
+      'Série actuelle',
+      'Serie attuale',
+      'Conjunto atual',
+    ],
     'accuracy': [
       'Точность введённых символов',
       'Character accuracy',

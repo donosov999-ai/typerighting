@@ -293,7 +293,30 @@ class _TransferPageState extends State<TransferPage> {
     final tokens = Theme.of(context).extension<TypeFreeTokens>()!;
     final muted = Theme.of(context).colorScheme.onSurfaceVariant;
     final interrupted = import == _Step.failed && note == c('interrupted.d');
-    Widget step(int n, String title, _Step state, Widget? body) => Row(
+    // Status chip right of the step title, as on sheet 09.
+    Widget chip(String text, Color color) => Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: .14),
+        border: Border.all(color: color),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        text,
+        style: TextStyle(
+          color: color,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+    Widget step(
+      int n,
+      String title,
+      _Step state,
+      Widget? body, {
+      Widget? status,
+    }) => Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CircleAvatar(
@@ -314,9 +337,16 @@ class _TransferPageState extends State<TransferPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: const TextStyle(fontWeight: FontWeight.w700),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    ?status,
+                  ],
                 ),
                 ?body,
               ],
@@ -343,9 +373,9 @@ class _TransferPageState extends State<TransferPage> {
                 padding: const EdgeInsets.only(top: 6),
                 child: check == _Step.ok
                     ? Text(
-                        '${c('checked')} · ${transferCount(count, widget.language)}',
+                        transferCount(count, widget.language),
                         key: const ValueKey('transfer-checked'),
-                        style: TextStyle(color: tokens['success']),
+                        style: TextStyle(color: muted),
                       )
                     : Align(
                         alignment: Alignment.centerLeft,
@@ -357,6 +387,9 @@ class _TransferPageState extends State<TransferPage> {
                         ),
                       ),
               ),
+              status: check == _Step.ok
+                  ? chip(c('checked'), tokens['success'])
+                  : null,
             ),
             step(
               2,
@@ -368,14 +401,6 @@ class _TransferPageState extends State<TransferPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (interrupted)
-                            Text(
-                              c('interrupted'),
-                              style: TextStyle(
-                                color: tokens['danger'],
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
                           Text(note!, key: const ValueKey('transfer-note')),
                           if (interrupted) ...[
                             const SizedBox(height: 8),
@@ -389,6 +414,9 @@ class _TransferPageState extends State<TransferPage> {
                         ],
                       ),
                     )
+                  : null,
+              status: interrupted
+                  ? chip(c('interrupted'), tokens['danger'])
                   : null,
             ),
             step(

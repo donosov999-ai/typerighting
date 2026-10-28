@@ -384,7 +384,7 @@ class _ProgressPageState extends State<ProgressPage> {
               children: [
                 Icon(Icons.description_outlined, color: muted, size: 32),
                 const SizedBox(height: 6),
-                Text(widget.tr('prog.empty'), textAlign: TextAlign.center),
+                Text(copy('noSessions'), textAlign: TextAlign.center),
               ],
             ),
           )
@@ -612,9 +612,16 @@ class _DualChart extends CustomPainter {
     if (speeds.length < 2) return;
     const left = 30.0, right = 34.0, top = 8.0, bottom = 20.0;
     final w = size.width - left - right, h = size.height - top - bottom;
-    final hi = (speeds.reduce(max) / 10).ceil() * 10;
-    final lo = max(0, (speeds.reduce(min) / 10).floor() * 10 - 10);
-    final span = max(10, hi - lo);
+    // Round steps (5, 10, 15…) so the left scale reads like the sketch.
+    final top0 = speeds.reduce(max), bottom0 = speeds.reduce(min);
+    var step = max(5, ((top0 - bottom0) / 4 / 5).ceil() * 5);
+    var lo = (bottom0 / step).floor() * step;
+    while (lo + 4 * step < top0) {
+      step += 5;
+      lo = (bottom0 / step).floor() * step;
+    }
+    final hi = lo + 4 * step;
+    final span = hi - lo;
     final gridPaint = Paint()
       ..color = grid
       ..strokeWidth = 1;
@@ -762,6 +769,15 @@ String progressCopy(String language, String key) {
       'meilleure vitesse, WPM',
       'velocità migliore, WPM',
       'melhor velocidade, WPM',
+    ],
+    'noSessions': [
+      'Тренировок пока нет — они появятся здесь.',
+      'No sessions yet — they will appear here.',
+      'Aún no hay sesiones; aparecerán aquí.',
+      'Noch keine Sitzungen – sie erscheinen hier.',
+      'Pas encore de séance — elles apparaîtront ici.',
+      'Nessuna sessione ancora: appariranno qui.',
+      'Ainda sem sessões — vão aparecer aqui.',
     ],
     'recent': [
       'Последние тренировки',

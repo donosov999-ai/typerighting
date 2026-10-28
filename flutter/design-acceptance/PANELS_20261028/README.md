@@ -27,7 +27,7 @@
 - C3 · готово к согласованию · 20261028-repeat-ea99bf9/C3-lesson
 - C4 · готово к согласованию · 20261028-repeat-ea99bf9/C4-lesson-result
 - C5 · готово к согласованию · 20261028-library-course-dc28454/C5-custom-text
-- C6 · черновик — есть расхождения · 20261028-header-a814c43/C6-weak-keys
+- C6 · готово к согласованию · 20261028-weakmap-badb450/C6-weak-keys
 - J1 · готово к согласованию · 20261028-modes-009977a/J1-flow
 - J2 · готово к согласованию · 20261028-modes-009977a/J2-digits
 - J3 · готово к согласованию · 20261028-kids-memory-b4d36ef/J3-kids-result

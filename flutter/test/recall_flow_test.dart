@@ -160,6 +160,14 @@ void main() {
       );
       expect(summary.properties.label, contains('Memory record: 4'));
       expect(find.text('4 words in next set'), findsOneWidget);
+      // J6: every word of the set is listed with its own right/wrong mark.
+      final words = run.typing.pattern.split(' ').where((w) => w.isNotEmpty);
+      expect(
+        find.byIcon(Icons.check).evaluate().length +
+            find.byIcon(Icons.close).evaluate().length,
+        words.length,
+      );
+      expect(find.textContaining(' / ${words.length}'), findsOneWidget);
       expect(
         find.text('Record means the next set size reached.'),
         findsOneWidget,

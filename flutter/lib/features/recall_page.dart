@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import '../audio/typefree_sound.dart';
 import '../data/key_statistics_store.dart';
 import '../data/local_repository.dart';
+import '../design_system/templates.dart';
 import '../domain/key_statistics.dart';
 import '../domain/recall.dart';
 import 'competition_page.dart' show competitionCopy;
@@ -632,41 +633,161 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
                   excludeSemantics: true,
                   label:
                       '${result.accuracy}% ${recallCopy(widget.language, 'accuracy')}, ${result.completedSpan} ${recallCopy(widget.language, 'completed')}, ${result.nextSpan} ${recallCopy(widget.language, 'nextLength')}, ${widget.tr('span.best')}: ${result.bestSpan}, ${result.stars} / 3 ★. ${recallCopy(widget.language, 'recordHint')}',
-                  child: Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${'★' * result.stars}${'☆' * (3 - result.stars)}',
-                            style: Theme.of(context).textTheme.headlineMedium,
-                          ),
-                          const SizedBox(height: 12),
-                          Wrap(
-                            spacing: 24,
-                            runSpacing: 12,
+                  child: Builder(
+                    builder: (context) {
+                      // J6: which words came back right, from the typed marks
+                      // (a word is right when none of its letters was wrong).
+                      final pattern = run.typing.pattern;
+                      final words = <(String, bool)>[];
+                      var i = 0;
+                      for (final w in pattern.split(' ')) {
+                        if (w.isNotEmpty) {
+                          var ok = true;
+                          for (var k = i; k < i + w.length; k++) {
+                            if (k >= run.typing.marks.length ||
+                                run.typing.marks[k] != 1) {
+                              ok = false;
+                            }
+                          }
+                          words.add((w, ok));
+                        }
+                        i += w.length + 1;
+                      }
+                      final right = words.where((w) => w.$2).length;
+                      final scheme = Theme.of(context).colorScheme;
+                      final tokens = Theme.of(context)
+                          .extension<TypeFreeTokens>()!;
+                      Widget stat(String label, String value) => Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Wrap(
+                          alignment: WrapAlignment.spaceBetween,
+                          spacing: 12,
+                          children: [
+                            Text(label),
+                            Text(
+                              value,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                      return Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Text(
+                              Row(
+                                children: [
+                                  Icon(
+                                    result.up
+                                        ? Icons.check_circle
+                                        : Icons.replay_circle_filled,
+                                    size: 36,
+                                    color: result.up
+                                        ? tokens['success']
+                                        : scheme.primary,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      widget.tr(
+                                        result.up ? 'span.up' : 'span.down',
+                                      ),
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ),
+                                  Text(
+                                    '${'★' * result.stars}${'☆' * (3 - result.stars)}',
+                                    style: TextStyle(
+                                      fontSize: 22,
+                                      color: scheme.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 10),
+                              for (final (n, (w, ok)) in words.indexed)
+                                Container(
+                                  margin: const EdgeInsets.only(bottom: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    color: ok
+                                        ? null
+                                        : tokens['danger'].withValues(
+                                            alpha: .15,
+                                          ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 24,
+                                        child: Text(
+                                          '${n + 1}',
+                                          style: TextStyle(
+                                            color: scheme.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(child: Text(w)),
+                                      Icon(
+                                        ok ? Icons.check : Icons.close,
+                                        size: 18,
+                                        color: ok
+                                            ? tokens['success']
+                                            : tokens['danger'],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              const Divider(),
+                              stat(
+                                recallCopy(widget.language, 'right'),
+                                '$right / ${words.length}',
+                              ),
+                              stat(
+                                recallCopy(widget.language, 'accuracy'),
                                 '${result.accuracy}%',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .headlineMedium,
                               ),
-                              Text(
-                                '${result.completedSpan} ${recallCopy(widget.language, 'completed')}',
+                              stat(
+                                widget.tr('span.best'),
+                                spanWords(
+                                  result.bestSpan.toInt(),
+                                  widget.language,
+                                  widget.tr,
+                                ),
                               ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 4,
+                                ),
+                                child: Text(
+                                  '${result.nextSpan} ${recallCopy(widget.language, 'nextLength')}',
+                                ),
+                              ),
+                              const SizedBox(height: 4),
                               Text(
-                                '${result.nextSpan} ${recallCopy(widget.language, 'nextLength')}',
+                                recallCopy(widget.language, 'recordHint'),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: scheme.onSurfaceVariant,
+                                ),
                               ),
                             ],
                           ),
-                          Text(recallCopy(widget.language, 'accuracy')),
-                          Text('${widget.tr('span.best')}: ${result.bestSpan}'),
-                          Text(recallCopy(widget.language, 'recordHint')),
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    },
                   ),
                 ),
                 if (saving) const LinearProgressIndicator(),
@@ -719,6 +840,15 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
 String recallCopy(String language, String key) {
   const languages = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
   const values = {
+    'right': [
+      'Правильно слов',
+      'Words right',
+      'Palabras correctas',
+      'Richtige Wörter',
+      'Mots justes',
+      'Parole giuste',
+      'Palavras certas',
+    ],
     'current': [
       'Текущий набор',
       'Current set',

@@ -10,6 +10,7 @@ import '../data/key_statistics_store.dart';
 import '../domain/key_statistics.dart';
 import '../domain/course.dart';
 import 'keyboard_guide.dart';
+import 'trainer_parts.dart' show StatTiles;
 import 'practice_widgets.dart';
 
 class CoursePage extends StatefulWidget {
@@ -301,18 +302,33 @@ class CoursePageState extends State<CoursePage> {
             Text('${a.line + 1} / ${a.lines.length}'),
           ],
         ),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: PatternView(session: a.session),
-          ),
-        ),
+        // C3: lesson progress by lines.
         Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Text(
-            '${a.session.stats.wpm} WPM · ${a.session.stats.accuracy}% · ${a.errors} ошибок за урок',
+          padding: const EdgeInsets.fromLTRB(4, 2, 4, 8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: (a.line + (a.finished ? 1 : 0)) / a.lines.length,
+              minHeight: 6,
+            ),
           ),
         ),
+        // While typing: the line and live numbers; once done the result
+        // block below replaces both (C4).
+        if (!a.finished) ...[
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(8),
+              child: PatternView(session: a.session),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Text(
+              '${a.session.stats.wpm} WPM · ${a.session.stats.accuracy}% · ${a.errors} ошибок за урок',
+            ),
+          ),
+        ],
         if (!a.finished)
           TextField(
             key: const ValueKey('course-input'),
@@ -332,9 +348,61 @@ class CoursePageState extends State<CoursePage> {
           ),
         if (a.finished) ...[
           const SizedBox(height: 8),
-          Text(
-            'Звёзд: ${a.stars} · скорость последней строки: ${a.session.stats.wpm} WPM',
+          // C4: the lesson result — stars large, then the lesson numbers.
+          Semantics(
+            label:
+                'Звёзд: ${a.stars} · скорость последней строки: ${a.session.stats.wpm} WPM',
+            excludeSemantics: true,
+            child: LayoutBuilder(
+              builder: (context, box) {
+                final stars = Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    for (var s = 1; s <= 3; s++)
+                      Icon(
+                        s <= a.stars
+                            ? Icons.star_rounded
+                            : Icons.star_outline_rounded,
+                        size: 40,
+                        color: const Color(0xFFF5B82E),
+                      ),
+                  ],
+                );
+                final tiles = StatTiles(
+                  language: widget.language,
+                  wpm: a.session.stats.wpm,
+                  accuracy: a.session.stats.accuracy,
+                  errors: a.errors,
+                  elapsedMs: a.session.stats.elapsedMs,
+                  compact: true,
+                );
+                // Wide: one strip so the keyboard stays on the first screen.
+                if (box.maxWidth >= 720) {
+                  return Row(
+                    children: [
+                      stars,
+                      const SizedBox(width: 12),
+                      Expanded(child: tiles),
+                    ],
+                  );
+                }
+                return Column(
+                  children: [stars, const SizedBox(height: 6), tiles],
+                );
+              },
+            ),
           ),
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              _courseCopy(widget.language, 'lastLine'),
+              style: TextStyle(
+                fontSize: 11.5,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
           Wrap(
             spacing: 12,
             children: [
@@ -378,6 +446,15 @@ class CoursePageState extends State<CoursePage> {
 String _courseCopy(String language, String key) {
   const langs = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
   const words = <String, List<String>>{
+    'lastLine': [
+      'Скорость и время — по последней строке, ошибки — за весь урок',
+      'Speed and time: last line; errors: whole lesson',
+      'Velocidad y tiempo: última línea; errores: toda la lección',
+      'Tempo und Zeit: letzte Zeile; Fehler: ganze Lektion',
+      'Vitesse et temps : dernière ligne ; erreurs : toute la leçon',
+      'Velocità e tempo: ultima riga; errori: tutta la lezione',
+      'Velocidade e tempo: última linha; erros: toda a lição',
+    ],
     'continue': [
       'Продолжить',
       'Continue',

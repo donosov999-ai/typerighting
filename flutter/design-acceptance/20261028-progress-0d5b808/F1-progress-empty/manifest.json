@@ -1,0 +1,88 @@
+{
+  "screen": "F1-progress-empty",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "0d5b808",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/06.png",
+    "sha256": "504625b570934712a9f155741526e547213e958214fc40d884870515bd443175",
+    "cropXYXY": [
+      74,
+      78,
+      500,
+      500
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 1.831
+  },
+  "actual": {
+    "sha256": "53f26f1fec57df782a0da3ee08911a5a91afa7ff922d4cb6adf07479fbb50261",
+    "viewportCSS": [
+      390,
+      844
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      780,
+      1688
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "вкладка «Прогресс», новая установка без истории"
+  },
+  "method": {
+    "equalWidth": 780,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 773
+  },
+  "rows": [
+    [
+      "Пустой график",
+      "карточка «Пустое состояние»",
+      "текст исходника prog.empty в карточке графика",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Плитки",
+      "—",
+      "0 / 0 / 0, без выдуманных цифр",
+      "—",
+      "—",
+      "честное пустое состояние",
+      "PASS"
+    ],
+    [
+      "Пустой список",
+      "иконка документа + «Пустое состояние»",
+      "иконка документа + «Тренировок пока нет — они появятся здесь.»",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка телефона без viewport",
+      "390×844 CSS, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "84843466676573fd89eeead85c3824e1f5aa448efff3a71d41a98444c42e85b0",
+    "overlay-50.png": "b1bef94d80ce521e1233cdfc17cc9aca574043871cf81180c8fe8a6adcbb1220",
+    "comparison-panel.png": "9e0cbb6847d65df4242026ee5f049f035868ca97e43b0f80b6062d59c3008409"
+  }
+}

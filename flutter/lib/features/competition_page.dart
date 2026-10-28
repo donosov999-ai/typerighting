@@ -399,6 +399,58 @@ class CompetitionPageState extends State<CompetitionPage> {
               if (result == null) ...[
                 Text(widget.tr('comp.hint')),
                 const SizedBox(height: 8),
+                // E2: live time, speed, accuracy and the personal best.
+                Builder(
+                  builder: (context) {
+                    final tokens = Theme.of(context)
+                        .extension<TypeFreeTokens>()!;
+                    final muted = Theme.of(context)
+                        .colorScheme
+                        .onSurfaceVariant;
+                    final stats = race.typing.stats;
+                    final record =
+                        best['${race.discipline}_${competitionLanguage(widget.language)}'];
+                    Widget cell(String label, String value) => Expanded(
+                      child: Column(
+                        children: [
+                          Text(
+                            label,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 11.5, color: muted),
+                          ),
+                          Text(
+                            value,
+                            maxLines: 1,
+                            style: const TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                    return Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        color: tokens['raisedSurface'],
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(color: tokens['border']),
+                      ),
+                      child: Row(
+                        children: [
+                          cell(
+                            competitionCopy(widget.language, 'time'),
+                            '${(stats.elapsedMs / 1000).toStringAsFixed(1)} s',
+                          ),
+                          cell(widget.tr('st.wpm'), '${stats.wpm}'),
+                          cell(widget.tr('st.accuracy'), '${stats.accuracy}%'),
+                          cell(widget.tr('comp.best'), '${record ?? '—'}'),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 8),
                 if (ghost.isNotEmpty) ...[
                   Text(competitionCopy(widget.language, 'ghost')),
                   LinearProgressIndicator(
@@ -516,6 +568,7 @@ class CompetitionPageState extends State<CompetitionPage> {
 String competitionCopy(String language, String key) {
   const languages = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
   const values = {
+    'time': ['время', 'time', 'tiempo', 'Zeit', 'temps', 'tempo', 'tempo'],
     'gold': ['Золото', 'Gold', 'Oro', 'Gold', 'Or', 'Oro', 'Ouro'],
     'silver': [
       'Серебро',

@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:synapse_pet/synapse_pet.dart';
 
+import 'data/content_selection.dart';
 import 'data/platform_store.dart';
 import 'data/local_repository.dart';
 import 'data/artifact_export.dart';
@@ -92,8 +93,11 @@ class Resources {
   final Map<String, dynamic> content, keyboards, course, learning, kids;
   final TemplateRegistry registry;
   static Future<Resources> load() async => Resources(
-    jsonDecode(await rootBundle.loadString('assets/baseline/catalog.json'))
-        as Map<String, dynamic>,
+    applyContentSelection(
+      jsonDecode(await rootBundle.loadString('assets/baseline/catalog.json'))
+          as Map<String, dynamic>,
+      await _releaseSelection(),
+    ).catalog,
     jsonDecode(await rootBundle.loadString('assets/baseline/keyboard.json'))
         as Map<String, dynamic>,
     TemplateRegistry.parse(
@@ -108,6 +112,17 @@ class Resources {
     jsonDecode(await rootBundle.loadString('assets/baseline/kids.json'))
         as Map<String, dynamic>,
   );
+
+  /// The author's release selection shipped with the build; none → full catalog.
+  static Future<Object?> _releaseSelection() async {
+    try {
+      return jsonDecode(
+        await rootBundle.loadString('assets/content/release-selection.json'),
+      );
+    } catch (_) {
+      return null;
+    }
+  }
 }
 
 Future<void> main() async {
@@ -452,11 +467,19 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     profile = ['m', 'f', 'kids'].contains(p['profile'])
         ? p['profile'] as String
         : 'm';
-    bank = (p['bank'] as String?) ?? (language == 'ru' ? 'ruWords' : 'classic');
+    bank = availableBank(
+      widget.resources.content,
+      language,
+      (p['bank'] as String?) ?? (language == 'ru' ? 'ruWords' : 'classic'),
+    );
     layout = ['auto', 'qwerty', 'azerty', 'qwertz'].contains(p['layout'])
         ? p['layout'] as String
         : 'auto';
-    textBank = (p['textBank'] as String?) ?? bank;
+    textBank = availableBank(
+      widget.resources.content,
+      language,
+      (p['textBank'] as String?) ?? bank,
+    );
     index = (p['index'] as num?)?.toInt() ?? 0;
     plain = p['plain'] == true;
     flow = p['flow'] == true;
@@ -631,7 +654,11 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
 
   void reset() {
     if (exercises.isEmpty) {
-      bank = language == 'ru' ? 'ruWords' : 'classic';
+      bank = availableBank(
+        widget.resources.content,
+        language,
+        language == 'ru' ? 'ruWords' : 'classic',
+      );
       custom = null;
       index = 0;
     }
@@ -1039,7 +1066,11 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       weakMode = false;
       language = next;
       custom = null;
-      bank = language == 'ru' ? 'ruWords' : 'classic';
+      bank = availableBank(
+        widget.resources.content,
+        language,
+        language == 'ru' ? 'ruWords' : 'classic',
+      );
       textBank = bank;
       index = 0;
       loadKeyboard();
@@ -1274,6 +1305,12 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       unawaited(savePrefs());
     }
 
+    // Banks the author's release selection left for this language.
+    final banks = {
+      for (final e
+          in (widget.resources.content['catalog'] as Map)[language] as List)
+        (e as Map)['bank'] as String,
+    };
     final bankPicker = DropdownButton<String>(
       isExpanded: true,
       underline: const SizedBox(),
@@ -1282,6 +1319,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           (language == 'ru'
                   ? ['ruWords', 'ruPhrases', 'classic', 'poemHymn', 'digits']
                   : ['classic', 'poemHymn', 'digits'])
+              .where(banks.contains)
               .map(
                 (b) => DropdownMenuItem(
                   value: b,
@@ -1325,16 +1363,17 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
             plain,
             (v) => change(() => plain = v),
           ),
-          check(
-            practiceCopy(language, 'digits'),
-            bank == 'digits',
-            (v) => change(() {
-              custom = null;
-              weakMode = false;
-              bank = v ? 'digits' : textBank;
-              index = 0;
-            }),
-          ),
+          if (banks.contains('digits'))
+            check(
+              practiceCopy(language, 'digits'),
+              bank == 'digits',
+              (v) => change(() {
+                custom = null;
+                weakMode = false;
+                bank = v ? 'digits' : textBank;
+                index = 0;
+              }),
+            ),
           check(tr('tb.flow'), flow, (v) => change(() => flow = v)),
           check(tr('tb.heat'), showHeat, (v) {
             setState(() => showHeat = v);

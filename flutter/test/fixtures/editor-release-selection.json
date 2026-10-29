@@ -1,0 +1,48 @@
+{
+ "format": "typefree-content-selection",
+ "version": 1,
+ "snapshot": "81bd70857bec9c21b708983536cd8ad83cbdd971a72c26d0430c41887edc00ea",
+ "groups": {
+  "app:ru:ruWords": {
+   "enabled": true,
+   "excluded": [
+    "ruw-2"
+   ]
+  },
+  "app:ru:poemHymn": {
+   "enabled": false,
+   "excluded": []
+  },
+  "app:all:digits": {
+   "enabled": true,
+   "excluded": [
+    "digits-1"
+   ]
+  },
+  "app:en:abandon": {
+   "enabled": false,
+   "excluded": []
+  },
+  "app:ru:course": {
+   "enabled": true,
+   "excluded": []
+  },
+  "web:ru:exam": {
+   "enabled": false,
+   "excluded": []
+  }
+ },
+ "sources": {
+  "app": {
+   "root": "/Users/denisonosov/dev/typerighting-wt-options-20261022",
+   "sha": "07daf627b623fc154114917940060fc5dd712bca",
+   "note": "GitHub main + отдельно отмеченный локальный кандидат цифрового раздела; это исходники, не проверка установленной сборки."
+  },
+  "web": {
+   "root": "/Users/denisonosov/dev/typerighting-site-wt-web-20261022",
+   "sha": "869dfe80e4660a5f9de03ed913fb57a7b7188ca9"
+  }
+ },
+ "createdAt": "2026-10-29T09:41:09.626Z",
+ "note": "Авторский состав для интеграции. Сохранение файла не меняет уже установленные приложения."
+}

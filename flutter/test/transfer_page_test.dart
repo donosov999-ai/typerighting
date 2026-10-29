@@ -73,7 +73,7 @@ void main() {
     // Corrupted file: nothing written, honest message.
     await show();
     next = jsonDecode(jsonEncode(file)) as Map<String, dynamic>;
-    (next!['values'] as Map)['tr_lang'] = 'en';
+    (next['values'] as Map)['tr_lang'] = 'en';
     await tester.tap(find.byKey(const ValueKey('transfer-choose')));
     await tester.pumpAndSettle();
     expect(find.text(c('bad')), findsOneWidget);

@@ -53,11 +53,7 @@ android {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            // Store upload (-PtypefreeUnsigned=true): no signature here, the
-            // bundle is signed with the upload key by play_upload_aab.py.
-            signingConfig = if (project.hasProperty("typefreeUnsigned")) {
-                null
-            } else if (testKeystore != null) {
+            signingConfig = if (testKeystore != null) {
                 signingConfigs.getByName("updateTest")
             } else {
                 signingConfigs.getByName("debug")

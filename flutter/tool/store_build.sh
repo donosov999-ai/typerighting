@@ -6,7 +6,7 @@
 #   tool/store_build.sh android 2.60.100 2060100
 #   tool/store_build.sh ios     2.60.100 2060100
 #
-# Android: unsigned bundle → play_upload_aab.py signs it with the upload key.
+# Android: debug signature stripped → play_upload_aab.py signs with the upload key.
 # iOS: archive without signing, signed on export with «TypeFree App Store»;
 # the store bundle ID and name are patched in for this build only and the
 # two files are restored on exit.
@@ -19,10 +19,15 @@ tools="$HOME/Downloads/Code claude/typerighting"
 if [[ $platform == android ]]; then
   export GRADLE_USER_HOME="$HOME/.gradle-typefree-$number"
   nice flutter build appbundle --release --build-name=$name --build-number=$number \
-    $defines --android-project-arg=-PtypefreeAppId=pro.typefree.app \
-    --android-project-arg=-PtypefreeUnsigned=true
+    $defines --android-project-arg=typefreeAppId=pro.typefree.app
   aab=build/app/outputs/bundle/release/app-release.aab
-  unzip -p $aab base/manifest/AndroidManifest.xml >/dev/null
+  # Flutter signs release with the debug key even without a config; Play
+  # refuses two signatures, so drop it before the upload key is applied.
+  zip -q -d $aab 'META-INF/MANIFEST.MF' 'META-INF/*.SF' 'META-INF/*.RSA'
+  rm -f build/app/outputs/bundle/release/app-release-signed.aab
+  # Wrong ID = the candidate went out; Play would refuse it anyway.
+  unzip -p $aab base/manifest/AndroidManifest.xml | strings | grep -q 'pro\.typefree\.app' \
+    || { echo 'bundle is not pro.typefree.app'; exit 1; }
   python3 "$tools/play_upload_aab.py" $aab --track internal --name "$name (Flutter)"
 elif [[ $platform == ios ]]; then
   pbx=ios/Runner.xcodeproj/project.pbxproj plist=ios/Runner/Info.plist

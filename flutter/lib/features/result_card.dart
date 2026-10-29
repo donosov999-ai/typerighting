@@ -103,7 +103,7 @@ class ResultCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             if (saved && pet != null) ...[
-              SizedBox(width: 280, height: 300, child: pet),
+              SizedBox(width: 300, height: 340, child: pet),
               const SizedBox(width: 20),
             ],
             Expanded(child: body),
@@ -288,7 +288,13 @@ String resultCopy(String language, String key) {
 }
 
 /// The pet for the result card, asleep when motion is off.
-Widget resultPet(SynapseController controller, bool animate) => TickerMode(
+/// [size] 110 in the narrow pane; the desktop M3 card asks for a big face
+/// (sheet 13).
+Widget resultPet(
+  SynapseController controller,
+  bool animate, {
+  double size = 110,
+}) => TickerMode(
   enabled: animate,
-  child: SynapsePet(controller: controller, size: 110),
+  child: SynapsePet(controller: controller, size: size),
 );

@@ -1382,7 +1382,11 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       onAgain: () => next(0),
       onRetrySave: saveResult,
       pet: pet
-          ? resultPet(assistant, motion && !MediaQuery.disableAnimationsOf(c))
+          ? resultPet(
+              assistant,
+              motion && !MediaQuery.disableAnimationsOf(c),
+              size: wide ? 200 : 110,
+            )
           : null,
       onSynapse: pet ? openAssistant : null,
     );

@@ -16,13 +16,13 @@ void main() {
     tester,
   ) async {
     await app.main();
-    await tester.pumpAndSettle(const Duration(seconds: 3));
+    await _settle(tester, 3);
 
     if (find.text('Продолжить').evaluate().isNotEmpty) {
       await tester.tap(find.text('Классический'));
-      await tester.pumpAndSettle();
+      await _settle(tester, 1);
       await tester.tap(find.widgetWithText(FilledButton, 'Продолжить'));
-      await tester.pumpAndSettle(const Duration(seconds: 1));
+      await _settle(tester, 1);
     }
 
     // The choice is in the native store: a fresh repository reads it back.
@@ -36,13 +36,18 @@ void main() {
     final anyway = find.text('Всё равно открыть тренажёр →');
     if (anyway.evaluate().isNotEmpty) {
       await tester.tap(anyway);
-      await tester.pumpAndSettle(const Duration(seconds: 1));
+      await _settle(tester, 1);
+    }
+    // A device with a hardware keyboard starts on «Сегодня»: go to the menu.
+    if (find.text('Тренировка').evaluate().isEmpty) {
+      await tester.tap(find.text('Практика').last);
+      await _settle(tester, 1);
     }
     // Practice menu → «Тренировка» → library card «Русские слова».
     await tester.tap(find.text('Тренировка').first);
-    await tester.pumpAndSettle(const Duration(seconds: 1));
+    await _settle(tester, 1);
     await tester.tap(find.textContaining('Частые слова').first);
-    await tester.pumpAndSettle(const Duration(seconds: 1));
+    await _settle(tester, 1);
     final input = find.byKey(const ValueKey('practice-input'));
     expect(input, findsOneWidget);
     // Type the first three expected keys one by one, as a person does (the
@@ -59,6 +64,14 @@ void main() {
     expect(find.textContaining('100%'), findsWidgets, reason: 'no errors');
     expect(tester.takeException(), isNull);
   });
+}
+
+/// Bounded wait: the Synapse face and the cursor animate forever, so
+/// pumpAndSettle can hang on a device (Android run 29.10: 31 min).
+Future<void> _settle(WidgetTester tester, int seconds) async {
+  for (var i = 0; i < seconds * 10; i++) {
+    await tester.pump(const Duration(milliseconds: 100));
+  }
 }
 
 /// The highlighted (expected) character of the lesson line.

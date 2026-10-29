@@ -2,12 +2,12 @@
 
 Последняя панель каждого экрана: эскиз | сборка | наложение 50/50. Таблица — REPORT.md пакета. Решения Дениса нет.
 
-- A1 · черновик — есть расхождения · 20261028-welcome-85f0c4d/A1-welcome
+- A1 · готово к согласованию · 20261029-profiles-f6f57b2/A1-welcome
 - A2 · готово к согласованию · 20261028-repeat-ea99bf9/A2-today
 - A3 · готово к согласованию · 20261028-header-a814c43/A3-practice
 - A4 · готово к согласованию · 20261028-companion-d09c1b4/A4-companion
 - A5 · черновик — есть расхождения · 20261028-header-a814c43/A5-more
-- A6 · черновик — есть расхождения · 20261028-menus-9d6917f/A6-profile-language
+- A6 · готово к согласованию · 20261029-profiles-f6f57b2/A6-profile-language
 - F1 · готово к согласованию · 20261029-decisions-dead7be/F1-progress
 - F2 · готово к согласованию · 20261028-draftfix-4988a11/F2-achievements
 - F3 · готово к согласованию · 20261028-settings-2e40bf5/F3-input-settings

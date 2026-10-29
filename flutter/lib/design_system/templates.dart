@@ -38,6 +38,8 @@ Color _color(Object? v) {
   return Color(0xFF000000 | int.parse(v.substring(1), radix: 16));
 }
 
+const layoutIds = {'adaptive-workspace-v1', 'speed-home-v1'};
+
 /// Visual tokens only. No feature gates, domain data or account permissions.
 class DesignTemplate {
   DesignTemplate._(
@@ -46,8 +48,13 @@ class DesignTemplate {
     this.light,
     this.dark,
     this.profileAccents,
+    this.layoutId,
   );
   final String id;
+
+  /// Which home layout the template asks for: `adaptive-workspace-v1` (the
+  /// card list) or `speed-home-v1` (hero + quick launch, design 29.10).
+  final String layoutId;
   final String title;
   final Map<String, Color> light;
   final Map<String, Color> dark;
@@ -69,7 +76,7 @@ class DesignTemplate {
         json['title'] is! String ||
         json['revision'] is! int ||
         (json['revision'] as int) < 1 ||
-        json['layoutId'] != 'adaptive-workspace-v1' ||
+        !layoutIds.contains(json['layoutId']) ||
         json['preview'] is! String ||
         !RegExp(r'^[a-zA-Z0-9-]+\.png$').hasMatch(json['preview'] as String)) {
       throw const FormatException('Invalid template contract');
@@ -110,6 +117,7 @@ class DesignTemplate {
       variant(variants['light']),
       variant(variants['dark']),
       Map.unmodifiable(accents),
+      json['layoutId'] as String,
     );
   }
 

@@ -31,6 +31,7 @@ class ExamPage extends StatefulWidget {
     this.clock,
     this.onTyping,
     this.exporter,
+    this.initialMinutes = 10,
   });
   final LocalRepository repository;
   final KeyStatisticsStore keyStatistics;
@@ -42,6 +43,9 @@ class ExamPage extends StatefulWidget {
   final VoidCallback? onTyping;
   final VoidCallback onExit;
   final ArtifactExporter? exporter;
+
+  /// Preselected test length (1, 5 or 10): the home «speed test · 1 minute».
+  final int initialMinutes;
   final Future<void> Function(Map<String, dynamic>, List<Map<String, dynamic>>)
   onSaved;
   @override
@@ -55,7 +59,7 @@ class ExamPageState extends State<ExamPage> with WidgetsBindingObserver {
       inputFocus = FocusNode();
   ExamSession? engine;
   Timer? hudTimer;
-  int duration = 10;
+  late int duration = widget.initialMinutes;
   String previous = '', id = '', examName = '';
   bool ignore = false,
       saving = false,

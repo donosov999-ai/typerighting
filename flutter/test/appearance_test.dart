@@ -92,7 +92,8 @@ void main() {
         TestStore(),
         existingInstall: false,
       );
-      expect(b.selection.templateId, 'midnight-orange');
+      // New installs open the speed home (design 29.10, Denis's choice).
+      expect(b.selection.templateId, 'midnight-speed-v1');
       expect(b.selection.brightness, ThemeMode.system);
       a.dispose();
       b.dispose();

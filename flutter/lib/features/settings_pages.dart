@@ -578,14 +578,16 @@ class SoundSettingsPage extends StatelessWidget {
             if (appearance.previewing)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                // Wrap: at 320 px «Отменить» + «Применить» overflowed (29.10).
+                child: Wrap(
+                  alignment: WrapAlignment.end,
+                  spacing: 8,
+                  runSpacing: 8,
                   children: [
                     TextButton(
                       onPressed: appearance.cancel,
                       child: Text(c('cancel')),
                     ),
-                    const SizedBox(width: 8),
                     FilledButton(
                       onPressed: () => appearance.apply(),
                       child: Text(c('apply')),

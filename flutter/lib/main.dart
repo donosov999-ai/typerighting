@@ -29,6 +29,7 @@ import 'features/settings_pages.dart';
 import 'features/profile_page.dart';
 import 'features/achievements_page.dart';
 import 'features/companion_page.dart';
+import 'features/speed_home.dart';
 import 'features/synapse_panel.dart';
 import 'features/result_card.dart';
 import 'features/trainer_parts.dart';
@@ -283,6 +284,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   late LearningAdaptation learningAdaptation;
   int weakReturnIndex = 0;
   List<String> weakLines = [];
+  int examMinutes = 10;
   late TypingSession session;
   late KeyStatisticsStore keyStatistics;
   final progressMessenger = GlobalKey<ScaffoldMessengerState>();
@@ -1984,6 +1986,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                   if (section == AppSection.exam) {
                     return ExamPage(
                       key: examKey,
+                      initialMinutes: examMinutes,
                       exporter: widget.artifactExporter,
                       repository: widget.repository,
                       keyStatistics: keyStatistics,
@@ -2281,6 +2284,22 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     );
   }
 
+  /// Average WPM of this profile per day, the last seven days (null = none).
+  List<double?> weekWpm() {
+    final now = DateTime.now();
+    final day0 = DateTime(now.year, now.month, now.day - 6);
+    final sums = List<double>.filled(7, 0), counts = List<int>.filled(7, 0);
+    for (final r in history) {
+      if (r['profile'] != profile || r['wpm'] is! num) continue;
+      final d = DateTime.fromMillisecondsSinceEpoch((r['t'] as num).toInt());
+      final i = DateTime(d.year, d.month, d.day).difference(day0).inDays;
+      if (i < 0 || i > 6) continue;
+      sums[i] += (r['wpm'] as num).toDouble();
+      counts[i]++;
+    }
+    return [for (var i = 0; i < 7; i++) counts[i] == 0 ? null : sums[i] / counts[i]];
+  }
+
   Widget todayView(BuildContext c) {
     final lessons = List<Map<String, dynamic>>.from(
       (widget.resources.course['lessons'] as Map)[language] as List,
@@ -2296,6 +2315,41 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     final title =
         tr(lesson['titleKey'] as String) +
         (lesson['titleArg'] == null ? '' : ': ${lesson['titleArg']}');
+    final layout = widget.appearance.registry
+        .resolve(widget.appearance.selection.templateId)
+        .layoutId;
+    if (layout == 'speed-home-v1') {
+      return SpeedHome(
+        language: language,
+        summary: summary,
+        lessonTitle: title,
+        customTitle: tr('custom.title'),
+        modes: [
+          for (final m in modeEntries)
+            HomeMode(m.home, m.title, m.subtitle, m.onTap),
+        ],
+        weakKeys: weakLetters(
+          keyStatistics.currentStats,
+          letterInventory(keyboard.snapshot, language == 'ru' ? 'ru' : 'en'),
+          count: 3,
+        ),
+        week: weekWpm(),
+        onStart: () => showSection(AppSection.practice),
+        onSpeedTest: () => openExam(1),
+        onCustomText: () async {
+          await showSection(AppSection.practice);
+          await customText();
+        },
+        onCourse: () {
+          setState(() {
+            courseStartLessonId = summary.nextLesson;
+            section = AppSection.course;
+          });
+        },
+        onWeak: () => unawaited(startWeak()),
+        onProgress: () => showSection(AppSection.progress),
+      );
+    }
     return TodayPage(
       summary: summary,
       language: language,
@@ -2311,69 +2365,92 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     );
   }
 
+  /// The eight modes: one list for the Practice menu and the speed home, so
+  /// both open exactly the same pages. `home` is the speed-home icon (ref
+  /// DESIGN_REF 29.10: Тренировка = keyboard, not a runner).
+  List<({IconData icon, IconData home, int accent, String title, String subtitle, VoidCallback onTap})>
+  get modeEntries => [
+    (
+      icon: Icons.bolt,
+      home: Icons.keyboard_outlined,
+      accent: 0xFFF07B2B,
+      title: tr('hub.train'),
+      subtitle: tr('hub.train.d'),
+      onTap: () => showSection(AppSection.library),
+    ),
+    (
+      icon: Icons.menu_book_outlined,
+      home: Icons.menu_book_outlined,
+      accent: 0xFF3B82F6,
+      title: tr('course.title'),
+      subtitle: tr('hub.course.d'),
+      onTap: () {
+        setState(() {
+          courseStartLessonId = null;
+          section = AppSection.course;
+        });
+      },
+    ),
+    (
+      icon: Icons.psychology_alt_outlined,
+      home: Icons.auto_awesome_outlined,
+      accent: 0xFF8B5CF6,
+      title: tr('learn.title'),
+      subtitle: tr('hub.learn.d'),
+      onTap: () => showSection(AppSection.learn),
+    ),
+    (
+      icon: Icons.emoji_events_outlined,
+      home: Icons.emoji_events_outlined,
+      accent: 0xFFE5484D,
+      title: tr('compete.title'),
+      subtitle: tr('hub.compete.d.store'),
+      onTap: () => showSection(AppSection.compete),
+    ),
+    (
+      icon: Icons.description_outlined,
+      home: Icons.description_outlined,
+      accent: 0xFF22B07D,
+      title: tr('mem.title'),
+      subtitle: tr('hub.mem.d'),
+      onTap: () => showSection(AppSection.memorize),
+    ),
+    (
+      icon: Icons.extension_outlined,
+      home: Icons.layers_outlined,
+      accent: 0xFFF5B82E,
+      title: tr('span.title'),
+      subtitle: tr('hub.span.d'),
+      onTap: () => showSection(AppSection.recall),
+    ),
+    (
+      icon: Icons.speed,
+      home: Icons.speed,
+      accent: 0xFF14A3A3,
+      title: tr('ex.title'),
+      subtitle: tr('hub.exam.d'),
+      onTap: () => openExam(10),
+    ),
+    (
+      icon: Icons.pets_outlined,
+      home: Icons.sentiment_satisfied_alt_outlined,
+      accent: 0xFFE879A6,
+      title: tr('k.title'),
+      subtitle: tr('profile.kids.desc'),
+      onTap: () => showSection(AppSection.kids),
+    ),
+  ];
+
+  /// Typing test with a preselected length (home quick launch: 1 minute).
+  void openExam(int minutes) {
+    examMinutes = minutes;
+    showSection(AppSection.exam);
+  }
+
   Widget practiceMenu(BuildContext c) =>
       menuPage(c, shellText(language, 'choose'), [
-        modeTile(
-          Icons.bolt,
-          0xFFF07B2B,
-          tr('hub.train'),
-          tr('hub.train.d'),
-          () => showSection(AppSection.library),
-        ),
-        modeTile(
-          Icons.menu_book_outlined,
-          0xFF3B82F6,
-          tr('course.title'),
-          tr('hub.course.d'),
-          () {
-            setState(() {
-              courseStartLessonId = null;
-              section = AppSection.course;
-            });
-          },
-        ),
-        modeTile(
-          Icons.psychology_alt_outlined,
-          0xFF8B5CF6,
-          tr('learn.title'),
-          tr('hub.learn.d'),
-          () => showSection(AppSection.learn),
-        ),
-        modeTile(
-          Icons.emoji_events_outlined,
-          0xFFE5484D,
-          tr('compete.title'),
-          tr('hub.compete.d.store'),
-          () => showSection(AppSection.compete),
-        ),
-        modeTile(
-          Icons.description_outlined,
-          0xFF22B07D,
-          tr('mem.title'),
-          tr('hub.mem.d'),
-          () => showSection(AppSection.memorize),
-        ),
-        modeTile(
-          Icons.extension_outlined,
-          0xFFF5B82E,
-          tr('span.title'),
-          tr('hub.span.d'),
-          () => showSection(AppSection.recall),
-        ),
-        modeTile(
-          Icons.speed,
-          0xFF14A3A3,
-          tr('ex.title'),
-          tr('hub.exam.d'),
-          () => showSection(AppSection.exam),
-        ),
-        modeTile(
-          Icons.pets_outlined,
-          0xFFE879A6,
-          tr('k.title'),
-          tr('profile.kids.desc'),
-          () => showSection(AppSection.kids),
-        ),
+        for (final m in modeEntries)
+          modeTile(m.icon, m.accent, m.title, m.subtitle, m.onTap),
       ]);
 
   /// A3/A5 list page: subtitle under the app bar title, then coloured rows.

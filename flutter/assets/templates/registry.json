@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "status": "design-contract-not-runtime-integration",
-  "defaultForNewInstall": "midnight-orange",
+  "defaultForNewInstall": "midnight-speed-v1",
   "fallbackTemplateId": "classic-blue",
   "preferenceKey": "typefree.appearance.v1",
   "requiredSlots": [
@@ -14,6 +14,73 @@
     "assistant.panel"
   ],
   "templates": [
+    {
+      "id": "midnight-speed-v1",
+      "revision": 1,
+      "title": "Скорость",
+      "layoutId": "speed-home-v1",
+      "preview": "home-speed-dark-light-v1.png",
+      "variants": {
+        "light": {
+          "canvas": "#F4F7FA",
+          "surface": "#FFFFFF",
+          "raisedSurface": "#EEF2F7",
+          "border": "#CCD9E3",
+          "text": "#152B3C",
+          "mutedText": "#486174",
+          "primary": "#B84F08",
+          "onPrimary": "#FFFFFF",
+          "success": "#16744E",
+          "danger": "#B42318",
+          "focusRing": "#8A3A05",
+          "keyboardFace": "#FFFFFF",
+          "keyboardBase": "#CBD5E1",
+          "keyboardLegend": "#152B3C",
+          "keyboardSecondaryLegend": "#486174",
+          "expectedKey": "#B84F08",
+          "onExpectedKey": "#FFFFFF",
+          "shiftKey": "#F4CB72",
+          "onShiftKey": "#071722",
+          "assistantPanel": "#FFFFFF"
+        },
+        "dark": {
+          "canvas": "#071923",
+          "surface": "#102C3B",
+          "raisedSurface": "#173A4C",
+          "border": "#294B60",
+          "text": "#EDF5FA",
+          "mutedText": "#B5C9D8",
+          "primary": "#FF922F",
+          "onPrimary": "#111B24",
+          "success": "#72DBC1",
+          "danger": "#FF8A8A",
+          "focusRing": "#FFC28F",
+          "keyboardFace": "#173A4C",
+          "keyboardBase": "#294B60",
+          "keyboardLegend": "#EDF5FA",
+          "keyboardSecondaryLegend": "#B5C9D8",
+          "expectedKey": "#FF922F",
+          "onExpectedKey": "#111B24",
+          "shiftKey": "#F4CB72",
+          "onShiftKey": "#071722",
+          "assistantPanel": "#102C3B"
+        }
+      },
+      "profileAccents": {
+        "m": {
+          "light": "#B84F08",
+          "dark": "#FF9B48"
+        },
+        "f": {
+          "light": "#9F3C60",
+          "dark": "#F6AFCA"
+        },
+        "kids": {
+          "light": "#9D4900",
+          "dark": "#FFB35F"
+        }
+      }
+    },
     {
       "id": "midnight-orange",
       "revision": 1,

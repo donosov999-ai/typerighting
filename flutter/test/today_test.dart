@@ -91,11 +91,12 @@ void main() {
         (d['legacy'] as Map)['tr_course_ru'] = '{"stars":{"1":3}}';
       });
       final before = repo.data;
+      // The card-list home stays available under the other templates.
       final appearance = AppearanceController(
         resources.registry,
         AppearanceMemory(),
         existingInstall: false,
-      );
+      )..preview('midnight-orange', ThemeMode.system);
       final key = GlobalKey<TypeFreeAppState>();
       await tester.binding.setSurfaceSize(const Size(320, 582));
       await tester.pumpWidget(

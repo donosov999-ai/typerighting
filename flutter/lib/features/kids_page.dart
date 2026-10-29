@@ -353,130 +353,149 @@ class KidsPageState extends State<KidsPage> with WidgetsBindingObserver {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: tokens['border']),
       );
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          // Cat with the greeting, and the honest star count.
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              Image.asset(
-                'assets/learning/typing-cat.webp',
-                height: 96,
-                excludeFromSemantics: true,
-              ),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 320),
-                child: Container(
+      // D2 (sheet 04): the map lies on a drawn landscape — the app's own
+      // Today artwork, washed with the theme canvas so numbers stay legible.
+      return Container(
+        key: const ValueKey('kids-map-bg'),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          image: DecorationImage(
+            image: const AssetImage('assets/artwork/today-mountains-v1.png'),
+            fit: BoxFit.cover,
+            alignment: Alignment.bottomCenter,
+            colorFilter: ColorFilter.mode(
+              tokens['canvas'].withValues(alpha: .55),
+              BlendMode.srcOver,
+            ),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Cat with the greeting, and the honest star count.
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                Image.asset(
+                  'assets/learning/typing-cat.webp',
+                  height: 96,
+                  excludeFromSemantics: true,
+                ),
+                ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 320),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: box(),
+                    child: Text(tr('k.hello')),
+                  ),
+                ),
+                Container(
                   padding: const EdgeInsets.all(12),
                   decoration: box(),
-                  child: Text(tr('k.hello')),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: box(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.star, color: Color(0xFFF5B82E)),
-                        const SizedBox(width: 4),
-                        Text(
-                          '$stars / ${widget.levels.length * 3}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w800,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.star, color: Color(0xFFF5B82E)),
+                          const SizedBox(width: 4),
+                          Text(
+                            '$stars / ${widget.levels.length * 3}',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    Text('${tr('k.level')} ${current.id}'),
-                  ],
+                        ],
+                      ),
+                      Text('${tr('k.level')} ${current.id}'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (engine.restSuggested) Text(tr('k.rest')),
+            for (final language in ['ru', 'en']) ...[
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Text(
+                  tr('k.block.$language'),
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          if (engine.restSuggested) Text(tr('k.rest')),
-          for (final language in ['ru', 'en']) ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Text(
-                tr('k.block.$language'),
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-            ),
-            LayoutBuilder(
-              builder: (context, box) {
-                final levels = widget.levels
-                    .where((l) => l.language == language)
-                    .toList();
-                final per = box.maxWidth >= 600 ? 6 : 5;
-                final size = box.maxWidth >= 600 ? 60.0 : 48.0;
-                final rows = <List<KidsLevel>>[
-                  for (var i = 0; i < levels.length; i += per)
-                    levels.sublist(i, min(i + per, levels.length)),
-                ];
-                // A winding path: every other row runs right-to-left.
-                return Column(
-                  children: [
-                    for (final (r, row) in rows.indexed)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              left: 24,
-                              right: 24,
-                              top: size / 2 - 2,
-                              child: Container(
-                                height: 4,
-                                decoration: BoxDecoration(
-                                  color: tokens['border'],
-                                  borderRadius: BorderRadius.circular(2),
+              LayoutBuilder(
+                builder: (context, box) {
+                  final levels = widget.levels
+                      .where((l) => l.language == language)
+                      .toList();
+                  final per = box.maxWidth >= 600 ? 6 : 5;
+                  final size = box.maxWidth >= 600 ? 60.0 : 48.0;
+                  final rows = <List<KidsLevel>>[
+                    for (var i = 0; i < levels.length; i += per)
+                      levels.sublist(i, min(i + per, levels.length)),
+                  ];
+                  // A winding path: every other row runs right-to-left.
+                  return Column(
+                    children: [
+                      for (final (r, row) in rows.indexed)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                left: 24,
+                                right: 24,
+                                top: size / 2 - 2,
+                                child: Container(
+                                  height: 4,
+                                  decoration: BoxDecoration(
+                                    color: tokens['border'],
+                                    borderRadius: BorderRadius.circular(2),
+                                  ),
                                 ),
                               ),
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Short reversed rows keep the gap on the
-                                // left so the path stays continuous.
-                                if (r.isOdd)
-                                  for (var k = row.length; k < per; k++)
-                                    SizedBox(width: size),
-                                for (final l in r.isOdd ? row.reversed : row)
-                                  node(l, size),
-                                if (r.isEven)
-                                  for (var k = row.length; k < per; k++)
-                                    SizedBox(width: size),
-                              ],
-                            ),
-                          ],
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Short reversed rows keep the gap on the
+                                  // left so the path stays continuous.
+                                  if (r.isOdd)
+                                    for (var k = row.length; k < per; k++)
+                                      SizedBox(width: size),
+                                  for (final l in r.isOdd ? row.reversed : row)
+                                    node(l, size),
+                                  if (r.isEven)
+                                    for (var k = row.length; k < per; k++)
+                                      SizedBox(width: size),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                  ],
-                );
-              },
+                    ],
+                  );
+                },
+              ),
+            ],
+            const SizedBox(height: 8),
+            FilledButton.icon(
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+              ),
+              onPressed: widget.onAI,
+              icon: const Icon(Icons.auto_awesome),
+              label: Text(tr('learn.title')),
             ),
           ],
-          const SizedBox(height: 8),
-          FilledButton.icon(
-            style: FilledButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-            ),
-            onPressed: widget.onAI,
-            icon: const Icon(Icons.auto_awesome),
-            label: Text(tr('learn.title')),
-          ),
-        ],
+        ),
       );
     }
     if (engine.phase == KidsPhase.done) {

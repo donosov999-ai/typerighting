@@ -38,6 +38,14 @@ void main() {
     }
 
     await runOnce(150);
+    // M3 on a desktop (sheet 13): one wide card in the main column instead
+    // of the keyboard, the three tiles in one row.
+    expect(find.byKey(const ValueKey('result-wide')), findsOneWidget);
+    final ys = [
+      for (final t in ['Скорость', 'Точность', 'Ошибки'])
+        tester.getTopLeft(find.descendant(of: find.byKey(const ValueKey('result-wide')), matching: find.text(t))).dy,
+    ];
+    expect(ys.toSet().length, 1, reason: 'tiles in one row: $ys');
     final wpm = state.session.stats.wpm;
     expect(find.text('Без единой ошибки!'), findsOneWidget);
     expect(find.text('$wpm WPM'), findsWidgets);

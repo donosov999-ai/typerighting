@@ -38,6 +38,10 @@ class ProgressPage extends StatefulWidget {
 class _ProgressPageState extends State<ProgressPage> {
   final target = TextEditingController();
   String? series, status;
+
+  /// F1 «7 дней» of sheet 06: days shown in the chart (0 = all time);
+  /// null until the user picks one.
+  int? period;
   bool saving = false;
   int now() => widget.clock?.call() ?? DateTime.now().millisecondsSinceEpoch;
   @override
@@ -145,7 +149,16 @@ class _ProgressPageState extends State<ProgressPage> {
     final scheme = Theme.of(context).colorScheme;
     final tokens = Theme.of(context).extension<TypeFreeTokens>()!;
     final muted = scheme.onSurfaceVariant;
-    final recent = ordered.skip(max(0, ordered.length - 40)).toList();
+    // Period as on sheet 06 («7 дней»); with fewer than two sessions in the
+    // last 7 days the default falls back to all time, never an empty chart.
+    const day = 86400000;
+    List<Map<String, dynamic>> within(int days) => days == 0
+        ? ordered
+        : ordered.where((r) => (r['t'] as num) >= now() - days * day).toList();
+    final shown = period ?? (within(7).length >= 2 ? 7 : 0);
+    final window = within(shown);
+    final recent = window.skip(max(0, window.length - 40)).toList();
+    final shownSpeeds = recent.map((r) => r['wpm'] as num).toList();
     final titles = <String, int>{};
     for (final g in groups.values) {
       final t = g.first['title'] as String;
@@ -212,6 +225,32 @@ class _ProgressPageState extends State<ProgressPage> {
                     )
                   else if (series != null)
                     Text(seriesLabel(series!), style: TextStyle(color: muted)),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 150),
+                    child: DropdownButton<int>(
+                      key: const ValueKey('progress-period'),
+                      value: shown,
+                      isDense: true,
+                      isExpanded: true,
+                      underline: const SizedBox(),
+                      items: [
+                        for (final (d, k) in [
+                          (7, 'days7'),
+                          (30, 'days30'),
+                          (0, 'allTime'),
+                        ])
+                          DropdownMenuItem(
+                            value: d,
+                            child: Text(
+                              copy(k),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                      ],
+                      onChanged: (v) => setState(() => period = v),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 4),
@@ -219,11 +258,11 @@ class _ProgressPageState extends State<ProgressPage> {
                 copy('seriesHint'),
                 style: TextStyle(fontSize: 11.5, color: muted),
               ),
-              if (speeds.length >= 2) ...[
+              if (shownSpeeds.length >= 2) ...[
                 const SizedBox(height: 12),
                 Semantics(
                   label:
-                      'WPM: ${speeds.join(', ')}; ${copy('acc')}: ${recent.map((r) => (r['accuracy'] as num).round()).join(', ')}',
+                      'WPM: ${shownSpeeds.join(', ')}; ${copy('acc')}: ${recent.map((r) => (r['accuracy'] as num).round()).join(', ')}',
                   child: SizedBox(
                     height: 170,
                     child: CustomPaint(
@@ -253,7 +292,7 @@ class _ProgressPageState extends State<ProgressPage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  '${widget.tr('prog.sessions')}: ${speeds.length} · ${widget.tr('prog.max')}: ${speeds.reduce(max)} WPM · ${widget.tr('prog.last')}: ${speeds.last} WPM',
+                  '${widget.tr('prog.sessions')}: ${shownSpeeds.length} · ${widget.tr('prog.max')}: ${shownSpeeds.reduce(max)} WPM · ${widget.tr('prog.last')}: ${shownSpeeds.last} WPM',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 12, color: muted),
                 ),
@@ -304,6 +343,53 @@ class _ProgressPageState extends State<ProgressPage> {
           '${copy('course')}: ${view.courseStars} · ${copy('kids')}: ${view.kidsStars}',
           style: TextStyle(fontSize: 12, color: muted),
         ),
+        // Sheet 06 order: chart → tiles → recent sessions, then the extras.
+        const SizedBox(height: 16),
+        Text(
+          copy('recent'),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+        ),
+        if (view.legacyTimeline.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              copy('unknown'),
+              style: TextStyle(fontSize: 12, color: muted),
+            ),
+          ),
+        const SizedBox(height: 6),
+        if (rows.isEmpty)
+          _Panel(
+            child: Column(
+              children: [
+                Icon(Icons.description_outlined, color: muted, size: 32),
+                const SizedBox(height: 6),
+                Text(copy('noSessions'), textAlign: TextAlign.center),
+              ],
+            ),
+          )
+        else
+          _Panel(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Column(
+              children: [
+                for (var i = 0; i < rows.length; i++) ...[
+                  if (i > 0) const Divider(height: 1, indent: 52),
+                  _SessionRow(
+                    title: rows[i]['origin'] == 'legacy'
+                        ? copy('oldSession')
+                        : rows[i]['title'] as String,
+                    when: _when(rows[i]['t'] as num),
+                    detail: rows[i]['origin'] == 'flutter'
+                        ? '${rows[i]['profile']} / ${rows[i]['language']} / ${rows[i]['mode']}'
+                        : '',
+                    wpm: rows[i]['wpm'] as num,
+                    accuracy: rows[i]['accuracy'] as num,
+                  ),
+                ],
+              ],
+            ),
+          ),
         const SizedBox(height: 10),
         Wrap(
           spacing: 8,
@@ -352,52 +438,6 @@ class _ProgressPageState extends State<ProgressPage> {
             ],
           ),
         ),
-        const SizedBox(height: 16),
-        Text(
-          copy('recent'),
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
-        ),
-        if (view.legacyTimeline.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Text(
-              copy('unknown'),
-              style: TextStyle(fontSize: 12, color: muted),
-            ),
-          ),
-        const SizedBox(height: 6),
-        if (rows.isEmpty)
-          _Panel(
-            child: Column(
-              children: [
-                Icon(Icons.description_outlined, color: muted, size: 32),
-                const SizedBox(height: 6),
-                Text(copy('noSessions'), textAlign: TextAlign.center),
-              ],
-            ),
-          )
-        else
-          _Panel(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Column(
-              children: [
-                for (var i = 0; i < rows.length; i++) ...[
-                  if (i > 0) const Divider(height: 1, indent: 52),
-                  _SessionRow(
-                    title: rows[i]['origin'] == 'legacy'
-                        ? copy('oldSession')
-                        : rows[i]['title'] as String,
-                    when: _when(rows[i]['t'] as num),
-                    detail: rows[i]['origin'] == 'flutter'
-                        ? '${rows[i]['profile']} / ${rows[i]['language']} / ${rows[i]['mode']}'
-                        : '',
-                    wpm: rows[i]['wpm'] as num,
-                    accuracy: rows[i]['accuracy'] as num,
-                  ),
-                ],
-              ],
-            ),
-          ),
         const SizedBox(height: 12),
         OutlinedButton.icon(
           onPressed: saving ? null : export,
@@ -791,6 +831,33 @@ String progressCopy(String language, String key) {
       'Pas encore de séance — elles apparaîtront ici.',
       'Nessuna sessione ancora: appariranno qui.',
       'Ainda sem sessões — vão aparecer aqui.',
+    ],
+    'days7': [
+      '7 дней',
+      '7 days',
+      '7 días',
+      '7 Tage',
+      '7 jours',
+      '7 giorni',
+      '7 dias',
+    ],
+    'days30': [
+      '30 дней',
+      '30 days',
+      '30 días',
+      '30 Tage',
+      '30 jours',
+      '30 giorni',
+      '30 dias',
+    ],
+    'allTime': [
+      'Всё время',
+      'All time',
+      'Todo',
+      'Gesamt',
+      'Tout',
+      'Sempre',
+      'Sempre',
     ],
     'recent': [
       'Последние тренировки',

@@ -24,6 +24,7 @@ class ResultCard extends StatelessWidget {
     required this.onRetrySave,
     this.pet,
     this.onSynapse,
+    this.wide = false,
   });
   final String language, profile;
   final String Function(String) tr;
@@ -35,6 +36,10 @@ class ResultCard extends StatelessWidget {
   /// The shared pet showing its line; null when Synapse is off.
   final Widget? pet;
   final VoidCallback? onSynapse;
+
+  /// M3 on a desktop (sheet 13): one card in the main column — big Synapse
+  /// on the left, title, three tiles in a row, record and buttons on the right.
+  final bool wide;
 
   @override
   Widget build(BuildContext context) {
@@ -69,6 +74,64 @@ class ResultCard extends StatelessWidget {
         ],
       ),
     );
+    final tiles = [
+      tile(Icons.speed, c('speed'), '$wpm WPM', scheme.primary),
+      tile(
+        Icons.track_changes,
+        c('accuracy'),
+        '${accuracy.round()}%',
+        tokens['success'],
+      ),
+      tile(
+        Icons.description_outlined,
+        c('errors'),
+        '$errors',
+        errors == 0 ? tokens['success'] : tokens['danger'],
+      ),
+    ];
+    if (wide) {
+      final body = _body(context, c, tiles, wideTiles: true);
+      return Container(
+        key: const ValueKey('result-wide'),
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: tokens['raisedSurface'],
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: tokens['border']),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            if (saved && pet != null) ...[
+              SizedBox(width: 280, height: 300, child: pet),
+              const SizedBox(width: 20),
+            ],
+            Expanded(child: body),
+          ],
+        ),
+      );
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        _body(context, c, tiles),
+        if (saved && pet != null) ...[
+          const SizedBox(height: 8),
+          // Pet plus its speech bubble above it (the widget fits both).
+          SizedBox(height: 260, child: pet),
+        ],
+      ],
+    );
+  }
+
+  Widget _body(
+    BuildContext context,
+    String Function(String) c,
+    List<Widget> tiles, {
+    bool wideTiles = false,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
@@ -80,25 +143,17 @@ class ResultCard extends StatelessWidget {
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800),
         ),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            tile(Icons.speed, c('speed'), '$wpm WPM', scheme.primary),
-            tile(
-              Icons.track_changes,
-              c('accuracy'),
-              '${accuracy.round()}%',
-              tokens['success'],
-            ),
-            tile(
-              Icons.description_outlined,
-              c('errors'),
-              '$errors',
-              errors == 0 ? tokens['success'] : tokens['danger'],
-            ),
-          ],
-        ),
+        if (wideTiles)
+          Row(
+            children: [
+              for (var i = 0; i < tiles.length; i++) ...[
+                if (i > 0) const SizedBox(width: 10),
+                Expanded(child: tiles[i]),
+              ],
+            ],
+          )
+        else
+          Wrap(spacing: 8, runSpacing: 8, children: tiles),
         if (saved && record) ...[
           const SizedBox(height: 8),
           Container(
@@ -156,11 +211,6 @@ class ResultCard extends StatelessWidget {
               TextButton(onPressed: onSynapse, child: Text(c('synapse'))),
           ],
         ),
-        if (saved && pet != null) ...[
-          const SizedBox(height: 8),
-          // Pet plus its speech bubble above it (the widget fits both).
-          SizedBox(height: 260, child: pet),
-        ],
       ],
     );
   }

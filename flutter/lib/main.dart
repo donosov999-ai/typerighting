@@ -1367,7 +1367,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       ),
     );
 
-    final completion = ResultCard(
+    Widget completionCard({bool wide = false}) => ResultCard(
+      wide: wide,
       language: language,
       tr: tr,
       profile: profile,
@@ -1385,6 +1386,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           : null,
       onSynapse: pet ? openAssistant : null,
     );
+    final completion = completionCard();
     if (section == AppSection.welcome) {
       return Scaffold(
         body: SafeArea(
@@ -1710,7 +1712,12 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                           hintText: 'Ввод с клавиатуры',
                         ),
                       ),
-                      if (showKeyboard) ...[
+                      // M3 (sheet 13): on a desktop the finished result
+                      // takes the keyboard's place — big Synapse + tiles.
+                      if (wide && session.finished) ...[
+                        const SizedBox(height: 8),
+                        completionCard(wide: true),
+                      ] else if (showKeyboard) ...[
                         const SizedBox(height: 8),
                         Card(
                           child: Padding(
@@ -2153,11 +2160,9 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            // The result is what matters once the text is
-                            // done: on top of the pane, visible without scroll.
-                            if (session.finished)
-                              completion
-                            else
+                            // Live numbers; the finished result is the M3
+                            // card in the main column (no duplicate here).
+                            if (!session.finished)
                               StatTiles(
                                 language: language,
                                 wpm: stats.wpm,

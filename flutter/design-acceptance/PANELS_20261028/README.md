@@ -38,7 +38,7 @@
 - J5 · готово к согласованию · 20261028-header-a814c43/J5-recall-setup
 - J6 · готово к согласованию · 20261028-fixes-0f22554/J6-recall-result
 - D1 · готово к согласованию · 20261028-modes-de-b44a6ab/D1-learning
-- D2 · черновик — есть расхождения · 20261028-header-a814c43/D2-kids-map
+- D2 · готово к согласованию · 20261029-kidsmap-885ca13/D2-kids-map
 - D3 · готово к согласованию · 20261028-font-41dec33/D3-kids-learning
 - D4 · готово к согласованию · 20261028-modes-dj-ec41ca1/D4-memorize-setup
 - D5 · готово к согласованию · 20261028-memorize-pass-095b9ef/D5-memorize-run

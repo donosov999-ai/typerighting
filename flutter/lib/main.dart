@@ -189,8 +189,16 @@ Future<void> main() async {
   }
 }
 
-/// Version of the app this candidate replaces (package.json); shown in Settings.
-const appVersion = '2.60.4';
+/// Version shown in Settings: the store build passes its own
+/// (--dart-define=TYPEFREE_VERSION); otherwise the app this candidate replaces.
+const appVersion = String.fromEnvironment(
+  'TYPEFREE_VERSION',
+  defaultValue: '2.60.4',
+);
+
+/// Built with the store ID (pro.typefree.app): it takes over the old app's
+/// data, so the «kept separately» candidate note would be untrue.
+const sameIdBuild = bool.fromEnvironment('TYPEFREE_SAME_ID');
 
 enum AppSection {
   today,
@@ -2252,11 +2260,13 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                             ),
                             const SizedBox(height: 4),
                             options(() {}),
-                            const SizedBox(height: 24),
-                            Text(
-                              commonCopy(language, 'candidateNote'),
-                              style: TextStyle(fontSize: 12),
-                            ),
+                            if (!sameIdBuild) ...[
+                              const SizedBox(height: 24),
+                              Text(
+                                commonCopy(language, 'candidateNote'),
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ],
                           ],
                         ),
                       ),

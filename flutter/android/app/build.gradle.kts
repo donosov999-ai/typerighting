@@ -30,6 +30,9 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        // Store ID → the store name; the isolated candidate keeps its own.
+        manifestPlaceholders["appLabel"] =
+            if (project.hasProperty("typefreeAppId")) "TypeFree" else "TypeFree candidate"
     }
 
     // Same-ID update tests only: a local test keystore (never a store key)
@@ -50,7 +53,11 @@ android {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = if (testKeystore != null) {
+            // Store upload (-PtypefreeUnsigned=true): no signature here, the
+            // bundle is signed with the upload key by play_upload_aab.py.
+            signingConfig = if (project.hasProperty("typefreeUnsigned")) {
+                null
+            } else if (testKeystore != null) {
                 signingConfigs.getByName("updateTest")
             } else {
                 signingConfigs.getByName("debug")

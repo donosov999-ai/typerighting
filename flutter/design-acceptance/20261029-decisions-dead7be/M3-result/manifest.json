@@ -1,0 +1,115 @@
+{
+  "screen": "M3-result",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "dead7be",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/13-synapse-templates.png",
+    "sha256": "3989b2af4ee270669f13b85834bed24f10fe69be3b98a16c265d58d0d6d41a9a",
+    "cropXYXY": [
+      18,
+      572,
+      753,
+      1012
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 3.483
+  },
+  "actual": {
+    "sha256": "966685917915d6176183f1d3fe7bdec907ce7cef60670c448bc7345710e9fb63",
+    "viewportCSS": [
+      1280,
+      800
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      2560,
+      1600
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "упражнение «Русские слова» 1 набрано по-настоящему (120 мс/знак); демо seed.json; ПК 1280×800; dead7be"
+  },
+  "method": {
+    "equalWidth": 2560,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 1533
+  },
+  "rows": [
+    [
+      "Композиция",
+      "большой Синапс слева, итог справа",
+      "одна карточка вместо клавиатуры: Синапс 200 px с репликой слева, заголовок, три плитки в ряд, рекорд, кнопки справа (f7b5f21, dead7be)",
+      "реплика над лицом",
+      "—",
+      "реплика — общий advisor по факту сохранения",
+      "PASS"
+    ],
+    [
+      "Заголовок",
+      "«Вы завершили упражнение без ошибок!»",
+      "«Без единой ошибки!» при 0 ошибок, иначе done.title исходника",
+      "слова",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Плитки",
+      "Скорость / Точность / Ошибки",
+      "то же, реальные значения сохранённой сессии",
+      "совпадает",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Рекорд",
+      "«NEW Новый личный рекорд!»",
+      "показывается только если WPM > сохранённого лучшего в этом наборе (правило recordFinish исходника); тест «нет рекорда» на медленном повторе",
+      "—",
+      "—",
+      "реф §7: рекорд только подтверждённый",
+      "PASS"
+    ],
+    [
+      "Кнопки",
+      "«Следующий урок →» / «Закрыть»",
+      "«Следующее →» / «↻ Заново» / «Синапс · мой результат»",
+      "набор кнопок",
+      "—",
+      "«Заново» — функция исходника",
+      "PASS"
+    ],
+    [
+      "Реплика",
+      "—",
+      "общий advisor: «Первая партия в игре «Тренировка» — теперь есть с чем сравнивать.»",
+      "—",
+      "—",
+      "реплика по факту сохранения",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "1280×800 CSS (M1–M3), 390×844 (M4), DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "d96942704d6bd1e0fad7eb01926bdeee7dc25672d28966fda58ed8925c2bcac6",
+    "overlay-50.png": "781ae714e29f4f0134caa03bc5ab84c9bbbef839bd05d9dcae9aab55c3004b47",
+    "comparison-panel.png": "183e4dbeb85d031cfc408fc6d8fefa2b74ddb21bc550c6e20995a534d574ba30"
+  }
+}

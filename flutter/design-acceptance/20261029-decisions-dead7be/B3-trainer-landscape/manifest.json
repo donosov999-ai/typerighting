@@ -1,0 +1,79 @@
+{
+  "screen": "B3-trainer-landscape",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "dead7be",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/02-v2-synapse.png",
+    "sha256": "a303cde339cb83a90203dcde0e6eac5852f8721dcd16255ae3e4eae218a3dc5c",
+    "cropXYXY": [
+      858,
+      614,
+      1520,
+      980
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 2.5498
+  },
+  "actual": {
+    "sha256": "9654d375eed13027c7518dfd01cd1385f65aa52593c5f9c15c7735bfa7c67a64",
+    "viewportCSS": [
+      844,
+      390
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      1688,
+      780
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "телефон в горизонтальном положении 844×390, Практика → Тренировка → «Русские слова»; dead7be"
+  },
+  "method": {
+    "equalWidth": 1688,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 780
+  },
+  "rows": [
+    [
+      "Цифры",
+      "нет",
+      "одна тонкая строка вместо плиток",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Клавиатура",
+      "на первом экране",
+      "начинается у нижнего края, нужна прокрутка",
+      "не на первом экране",
+      "основное",
+      "исключение реф §6: на низком landscape клавиатура не сжимается, а прокручивается; поле ввода и строка упражнения на первом экране; решение ведущего 29.10, откат одной строкой",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз — картинка без viewport",
+      "CSS как в «viewport», DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "c279deee0b116de306d012aeaee1fade760119b6c14fbe70f379ebfc1b10df43",
+    "overlay-50.png": "31697054966d2225a648e1f36e8adb80ffbac521f39cfb5fc3088e84bd288130",
+    "comparison-panel.png": "a46204484882287c52a35808f353e7bc1f0aa94fc755c26c1a43ce100efce781"
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "screen": "B2-trainer-web",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "dead7be",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/02-v2-synapse.png",
+    "sha256": "a303cde339cb83a90203dcde0e6eac5852f8721dcd16255ae3e4eae218a3dc5c",
+    "cropXYXY": [
+      16,
+      614,
+      836,
+      980
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 2.439
+  },
+  "actual": {
+    "sha256": "6653260d7eb634521a3e650bb4fa1f0e3ce6493a30a5f2ede81bf465b8c7be23",
+    "viewportCSS": [
+      1000,
+      760
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      2000,
+      1520
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "m",
+    "language": "ru",
+    "template": "midnight-orange",
+    "brightness": "dark",
+    "state": "Практика → Тренировка → «Русские слова», ширина 1000; демо seed.json; dead7be"
+  },
+  "method": {
+    "equalWidth": 2000,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 893
+  },
+  "rows": [
+    [
+      "Шапка",
+      "без RU▾ и шестерёнки",
+      "заголовок + Синапс (a814c43)",
+      "—",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Параметры",
+      "колонка справа",
+      "кнопка «Параметры» (⚙ tune) → шторка с теми же флажками и кнопками",
+      "нет колонки при 1000",
+      "—",
+      "колонка включается с 1100 (реф §6: при нехватке места — панель с явной кнопкой)",
+      "PASS"
+    ],
+    [
+      "Цифры",
+      "справа",
+      "строкой над полем ввода",
+      "положение",
+      "—",
+      "то же правило ширины",
+      "PASS"
+    ],
+    [
+      "Синапс",
+      "лицо + «Синапс · Тихо во время печати» слева в шапке",
+      "лицо справа в шапке (реф §7: рабочая позиция — справа), без статуса",
+      "позиция и подпись",
+      "—",
+      "реф §7 разрешает слева только как композиционный пример; статус «тихо» — нет такого поля в контроллере",
+      "PASS"
+    ],
+    [
+      "Клавиатура",
+      "5 рядов на всю ширину, подсветка клавиши, руки",
+      "5 рядов guide на всю колонку, подсветка; вместо рук — стрелка пальца от домашней клавиши (как в оригинале TypeRIGHTing keyboard.jpg, данные homeOf)",
+      "нет картинки рук",
+      "—",
+      "решение ведущего 29.10: стрелка оригинала заменяет руки (функция «какой палец» есть; картинка рук — платная генерация без новой функции); откат — вернуть строку «открыто»",
+      "PASS"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "1cddac3692831592d71400a60cc58cf3dbcd74c07631868ca682846bed05d86e",
+    "overlay-50.png": "0c9fa12215a3b720e7ef92a361fec85165b16379a72981d3f898b055e0cd5259",
+    "comparison-panel.png": "e61bfa9b7b5337aee2c61f068db18f862697afae4a64947906d485a38194ec9b"
+  }
+}

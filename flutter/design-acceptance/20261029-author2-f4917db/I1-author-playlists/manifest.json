@@ -1,0 +1,106 @@
+{
+  "screen": "I1-author-playlists",
+  "status": "готово к согласованию",
+  "ownerAcceptance": null,
+  "sourceCommit": "f4917db",
+  "reference": {
+    "path": "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-design-20261024/09.png",
+    "sha256": "2b4fda8fadb490dd4ae5fe68e6a872f840e306449516c9f7c0b6b60d3cc6420f",
+    "cropXYXY": [
+      16,
+      38,
+      758,
+      548
+    ],
+    "logicalViewport": "unknown (generated image)",
+    "uniformScale": 3.4501
+  },
+  "actual": {
+    "sha256": "e8044b0848aa87d211c39c04960438efca7b2142a0dd5600e00ad36c732aa94e",
+    "viewportCSS": [
+      1280,
+      800
+    ],
+    "devicePixelRatio": 2,
+    "screenshotSize": [
+      2560,
+      1600
+    ],
+    "platform": "local Flutter web, headless Chromium",
+    "profile": "—",
+    "language": "ru",
+    "template": "— (отдельная страница)",
+    "brightness": "light",
+    "state": "приватный редактор автора (loopback 8045), «Все языки», раздел «Готовые плейлисты» с метками лицензии; правка 29.10 в ~/Downloads/Code claude/typefree-course-editor (не в git)"
+  },
+  "method": {
+    "equalWidth": 2560,
+    "actualResized": false,
+    "retouch": false,
+    "warp": false,
+    "alpha": 0.5,
+    "alignment": "top-left of app content",
+    "commonHeight": 1600
+  },
+  "rows": [
+    [
+      "Где живёт",
+      "экран внутри приложения: левое меню «Управление (только Denis)»",
+      "отдельная локальная страница автора (Codex 24.10), не в приложении",
+      "место",
+      "—",
+      "FUNCTION_PARITY 45: «private build-tool, только Денис, без публичного route» — в приложение не встраивать",
+      "PASS"
+    ],
+    [
+      "Фильтры и поиск",
+      "язык · источник · статус · поиск",
+      "где (приложение/сайт) · язык (191 группа) · источник · поиск; «Включить/Выключить найденные»",
+      "+ «где», нет «статус»",
+      "—",
+      "—",
+      "PASS"
+    ],
+    [
+      "Карточки плейлистов",
+      "Шестов ×3 выключены; KTouch/TuxTyping/Monkeytype «PRIVATE», «ожидают проверки лицензии»",
+      "Шестов ×3 выключены; на каждой из 803 импортированных карточек чип «PRIVATE · GPL-… · материалы не проверены для выпуска», подробно — «Источник и лицензия»",
+      "—",
+      "публикация",
+      "проверка по материалам — задача 8045a10d; до неё публикации нет",
+      "PASS"
+    ],
+    [
+      "Вид",
+      "тёмная тема приложения",
+      "светлая отдельная страница",
+      "тема",
+      "—",
+      "решение ведущего 29.10: личный инструмент автора, не экран пользователя — остаётся светлым (FUNCTION_PARITY 45: отдельный private tool); откат — перекрасить шаблон",
+      "PASS"
+    ],
+    [
+      "Просмотр (I2)",
+      "просмотр уроков, «сформировать релизный список»",
+      "«▶ Попробовать» материал, «Выгрузить курс для приложения», «Сохранить выбор»",
+      "состав",
+      "—",
+      "применение выбора к приложению — задача 9ba113a6 (проверка снимка/хэшей)",
+      "PASS"
+    ],
+    [
+      "Масштаб",
+      "эскиз без viewport",
+      "1280×800 CSS, DPR 2",
+      "—",
+      "—",
+      "ограничение метода",
+      "—"
+    ]
+  ],
+  "outputs": {
+    "side-by-side.png": "ea2b8441bff0eb9d87ed21a6cc9fc349feb8aeb7dca08ce6a504162fc6598d9b",
+    "overlay-50.png": "65de7e30cb39cb5ee11f426fbeda8989220cd1bc0f22f0e52c286c57ca61b96f",
+    "comparison-panel.png": "d561207b506759060108cbfcd2f6c7568c3d3fcec26b2fd7c1208a60527e2fe9"
+  }
+}

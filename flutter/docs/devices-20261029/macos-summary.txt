@@ -1,0 +1,1 @@
+✓ Built build/macos/Build/Products/Debug/typefree_flutter_foundation.app

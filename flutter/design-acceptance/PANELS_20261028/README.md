@@ -15,6 +15,7 @@
 - F5 · готово к согласованию · 20261028-account-data-30cf3ac/F5-account-local
 - F6 · готово к согласованию · 20261028-account-data-30cf3ac/F6-data-permissions
 - I1 · готово к согласованию · 20261029-author2-f4917db/I1-author-playlists
+- I2 · черновик — есть расхождения · 20261029-author3-3eb058b/I2-playlist-preview
 - I3 · черновик — функции нет · 20261028-transfer-8e165b3/I3-backend-offline
 - I5 · готово к согласованию · 20261028-transfer-8e165b3/I5-transfer
 - I6 · готово к согласованию · 20261028-repeat-ea99bf9/I6-light-practice

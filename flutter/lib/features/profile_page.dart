@@ -512,6 +512,31 @@ class _WelcomePageState extends State<WelcomePage> {
                             underline: const SizedBox(),
                             dropdownColor: scheme.surface,
                             icon: const Icon(Icons.expand_more),
+                            iconEnabledColor: Colors.white,
+                            // The chosen language sits on the dark plate over
+                            // the artwork: white, or it is unreadable (29.10).
+                            selectedItemBuilder: (context) => [
+                              for (final e in languageNames.entries)
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.language,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Flexible(
+                                      child: Text(
+                                        e.value,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
                             items: [
                               for (final e in languageNames.entries)
                                 DropdownMenuItem(

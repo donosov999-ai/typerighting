@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../design_system/templates.dart';
+import 'common_copy.dart';
 
 class KeyboardModel {
   KeyboardModel(this.snapshot);
@@ -130,8 +131,8 @@ class _KeyboardGuideState extends State<KeyboardGuide> {
         });
         final guide = Semantics(
           label: widget.expected == null
-              ? 'Клавиатура'
-              : 'Следующий символ: ${widget.expected}',
+              ? commonCopy(widget.language, 'keyboard')
+              : '${commonCopy(widget.language, 'nextChar')}: ${widget.expected}',
           child: SingleChildScrollView(
             controller: scroll,
             scrollDirection: Axis.horizontal,

@@ -50,4 +50,14 @@ void main() {
     expect((await boot(tester, 'en', {'lang': 'ru'})).language, 'ru');
     expect((await boot(tester, null, {})).language, 'ru', reason: 'tests');
   });
+
+  testWidgets('no Russian labels in an English trainer', (tester) async {
+    final app = await boot(tester, 'en', {});
+    await app.showSection(AppSection.practice);
+    await tester.pump();
+    expect(find.text('Type here'), findsOneWidget);
+    expect(find.text('Печатайте здесь'), findsNothing);
+    expect(find.byTooltip('Previous'), findsOneWidget);
+    expect(find.byTooltip('Предыдущее'), findsNothing);
+  });
 }

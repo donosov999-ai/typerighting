@@ -50,6 +50,7 @@ import 'data/webview_migration.dart';
 import 'features/transfer_page.dart';
 import 'features/weak_keys_page.dart';
 import 'domain/today.dart';
+import 'features/common_copy.dart';
 export 'features/practice_widgets.dart' show PracticeCommitFormatter;
 
 const languages = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
@@ -164,9 +165,7 @@ Future<void> main() async {
           body: Center(
             child: Padding(
               padding: EdgeInsets.all(24),
-              child: Text(
-                'Не удалось прочитать локальные данные. Исходная копия сохранена. Не очищайте хранилище.',
-              ),
+              child: Text(startupFailedText),
             ),
           ),
         ),
@@ -750,7 +749,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     } catch (_) {
       if (mounted) {
         setState(
-          () => error = 'Настройки не сохранены. Проверьте свободное место.',
+          () => error = commonCopy(language, 'settingsNotSaved'),
         );
       }
     }
@@ -863,7 +862,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     } catch (_) {
       if (mounted) {
         setState(
-          () => error = 'Результат не сохранён. История осталась прежней. Повторите сохранение.',
+          () => error = commonCopy(language, 'resultNotSaved'),
         );
       }
     } finally {
@@ -1248,7 +1247,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
         );
       },
       debugShowCheckedModeBanner: false,
-      title: 'TypeFree · пробная версия',
+      title: commonCopy(language, 'appTitle'),
       theme: widget.appearance.theme(
         WidgetsBinding.instance.platformDispatcher.platformBrightness,
         profileId: profile,
@@ -1740,10 +1739,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                         inputFormatters: [PracticeCommitFormatter()],
                         onEditingComplete: () {},
                         onSubmitted: (_) => enter(),
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          labelText: 'Печатайте здесь',
-                          hintText: 'Ввод с клавиатуры',
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          labelText: commonCopy(language, 'typeHere'),
+                          hintText: commonCopy(language, 'keyboardInput'),
                         ),
                       ),
                       // M3 (sheet 13): on a desktop the finished result
@@ -2215,8 +2214,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                             const SizedBox(height: 4),
                             options(() {}),
                             const SizedBox(height: 24),
-                            const Text(
-                              'Пробная версия Flutter. Данные хранятся отдельно от установленного приложения.',
+                            Text(
+                              commonCopy(language, 'candidateNote'),
                               style: TextStyle(fontSize: 12),
                             ),
                           ],

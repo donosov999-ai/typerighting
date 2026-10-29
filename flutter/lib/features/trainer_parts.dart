@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../design_system/templates.dart';
+import 'common_copy.dart';
 
 /// Trainer pieces for B1–B3 (sheet 02-v2-synapse): the exercise bar on top,
 /// big live numbers, and options that move into a sheet on narrow screens
@@ -177,7 +178,7 @@ class PracticeHeader extends StatelessWidget {
                 icon: const Icon(Icons.tune),
               ),
             Tooltip(
-              message: 'Предыдущее',
+              message: commonCopy(language, 'prev'),
               child: OutlinedButton.icon(
                 onPressed: onPrev,
                 icon: const Icon(Icons.arrow_back, size: 18),
@@ -185,7 +186,7 @@ class PracticeHeader extends StatelessWidget {
               ),
             ),
             Tooltip(
-              message: 'Следующее',
+              message: commonCopy(language, 'next'),
               child: FilledButton.icon(
                 onPressed: onNext,
                 iconAlignment: IconAlignment.end,

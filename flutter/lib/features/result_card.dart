@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:synapse_pet/synapse_pet.dart';
 
 import '../design_system/templates.dart';
+import 'common_copy.dart';
 
 /// Exercise result (M3): the real saved numbers, «Новый личный рекорд» only
 /// when the source rule confirmed it (positive WPM above the bank's saved
@@ -194,14 +195,14 @@ class ResultCard extends StatelessWidget {
           runSpacing: 8,
           children: [
             if (saving)
-              const Padding(
-                padding: EdgeInsets.all(16),
-                child: Text('Сохранение…'),
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Text(commonCopy(language, 'saving')),
               ),
             if (!saved && !saving)
               FilledButton(
                 onPressed: onRetrySave,
-                child: const Text('Повторить сохранение'),
+                child: Text(commonCopy(language, 'retrySave')),
               ),
             if (saved)
               FilledButton(onPressed: onNext, child: Text(tr('done.next'))),

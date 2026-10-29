@@ -12,6 +12,7 @@ import '../domain/course.dart';
 import 'keyboard_guide.dart';
 import 'trainer_parts.dart' show StatTiles;
 import 'practice_widgets.dart';
+import 'common_copy.dart';
 
 class CoursePage extends StatefulWidget {
   const CoursePage({
@@ -228,7 +229,7 @@ class CoursePageState extends State<CoursePage> {
     } catch (_) {
       if (mounted) {
         setState(
-          () => error = 'Результат не сохранён. Повторите запись; прежние данные сохранены.',
+          () => error = commonCopy(widget.language, 'resultNotSaved'),
         );
       }
     } finally {
@@ -259,6 +260,7 @@ class CoursePageState extends State<CoursePage> {
                   ? l['newKeys'] as String
                   : (l['pool'] as String? ?? ''),
               stars: (stars['${l['id']}'] as num?)?.toInt(),
+              starsLabel: commonCopy(widget.language, 'stars'),
               unlocked: courseUnlocked(l['id'] as int, stars),
               current:
                   l ==
@@ -341,9 +343,9 @@ class CoursePageState extends State<CoursePage> {
             smartDashesType: SmartDashesType.disabled,
             smartQuotesType: SmartQuotesType.disabled,
             inputFormatters: [PracticeCommitFormatter()],
-            decoration: const InputDecoration(
-              border: OutlineInputBorder(),
-              labelText: 'Печатайте строку',
+            decoration: InputDecoration(
+              border: const OutlineInputBorder(),
+              labelText: commonCopy(widget.language, 'typeLine'),
             ),
           ),
         if (a.finished) ...[
@@ -351,7 +353,7 @@ class CoursePageState extends State<CoursePage> {
           // C4: the lesson result — stars large, then the lesson numbers.
           Semantics(
             label:
-                'Звёзд: ${a.stars} · скорость последней строки: ${a.session.stats.wpm} WPM',
+                '${commonCopy(widget.language, 'stars')}: ${a.stars} · ${commonCopy(widget.language, 'lastLineSpeed')}: ${a.session.stats.wpm} WPM',
             excludeSemantics: true,
             child: LayoutBuilder(
               builder: (context, box) {
@@ -410,7 +412,7 @@ class CoursePageState extends State<CoursePage> {
               if (!saved && !saving)
                 FilledButton(
                   onPressed: saveResult,
-                  child: const Text('Повторить сохранение'),
+                  child: Text(commonCopy(widget.language, 'retrySave')),
                 ),
               if (saved) ...[
                 OutlinedButton(
@@ -480,10 +482,11 @@ class _LessonRow extends StatelessWidget {
     required this.current,
     required this.last,
     required this.continueLabel,
+    required this.starsLabel,
     required this.onTap,
   });
   final int number;
-  final String title, keys, continueLabel;
+  final String title, keys, continueLabel, starsLabel;
   final int? stars;
   final bool unlocked, current, last;
   final VoidCallback onTap;
@@ -602,7 +605,7 @@ class _LessonRow extends StatelessWidget {
                                 if (stars != null || unlocked) ...[
                                   const SizedBox(height: 4),
                                   Semantics(
-                                    label: 'Звёзд: ${stars ?? 0}',
+                                    label: '$starsLabel: ${stars ?? 0}',
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [

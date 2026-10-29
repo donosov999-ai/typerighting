@@ -45,6 +45,8 @@ import 'features/keyboard_guide.dart';
 import 'features/practice_widgets.dart';
 import 'features/course_page.dart';
 import 'features/today_page.dart';
+import 'features/migration_gate.dart';
+import 'data/webview_migration.dart';
 import 'features/transfer_page.dart';
 import 'features/weak_keys_page.dart';
 import 'domain/today.dart';
@@ -118,8 +120,11 @@ Future<void> main() async {
     try {
       if (raw != null) saved = jsonDecode(raw) as Map<String, dynamic>;
     } catch (_) {}
-    runApp(
+    // Built after the migration below, so imported progress counts at once.
+    final device = PlatformDispatcher.instance.locale.languageCode;
+    void start() => runApp(
       TypeFreeApp(
+        deviceLanguage: languages.contains(device) ? device : 'en',
         resources: resources,
         repository: repo,
         welcome: needsWelcome(repo.data),
@@ -134,6 +139,14 @@ Future<void> main() async {
         ),
       ),
     );
+    // Same-ID update from the Tauri app: read its WebView storage once.
+    if (!kIsWeb &&
+        defaultTargetPlatform == TargetPlatform.android &&
+        needsWebviewMigration(repo.data)) {
+      runApp(TauriMigrationGate(repository: repo, onDone: start));
+    } else {
+      start();
+    }
   } catch (_) {
     runApp(
       const MaterialApp(
@@ -199,6 +212,7 @@ class TypeFreeApp extends StatefulWidget {
     this.initialSection = AppSection.today,
     this.welcome = false,
     this.phone,
+    this.deviceLanguage,
   });
   final Resources resources;
   final LocalRepository repository;
@@ -215,6 +229,10 @@ class TypeFreeApp extends StatefulWidget {
 
   /// Phone without a physical keyboard (null = detect from the platform).
   final bool? phone;
+
+  /// Language when none was chosen and the old app stored none: the device
+  /// language if supported, else English (null keeps the old «ru» default).
+  final String? deviceLanguage;
   @override
   State<TypeFreeApp> createState() => TypeFreeAppState();
 }
@@ -419,7 +437,9 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     );
     WidgetsBinding.instance.addObserver(this);
     final p = widget.repository.data['prefs'] as Map;
-    language = languages.contains(p['lang']) ? p['lang'] as String : 'ru';
+    language = languages.contains(p['lang'])
+        ? p['lang'] as String
+        : widget.deviceLanguage ?? 'ru';
     profile = ['m', 'f', 'kids'].contains(p['profile'])
         ? p['profile'] as String
         : 'm';

@@ -14,6 +14,11 @@ class TodaySummary {
             .toList()
           ..sort((a, b) => (b['t'] as num).compareTo(a['t'] as num));
     latest = rows.isEmpty ? null : rows.first;
+    // Old-version records have no profile: never a streak or latest result
+    // here, only a hint that they exist (shown in «Прогресс»).
+    final archived = ((document['legacyArchive'] as Map?) ??
+        const {})['tr_history'];
+    legacyCount = archived is String ? (jsonDecode(archived) as List).length : 0;
     final dates = rows.map((r) {
       final d = DateTime.fromMillisecondsSinceEpoch((r['t'] as num).toInt());
       return DateTime(d.year, d.month, d.day);
@@ -43,6 +48,6 @@ class TodaySummary {
   }
   final int lessonCount;
   late final Map<String, dynamic>? latest;
-  int streak = 0, completed = 0, nextLesson = 1;
+  int streak = 0, completed = 0, nextLesson = 1, legacyCount = 0;
   double get progress => lessonCount == 0 ? 0 : completed / lessonCount;
 }

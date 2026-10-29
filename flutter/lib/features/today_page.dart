@@ -114,6 +114,15 @@ String shellText(String language, String key) {
       'Giorni consecutivi',
       'Dias seguidos',
     ],
+    'previous': [
+      'История прежней версии — в «Прогрессе»',
+      'Previous-version history is in Progress',
+      'El historial anterior está en Progreso',
+      'Verlauf der Vorversion unter Fortschritt',
+      'Historique précédent dans Progrès',
+      'Cronologia precedente in Progressi',
+      'Histórico anterior em Progresso',
+    ],
     'last': [
       'Последний результат',
       'Latest result',
@@ -391,7 +400,7 @@ class TodayPage extends StatelessWidget {
                       title: t('last'),
                       value: latest == null ? '—' : '${latest['wpm']} WPM',
                       detail: latest == null
-                          ? t('empty')
+                          ? t(summary.legacyCount > 0 ? 'previous' : 'empty')
                           : '${t('accuracy')} ${(latest['accuracy'] as num).round()}%',
                       border: border,
                       onTap: onProgress,

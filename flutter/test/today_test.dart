@@ -66,6 +66,7 @@ void main() {
     expect(s.latest, isNull);
     expect(s.streak, 0);
     expect(s.nextLesson, 1);
+    expect(s.legacyCount, 1, reason: 'only a hint: history is in Progress');
     (doc['legacy'] as Map)['tr_course_ru'] = jsonEncode({
       'stars': {for (var i = 1; i <= 19; i++) '$i': 3},
     });

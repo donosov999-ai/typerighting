@@ -16,7 +16,10 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "pro.typefree.candidate.typefree_flutter_foundation"
+        // Same-ID update tests only: -PtypefreeAppId=pro.typefree.app. Without the
+        // property the build stays the isolated candidate.
+        applicationId = (project.findProperty("typefreeAppId") as String?)
+            ?: "pro.typefree.candidate.typefree_flutter_foundation"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -29,11 +32,29 @@ android {
         versionName = flutter.versionName
     }
 
+    // Same-ID update tests only: a local test keystore (never a store key)
+    // via -PtypefreeTestKeystore=<path> -PtypefreeTestKeyPassword=<pw>.
+    val testKeystore = project.findProperty("typefreeTestKeystore") as String?
+    signingConfigs {
+        if (testKeystore != null) {
+            create("updateTest") {
+                storeFile = file(testKeystore)
+                storePassword = project.findProperty("typefreeTestKeyPassword") as String
+                keyAlias = "typefreetest"
+                keyPassword = project.findProperty("typefreeTestKeyPassword") as String
+            }
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (testKeystore != null) {
+                signingConfigs.getByName("updateTest")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }

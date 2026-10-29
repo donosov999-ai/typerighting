@@ -140,10 +140,20 @@ Future<void> main() async {
       ),
     );
     // Same-ID update from the Tauri app: read its WebView storage once.
-    if (!kIsWeb &&
-        defaultTargetPlatform == TargetPlatform.android &&
-        needsWebviewMigration(repo.data)) {
-      runApp(TauriMigrationGate(repository: repo, onDone: start));
+    final mobile =
+        !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS);
+    if (mobile && needsWebviewMigration(repo.data)) {
+      runApp(
+        TauriMigrationGate(
+          repository: repo,
+          onDone: start,
+          origin: defaultTargetPlatform == TargetPlatform.iOS
+              ? tauriIosOrigin
+              : tauriAndroidOrigin,
+        ),
+      );
     } else {
       start();
     }

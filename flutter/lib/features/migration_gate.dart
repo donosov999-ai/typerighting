@@ -17,10 +17,14 @@ class TauriMigrationGate extends StatefulWidget {
     super.key,
     required this.repository,
     required this.onDone,
+    this.origin = tauriAndroidOrigin,
     this.timeout = const Duration(seconds: 8),
   });
   final LocalRepository repository;
   final VoidCallback onDone;
+
+  /// Old app origin: [tauriAndroidOrigin] or [tauriIosOrigin].
+  final String origin;
   final Duration timeout;
   @override
   State<TauriMigrationGate> createState() => _TauriMigrationGateState();
@@ -62,7 +66,7 @@ class _TauriMigrationGateState extends State<TauriMigrationGate> {
     controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..addJavaScriptChannel('TypeFreeMigration', onMessageReceived: onMessage)
-      ..loadHtmlString(webviewMigrationPage, baseUrl: tauriAndroidOrigin);
+      ..loadHtmlString(webviewMigrationPage, baseUrl: widget.origin);
   }
 
   @override

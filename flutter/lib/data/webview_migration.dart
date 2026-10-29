@@ -11,6 +11,9 @@ import 'local_repository.dart';
 /// `http://tauri.localhost` while `useHttpsScheme` is unset (2.60.4 config).
 const tauriAndroidOrigin = 'http://tauri.localhost/';
 
+/// iOS: WKWebView of the Tauri app serves its own custom scheme.
+const tauriIosOrigin = 'tauri://localhost/';
+
 /// prefs flag: the one-time WebView read finished (imported or nothing there).
 const webviewMigrationFlag = 'webviewMigration';
 

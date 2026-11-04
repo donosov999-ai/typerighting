@@ -37,6 +37,39 @@ Future<void> examKey(
 }
 
 void main() {
+  testWidgets('exam isolates prior keys while preserving heat and early result', (tester) async {
+    final resources = (await tester.runAsync(Resources.load))!;
+    final repo = LocalRepository(MemoryStore());
+    await repo.transaction((doc) => (doc['prefs'] as Map).addAll(<String, dynamic>{'lang': 'en', 'pet': false, 'motion': false}));
+    final appearance = AppearanceController(resources.registry, AppearanceMemory(), existingInstall: false);
+    final key = GlobalKey<TypeFreeAppState>();
+    var now = 100000;
+    await tester.binding.setSurfaceSize(const Size(1280, 900));
+    await tester.pumpWidget(TypeFreeApp(key: key, initialSection: AppSection.exam, resources: resources, repository: repo, appearance: appearance, clock: () => now));
+    await tester.pump();
+    final page = key.currentState!.examKey.currentState!;
+    final stats = key.currentState!.keyStatistics;
+    stats.record('a', false, now);
+    expect(stats.recorder.length, 1);
+    await tester.ensureVisible(find.byKey(const ValueKey('exam-start')));
+    await tester.tap(find.byKey(const ValueKey('exam-start')));
+    await tester.pump();
+    expect(page.engine, isNotNull);
+    expect(stats.recorder.length, 0);
+    await tester.ensureVisible(find.byKey(const ValueKey('exam-input')));
+    await tester.tap(find.byKey(const ValueKey('exam-input')));
+    now += 100;
+    await examKey(tester, page, page.engine!.typing.expected!, () {});
+    expect(stats.recorder.length, 1);
+    expect(await page.finishAndSave(), true);
+    await tester.pump();
+    expect((repo.data['sessions'] as List).single['len'], 1);
+    expect(jsonDecode(repo.data['legacy']['tr_keystats'])['a']['err'], 1);
+    await tester.pumpWidget(const SizedBox());
+    appearance.dispose();
+    await tester.binding.setSurfaceSize(null);
+  });
+
   testWidgets(
     'real seventh mode, corrections/newline, stable early result, save retry and PNG export outcomes',
     (tester) async {

@@ -92,6 +92,9 @@ class ExamPageState extends State<ExamPage> with WidgetsBindingObserver {
         oldWidget.profile != widget.profile ||
         oldWidget.keyboard.snapshot['layoutName'] !=
             widget.keyboard.snapshot['layoutName']) {
+      if (engine != null && !engine!.finished) {
+        widget.keyStatistics.recorder.discardSession();
+      }
       hudTimer?.cancel();
       engine = null;
       resetCheckpoint();
@@ -177,6 +180,7 @@ class ExamPageState extends State<ExamPage> with WidgetsBindingObserver {
         (doc['prefs'] as Map)[nameKey] = name;
       });
       if (!mounted) return;
+      widget.keyStatistics.recorder.discardSession();
       setState(() {
         examName = name;
         id =
@@ -405,6 +409,9 @@ class ExamPageState extends State<ExamPage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    if (engine != null && !engine!.finished) {
+      widget.keyStatistics.recorder.discardSession();
+    }
     hudTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     entry.removeListener(edit);

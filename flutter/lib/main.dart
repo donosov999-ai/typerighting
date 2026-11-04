@@ -1243,6 +1243,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     final letters = letterInventory(
       keyboard.snapshot,
       language == 'ru' ? 'ru' : 'en',
+      activeLayout: true,
     );
     final corpus =
         (widget.resources.content['corpus'] as Map)[language] as String;
@@ -2377,7 +2378,11 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
         ],
         weakKeys: weakLetters(
           keyStatistics.currentStats,
-          letterInventory(keyboard.snapshot, language == 'ru' ? 'ru' : 'en'),
+          letterInventory(
+            keyboard.snapshot,
+            language == 'ru' ? 'ru' : 'en',
+            activeLayout: true,
+          ),
           count: 3,
         ),
         week: weekWpm(),

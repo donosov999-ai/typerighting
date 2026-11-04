@@ -27,6 +27,7 @@ class WeakKeysPage extends StatelessWidget {
     final letters = letterInventory(
       keyboard.snapshot,
       language == 'ru' ? 'ru' : 'en',
+      activeLayout: true,
     );
     final weak = weakLetters(statistics, letters),
         recover = recoveryLetters(statistics, letters);
@@ -43,7 +44,11 @@ class WeakKeysPage extends StatelessWidget {
       if (difficulty.length < 3 || !['true', 'false'].contains(difficulty[2])) {
         continue;
       }
-      latest[difficulty[2] == 'true'] = row;
+      final plain = difficulty[2] == 'true';
+      final previous = latest[plain];
+      if (previous == null || (row['t'] as num) > (previous['t'] as num)) {
+        latest[plain] = row;
+      }
     }
     return Center(
       child: ConstrainedBox(

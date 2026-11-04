@@ -1,20 +1,27 @@
 import 'dart:math';
 
-/// Shipped TypeScript's physical letter inventory; stable keyboard order breaks ties.
+/// Physical letter keys and their characters, stable keyboard order breaks
+/// ties. [activeLayout]: the characters of the selected layout (QWERTZ z/y,
+/// AZERTY a/q, ä ö ü é …) — for weak-key analysis and drills. Without it the
+/// shipped TypeScript inventory (base Latin letters), which AI practice
+/// generation must keep to stay identical to the released app.
 List<Map<String, String>> letterInventory(
   Map<String, dynamic> keyboard,
-  String language,
-) => [
-  for (final g in keyboard['keys'] as List)
-    if (RegExp(r'^[A-Za-zА-Яа-яЁё]$')
-        .hasMatch((language == 'ru' ? g['ru'] : g['baseEn'])?.toString() ?? ''))
-      {
-        'id': g['id'] as String,
-        'ch': (language == 'ru' ? g['ru'] : g['baseEn'])
-            .toString()
-            .toLowerCase(),
-      },
-];
+  String language, {
+  bool activeLayout = false,
+}) {
+  final pattern = activeLayout
+      ? RegExp(r'^[A-Za-zÀ-ÿŒœÆæА-Яа-яЁё]$')
+      : RegExp(r'^[A-Za-zА-Яа-яЁё]$');
+  String? ch(Map g) =>
+      (language == 'ru' ? g['ru'] : g[activeLayout ? 'en' : 'baseEn'])
+          ?.toString();
+  return [
+    for (final g in keyboard['keys'] as List)
+      if (pattern.hasMatch(ch(g as Map) ?? ''))
+        {'id': g['id'] as String, 'ch': ch(g)!.toLowerCase()},
+  ];
+}
 
 double speedReference(Map stats) {
   final times =
@@ -67,7 +74,10 @@ List<String> recoveryLetters(
   for (var i = 0; i < letters.length; i++) {
     final s = (stats[letters[i]['id']] as Map?) ?? {};
     final regression =
-        s['bt'] != null && s['t'] != null && ((s['nt'] as num?) ?? 0) >= 3
+        s['bt'] != null &&
+            (s['bt'] as num) > 0 &&
+            s['t'] != null &&
+            ((s['nt'] as num?) ?? 0) >= 3
         ? ((s['t'] as num) - (s['bt'] as num)) / (s['bt'] as num)
         : 0.0;
     if (regression > drop) {
@@ -182,7 +192,15 @@ List<String> weakDrill(
         ...recoveryLetters(stats, letters, count: 2),
       }.toList();
   final out = <String>[], top = weakLetters(stats, letters, count: 1);
-  if (top.isNotEmpty) {
+  // A weak key may be absent from the selected corpus. Practise it directly
+  // and avoid forcing the generator into repeated impossible attempts.
+  if (model.starts.isEmpty) {
+    return top.isEmpty ? [] : [List.filled(6, top.first).join(' ')];
+  }
+  final availableForce = force.where(model.alphabet.contains).toList();
+  if (top.isNotEmpty && !model.alphabet.contains(top.first)) {
+    out.add(List.filled(6, top.first).join(' '));
+  } else if (top.isNotEmpty) {
     final word = model
         .generate(
           random: rng,
@@ -193,7 +211,13 @@ List<String> weakDrill(
         )
         .split(' ')
         .first;
-    if (word.length >= 2) out.add('$word $word $word');
+    if (word.length >= 2) {
+      out.add('$word $word $word');
+    } else {
+      // A character can be in the alphabet yet only occur in one-letter
+      // words (or beyond the generator's word-length limit).
+      out.add(List.filled(6, top.first).join(' '));
+    }
   }
   for (var i = 0; i < lines; i++) {
     out.add(
@@ -202,11 +226,15 @@ List<String> weakDrill(
         chars: 44,
         weights: weights,
         maxWord: 8,
-        force: force,
+        force: availableForce,
       ),
     );
   }
-  return out.where((s) => s.isNotEmpty).toList();
+  final nonEmpty = out.where((s) => s.isNotEmpty).toList();
+  if (nonEmpty.isEmpty && top.isNotEmpty) {
+    return [List.filled(6, top.first).join(' ')];
+  }
+  return nonEmpty;
 }
 
 String adaptiveNoData(String language) =>

@@ -18,6 +18,7 @@ void main() {
     Size size, {
     ThemeMode mode = ThemeMode.dark,
     double text = 1,
+    int Function()? clock,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -52,6 +53,7 @@ void main() {
           repository: repo,
           appearance: appearance,
           phone: false,
+          clock: clock,
         ),
       ),
     );
@@ -105,11 +107,14 @@ void main() {
     tester,
   ) async {
     await open(tester, const Size(390, 844));
+    // Mockup: warm-up, speed test and own text in one row on a phone.
+    final warm = find.byKey(const ValueKey('home-warmup'));
     final speed = find.byKey(const ValueKey('home-speed-test'));
     final custom = find.byKey(const ValueKey('home-custom-text'));
+    expect(tester.getRect(warm).top, tester.getRect(custom).top);
     expect(tester.getRect(speed).top, tester.getRect(custom).top);
     expect(tester.getRect(speed).height, tester.getRect(custom).height);
-    expect(tester.getRect(custom).width, greaterThanOrEqualTo(155));
+    expect(tester.getRect(custom).width, greaterThanOrEqualTo(100));
     await tester.tap(custom);
     await tester.pump();
     expect(find.byType(TextField), findsWidgets);
@@ -170,4 +175,50 @@ void main() {
     expect(find.text('Начать печатать'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'warm-up: 2 minutes from the first key, saved, no bank progress',
+    (tester) async {
+      var now = 1700000000000;
+      final (key, repo) = await open(
+        tester,
+        const Size(390, 844),
+        clock: () => now,
+      );
+      await tester.tap(find.byKey(const ValueKey('home-warmup')));
+      await tester.pump();
+      final app = key.currentState!;
+      expect(app.warmup, isTrue);
+      expect(find.textContaining('Разминка · 2 минуты · 2:00'), findsOneWidget);
+      // History keeps attempts from 10 keys (source rule), type 12.
+      // One key at a time: a block inserted at once counts as a paste.
+      final text = app.session.pattern.substring(0, 12);
+      for (var i = 1; i <= text.length; i++) {
+        await tester.enterText(
+          find.byKey(const ValueKey('practice-input')),
+          text.substring(0, i),
+        );
+        await tester.pump();
+      }
+      expect(app.session.pos, 12);
+      now += 61000;
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.textContaining('· 0:59'), findsOneWidget);
+      expect(app.session.finished, isFalse);
+      now += 60000;
+      await tester.pump(const Duration(seconds: 1));
+      await tester.pump();
+      expect(app.session.finished, isTrue);
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      await tester.pump();
+      final sessions = repo.data['sessions'] as List;
+      expect(sessions, hasLength(1));
+      expect((sessions.single as Map)['exercise'], 'warmup');
+      expect(
+        (repo.data['legacy'] as Map).keys.where((k) => '$k'.contains('warmup')),
+        isEmpty,
+      );
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

@@ -62,6 +62,24 @@ String speedCopy(String language, String key) {
       'Inizia a digitare',
       'Começar a digitar',
     ],
+    'warmup': [
+      'Разминка · 2 минуты',
+      'Warm-up · 2 minutes',
+      'Calentamiento · 2 minutos',
+      'Aufwärmen · 2 Minuten',
+      'Échauffement · 2 minutes',
+      'Riscaldamento · 2 minuti',
+      'Aquecimento · 2 minutos',
+    ],
+    'warmup.d': [
+      'Разогрей пальцы частыми словами',
+      'Warm up your fingers on common words',
+      'Calienta los dedos con palabras frecuentes',
+      'Wärme die Finger mit häufigen Wörtern auf',
+      'Échauffez vos doigts avec des mots courants',
+      'Scalda le dita con parole frequenti',
+      'Aqueça os dedos com palavras frequentes',
+    ],
     'speedTest': [
       'Тест скорости · 1 минута',
       'Speed test · 1 minute',
@@ -214,6 +232,7 @@ class SpeedHome extends StatelessWidget {
     required this.week,
     required this.customTitle,
     required this.onStart,
+    required this.onWarmup,
     required this.onSpeedTest,
     required this.onCustomText,
     required this.onCourse,
@@ -232,6 +251,7 @@ class SpeedHome extends StatelessWidget {
   /// Average WPM per day, oldest first, seven days ending today; null = none.
   final List<double?> week;
   final VoidCallback onStart,
+      onWarmup,
       onSpeedTest,
       onCustomText,
       onCourse,
@@ -249,6 +269,14 @@ class SpeedHome extends StatelessWidget {
           !mid && w >= 350 && MediaQuery.textScalerOf(context).scale(1) <= 1.2;
       final gap = mid ? 16.0 : 12.0;
       final quick = [
+        _QuickCard(
+          key: const ValueKey('home-warmup'),
+          icon: Icons.local_fire_department_outlined,
+          title: t('warmup'),
+          subtitle: t('warmup.d'),
+          compact: compactQuick,
+          onTap: onWarmup,
+        ),
         _QuickCard(
           key: const ValueKey('home-speed-test'),
           icon: Icons.timer_outlined,
@@ -317,15 +345,16 @@ class SpeedHome extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(child: quick[0]),
-                      SizedBox(width: gap),
-                      Expanded(child: quick[1]),
+                      for (final (i, q) in quick.indexed) ...[
+                        if (i > 0) SizedBox(width: gap),
+                        Expanded(child: q),
+                      ],
                     ],
                   ),
                 )
               else
                 _Wrap(
-                  columns: mid ? 2 : 1,
+                  columns: wide ? 3 : (mid ? 2 : 1),
                   minWidth: 220,
                   gap: gap,
                   children: quick,

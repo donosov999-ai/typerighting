@@ -300,6 +300,15 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   int weakReturnIndex = 0;
   List<String> weakLines = [];
   int examMinutes = 10;
+
+  /// Home «warm-up · 2 minutes»: common words of the language, the attempt
+  /// ends 2 minutes after the first key and saves as ordinary practice
+  /// (no bank progress). Rides on [custom], so every exit from a custom text
+  /// (another bank, mode, language) also ends the warm-up.
+  static const warmupMillis = 120000;
+  String? warmupText;
+  Timer? warmupTicker;
+  bool get warmup => custom != null && identical(custom, warmupText);
   late TypingSession session;
   late KeyStatisticsStore keyStatistics;
   final progressMessenger = GlobalKey<ScaffoldMessengerState>();
@@ -433,9 +442,9 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       : custom != null
       ? [
           {
-            'id': 'custom',
-            'bank': 'custom',
-            'title': tr('custom.title'),
+            'id': warmup ? 'warmup' : 'custom',
+            'bank': warmup ? 'warmup' : 'custom',
+            'title': warmup ? speedCopy(language, 'warmup') : tr('custom.title'),
             'lines': custom!.split('\n'),
           },
         ]
@@ -635,6 +644,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     HardwareKeyboard.instance.removeHandler(hardwareKey);
     appSound.stopMetronome();
     timer?.cancel();
+    warmupTicker?.cancel();
     keyStatistics.dispose();
     entry.removeListener(edit);
     entry.dispose();
@@ -861,7 +871,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
         final sessions = doc['sessions'] as List, legacy = doc['legacy'] as Map;
         if (sessions.any((x) => x['id'] == id)) return;
         isRecord = false;
-        if (ex['bank'] != 'weak') {
+        if (ex['bank'] != 'weak' && ex['bank'] != 'warmup') {
           final key =
               'tr_progress_${ex['bank']}${plain && ex['bank'] != 'digits' ? '_plain' : ''}';
           final record = legacy[key] is String
@@ -935,6 +945,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     if (saving || session.finished && !saved) return;
     if (weakMode && delta != 0) {
       unawaited(startWeak());
+      return;
+    }
+    if (warmup && delta != 0) {
+      startWarmup();
       return;
     }
     setState(() {
@@ -1268,6 +1282,67 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       reset();
     });
     inputFocus.requestFocus();
+  }
+
+  void startWarmup() {
+    final words = ((widget.resources.content['corpus'] as Map)[language]
+            as String)
+        .split(RegExp(r'\s+'))
+        .where((w) => w.length >= 2 && w.length <= 9)
+        .toList();
+    if (words.isEmpty) return;
+    final random = Random();
+    final lines = <String>[];
+    var line = '', total = 0;
+    // ~1500 characters: more than two minutes even at 120 WPM.
+    while (total < 1500) {
+      final w = words[random.nextInt(words.length)];
+      if (line.isNotEmpty && line.length + w.length + 1 > 44) {
+        lines.add(line);
+        total += line.length;
+        line = '';
+      }
+      line = line.isEmpty ? w : '$line $w';
+    }
+    final text = lines.join('\n');
+    warmupTicker?.cancel();
+    setState(() {
+      weakMode = false;
+      warmupText = text;
+      custom = text;
+      index = 0;
+      section = AppSection.practice;
+      reset();
+    });
+    warmupTicker = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted || !warmup) {
+        t.cancel();
+        return;
+      }
+      final started = session.startedAt;
+      if (started == null || session.finished) return;
+      final now = widget.clock?.call() ?? DateTime.now().millisecondsSinceEpoch;
+      if (now - started >= warmupMillis) {
+        session.finishedAt = now;
+        t.cancel();
+        setState(() {});
+        unawaited(saveResult());
+      } else if (section == AppSection.practice) {
+        setState(() {});
+      }
+    });
+    inputFocus.requestFocus();
+  }
+
+  /// m:ss left in the warm-up (2:00 until the first key).
+  String warmupLeft() {
+    final started = session.startedAt;
+    final now = widget.clock?.call() ?? DateTime.now().millisecondsSinceEpoch;
+    final left = started == null
+        ? warmupMillis
+        : max(0, warmupMillis - (session.finishedAt ?? now) + started);
+    final s = (left / 1000).ceil();
+    return '${s ~/ 60}:${(s % 60).toString().padLeft(2, '0')}';
   }
 
   Future<void> customText() async {
@@ -1743,7 +1818,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                         Padding(
                           padding: const EdgeInsets.only(top: 8),
                           child: Text(
-                            exercise['title'] as String,
+                            warmup
+                                ? '${exercise['title']} · ${warmupLeft()}'
+                                : exercise['title'] as String,
+                            key: const ValueKey('practice-title'),
                             style: Theme.of(c).textTheme.titleMedium,
                           ),
                         ),
@@ -2387,6 +2465,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
         ),
         week: weekWpm(),
         onStart: () => showSection(AppSection.practice),
+        onWarmup: startWarmup,
         onSpeedTest: () => openExam(1),
         onCustomText: () async {
           await showSection(AppSection.practice);

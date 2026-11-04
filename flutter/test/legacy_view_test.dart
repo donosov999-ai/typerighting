@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:typefree_flutter_foundation/data/file_store.dart';
+import 'package:typefree_flutter_foundation/data/achievement_store.dart';
 import 'package:typefree_flutter_foundation/data/legacy_transfer.dart';
 import 'package:typefree_flutter_foundation/data/local_repository.dart';
 import 'package:typefree_flutter_foundation/data/progress_view.dart';
@@ -10,6 +11,33 @@ import 'package:typefree_flutter_foundation/data/progress_view.dart';
 import 'storage_transfer_test.dart' show MemoryStore;
 
 void main() {
+  test(
+    'new milestones do not make a full legacy achievement list unreadable',
+    () async {
+      final store = MemoryStore();
+      final repo = LocalRepository(store);
+      final old = List.generate(1000, (i) => 'old_$i');
+      await repo.transaction((doc) {
+        (doc['legacy'] as Map)['tr_ach'] = jsonEncode(old);
+        (doc['legacy'] as Map)['tr_history'] = '[{"t":1,"wpm":42,"acc":90}]';
+        expect(awardAchievements(doc, 1), contains('first'));
+      });
+      final restarted = LocalRepository(store);
+      await restarted.load();
+      final view = ProgressView(restarted.data);
+      expect(view.achievements, containsAll([...old, 'first', 'wpm30']));
+      expect(jsonDecode((restarted.data['legacy'] as Map)['tr_ach']), old);
+      await restarted.transaction((doc) {
+        expect(awardAchievements(doc, 1), isEmpty);
+      });
+      final again = LocalRepository(store);
+      await again.load();
+      expect(
+        ProgressView(again.data).achievements,
+        containsAll([...old, 'first']),
+      );
+    },
+  );
   final raw = <String, String>{
     'tr_history': jsonEncode([
       {'t': 1, 'wpm': 42, 'acc': .97},
@@ -42,7 +70,11 @@ void main() {
     expect(prefs['profile'], 'f');
     final view = ProgressView(repo.data);
     expect(view.previousSessions.length, 2);
-    expect(view.timeline.length, 2, reason: 'identical old sessions are separate rows');
+    expect(
+      view.timeline.length,
+      2,
+      reason: 'identical old sessions are separate rows',
+    );
     expect(view.previousSessions.first['accuracy'], 97);
     expect(view.previousSessions.first.containsKey('profile'), false);
     expect(view.previousSessions.first.containsKey('language'), false);

@@ -6,11 +6,13 @@ import 'package:flutter/material.dart';
 
 import '../data/artifact_export.dart';
 import '../data/local_repository.dart';
+import '../data/legacy_transfer.dart';
 import '../data/progress_view.dart';
 import '../data/achievement_store.dart';
 import '../domain/progress_metrics.dart';
 import '../domain/session_context.dart';
 import '../design_system/templates.dart';
+import 'profile_page.dart' show languageNames;
 
 class ProgressPage extends StatefulWidget {
   const ProgressPage({
@@ -23,6 +25,7 @@ class ProgressPage extends StatefulWidget {
     this.onAchievements,
     this.exporter,
     this.clock,
+    this.migrationPending = false,
   });
   final LocalRepository repository;
   final String profile, language;
@@ -31,17 +34,19 @@ class ProgressPage extends StatefulWidget {
   final VoidCallback? onAchievements;
   final ArtifactExporter? exporter;
   final int Function()? clock;
+  final bool migrationPending;
   @override
   State<ProgressPage> createState() => _ProgressPageState();
 }
 
 class _ProgressPageState extends State<ProgressPage> {
   final target = TextEditingController();
-  String? series, status;
+  String? series, status, recoveryStatus;
 
   /// F1 «7 дней» of sheet 06: days shown in the chart (0 = all time);
   /// null until the user picks one.
   int? period;
+  int visibleSessions = 20;
   bool saving = false;
   int now() => widget.clock?.call() ?? DateTime.now().millisecondsSinceEpoch;
   @override
@@ -114,10 +119,49 @@ class _ProgressPageState extends State<ProgressPage> {
     }
   }
 
+  Future<void> exportRecovery(String id, Map values) async {
+    if (saving) return;
+    setState(() => saving = true);
+    try {
+      final envelope = createTransfer(
+        Map<String, String>.from(values),
+        exportId: 'recovery-$id',
+      );
+      final result = await (widget.exporter ?? saveArtifact)(
+        'TypeFree-recovery-${id.substring(0, 12)}.json',
+        Uint8List.fromList(utf8.encode(jsonEncode(envelope))),
+        'application/json',
+      );
+      if (mounted)
+        setState(
+          () => recoveryStatus = copy(
+            result == ArtifactExportOutcome.cancelled
+                ? 'cancelled'
+                : result == ArtifactExportOutcome.requested
+                ? 'requested'
+                : 'saved',
+          ),
+        );
+    } catch (_) {
+      if (mounted) setState(() => recoveryStatus = copy('failed'));
+    } finally {
+      if (mounted) setState(() => saving = false);
+    }
+  }
+
   String copy(String key) => progressCopy(widget.language, key);
   @override
   Widget build(BuildContext context) {
     final view = ProgressView(widget.repository.data), rows = view.timeline;
+    final pending = (widget.repository.data['webviewPending'] as Map?) ?? {};
+    final recoveryEntries = pending.entries.toList();
+    final invalidKeys =
+        (widget.repository.data['prefs'] as Map)['webviewInvalidKeys'];
+    final pendingHistories = [
+      for (final entry in pending.entries)
+        if (entry.value is Map && (entry.value as Map)['tr_history'] is String)
+          jsonDecode((entry.value as Map)['tr_history'] as String) as List,
+    ];
     final known = rows
         .where(
           (r) =>
@@ -143,9 +187,10 @@ class _ProgressPageState extends State<ProgressPage> {
       now(),
     ).toSet();
     final allEarned = {...earned, ...eligible};
-    final stamps = rows
+    final eligibleRows = rows
         .where((r) => r['historyEligible'] != false)
-        .map((r) => r['t'] as num);
+        .toList();
+    final stamps = eligibleRows.map((r) => r['t'] as num);
     final scheme = Theme.of(context).colorScheme;
     final tokens = Theme.of(context).extension<TypeFreeTokens>()!;
     final muted = scheme.onSurfaceVariant;
@@ -171,11 +216,72 @@ class _ProgressPageState extends State<ProgressPage> {
       return titles[t]! > 1 ? '$t · ${first['difficulty']}' : t;
     }
 
-    final best = rows.fold<num>(0, (n, r) => max(n, r['wpm'] as num));
+    final best = eligibleRows.fold<num>(0, (n, r) => max(n, r['wpm'] as num));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(copy('local'), style: TextStyle(color: muted)),
+        if (widget.migrationPending)
+          _Panel(
+            child: Text(
+              copy('migrationPending'),
+              key: const ValueKey('progress-migration-pending'),
+            ),
+          ),
+        if (invalidKeys is List && invalidKeys.isNotEmpty)
+          _Panel(
+            child: Text(
+              copy('recoveryInvalid'),
+              key: const ValueKey('progress-recovery-invalid'),
+            ),
+          ),
+        if (pending.isNotEmpty)
+          _Panel(
+            child: Material(
+              color: Colors.transparent,
+              child: ExpansionTile(
+                key: const ValueKey('progress-recovery'),
+                title: Text(copy('recoveryTitle')),
+                subtitle: Text(copy('recoveryHint')),
+                children: [
+                  for (var i = 0; i < recoveryEntries.length; i++)
+                    OutlinedButton.icon(
+                      key: ValueKey('recovery-export-$i'),
+                      onPressed: saving
+                          ? null
+                          : () => exportRecovery(
+                              recoveryEntries[i].key as String,
+                              recoveryEntries[i].value as Map,
+                            ),
+                      icon: const Icon(Icons.download_outlined),
+                      label: Text('${copy('recoverySave')} ${i + 1}'),
+                    ),
+                  Text(copy('recoverySaveHint'), textAlign: TextAlign.center),
+                  if (recoveryStatus != null)
+                    Text(
+                      recoveryStatus!,
+                      key: const ValueKey('recovery-export-status'),
+                    ),
+                  for (var i = 0; i < pendingHistories.length; i++)
+                    ExpansionTile(
+                      title: Text(
+                        '${copy('recoveryCopy')} ${i + 1} · ${pendingHistories[i].length}',
+                      ),
+                      children: [
+                        for (final row in pendingHistories[i])
+                          _SessionRow(
+                            title: copy('oldSession'),
+                            when: _when((row as Map)['t'] as num),
+                            detail: '',
+                            wpm: row['wpm'] as num,
+                            accuracy: normalAccuracy(row['acc'] as num),
+                          ),
+                      ],
+                    ),
+                ],
+              ),
+            ),
+          ),
         const SizedBox(height: 10),
         _Panel(
           child: Column(
@@ -261,10 +367,23 @@ class _ProgressPageState extends State<ProgressPage> {
               if (shownSpeeds.length >= 2) ...[
                 const SizedBox(height: 12),
                 Semantics(
-                  label:
-                      'WPM: ${shownSpeeds.join(', ')}; ${copy('acc')}: ${recent.map((r) => (r['accuracy'] as num).round()).join(', ')}',
+                  key: const ValueKey('progress-chart-summary'),
+                  label: recent
+                      .map(
+                        (r) =>
+                            '${_when(r['t'] as num)}: ${copy('speed')} ${r['wpm']} WPM, ${copy('acc')} ${(r['accuracy'] as num).round()}%',
+                      )
+                      .join('; '),
                   child: SizedBox(
-                    height: 170,
+                    key: const ValueKey('progress-chart'),
+                    height:
+                        MediaQuery.sizeOf(context).width < 600 &&
+                            MediaQuery.textScalerOf(context).scale(14) <= 16.8
+                        ? 132
+                        : max(
+                            170,
+                            MediaQuery.textScalerOf(context).scale(10) * 8 + 40,
+                          ),
                     child: CustomPaint(
                       painter: _DualChart(
                         speeds: [for (final r in recent) r['wpm'] as num],
@@ -276,6 +395,7 @@ class _ProgressPageState extends State<ProgressPage> {
                         accuracyColor: tokens['success'],
                         grid: tokens['border'],
                         label: muted,
+                        textScaler: MediaQuery.textScalerOf(context),
                       ),
                     ),
                   ),
@@ -313,28 +433,47 @@ class _ProgressPageState extends State<ProgressPage> {
                 const Color(0xFFF07B2B),
                 '${utcStreak(stamps, now())}',
                 widget.tr('hub.streak'),
+                key: const ValueKey('progress-stat-streak'),
               ),
               _Stat(
                 Icons.schedule,
                 const Color(0xFF14A3A3),
-                '${rows.length}',
+                '${eligibleRows.length}',
                 widget.tr('prog.sessions'),
+                key: const ValueKey('progress-stat-sessions'),
               ),
               _Stat(
                 Icons.bar_chart,
                 const Color(0xFF22B07D),
                 '$best',
                 copy('best'),
+                key: const ValueKey('progress-stat-best'),
               ),
             ];
             final scale = MediaQuery.textScalerOf(context).scale(14) / 14;
             final per = box.maxWidth >= 3 * 104 * scale ? 3 : 1;
             const gap = 8.0;
-            final w = (box.maxWidth - gap * (per - 1)) / per;
-            return Wrap(
-              spacing: gap,
-              runSpacing: gap,
-              children: [for (final t in tiles) SizedBox(width: w, child: t)],
+            if (per == 1) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < tiles.length; i++) ...[
+                    if (i > 0) const SizedBox(height: gap),
+                    tiles[i],
+                  ],
+                ],
+              );
+            }
+            return IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var i = 0; i < tiles.length; i++) ...[
+                    if (i > 0) const SizedBox(width: gap),
+                    Expanded(child: tiles[i]),
+                  ],
+                ],
+              ),
             );
           },
         ),
@@ -373,7 +512,7 @@ class _ProgressPageState extends State<ProgressPage> {
             padding: const EdgeInsets.symmetric(vertical: 4),
             child: Column(
               children: [
-                for (var i = 0; i < rows.length; i++) ...[
+                for (var i = 0; i < min(rows.length, visibleSessions); i++) ...[
                   if (i > 0) const Divider(height: 1, indent: 52),
                   _SessionRow(
                     title: rows[i]['origin'] == 'legacy'
@@ -381,12 +520,28 @@ class _ProgressPageState extends State<ProgressPage> {
                         : rows[i]['title'] as String,
                     when: _when(rows[i]['t'] as num),
                     detail: rows[i]['origin'] == 'flutter'
-                        ? '${rows[i]['profile']} / ${rows[i]['language']} / ${rows[i]['mode']}'
+                        ? [
+                            ['m', 'f', 'kids'].contains(rows[i]['profile'])
+                                ? widget.tr('profile.${rows[i]['profile']}')
+                                : rows[i]['profile'],
+                            languageNames[rows[i]['language']] ??
+                                rows[i]['language'],
+                            progressModeLabel(
+                              widget.language,
+                              rows[i]['mode'] as String,
+                            ),
+                          ].join(' · ')
                         : '',
                     wpm: rows[i]['wpm'] as num,
                     accuracy: rows[i]['accuracy'] as num,
                   ),
                 ],
+                if (rows.length > visibleSessions)
+                  TextButton(
+                    key: const ValueKey('progress-show-more'),
+                    onPressed: () => setState(() => visibleSessions += 20),
+                    child: Text(copy('showMore')),
+                  ),
               ],
             ),
           ),
@@ -515,7 +670,7 @@ class _Legend extends StatelessWidget {
 }
 
 class _Stat extends StatelessWidget {
-  const _Stat(this.icon, this.color, this.value, this.label);
+  const _Stat(this.icon, this.color, this.value, this.label, {super.key});
   final IconData icon;
   final Color color;
   final String value, label;
@@ -620,26 +775,29 @@ class _DualChart extends CustomPainter {
     required this.accuracyColor,
     required this.grid,
     required this.label,
+    required this.textScaler,
   });
   final List<num> speeds, accuracy, dates;
   final Color speedColor, accuracyColor, grid, label;
+  final TextScaler textScaler;
+
+  TextPainter _label(String s) => TextPainter(
+    text: TextSpan(
+      text: s,
+      style: TextStyle(fontSize: 10, color: label),
+    ),
+    textDirection: TextDirection.ltr,
+    textScaler: textScaler,
+  )..layout();
 
   void _text(Canvas canvas, String s, Offset at, {bool right = false}) {
-    final tp = TextPainter(
-      text: TextSpan(
-        text: s,
-        style: TextStyle(fontSize: 10, color: label),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
+    final tp = _label(s);
     tp.paint(canvas, at - Offset(right ? tp.width : 0, tp.height / 2));
   }
 
   @override
   void paint(Canvas canvas, Size size) {
     if (speeds.length < 2) return;
-    const left = 30.0, right = 34.0, top = 8.0, bottom = 20.0;
-    final w = size.width - left - right, h = size.height - top - bottom;
     // Round steps (5, 10, 15…) so the left scale reads like the sketch.
     final top0 = speeds.reduce(max), bottom0 = speeds.reduce(min);
     var step = max(5, ((top0 - bottom0) / 4 / 5).ceil() * 5);
@@ -650,6 +808,12 @@ class _DualChart extends CustomPainter {
     }
     final hi = lo + 4 * step;
     final span = hi - lo;
+    final left = max(30.0, max(_label('$hi').width, _label('$lo').width) + 8);
+    final right = max(34.0, _label('100').width + 8);
+    final top = max(8.0, _label('100').height / 2);
+    final bottom = max(20.0, _label('00.00').height + 6);
+    final w = size.width - left - right, h = size.height - top - bottom;
+    if (w <= 0 || h <= 0) return;
     final gridPaint = Paint()
       ..color = grid
       ..strokeWidth = 1;
@@ -684,17 +848,15 @@ class _DualChart extends CustomPainter {
     line(accuracy, (a) => top + h * (1 - a.clamp(0, 100) / 100), accuracyColor);
     line(speeds, (s) => top + h * (1 - (s - lo) / span), speedColor);
     final marks = {0, (speeds.length - 1) ~/ 2, speeds.length - 1};
+    var lastEnd = double.negativeInfinity;
     for (final i in marks) {
       final d = DateTime.fromMillisecondsSinceEpoch(dates[i].toInt()).toLocal();
-      final tp = TextPainter(
-        text: TextSpan(
-          text: '${_two(d.day)}.${_two(d.month)}',
-          style: TextStyle(fontSize: 10, color: label),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
+      final tp = _label('${_two(d.day)}.${_two(d.month)}');
+      if (tp.width > size.width) continue;
       final cx = (x(i) - tp.width / 2).clamp(0.0, size.width - tp.width);
+      if (cx < lastEnd + 4) continue;
       tp.paint(canvas, Offset(cx, size.height - tp.height));
+      lastEnd = cx + tp.width;
     }
   }
 
@@ -702,7 +864,12 @@ class _DualChart extends CustomPainter {
   bool shouldRepaint(covariant _DualChart old) =>
       old.speeds != speeds ||
       old.accuracy != accuracy ||
-      old.speedColor != speedColor;
+      old.dates != dates ||
+      old.speedColor != speedColor ||
+      old.accuracyColor != accuracyColor ||
+      old.grid != grid ||
+      old.label != label ||
+      old.textScaler != textScaler;
 }
 
 /// Explicit export of local history only: no credentials, preferences,
@@ -713,13 +880,25 @@ Future<ArtifactExportOutcome> exportHistory(
   ArtifactExporter? exporter,
   int now,
 ) {
-  final rows = ProgressView(repository.data).timeline;
+  final document = repository.data;
+  final rows = ProgressView(document).timeline;
+  final pending = (document['webviewPending'] as Map?) ?? {};
+  // Recovery copies may overlap the timeline or one another. Keep them in a
+  // separate field so an export cannot silently count them as new sessions.
+  // Other pending values include preferences and are deliberately excluded.
+  final recoveryHistories = [
+    for (final snapshot in pending.values)
+      if (snapshot is Map && snapshot['tr_history'] is String)
+        jsonDecode(snapshot['tr_history'] as String) as List,
+  ];
   final bytes = Uint8List.fromList(
     utf8.encode(
       jsonEncode({
         'schema': 'typefree.history/1',
         'exportedAt': now,
         'sessions': rows,
+        if (recoveryHistories.isNotEmpty)
+          'unresolvedHistoryCopies': recoveryHistories,
       }),
     ),
   );
@@ -733,6 +912,87 @@ Future<ArtifactExportOutcome> exportHistory(
 String progressCopy(String language, String key) {
   const languages = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
   const words = {
+    'migrationOpen': [
+      'Открыть прогресс',
+      'View progress',
+      'Ver progreso',
+      'Fortschritt öffnen',
+      'Voir les progrès',
+      'Apri progressi',
+      'Ver progresso',
+    ],
+    'migrationPending': [
+      'Проверка данных прежней версии не завершена. Если вы обновили приложение, прогресс может быть неполным. Повторим проверку при следующем запуске.',
+      'The previous version’s data check is incomplete. If you updated the app, your progress may be incomplete. We will retry on the next launch.',
+      'La comprobación de datos anteriores no ha terminado. Si actualizaste la app, tu progreso puede estar incompleto. Se reintentará al iniciarla de nuevo.',
+      'Die Prüfung früherer Daten ist nicht abgeschlossen. Nach einem Update kann der Fortschritt unvollständig sein. Beim nächsten Start wird erneut geprüft.',
+      'La vérification des données précédentes est incomplète. Après une mise à jour, les progrès peuvent être incomplets. Un nouvel essai aura lieu au prochain lancement.',
+      'La verifica dei dati precedenti non è completa. Dopo un aggiornamento i progressi potrebbero essere incompleti. Riproveremo al prossimo avvio.',
+      'A verificação dos dados anteriores está incompleta. Se atualizou a aplicação, o progresso pode estar incompleto. Tentaremos novamente no próximo arranque.',
+    ],
+    'showMore': [
+      'Показать ещё',
+      'Show more',
+      'Mostrar más',
+      'Mehr anzeigen',
+      'Afficher plus',
+      'Mostra altro',
+      'Mostrar mais',
+    ],
+    'recoverySave': [
+      'Сохранить копию',
+      'Save copy',
+      'Guardar copia',
+      'Kopie speichern',
+      'Enregistrer la copie',
+      'Salva copia',
+      'Salvar cópia',
+    ],
+    'recoverySaveHint': [
+      'Файл содержит данные этой копии. При восстановлении могут остаться конфликты с текущим прогрессом.',
+      'The file contains this copy. Restoring it may conflict with current progress.',
+      'El archivo contiene esta copia. Al restaurarla puede haber conflictos con el progreso actual.',
+      'Die Datei enthält diese Kopie. Die Wiederherstellung kann mit dem aktuellen Fortschritt in Konflikt stehen.',
+      'Le fichier contient cette copie. Sa restauration peut être en conflit avec les progrès actuels.',
+      'Il file contiene questa copia. Il ripristino può essere in conflitto con i progressi attuali.',
+      'O arquivo contém esta cópia. A restauração pode entrar em conflito com o progresso atual.',
+    ],
+    'recoveryInvalid': [
+      'Некоторые данные прежней версии не удалось прочитать. Они остались в старом хранилище; показанный прогресс может быть неполным.',
+      'Some data from the previous version could not be read. It remains in the old storage; the progress shown may be incomplete.',
+      'No se pudieron leer algunos datos anteriores. Siguen en el almacenamiento antiguo; el progreso mostrado puede estar incompleto.',
+      'Einige Daten der alten Version konnten nicht gelesen werden. Sie bleiben im alten Speicher; der angezeigte Fortschritt kann unvollständig sein.',
+      'Certaines données de l’ancienne version sont illisibles. Elles restent dans l’ancien stockage ; les progrès affichés peuvent être incomplets.',
+      'Alcuni dati della versione precedente non sono leggibili. Restano nella vecchia memoria; i progressi mostrati potrebbero essere incompleti.',
+      'Alguns dados da versão anterior não puderam ser lidos. Eles permanecem no armazenamento antigo; o progresso exibido pode estar incompleto.',
+    ],
+    'recoveryTitle': [
+      'Найдены данные для восстановления',
+      'Recovery data found',
+      'Datos para recuperar encontrados',
+      'Wiederherstellungsdaten gefunden',
+      'Données à récupérer trouvées',
+      'Dati da recuperare trovati',
+      'Dados para recuperação encontrados',
+    ],
+    'recoveryHint': [
+      'Копии показаны отдельно; некоторые записи уже могут учитываться в статистике.',
+      'Copies are shown separately; some records may already be included in statistics.',
+      'Las copias se muestran aparte; algunos registros ya pueden contar en las estadísticas.',
+      'Kopien werden getrennt angezeigt; einige Einträge können bereits in der Statistik enthalten sein.',
+      'Les copies sont affichées séparément ; certains résultats peuvent déjà figurer dans les statistiques.',
+      'Le copie sono mostrate separatamente; alcuni risultati potrebbero già essere nelle statistiche.',
+      'As cópias são mostradas separadamente; alguns registros já podem constar nas estatísticas.',
+    ],
+    'recoveryCopy': [
+      'Копия истории',
+      'History copy',
+      'Copia del historial',
+      'Verlaufskopie',
+      'Copie de l’historique',
+      'Copia della cronologia',
+      'Cópia do histórico',
+    ],
     'local': [
       'История на этом устройстве',
       'History on this device',
@@ -1015,4 +1275,85 @@ String progressCopy(String language, String key) {
   };
   final index = languages.indexOf(language);
   return words[key]?[index < 0 ? 1 : index] ?? key;
+}
+
+/// Unknown future modes remain visible rather than being mislabeled.
+String progressModeLabel(String language, String mode) {
+  const langs = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
+  const labels = <String, List<String>>{
+    'practice': [
+      'Тренировка',
+      'Practice',
+      'Práctica',
+      'Training',
+      'Entraînement',
+      'Pratica',
+      'Prática',
+    ],
+    'weak': [
+      'Слабые клавиши',
+      'Weak keys',
+      'Teclas débiles',
+      'Schwache Tasten',
+      'Touches difficiles',
+      'Tasti deboli',
+      'Teclas difíceis',
+    ],
+    'course': [
+      'Курс печати',
+      'Typing course',
+      'Curso de mecanografía',
+      'Schreibkurs',
+      'Cours de frappe',
+      'Corso di dattilografia',
+      'Curso de digitação',
+    ],
+    'learn': [
+      'AI-обучение',
+      'AI learning',
+      'Aprendizaje con IA',
+      'KI-Lernen',
+      'Apprentissage IA',
+      'Apprendimento IA',
+      'Aprendizagem com IA',
+    ],
+    'compete': [
+      'Соревнование',
+      'Competition',
+      'Competición',
+      'Wettbewerb',
+      'Compétition',
+      'Competizione',
+      'Competição',
+    ],
+    'memorize': [
+      'Наизусть',
+      'Memorization',
+      'Memorización',
+      'Auswendiglernen',
+      'Mémorisation',
+      'Memorizzazione',
+      'Memorização',
+    ],
+    'recall': [
+      'Память',
+      'Memory',
+      'Memoria',
+      'Gedächtnis',
+      'Mémoire',
+      'Memoria',
+      'Memória',
+    ],
+    'exam': [
+      'Тест печати',
+      'Typing test',
+      'Prueba de mecanografía',
+      'Tipptest',
+      'Test de frappe',
+      'Test di digitazione',
+      'Teste de digitação',
+    ],
+  };
+  final i = langs.indexOf(language);
+  return labels[mode]?[i < 0 ? 1 : i] ?? mode;
 }

@@ -101,6 +101,9 @@ class ProgressView {
   List<String> get achievements => {
     for (final raw in [archive['tr_ach'], legacy['tr_ach']])
       if (raw is String) ...List<String>.from(jsonDecode(raw) as List),
+    ...List<String>.from(
+      (document['prefs'] as Map)['flutterAchievements'] ?? [],
+    ),
   }.toList();
   Map<String, int> _mergedStars(String key) {
     final stars = <String, int>{};

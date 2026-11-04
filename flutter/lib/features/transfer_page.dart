@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 
 import '../data/legacy_transfer.dart';
+import '../data/history_import.dart';
 import '../data/local_repository.dart';
 import '../design_system/templates.dart';
 
@@ -24,6 +25,15 @@ Future<Map<String, dynamic>?> pickTransferFile() async {
 String transferCopy(String language, String key) {
   const langs = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
   const words = <String, List<String>>{
+    'historyDone': [
+      'История доступна в «Прогрессе». Неоднозначные копии показаны отдельно для проверки.',
+      'History is available in Progress. Unresolved copies are shown separately for review.',
+      'El historial está disponible en Progreso. Las copias pendientes se muestran por separado.',
+      'Der Verlauf ist unter Fortschritt verfügbar. Ungeklärte Kopien werden separat angezeigt.',
+      'L’historique est disponible dans Progrès. Les copies non résolues sont affichées séparément.',
+      'La cronologia è disponibile in Progressi. Le copie da verificare sono mostrate separatamente.',
+      'O histórico está disponível em Progresso. As cópias pendentes aparecem separadamente.',
+    ],
     'title': [
       'Переход на новую версию',
       'Moving to the new version',
@@ -52,13 +62,13 @@ String transferCopy(String language, String key) {
       'Passar o progresso da versão anterior',
     ],
     'intro': [
-      'В прежней версии сохраните файл переноса, затем выберите его здесь. Всё происходит на этом устройстве.',
-      'Save a transfer file in the previous version, then choose it here. Everything happens on this device.',
-      'Guarda un archivo de traspaso en la versión anterior y elígelo aquí. Todo ocurre en este dispositivo.',
-      'Speichere in der vorigen Version eine Übertragungsdatei und wähle sie hier. Alles bleibt auf diesem Gerät.',
-      'Enregistrez un fichier de transfert dans l’ancienne version, puis choisissez-le ici. Tout reste sur cet appareil.',
-      'Salva un file di trasferimento nella versione precedente, poi sceglilo qui. Tutto avviene su questo dispositivo.',
-      'Guarde um ficheiro de transferência na versão anterior e escolha-o aqui. Tudo acontece neste dispositivo.',
+      'Выберите файл переноса прежней версии или экспорт истории TypeFree. Всё происходит на этом устройстве.',
+      'Choose a transfer file from the previous version or a TypeFree history export. Everything stays on this device.',
+      'Elige un archivo de traspaso anterior o un historial exportado de TypeFree. Todo ocurre en este dispositivo.',
+      'Wähle eine ältere Übertragungsdatei oder einen TypeFree-Verlaufsexport. Alles bleibt auf diesem Gerät.',
+      'Choisissez un fichier de transfert ancien ou un export de l’historique TypeFree. Tout reste sur cet appareil.',
+      'Scegli un file di trasferimento precedente o una cronologia TypeFree esportata. Tutto resta sul dispositivo.',
+      'Escolha um ficheiro de transferência anterior ou um histórico TypeFree exportado. Tudo fica neste dispositivo.',
     ],
     'step1': [
       'Файл переноса',
@@ -115,13 +125,13 @@ String transferCopy(String language, String key) {
       'entradas',
     ],
     'bad': [
-      'Файл не подходит: это не файл переноса прежней версии или он изменён. Ничего не записано.',
-      'This file does not fit: it is not a transfer file from the previous version, or it was changed. Nothing was written.',
-      'El archivo no sirve: no es de traspaso de la versión anterior o fue modificado. No se escribió nada.',
-      'Die Datei passt nicht: keine Übertragungsdatei der vorigen Version oder verändert. Nichts wurde geschrieben.',
-      'Fichier inadapté : ce n’est pas un fichier de transfert de l’ancienne version, ou il a été modifié. Rien n’a été écrit.',
-      'File non valido: non è un file di trasferimento della versione precedente o è stato modificato. Nulla è stato scritto.',
-      'Ficheiro inválido: não é de transferência da versão anterior ou foi alterado. Nada foi escrito.',
+      'Файл не подходит или повреждён. Ничего не записано.',
+      'This file is invalid or damaged. Nothing was written.',
+      'El archivo no es válido o está dañado. No se escribió nada.',
+      'Die Datei ist ungültig oder beschädigt. Nichts wurde geschrieben.',
+      'Fichier invalide ou endommagé. Rien n’a été écrit.',
+      'File non valido o danneggiato. Nulla è stato scritto.',
+      'Ficheiro inválido ou danificado. Nada foi escrito.',
     ],
     'interrupted': [
       'Прервано',
@@ -238,6 +248,7 @@ class TransferPage extends StatefulWidget {
 
 class _TransferPageState extends State<TransferPage> {
   Map<String, dynamic>? file;
+  HistoryImport? historyFile;
   int count = 0;
   var check = _Step.waiting, import = _Step.waiting;
   String? note;
@@ -251,13 +262,17 @@ class _TransferPageState extends State<TransferPage> {
     try {
       final picked = await widget.pick();
       if (picked == null) return;
-      count = verifyTransfer(picked).length;
+      historyFile = picked['schema'] == 'typefree.history/1'
+          ? await HistoryImport.verify(picked)
+          : null;
+      count = historyFile?.count ?? verifyTransfer(picked).length;
       file = picked;
       check = _Step.ok;
       note = null;
       await run();
     } on FormatException {
       file = null;
+      historyFile = null;
       check = _Step.failed;
       import = _Step.waiting;
       note = c('bad');
@@ -268,7 +283,9 @@ class _TransferPageState extends State<TransferPage> {
 
   Future<void> run() async {
     try {
-      repeated = !await importTransfer(widget.repository, file!);
+      repeated = historyFile != null
+          ? !await historyFile!.apply(widget.repository)
+          : !await importTransfer(widget.repository, file!);
       import = _Step.ok;
       note = null;
     } on FormatException {
@@ -427,7 +444,11 @@ class _TransferPageState extends State<TransferPage> {
                   ? Padding(
                       padding: const EdgeInsets.only(top: 6),
                       child: Text(
-                        repeated ? c('again') : c('done.d'),
+                        repeated
+                            ? c('again')
+                            : historyFile != null
+                            ? c('historyDone')
+                            : c('done.d'),
                         key: const ValueKey('transfer-done'),
                       ),
                     )

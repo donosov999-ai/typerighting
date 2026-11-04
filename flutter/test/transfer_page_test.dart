@@ -7,6 +7,7 @@ import 'package:typefree_flutter_foundation/data/local_repository.dart';
 import 'package:typefree_flutter_foundation/data/string_store.dart';
 import 'package:typefree_flutter_foundation/design_system/templates.dart';
 import 'package:typefree_flutter_foundation/features/transfer_page.dart';
+import 'package:typefree_flutter_foundation/features/progress_page.dart';
 import 'package:typefree_flutter_foundation/main.dart';
 
 class _Store implements StringStore {
@@ -121,6 +122,118 @@ void main() {
     expect(transferCount(21, 'ru'), '21 запись');
     expect(transferCount(1, 'en'), '1 entry');
     expect(transferCount(3, 'en'), '3 entries');
+  });
+
+  testWidgets('history file imports through the transfer screen', (
+    tester,
+  ) async {
+    final resources = (await tester.runAsync(Resources.load))!;
+    final theme = AppearanceController(
+      resources.registry,
+      _Memory(),
+      existingInstall: true,
+    ).theme(Brightness.dark);
+    final repo = LocalRepository(_Store());
+    await repo.load();
+    final history = <String, dynamic>{
+      'schema': 'typefree.history/1',
+      'exportedAt': 1,
+      'sessions': [],
+      'unresolvedHistoryCopies': [
+        [
+          {'t': 1, 'wpm': 42, 'acc': 90},
+        ],
+      ],
+    };
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: theme,
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: TransferPage(
+              language: 'ru',
+              repository: repo,
+              pick: () async => history,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.byKey(const ValueKey('transfer-choose')));
+    await tester.pumpAndSettle();
+    expect(find.text(transferCopy('ru', 'historyDone')), findsOneWidget);
+    expect((repo.data['webviewPending'] as Map).length, 1);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('imported old session appears in progress after restart', (
+    tester,
+  ) async {
+    final resources = (await tester.runAsync(Resources.load))!;
+    final theme = AppearanceController(
+      resources.registry,
+      _Memory(),
+      existingInstall: true,
+    ).theme(Brightness.dark);
+    final store = _Store();
+    final repo = LocalRepository(store);
+    await repo.load();
+    final history = <String, dynamic>{
+      'schema': 'typefree.history/1',
+      'exportedAt': 1,
+      'sessions': [
+        {
+          'origin': 'legacy',
+          'id': 'legacy-0',
+          't': 1700000000000,
+          'wpm': 42,
+          'acc': 90,
+          'accuracy': 90,
+        },
+      ],
+    };
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: theme,
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: TransferPage(
+              language: 'ru',
+              repository: repo,
+              pick: () async => history,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.byKey(const ValueKey('transfer-choose')));
+    await tester.pumpAndSettle();
+    expect(find.text(transferCopy('ru', 'historyDone')), findsOneWidget);
+    final restarted = LocalRepository(store);
+    await restarted.load();
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: theme,
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ProgressPage(
+              repository: restarted,
+              profile: 'm',
+              language: 'ru',
+              tr: (s) => s,
+              onWeak: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text(progressCopy('ru', 'oldSession')), findsOneWidget);
+    expect(find.text('42 WPM'), findsOneWidget);
+    expect(find.text('42'), findsOneWidget); // best speed tile
+    expect(find.text('1'), findsOneWidget); // session count tile
+    expect((restarted.data['webviewPending'] as Map), isEmpty);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('I5 copy exists in all seven languages', (tester) async {

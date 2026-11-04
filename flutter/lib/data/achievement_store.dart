@@ -26,8 +26,9 @@ Map<String, num> milestoneMetrics(Map<String, dynamic> doc, int now) {
   final languages = <String>{};
   const supported = {'ru', 'en', 'es', 'de', 'fr', 'it', 'pt'};
   for (final row in rows) {
-    if (supported.contains(row['language']))
+    if (supported.contains(row['language'])) {
       languages.add(row['language'] as String);
+    }
   }
   for (final entry in view.legacy.entries) {
     if (!entry.key.startsWith('tr_course_')) continue;
@@ -55,7 +56,18 @@ List<String> awardAchievements(Map<String, dynamic> doc, int now) {
   final eligible = eligibleAchievementIds(doc, now);
   final fresh = eligible.where((id) => !before.contains(id)).toList();
   if (fresh.isNotEmpty) {
-    (doc['legacy'] as Map)['tr_ach'] = jsonEncode([...before, ...fresh]);
+    final combined = [...before, ...fresh];
+    if (combined.length <= 1000) {
+      (doc['legacy'] as Map)['tr_ach'] = jsonEncode(combined);
+    } else {
+      // The legacy field is limited to 1000 IDs. Preserve every old ID and
+      // persist new known milestones separately rather than corrupting it.
+      final prefs = doc['prefs'] as Map;
+      prefs['flutterAchievements'] = {
+        ...List<String>.from(prefs['flutterAchievements'] ?? []),
+        ...fresh,
+      }.toList();
+    }
   }
   return fresh;
 }

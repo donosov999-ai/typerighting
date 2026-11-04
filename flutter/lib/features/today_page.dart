@@ -182,9 +182,11 @@ class TodayPage extends StatelessWidget {
     required this.onPractice,
     required this.onCourse,
     required this.onProgress,
+    this.migrationNotice,
   });
   final TodaySummary summary;
   final String language, lessonTitle;
+  final Widget? migrationNotice;
   final VoidCallback onPractice, onCourse, onProgress;
   @override
   Widget build(BuildContext context) {
@@ -291,6 +293,10 @@ class TodayPage extends StatelessWidget {
                 ],
               ),
             ),
+            if (migrationNotice != null) ...[
+              const SizedBox(height: 10),
+              migrationNotice!,
+            ],
             const SizedBox(height: 10),
             Material(
               color: tokens['surface'],

@@ -4,6 +4,7 @@ import 'dart:convert';
 import '../domain/key_statistics.dart';
 import 'local_repository.dart';
 import 'achievement_store.dart';
+import 'legacy_values.dart';
 
 /// Debounced key evidence and completion share the repository's atomic document.
 /// Failed batches remain queued in order; retry never repeats a committed batch.
@@ -61,7 +62,12 @@ class KeyStatisticsStore {
         for (final event in batch) {
           applyKeyEvidence(stats, event);
         }
-        if (batch.isNotEmpty) legacy['tr_keystats'] = jsonEncode(stats);
+        if (batch.isNotEmpty) {
+          final encoded = jsonEncode(stats);
+          // Never commit a value that the repository would reject on restart.
+          validateLegacyValue('tr_keystats', encoded);
+          legacy['tr_keystats'] = encoded;
+        }
         apply(doc);
         if ((doc['legacy'] as Map)['tr_history'] != beforeHistory) {
           freshBadges = awardAchievements(

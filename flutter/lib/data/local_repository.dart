@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
+
 import 'string_store.dart';
 import 'legacy_values.dart';
 
@@ -51,6 +53,42 @@ class LocalRepository {
         validateLegacyValue(e.key as String, e.value as String);
       }
     }
+    final pending = doc['webviewPending'] ?? <String, dynamic>{};
+    if (pending is! Map) {
+      throw const FormatException('Invalid pending WebView recovery data');
+    }
+    for (final snapshot in pending.entries) {
+      if (snapshot.key is! String ||
+          !RegExp(r'^[a-f0-9]{64}$').hasMatch(snapshot.key as String) ||
+          snapshot.value is! Map) {
+        throw const FormatException(
+          'Invalid pending WebView recovery snapshot',
+        );
+      }
+      for (final entry in (snapshot.value as Map).entries) {
+        if (entry.key is! String ||
+            !safeLegacyKey(entry.key as String) ||
+            entry.value is! String) {
+          throw const FormatException('Invalid pending WebView recovery value');
+        }
+        validateLegacyValue(entry.key as String, entry.value as String);
+      }
+      final values = Map<String, dynamic>.from(snapshot.value as Map);
+      final keys = values.keys.toList()..sort();
+      if (keys.isEmpty ||
+          sha256
+                  .convert(
+                    utf8.encode(
+                      jsonEncode({for (final key in keys) key: values[key]}),
+                    ),
+                  )
+                  .toString() !=
+              snapshot.key) {
+        throw const FormatException(
+          'Invalid pending WebView recovery checksum',
+        );
+      }
+    }
     for (final e in (doc['receipts'] as Map).entries) {
       if (e.key is! String ||
           e.value is! String ||
@@ -59,6 +97,28 @@ class LocalRepository {
       }
     }
     final prefs = doc['prefs'] as Map;
+    final flutterAchievements = prefs['flutterAchievements'];
+    if (flutterAchievements != null &&
+        (flutterAchievements is! List ||
+            flutterAchievements.length > 100 ||
+            !flutterAchievements.every(
+              (id) =>
+                  id is String &&
+                  RegExp(r'^[a-zA-Z0-9_-]{1,100}$').hasMatch(id),
+            ))) {
+      throw const FormatException('Invalid local achievements');
+    }
+    final invalidKeys = prefs['webviewInvalidKeys'];
+    if (invalidKeys != null &&
+        (invalidKeys is! List ||
+            !invalidKeys.every((key) => key is String && safeLegacyKey(key)))) {
+      throw const FormatException('Invalid migration issue list');
+    }
+    final legacyName = prefs['legacyCertificateName'];
+    if (legacyName != null &&
+        (legacyName is! String || legacyName.length > 1000000)) {
+      throw const FormatException('Invalid preserved legacy name');
+    }
     for (final profile in ['m', 'f', 'kids']) {
       final name = prefs['certificateName_$profile'];
       if (name != null && (name is! String || name.length > 512)) {

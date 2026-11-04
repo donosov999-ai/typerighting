@@ -19,9 +19,11 @@ class CompanionPage extends StatelessWidget {
     required this.onTrainer,
     required this.onLearn,
     required this.onCompete,
+    this.migrationNotice,
   });
   final String Function(String) tr;
   final String language;
+  final Widget? migrationNotice;
   final int streak, sessions;
   final num best;
   final Set<String> earned;
@@ -61,6 +63,10 @@ class CompanionPage extends StatelessWidget {
                 ),
               ),
             ),
+            if (migrationNotice != null) ...[
+              const SizedBox(height: 12),
+              migrationNotice!,
+            ],
             const SizedBox(height: 12),
             Text(
               tr('cpn.h1'),

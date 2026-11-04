@@ -139,11 +139,16 @@ Future<void> main() async {
     } catch (_) {}
     // Built after the migration below, so imported progress counts at once.
     final device = PlatformDispatcher.instance.locale.languageCode;
+    final mobile =
+        !kIsWeb &&
+        (defaultTargetPlatform == TargetPlatform.android ||
+            defaultTargetPlatform == TargetPlatform.iOS);
     void start() => runApp(
       TypeFreeApp(
         deviceLanguage: languages.contains(device) ? device : 'en',
         resources: resources,
         repository: repo,
+        migrationPending: mobile && needsWebviewMigration(repo.data),
         welcome: needsWelcome(repo.data),
         appearance: AppearanceController(
           resources.registry,
@@ -157,10 +162,6 @@ Future<void> main() async {
       ),
     );
     // Same-ID update from the Tauri app: read its WebView storage once.
-    final mobile =
-        !kIsWeb &&
-        (defaultTargetPlatform == TargetPlatform.android ||
-            defaultTargetPlatform == TargetPlatform.iOS);
     if (mobile && needsWebviewMigration(repo.data)) {
       runApp(
         TauriMigrationGate(
@@ -246,6 +247,7 @@ class TypeFreeApp extends StatefulWidget {
     this.welcome = false,
     this.phone,
     this.deviceLanguage,
+    this.migrationPending = false,
   });
   final Resources resources;
   final LocalRepository repository;
@@ -266,6 +268,7 @@ class TypeFreeApp extends StatefulWidget {
   /// Language when none was chosen and the old app stored none: the device
   /// language if supported, else English (null keeps the old «ru» default).
   final String? deviceLanguage;
+  final bool migrationPending;
   @override
   State<TypeFreeApp> createState() => TypeFreeAppState();
 }
@@ -1878,6 +1881,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                         .where((r) => r['historyEligible'] != false)
                         .toList();
                     return CompanionPage(
+                      migrationNotice: migrationNotice(),
                       tr: tr,
                       language: language,
                       streak: utcStreak(
@@ -2300,6 +2304,26 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     return [for (var i = 0; i < 7; i++) counts[i] == 0 ? null : sums[i] / counts[i]];
   }
 
+  Widget? migrationNotice() => widget.migrationPending
+      ? Card(
+          key: const ValueKey('home-migration-pending'),
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(progressCopy(language, 'migrationPending')),
+                TextButton(
+                  key: const ValueKey('home-migration-open'),
+                  onPressed: () => showSection(AppSection.progress),
+                  child: Text(progressCopy(language, 'migrationOpen')),
+                ),
+              ],
+            ),
+          ),
+        )
+      : null;
+
   Widget todayView(BuildContext c) {
     final lessons = List<Map<String, dynamic>>.from(
       (widget.resources.course['lessons'] as Map)[language] as List,
@@ -2320,6 +2344,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
         .layoutId;
     if (layout == 'speed-home-v1') {
       return SpeedHome(
+        migrationNotice: migrationNotice(),
         language: language,
         summary: summary,
         lessonTitle: title,
@@ -2351,6 +2376,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       );
     }
     return TodayPage(
+      migrationNotice: migrationNotice(),
       summary: summary,
       language: language,
       lessonTitle: title,
@@ -2542,6 +2568,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
 
   Widget historyView(BuildContext c) => ProgressPage(
     repository: widget.repository,
+    migrationPending: widget.migrationPending,
     profile: profile,
     language: language,
     tr: tr,

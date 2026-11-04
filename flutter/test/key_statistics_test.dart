@@ -42,6 +42,27 @@ void closeTree(dynamic actual, dynamic expected) {
 }
 
 void main() {
+  test('invalid key evidence cannot corrupt saved data on restart', () async {
+    final store = MemoryStore();
+    final repo = LocalRepository(store);
+    await repo.transaction((doc) {
+      (doc['legacy'] as Map)['tr_keystats'] = '{"a":{"ok":6,"err":2}}';
+    });
+    final before = repo.data;
+    final stats = KeyStatisticsStore(repo);
+    stats.record('invalid key', true, 1000);
+    await expectLater(
+      stats.commit((doc) {
+        (doc['prefs'] as Map)['pet'] = true;
+      }),
+      throwsFormatException,
+    );
+    expect(repo.data, before);
+    final restarted = LocalRepository(store);
+    await restarted.load();
+    expect(restarted.data, before);
+    stats.dispose();
+  });
   test('1474 events match original TS counters, EMA, decay, gaps, history and heat', () {
     final fixture = jsonDecode(
       File('test/fixtures/key-statistics.json').readAsStringSync(),

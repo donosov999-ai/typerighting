@@ -7,6 +7,7 @@ import 'package:typefree_flutter_foundation/main.dart';
 import 'package:typefree_flutter_foundation/features/kids_page.dart';
 import 'package:typefree_flutter_foundation/features/keyboard_guide.dart';
 import 'package:typefree_flutter_foundation/data/local_repository.dart';
+import 'package:typefree_flutter_foundation/data/webview_migration.dart';
 import 'package:typefree_flutter_foundation/design_system/templates.dart';
 
 import 'storage_transfer_test.dart' show MemoryStore;
@@ -36,6 +37,49 @@ Future<void> complete(
 }
 
 void main() {
+  testWidgets(
+    'old child stars unlock the next level after conflicting migration',
+    (tester) async {
+      final resources = (await tester.runAsync(Resources.load))!;
+      final store = MemoryStore();
+      final repo = LocalRepository(store);
+      await repo.transaction((doc) {
+        (doc['prefs'] as Map).addAll(<String, dynamic>{
+          'lang': 'ru',
+          'profile': 'kids',
+          'pet': false,
+          'motion': false,
+        });
+        (doc['legacy'] as Map)['tr_kids'] = '{"stars":{"1":1}}';
+      });
+      await importWebviewValues(repo, {'tr_kids': '{"stars":{"2":3}}'});
+      final restarted = LocalRepository(store);
+      await restarted.load();
+      final appearance = AppearanceController(
+        resources.registry,
+        AppearanceMemory(),
+        existingInstall: false,
+      );
+      await tester.binding.setSurfaceSize(const Size(1280, 1000));
+      await tester.pumpWidget(
+        TypeFreeApp(
+          initialSection: AppSection.kids,
+          resources: resources,
+          repository: restarted,
+          appearance: appearance,
+        ),
+      );
+      await tester.pump();
+      final level = tester.widget<OutlinedButton>(
+        find.byKey(const ValueKey('kids-level-3')),
+      );
+      expect(level.onPressed, isNotNull);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox());
+      appearance.dispose();
+      await tester.binding.setSurfaceSize(null);
+    },
+  );
   testWidgets(
     'real child map, blocked input, atomic stars failure/retry, auto timer, route cleanup and reload',
     (tester) async {

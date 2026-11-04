@@ -219,8 +219,10 @@ class SpeedHome extends StatelessWidget {
     required this.onCourse,
     required this.onWeak,
     required this.onProgress,
+    this.migrationNotice,
   });
   final String language, lessonTitle, customTitle;
+  final Widget? migrationNotice;
   final TodaySummary summary;
   final List<HomeMode> modes;
 
@@ -301,6 +303,10 @@ class SpeedHome extends StatelessWidget {
                 cta: t('cta'),
                 onStart: onStart,
               ),
+              if (migrationNotice != null) ...[
+                SizedBox(height: gap),
+                migrationNotice!,
+              ],
               SizedBox(height: gap),
               _Wrap(
                 columns: mid ? 2 : 1,

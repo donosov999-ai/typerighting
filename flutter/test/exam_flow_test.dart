@@ -7,6 +7,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:typefree_flutter_foundation/main.dart';
 import 'package:typefree_flutter_foundation/data/artifact_export.dart';
 import 'package:typefree_flutter_foundation/data/local_repository.dart';
+import 'package:typefree_flutter_foundation/data/history_import.dart';
+import 'package:typefree_flutter_foundation/data/webview_migration.dart';
+import 'package:typefree_flutter_foundation/features/progress_page.dart'
+    show exportHistory;
 import 'package:typefree_flutter_foundation/design_system/templates.dart';
 import 'package:typefree_flutter_foundation/features/exam_page.dart';
 import 'package:typefree_flutter_foundation/features/exam_certificate.dart';
@@ -167,6 +171,18 @@ void main() {
       expect(point['fullDuration'], false);
       expect(point['durationMinutes'], 1);
       expect(point['elapsedMs'], snapshot['elapsedMs']);
+      Map<String, dynamic>? exportedHistory;
+      await exportHistory(repo, (name, bytes, mime) async {
+        exportedHistory =
+            jsonDecode(utf8.decode(bytes)) as Map<String, dynamic>;
+        return ArtifactExportOutcome.saved;
+      }, 1);
+      final restored = LocalRepository(MemoryStore());
+      await restored.load();
+      final historyImport = await HistoryImport.verify(exportedHistory!);
+      expect(await historyImport.apply(restored), true);
+      expect((restored.data['sessions'] as List).single, point);
+      expect(await historyImport.apply(restored), false);
       expect((repo.data['prefs'] as Map)['certificateName_m'], 'Тест TypeFree');
       expect((repo.data['prefs'] as Map)['certificateName_kids'], isNull);
       expect(find.byKey(const ValueKey('exam-certificate')), findsOneWidget);
@@ -322,6 +338,46 @@ void main() {
     appearance.dispose();
     expect(tester.takeException(), isNull);
   });
+  testWidgets(
+    'old certificate name appears in the matching profile after migration',
+    (tester) async {
+      final resources = (await tester.runAsync(Resources.load))!;
+      final store = MemoryStore();
+      final repo = LocalRepository(store);
+      await repo.load();
+      await importWebviewValues(repo, {
+        'tr_profile': 'f',
+        'tr_lang': 'en',
+        'tr_name': 'Previous name',
+      });
+      final restarted = LocalRepository(store);
+      await restarted.load();
+      final appearance = AppearanceController(
+        resources.registry,
+        AppearanceMemory(),
+        existingInstall: true,
+      );
+      final key = GlobalKey<TypeFreeAppState>();
+      await tester.pumpWidget(
+        TypeFreeApp(
+          key: key,
+          initialSection: AppSection.exam,
+          resources: resources,
+          repository: restarted,
+          appearance: appearance,
+        ),
+      );
+      await tester.pump();
+      expect(
+        key.currentState!.examKey.currentState!.nameController.text,
+        'Previous name',
+      );
+      await tester.pumpWidget(const SizedBox());
+      await tester.pump();
+      appearance.dispose();
+      expect(tester.takeException(), isNull);
+    },
+  );
   testWidgets(
     'seven localized certificate PNGs encode without external assets',
     (tester) async {

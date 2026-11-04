@@ -29,6 +29,26 @@ SelectionResult applyContentSelection(
   Map<String, dynamic> catalog,
   Object? manifest,
 ) {
+  // Locked banks must remain inaccessible even if a later catalog export
+  // accidentally contains them or the selection manifest is missing/broken.
+  final source = catalog['catalog'] as Map;
+  final hasLocked = source.values.any(
+    (rows) => (rows as List).any(
+      (row) => _lockedBanks.contains((row as Map)['bank']),
+    ),
+  );
+  if (hasLocked) {
+    catalog = {
+      ...catalog,
+      'catalog': {
+        for (final entry in source.entries)
+          entry.key: [
+            for (final row in entry.value as List)
+              if (!_lockedBanks.contains((row as Map)['bank'])) row,
+          ],
+      },
+    };
+  }
   SelectionResult reject(String why) =>
       SelectionResult(catalog, notes: ['rejected: $why']);
   if (manifest == null) return SelectionResult(catalog);

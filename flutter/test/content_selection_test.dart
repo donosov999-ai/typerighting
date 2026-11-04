@@ -103,6 +103,37 @@ void main() {
     expect(r.catalog, same(catalog));
   });
 
+  test('locked banks stay hidden even with missing or invalid selection', () {
+    final source = jsonDecode(jsonEncode(catalog)) as Map<String, dynamic>;
+    final rows = (source['catalog'] as Map)['en'] as List;
+    for (final bank in ['abandon', 'engRus', 'letterByLetter']) {
+      rows.add({
+        'id': 'locked-$bank',
+        'bank': bank,
+        'lines': ['private lesson'],
+      });
+    }
+    for (final selection in [
+      null,
+      {'format': 'invalid'},
+      manifest({}),
+    ]) {
+      final result = applyContentSelection(source, selection);
+      final banks = items(result.catalog, 'en').map((item) => item['bank']);
+      expect(banks, isNot(contains('abandon')));
+      expect(banks, isNot(contains('engRus')));
+      expect(banks, isNot(contains('letterByLetter')));
+      expect(banks, contains('classic'));
+    }
+    expect(
+      rows
+          .where((row) => (row as Map)['id'].toString().startsWith('locked-'))
+          .length,
+      3,
+      reason: 'The input catalog must not be modified',
+    );
+  });
+
   test('course/kids/competition groups are reported, not applied', () {
     final r = applyContentSelection(
       catalog,

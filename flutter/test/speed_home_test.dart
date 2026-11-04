@@ -45,10 +45,7 @@ void main() {
     final key = GlobalKey<TypeFreeAppState>();
     await tester.pumpWidget(
       MediaQuery(
-        data: MediaQueryData(
-          size: size,
-          textScaler: TextScaler.linear(text),
-        ),
+        data: MediaQueryData(size: size, textScaler: TextScaler.linear(text)),
         child: TypeFreeApp(
           key: key,
           resources: resources,
@@ -104,6 +101,51 @@ void main() {
     expect(tester.state<ExamPageState>(find.byType(ExamPage)).duration, 10);
   });
 
+  testWidgets('phone quick actions share a row and custom text opens', (
+    tester,
+  ) async {
+    await open(tester, const Size(390, 844));
+    final speed = find.byKey(const ValueKey('home-speed-test'));
+    final custom = find.byKey(const ValueKey('home-custom-text'));
+    expect(tester.getRect(speed).top, tester.getRect(custom).top);
+    expect(tester.getRect(speed).height, tester.getRect(custom).height);
+    expect(tester.getRect(custom).width, greaterThanOrEqualTo(155));
+    await tester.tap(custom);
+    await tester.pump();
+    expect(find.byType(TextField), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('large text uses readable full-width quick actions', (
+    tester,
+  ) async {
+    await open(tester, const Size(390, 844), text: 2);
+    final speed = find.byKey(const ValueKey('home-speed-test'));
+    final custom = find.byKey(const ValueKey('home-custom-text'));
+    expect(tester.getRect(custom).top, greaterThan(tester.getRect(speed).top));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('compact phone actions fit all supported languages', (
+    tester,
+  ) async {
+    final (key, _) = await open(tester, const Size(390, 844));
+    for (final language in languages) {
+      if (key.currentState!.language != language) {
+        await key.currentState!.changeLanguage(language);
+        await tester.pump();
+      }
+      final speed = find.byKey(const ValueKey('home-speed-test'));
+      final custom = find.byKey(const ValueKey('home-custom-text'));
+      expect(
+        tester.getRect(speed).height,
+        tester.getRect(custom).height,
+        reason: language,
+      );
+      expect(tester.takeException(), isNull, reason: language);
+    }
+  });
+
   for (final size in const [
     Size(320, 640),
     Size(360, 800),
@@ -112,13 +154,14 @@ void main() {
     Size(1440, 900),
   ]) {
     for (final mode in const [ThemeMode.dark, ThemeMode.light]) {
-      testWidgets('fits ${size.width.toInt()}×${size.height.toInt()} ${mode.name}', (
-        tester,
-      ) async {
-        await open(tester, size, mode: mode);
-        expect(find.text('Начать печатать'), findsOneWidget);
-        expect(tester.takeException(), isNull);
-      });
+      testWidgets(
+        'fits ${size.width.toInt()}×${size.height.toInt()} ${mode.name}',
+        (tester) async {
+          await open(tester, size, mode: mode);
+          expect(find.text('Начать печатать'), findsOneWidget);
+          expect(tester.takeException(), isNull);
+        },
+      );
     }
   }
 

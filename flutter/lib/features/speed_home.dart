@@ -245,6 +245,8 @@ class SpeedHome extends StatelessWidget {
     builder: (context, box) {
       final w = box.maxWidth;
       final wide = w >= 1024, mid = w >= 600;
+      final compactQuick =
+          !mid && w >= 350 && MediaQuery.textScalerOf(context).scale(1) <= 1.2;
       final gap = mid ? 16.0 : 12.0;
       final quick = [
         _QuickCard(
@@ -252,6 +254,7 @@ class SpeedHome extends StatelessWidget {
           icon: Icons.timer_outlined,
           title: t('speedTest'),
           subtitle: t('speedTest.d'),
+          compact: compactQuick,
           onTap: onSpeedTest,
         ),
         _QuickCard(
@@ -259,6 +262,7 @@ class SpeedHome extends StatelessWidget {
           icon: Icons.description_outlined,
           title: customTitle,
           subtitle: t('custom.d'),
+          compact: compactQuick,
           onTap: onCustomText,
         ),
       ];
@@ -308,12 +312,24 @@ class SpeedHome extends StatelessWidget {
                 migrationNotice!,
               ],
               SizedBox(height: gap),
-              _Wrap(
-                columns: mid ? 2 : 1,
-                minWidth: 220,
-                gap: gap,
-                children: quick,
-              ),
+              if (compactQuick)
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(child: quick[0]),
+                      SizedBox(width: gap),
+                      Expanded(child: quick[1]),
+                    ],
+                  ),
+                )
+              else
+                _Wrap(
+                  columns: mid ? 2 : 1,
+                  minWidth: 220,
+                  gap: gap,
+                  children: quick,
+                ),
               SizedBox(height: gap),
               if (wide)
                 Row(
@@ -550,13 +566,45 @@ class _QuickCard extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.onTap,
+    this.compact = false,
   });
   final IconData icon;
   final String title, subtitle;
   final VoidCallback onTap;
+  final bool compact;
   @override
   Widget build(BuildContext context) {
     final muted = Theme.of(context).extension<TypeFreeTokens>()!['mutedText'];
+    if (compact) {
+      return ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 112),
+        child: _Card(
+          onTap: onTap,
+          padding: 12,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(icon, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(height: 6),
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                ),
+              ),
+              Text(
+                subtitle,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: muted, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return _Card(
       onTap: onTap,
       child: Row(

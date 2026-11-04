@@ -321,6 +321,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
       saving = false,
       ignoreInput = false;
   bool hidePattern = false, soundOn = true, voiceOn = false, metroOn = false;
+  bool appForeground = true;
   int metroBpm = 120;
   double textSize = 1;
   late AppSection section;
@@ -454,6 +455,8 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
+    final lifecycle = WidgetsBinding.instance.lifecycleState;
+    appForeground = lifecycle == null || lifecycle == AppLifecycleState.resumed;
     final prefs = widget.repository.data['prefs'] as Map;
     final savedMode =
         prefs['appMode'] ??
@@ -644,8 +647,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    appForeground = state == AppLifecycleState.resumed;
     if (state == AppLifecycleState.resumed) {
       headerAssistant.wake();
+      syncMetronome();
     } else {
       appSound.stopMetronome();
       headerAssistant.sleep();
@@ -1219,7 +1224,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   /// Source: the metronome ticks only in ordinary practice, never in menus,
   /// modals, tests or other modes (src/main.ts syncMetronome).
   void syncMetronome() {
-    if (metroOn && section == AppSection.practice) {
+    if (appForeground && metroOn && section == AppSection.practice) {
       appSound.startMetronome(metroBpm);
     } else {
       appSound.stopMetronome();

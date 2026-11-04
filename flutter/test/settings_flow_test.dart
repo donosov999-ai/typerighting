@@ -54,10 +54,21 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(appSound.metronomeRunning, true);
+    app.didChangeAppLifecycleState(AppLifecycleState.paused);
+    expect(appSound.metronomeRunning, false);
+    appearance.preview('classic-blue', ThemeMode.dark);
+    await tester.pump();
+    await tester.pump();
+    expect(appSound.metronomeRunning, false, reason: 'background rebuild must stay silent');
+    app.didChangeAppLifecycleState(AppLifecycleState.resumed);
+    expect(appSound.metronomeRunning, true, reason: 'resume the active practice rhythm');
     await app.showSection(AppSection.settings);
     await tester.pump();
     await tester.pump();
     expect(appSound.metronomeRunning, false);
+    app.didChangeAppLifecycleState(AppLifecycleState.paused);
+    app.didChangeAppLifecycleState(AppLifecycleState.resumed);
+    expect(appSound.metronomeRunning, false, reason: 'menus must stay silent');
 
     // F3: hide the pattern → practice shows the source hint instead of text.
     await tester.tap(find.text('Настройки ввода'));

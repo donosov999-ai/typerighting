@@ -46,6 +46,33 @@ void main() {
     await tester.pumpWidget(const SizedBox());
     appearance.dispose();
   });
+  testWidgets('abandoning a course resets session counters but keeps key evidence', (tester) async {
+    final resources = (await tester.runAsync(Resources.load))!;
+    final repo = LocalRepository(MemoryStore());
+    final appearance = AppearanceController(resources.registry, AppearanceMemory(), existingInstall: true);
+    await tester.binding.setSurfaceSize(const Size(1280, 800));
+    await tester.pumpWidget(TypeFreeApp(initialSection: AppSection.course, resources: resources, repository: repo, appearance: appearance));
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('course-lesson-1')));
+    await tester.pump();
+    final course = tester.state<CoursePageState>(find.byType(CoursePage));
+    final stats = course.widget.keyStatistics;
+    final first = course.attempt!.session.expected!;
+    await tester.enterText(find.byKey(const ValueKey('course-input')), first);
+    await tester.pump();
+    expect(stats.recorder.length, 1);
+    expect(stats.currentStats, isNotEmpty);
+    await tester.tap(find.byIcon(Icons.arrow_back).last);
+    await tester.pump();
+    expect(stats.recorder.length, 0);
+    expect(stats.currentStats, isNotEmpty);
+    await stats.flush();
+    expect(repo.data['legacy']['tr_keystats'], isNotNull);
+    await tester.pumpWidget(const SizedBox());
+    appearance.dispose();
+    await tester.binding.setSurfaceSize(null);
+  });
+
   final data = jsonDecode(
     File('assets/baseline/course.json').readAsStringSync(),
   ) as Map<String, dynamic>;

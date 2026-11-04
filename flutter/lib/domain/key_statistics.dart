@@ -47,6 +47,12 @@ class KeyRecorder {
     return KeyEvidence(id, ok, at, gap, timed);
   }
 
+  /// End an abandoned exercise without discarding the per-key evidence.
+  void discardSession() {
+    _clear();
+    lastAt = 0;
+  }
+
   RecordedHistory take(int now) {
     final result = RecordedHistory(
       length,

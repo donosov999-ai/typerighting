@@ -84,6 +84,9 @@ class CoursePageState extends State<CoursePage> {
 
   @override
   void dispose() {
+    if (attempt != null && !attempt!.finished) {
+      widget.keyStatistics.recorder.discardSession();
+    }
     timer?.cancel();
     entry.removeListener(edit);
     entry.dispose();
@@ -93,6 +96,7 @@ class CoursePageState extends State<CoursePage> {
 
   void start(Map<String, dynamic> l) {
     if (saving || !courseUnlocked(l['id'] as int, stars)) return;
+    widget.keyStatistics.recorder.discardSession();
     final random = Random();
     setState(() {
       lesson = l;
@@ -286,6 +290,7 @@ class CoursePageState extends State<CoursePage> {
               onPressed: saving
                   ? null
                   : () {
+                      if (!a.finished) widget.keyStatistics.recorder.discardSession();
                       setState(() {
                         attempt = null;
                         lesson = null;

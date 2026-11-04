@@ -80,6 +80,42 @@ String speedCopy(String language, String key) {
       'Scalda le dita con parole frequenti',
       'Aqueça os dedos com palavras frequentes',
     ],
+    'warmup.name': [
+      'Разминка',
+      'Warm-up',
+      'Calentamiento',
+      'Aufwärmen',
+      'Échauffement',
+      'Riscaldamento',
+      'Aquecimento',
+    ],
+    'speedTest.name': [
+      'Тест скорости',
+      'Speed test',
+      'Test de velocidad',
+      'Tempotest',
+      'Test de vitesse',
+      'Test di velocità',
+      'Teste de velocidade',
+    ],
+    'min2': [
+      '2 минуты',
+      '2 minutes',
+      '2 minutos',
+      '2 Minuten',
+      '2 minutes',
+      '2 minuti',
+      '2 minutos',
+    ],
+    'min1': [
+      '1 минута',
+      '1 minute',
+      '1 minuto',
+      '1 Minute',
+      '1 minute',
+      '1 minuto',
+      '1 minuto',
+    ],
     'speedTest': [
       'Тест скорости · 1 минута',
       'Speed test · 1 minute',
@@ -275,6 +311,8 @@ class SpeedHome extends StatelessWidget {
           title: t('warmup'),
           subtitle: t('warmup.d'),
           compact: compactQuick,
+          short: t('warmup.name'),
+          shortNote: t('min2'),
           onTap: onWarmup,
         ),
         _QuickCard(
@@ -283,6 +321,8 @@ class SpeedHome extends StatelessWidget {
           title: t('speedTest'),
           subtitle: t('speedTest.d'),
           compact: compactQuick,
+          short: t('speedTest.name'),
+          shortNote: t('min1'),
           onTap: onSpeedTest,
         ),
         _QuickCard(
@@ -291,6 +331,7 @@ class SpeedHome extends StatelessWidget {
           title: customTitle,
           subtitle: t('custom.d'),
           compact: compactQuick,
+          short: customTitle,
           onTap: onCustomText,
         ),
       ];
@@ -494,35 +535,40 @@ class _Hero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scale = MediaQuery.textScalerOf(context).scale(1);
+    // Phone: the artwork is fitted to the width and pinned to the top, so the
+    // keys sit above the text and the two-line title lands on the dark lower
+    // part of the picture (the mockup), not on the lit keys (snapshot 04.11).
+    final narrow = MediaQuery.sizeOf(context).width < 600;
     // Both theme variants keep the dark header with white text (ref §2).
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: Container(
         constraints: BoxConstraints(minHeight: height * scale.clamp(1, 1.6)),
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: _heroShade,
           image: DecorationImage(
-            image: AssetImage(speedHeroAsset),
-            fit: BoxFit.cover,
-            alignment: Alignment.centerRight,
+            image: const AssetImage(speedHeroAsset),
+            fit: narrow ? BoxFit.fitWidth : BoxFit.cover,
+            alignment: narrow ? Alignment.topRight : Alignment.centerRight,
           ),
         ),
         foregroundDecoration: null,
         child: DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.bottomLeft,
-              end: Alignment.topRight,
+              begin: narrow ? Alignment.bottomCenter : Alignment.bottomLeft,
+              end: narrow ? Alignment.topCenter : Alignment.topRight,
               colors: [
-                _heroShade.withValues(alpha: .92),
-                _heroShade.withValues(alpha: .55),
+                _heroShade.withValues(alpha: narrow ? 1 : .92),
+                _heroShade.withValues(alpha: narrow ? .9 : .55),
                 _heroShade.withValues(alpha: 0),
               ],
-              stops: const [0, .5, 1],
+              // Phone: opaque under the text, hides the artwork's lower edge.
+              stops: narrow ? const [0, .45, .75] : const [0, .5, 1],
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
+            padding: EdgeInsets.fromLTRB(20, narrow ? 150 : 24, 20, 20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
@@ -532,7 +578,7 @@ class _Hero extends StatelessWidget {
                   child: Text.rich(
                     TextSpan(
                       children: [
-                        TextSpan(text: '$title1 '),
+                        TextSpan(text: narrow ? '$title1\n' : '$title1 '),
                         TextSpan(
                           text: title2,
                           style: const TextStyle(color: _accent),
@@ -596,11 +642,18 @@ class _QuickCard extends StatelessWidget {
     required this.subtitle,
     required this.onTap,
     this.compact = false,
+    this.short,
+    this.shortNote = '',
   });
   final IconData icon;
   final String title, subtitle;
   final VoidCallback onTap;
   final bool compact;
+
+  /// Phone row (mockup): a short name and the duration instead of the full
+  /// title and description, so three cards stay readable side by side.
+  final String? short;
+  final String shortNote;
   @override
   Widget build(BuildContext context) {
     final muted = Theme.of(context).extension<TypeFreeTokens>()!['mutedText'];
@@ -617,17 +670,26 @@ class _QuickCard extends StatelessWidget {
               Icon(icon, color: Theme.of(context).colorScheme.primary),
               const SizedBox(height: 6),
               Text(
-                title,
+                short ?? title,
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontWeight: FontWeight.w700,
-                  fontSize: 13,
+                  fontSize: 14,
                 ),
               ),
-              Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: TextStyle(color: muted, fontSize: 12),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Text(
+                      short == null ? subtitle : shortNote,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: muted, fontSize: 12.5),
+                    ),
+                  ),
+                  if (short != null)
+                    Icon(Icons.chevron_right, size: 16, color: muted),
+                ],
               ),
             ],
           ),

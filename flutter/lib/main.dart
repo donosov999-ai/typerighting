@@ -1623,7 +1623,23 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                 icon: const Icon(Icons.arrow_back),
               )
             : null,
-        title: section == AppSection.today
+        title: section == AppSection.today && speedLayout && !railShown(c)
+            // Speed home on a phone (mockup): the TypeFree wordmark; wide
+            // screens show it in the rail and keep «Сегодня» here.
+            ? Text.rich(
+                TextSpan(
+                  children: [
+                    const TextSpan(text: 'Type'),
+                    TextSpan(
+                      text: 'Free',
+                      style: TextStyle(color: Theme.of(c).colorScheme.primary),
+                    ),
+                  ],
+                ),
+                key: const ValueKey('home-wordmark'),
+                style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
+              )
+            : section == AppSection.today
             ? Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -2389,6 +2405,13 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     );
   }
 
+  /// The template asks for the speed home (midnight-speed-v1).
+  bool get speedLayout =>
+      widget.appearance.registry
+          .resolve(widget.appearance.selection.templateId)
+          .layoutId ==
+      'speed-home-v1';
+
   /// Average WPM of this profile per day, the last seven days (null = none).
   List<double?> weekWpm() {
     final now = DateTime.now();
@@ -2440,10 +2463,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     final title =
         tr(lesson['titleKey'] as String) +
         (lesson['titleArg'] == null ? '' : ': ${lesson['titleArg']}');
-    final layout = widget.appearance.registry
-        .resolve(widget.appearance.selection.templateId)
-        .layoutId;
-    if (layout == 'speed-home-v1') {
+    if (speedLayout) {
       return SpeedHome(
         migrationNotice: migrationNotice(),
         language: language,

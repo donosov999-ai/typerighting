@@ -370,6 +370,7 @@ class CompetitionPageState extends State<CompetitionPage> {
               for (final d in competitionDisciplines)
                 _DisciplineRow(
                   key: ValueKey('competition-$d'),
+                  accentBadge: d == 'alpha_fwd' || d == 'sprint',
                   badge: const {
                     'alpha_fwd': 'АБ',
                     'alpha_rev': 'ЯА',
@@ -800,13 +801,13 @@ String competitionCopy(String language, String key) {
       'Corra contra seu replay',
     ],
     'local': [
-      'LOCAL · Рейтинг, лига и вызовы по ссылке в этой сборке ещё не подключены. Результаты никуда не отправляются.',
-      'LOCAL · Leaderboard, league and challenge links are not connected in this build. Results stay on this device.',
-      'LOCAL · Clasificación, liga y enlaces de desafío aún no conectados. Los resultados quedan en este dispositivo.',
-      'LOCAL · Rangliste, Liga und Herausforderungslinks sind noch nicht verbunden. Ergebnisse bleiben auf diesem Gerät.',
-      'LOCAL · Classement, ligue et liens de défi non connectés. Les résultats restent sur cet appareil.',
-      'LOCAL · Classifica, lega e link di sfida non collegati. I risultati restano sul dispositivo.',
-      'LOCAL · Ranking, liga e links de desafio não conectados. Os resultados ficam neste dispositivo.',
+      'Результаты сохраняются на этом устройстве. Онлайн-рейтинг, лига и вызовы пока недоступны.',
+      'Results stay on this device. Online rankings, league and challenges are not available yet.',
+      'Los resultados se guardan en este dispositivo. La clasificación, la liga y los desafíos aún no están disponibles.',
+      'Ergebnisse bleiben auf diesem Gerät. Online-Rangliste, Liga und Herausforderungen sind noch nicht verfügbar.',
+      'Les résultats restent sur cet appareil. Le classement en ligne, la ligue et les défis ne sont pas encore disponibles.',
+      'I risultati restano su questo dispositivo. Classifica online, lega e sfide non sono ancora disponibili.',
+      'Os resultados ficam neste dispositivo. Ranking online, liga e desafios ainda não estão disponíveis.',
     ],
   };
   final i = languages.indexOf(language);
@@ -817,6 +818,7 @@ class _DisciplineRow extends StatelessWidget {
   const _DisciplineRow({
     super.key,
     required this.badge,
+    required this.accentBadge,
     required this.title,
     required this.preview,
     required this.bestLabel,
@@ -826,6 +828,7 @@ class _DisciplineRow extends StatelessWidget {
     this.replay,
   });
   final String? badge, best;
+  final bool accentBadge;
   final String title, preview, bestLabel, unit;
   final VoidCallback onTap;
   final Widget? replay;
@@ -834,6 +837,11 @@ class _DisciplineRow extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final tokens = Theme.of(context).extension<TypeFreeTokens>()!;
     final muted = scheme.onSurfaceVariant;
+    final badgeColor = accentBadge
+        ? scheme.primary
+        : scheme.brightness == Brightness.dark
+        ? const Color(0xFF68D7F2)
+        : const Color(0xFF08728D);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
@@ -855,15 +863,15 @@ class _DisciplineRow extends StatelessWidget {
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: scheme.primary, width: 1.5),
+                    border: Border.all(color: badgeColor, width: 1.5),
                   ),
                   child: badge == null
-                      ? Icon(Icons.bolt, color: scheme.primary)
+                      ? Icon(Icons.bolt, color: badgeColor)
                       : Text(
                           badge!,
                           style: TextStyle(
                             fontWeight: FontWeight.w800,
-                            color: scheme.primary,
+                            color: badgeColor,
                           ),
                         ),
                 ),

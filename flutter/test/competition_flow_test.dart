@@ -11,6 +11,34 @@ import 'storage_transfer_test.dart' show MemoryStore;
 import 'practice_flow_test.dart' show AppearanceMemory;
 
 void main() {
+  testWidgets('abandoned race does not pollute the next session but keeps key data', (tester) async {
+    final resources = (await tester.runAsync(Resources.load))!;
+    final repo = LocalRepository(MemoryStore());
+    await repo.transaction((doc) => (doc['prefs'] as Map).addAll(<String, dynamic>{'lang': 'en', 'pet': false, 'motion': false}));
+    final appearance = AppearanceController(resources.registry, AppearanceMemory(), existingInstall: false);
+    final appKey = GlobalKey<TypeFreeAppState>();
+    await tester.binding.setSurfaceSize(const Size(1280, 900));
+    await tester.pumpWidget(TypeFreeApp(key: appKey, initialSection: AppSection.compete, resources: resources, repository: repo, appearance: appearance));
+    await tester.pump();
+    final page = appKey.currentState!.competitionKey.currentState!;
+    page.start('alpha_fwd');
+    await tester.pump();
+    await tester.enterText(find.byKey(const ValueKey('competition-input')), page.engine!.typing.pattern[0]);
+    await tester.pump();
+    final stats = appKey.currentState!.keyStatistics;
+    expect(stats.recorder.length, 1);
+    expect(stats.currentStats, isNotEmpty);
+    page.start('alpha_rev');
+    await tester.pump();
+    expect(stats.recorder.length, 0);
+    expect(stats.currentStats, isNotEmpty);
+    await stats.flush();
+    expect(repo.data['legacy']['tr_keystats'], isNotNull);
+    await tester.pumpWidget(const SizedBox());
+    appearance.dispose();
+    await tester.binding.setSurfaceSize(null);
+  });
+
   testWidgets(
     'actual competition route, five disciplines, blocked typing, retry and persisted replay',
     (tester) async {

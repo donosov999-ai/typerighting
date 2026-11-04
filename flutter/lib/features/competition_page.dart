@@ -107,6 +107,9 @@ class CompetitionPageState extends State<CompetitionPage> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.language != widget.language ||
         oldWidget.profile != widget.profile) {
+      if (engine != null && engine!.result == null) {
+        widget.keyStatistics.recorder.discardSession();
+      }
       ghostTimer?.cancel();
       engine = null;
       ghost = [];
@@ -122,6 +125,7 @@ class CompetitionPageState extends State<CompetitionPage> {
   }
 
   void start(String discipline, {Map<String, dynamic>? replay}) {
+    widget.keyStatistics.recorder.discardSession();
     ghostTimer?.cancel();
     setState(() {
       id =
@@ -310,6 +314,9 @@ class CompetitionPageState extends State<CompetitionPage> {
 
   @override
   void dispose() {
+    if (engine != null && engine!.result == null) {
+      widget.keyStatistics.recorder.discardSession();
+    }
     ghostTimer?.cancel();
     entry.removeListener(edit);
     entry.dispose();
@@ -387,6 +394,9 @@ class CompetitionPageState extends State<CompetitionPage> {
                         ? null
                         : () async {
                             if (await finishAndSave() && mounted) {
+                              if (engine?.result == null) {
+                                widget.keyStatistics.recorder.discardSession();
+                              }
                               ghostTimer?.cancel();
                               setState(() => engine = null);
                             }

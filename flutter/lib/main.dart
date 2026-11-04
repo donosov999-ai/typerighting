@@ -1022,8 +1022,165 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   bool railShown(BuildContext c) =>
       section != AppSection.companion && MediaQuery.sizeOf(c).width >= 1100;
 
+  /// Speed home on a wide screen (design ref §4, 29.10): a 224 px sidebar —
+  /// Today, Practice, Course, Library, My assignments, Progress; Settings,
+  /// More and language at the bottom. Nothing from the rail is removed («Ещё»
+  /// keeps every other page); assignments need the account, so the row is
+  /// locked and opens its honest status page.
+  Widget speedSidebar(BuildContext c) {
+    final scheme = Theme.of(c).colorScheme;
+    final tokens = Theme.of(c).extension<TypeFreeTokens>()!;
+    Widget item(
+      IconData icon,
+      String label,
+      bool selected,
+      VoidCallback onTap, {
+      bool locked = false,
+      Key? key,
+    }) => Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      child: Material(
+        color: selected ? scheme.primary.withValues(alpha: .18) : Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
+        child: InkWell(
+          key: key,
+          borderRadius: BorderRadius.circular(12),
+          onTap: onTap,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 48),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                children: [
+                  Icon(icon, color: selected ? scheme.primary : null),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      label,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                        color: selected ? scheme.primary : null,
+                      ),
+                    ),
+                  ),
+                  if (locked)
+                    Icon(Icons.lock_outline, size: 16, color: tokens['mutedText']),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    void go(AppSection s) {
+      companionMode = false;
+      showSection(s);
+    }
+
+    return Container(
+      width: 224,
+      color: tokens['surface'],
+      child: SafeArea(
+        right: false,
+        // Scrolls only when it does not fit (large text, low window); the
+        // bottom group stays pinned otherwise.
+        child: LayoutBuilder(
+          builder: (c, box) => SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: box.maxHeight),
+              child: IntrinsicHeight(
+                child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 16, 20),
+              child: Text.rich(
+                TextSpan(
+                  children: [
+                    const TextSpan(text: 'Type'),
+                    TextSpan(
+                      text: 'Free',
+                      style: TextStyle(color: scheme.primary),
+                    ),
+                  ],
+                ),
+                style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800),
+              ),
+            ),
+            item(Icons.home_outlined, shellText(language, 'today'),
+                section == AppSection.today, () => go(AppSection.today),
+                key: const ValueKey('side-today')),
+            item(Icons.keyboard_outlined, shellText(language, 'practice'),
+                section == AppSection.practiceMenu || section == AppSection.practice,
+                () => go(AppSection.practiceMenu),
+                key: const ValueKey('side-practice')),
+            item(Icons.menu_book_outlined, tr('course.title'),
+                section == AppSection.course, () {
+              companionMode = false;
+              setState(() {
+                courseStartLessonId = null;
+                section = AppSection.course;
+              });
+            }, key: const ValueKey('side-course')),
+            item(Icons.description_outlined, libraryCopy(language, 'title'),
+                section == AppSection.library, () => go(AppSection.library),
+                key: const ValueKey('side-library')),
+            item(Icons.assignment_outlined, speedCopy(language, 'assignments'),
+                section == AppSection.account, () => go(AppSection.account),
+                locked: true, key: const ValueKey('side-assignments')),
+            item(Icons.insights_outlined, shellText(language, 'progress'),
+                section == AppSection.progress || section == AppSection.weakKeys,
+                () => go(AppSection.progress),
+                key: const ValueKey('side-progress')),
+            const Spacer(),
+            item(Icons.settings_outlined, tr('hub.settings'),
+                section == AppSection.settings, settings,
+                key: const ValueKey('side-settings')),
+            item(Icons.more_horiz, shellText(language, 'more'),
+                section == AppSection.more, () => go(AppSection.more),
+                key: const ValueKey('side-more')),
+            item(Icons.language, language.toUpperCase(),
+                section == AppSection.profileLanguage,
+                () => go(AppSection.profileLanguage),
+                key: const ValueKey('side-language')),
+            const SizedBox(height: 12),
+          ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Trainer screens keep the narrow rail even in the speed template: the
+  /// 224 px sidebar would push a 1280 px laptop below the 1100 px two-column
+  /// practice layout (ref §4: the home must not take the trainer's space).
+  static const trainerSections = {
+    AppSection.practice,
+    AppSection.course,
+    AppSection.learn,
+    AppSection.compete,
+    AppSection.memorize,
+    AppSection.recall,
+    AppSection.exam,
+    AppSection.kids,
+  };
+
   Widget withRail(BuildContext c, Widget body) {
     if (!railShown(c)) return body;
+    if (speedLayout && !trainerSections.contains(section)) {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          speedSidebar(c),
+          const VerticalDivider(width: 1),
+          Expanded(child: body),
+        ],
+      );
+    }
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [

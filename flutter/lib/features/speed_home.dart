@@ -98,6 +98,15 @@ String speedCopy(String language, String key) {
       'Test di velocità',
       'Teste de velocidade',
     ],
+    'assignments': [
+      'Мои задания',
+      'My assignments',
+      'Mis tareas',
+      'Meine Aufgaben',
+      'Mes devoirs',
+      'I miei compiti',
+      'Minhas tarefas',
+    ],
     'min2': [
       '2 минуты',
       '2 minutes',

@@ -221,4 +221,41 @@ void main() {
       expect(tester.takeException(), isNull);
     },
   );
+
+  testWidgets('wide: sidebar opens each page, assignments show status', (
+    tester,
+  ) async {
+    final (key, _) = await open(tester, const Size(1280, 800));
+    final app = key.currentState!;
+    for (final (id, section) in [
+      ('side-practice', AppSection.practiceMenu),
+      ('side-library', AppSection.library),
+      ('side-assignments', AppSection.account),
+      ('side-progress', AppSection.progress),
+      ('side-settings', AppSection.settings),
+      ('side-more', AppSection.more),
+      ('side-language', AppSection.profileLanguage),
+      ('side-today', AppSection.today),
+    ]) {
+      await tester.tap(find.byKey(ValueKey(id)));
+      await tester.pump();
+      await tester.pump();
+      expect(app.section, section, reason: id);
+    }
+    expect(find.byType(NavigationRail), findsNothing);
+    // Trainer screens keep the narrow rail and the two-column layout at 1280.
+    await tester.tap(find.byKey(const ValueKey('side-course')));
+    await tester.pump();
+    await tester.pump();
+    expect(app.section, AppSection.course);
+    expect(find.byType(NavigationRail), findsOneWidget);
+    expect(find.byKey(const ValueKey('side-today')), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('wide sidebar fits 1100 px with large text', (tester) async {
+    await open(tester, const Size(1100, 700), text: 1.6);
+    expect(find.byKey(const ValueKey('side-assignments')), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }

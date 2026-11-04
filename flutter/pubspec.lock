@@ -613,19 +613,23 @@ packages:
     source: hosted
     version: "1.4.1"
   synapse_advisor:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-private-runtime-20261025/synapse_advisor"
-      relative: false
-    source: path
+      path: "packages/synapse_advisor"
+      ref: "1de61172fc20788c57d2bd030787ff6fedf8d1e8"
+      resolved-ref: "1de61172fc20788c57d2bd030787ff6fedf8d1e8"
+      url: "https://github.com/donosov999-ai/mascot-engine.git"
+    source: git
     version: "0.1.0"
   synapse_pet:
     dependency: "direct main"
     description:
-      path: "/Users/denisonosov/Downloads/Helper codex/typefree-flutter-private-runtime-20261025/synapse_pet"
-      relative: false
-    source: path
-    version: "0.1.1"
+      path: "packages/synapse_pet"
+      ref: "1de61172fc20788c57d2bd030787ff6fedf8d1e8"
+      resolved-ref: "1de61172fc20788c57d2bd030787ff6fedf8d1e8"
+      url: "https://github.com/donosov999-ai/mascot-engine.git"
+    source: git
+    version: "0.1.0"
   sync_http:
     dependency: transitive
     description:

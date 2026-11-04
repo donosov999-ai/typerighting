@@ -722,7 +722,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     }
     previousInput = text;
     if (headerAssistant.pose != SynapsePose.idle) {
-      headerAssistant.preview(SynapsePreviewAction.idle);
+      headerAssistant.idle();
     }
     setState(() {});
     if (session.finished) unawaited(saveResult());
@@ -1052,7 +1052,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
 
   Future<void> openAssistant() async {
     if (!pet) return;
-    headerAssistant.preview(SynapsePreviewAction.greeting);
+    headerAssistant.greet();
     if (MediaQuery.sizeOf(surface).width >= 960) {
       setState(() => synapseSide = !synapseSide);
       return;
@@ -1982,7 +1982,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       onAI: () => unawaited(showSection(AppSection.learn)),
                       onTyping: () {
                         if (headerAssistant.pose != SynapsePose.idle) {
-                          headerAssistant.preview(SynapsePreviewAction.idle);
+                          headerAssistant.idle();
                         }
                       },
                     );
@@ -2005,7 +2005,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       onExit: () => showSection(menuHome),
                       onTyping: () {
                         if (headerAssistant.pose != SynapsePose.idle) {
-                          headerAssistant.preview(SynapsePreviewAction.idle);
+                          headerAssistant.idle();
                         }
                       },
                       onSaved: (point, earlier) async {
@@ -2046,7 +2046,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       clock: widget.clock,
                       onTyping: () {
                         if (headerAssistant.pose != SynapsePose.idle) {
-                          headerAssistant.preview(SynapsePreviewAction.idle);
+                          headerAssistant.idle();
                         }
                       },
                       onSaved: (point, earlier) async {
@@ -2086,7 +2086,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       clock: widget.clock,
                       onTyping: () {
                         if (headerAssistant.pose != SynapsePose.idle) {
-                          headerAssistant.preview(SynapsePreviewAction.idle);
+                          headerAssistant.idle();
                         }
                       },
                       onSaved: (point, earlier) async {
@@ -2124,7 +2124,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       onExit: () => showSection(menuHome),
                       onTyping: () {
                         if (headerAssistant.pose != SynapsePose.idle) {
-                          headerAssistant.preview(SynapsePreviewAction.idle);
+                          headerAssistant.idle();
                         }
                       },
                       onSaved: (point, earlier) async {
@@ -2169,7 +2169,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       hardKeys: hardKeys,
                       onTyping: () {
                         if (headerAssistant.pose != SynapsePose.idle) {
-                          headerAssistant.preview(SynapsePreviewAction.idle);
+                          headerAssistant.idle();
                         }
                       },
                       onExit: () => showSection(menuHome),

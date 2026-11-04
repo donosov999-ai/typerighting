@@ -327,7 +327,7 @@ class CoursePageState extends State<CoursePage> {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 6),
             child: Text(
-              '${a.session.stats.wpm} WPM · ${a.session.stats.accuracy}% · ${a.errors} ошибок за урок',
+              '${a.session.stats.wpm} WPM · ${a.session.stats.accuracy}% · ${_courseCopy(widget.language, 'lessonErrors')}: ${a.errors}',
             ),
           ),
         ],
@@ -408,7 +408,7 @@ class CoursePageState extends State<CoursePage> {
           Wrap(
             spacing: 12,
             children: [
-              if (saving) const Text('Сохранение…'),
+              if (saving) Text(commonCopy(widget.language, 'saving')),
               if (!saved && !saving)
                 FilledButton(
                   onPressed: saveResult,
@@ -448,6 +448,15 @@ class CoursePageState extends State<CoursePage> {
 String _courseCopy(String language, String key) {
   const langs = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
   const words = <String, List<String>>{
+    'lessonErrors': [
+      'Ошибки за урок',
+      'Lesson errors',
+      'Errores de la lección',
+      'Fehler in der Lektion',
+      'Erreurs de la leçon',
+      'Errori della lezione',
+      'Erros da lição',
+    ],
     'lastLine': [
       'Скорость и время — по последней строке, ошибки — за весь урок',
       'Speed and time: last line; errors: whole lesson',

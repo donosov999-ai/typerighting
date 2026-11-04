@@ -14,6 +14,38 @@ import 'storage_transfer_test.dart' show MemoryStore;
 import 'practice_flow_test.dart' show AppearanceMemory;
 
 void main() {
+  testWidgets('English course labels lesson errors in English', (tester) async {
+    final resources = (await tester.runAsync(Resources.load))!;
+    final repo = LocalRepository(MemoryStore());
+    await repo.transaction(
+      (doc) => (doc['prefs'] as Map).addAll(<String, dynamic>{
+        'lang': 'en',
+        'profile': 'f',
+        'pet': false,
+        'motion': false,
+      }),
+    );
+    final appearance = AppearanceController(
+      resources.registry,
+      AppearanceMemory(),
+      existingInstall: true,
+    );
+    await tester.pumpWidget(
+      TypeFreeApp(
+        initialSection: AppSection.course,
+        resources: resources,
+        repository: repo,
+        appearance: appearance,
+      ),
+    );
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('course-lesson-1')));
+    await tester.pump();
+    expect(find.textContaining('Lesson errors: 0'), findsOneWidget);
+    expect(find.textContaining('ошибок за урок'), findsNothing);
+    await tester.pumpWidget(const SizedBox());
+    appearance.dispose();
+  });
   final data = jsonDecode(
     File('assets/baseline/course.json').readAsStringSync(),
   ) as Map<String, dynamic>;

@@ -76,6 +76,9 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
         oldWidget.profile != widget.profile ||
         oldWidget.keyboard.snapshot['layoutName'] !=
             widget.keyboard.snapshot['layoutName']) {
+      if (engine != null && engine!.result == null) {
+        widget.keyStatistics.recorder.discardSession();
+      }
       phaseTimer?.cancel();
       engine = null;
       resetCheckpoint();
@@ -131,6 +134,7 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
     if (saving) return;
     phaseTimer?.cancel();
     try {
+      widget.keyStatistics.recorder.discardSession();
       setState(() {
         if (engine == null) {
           engine = RecallSession(
@@ -355,6 +359,9 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
 
   Future<void> toMenu() async {
     if (await checkpointForExit() && mounted) {
+      if (engine?.result == null) {
+        widget.keyStatistics.recorder.discardSession();
+      }
       setState(() {
         engine = null;
         exiting = false;
@@ -364,6 +371,9 @@ class RecallPageState extends State<RecallPage> with WidgetsBindingObserver {
 
   @override
   void dispose() {
+    if (engine != null && engine!.result == null) {
+      widget.keyStatistics.recorder.discardSession();
+    }
     phaseTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     entry.removeListener(edit);

@@ -55,6 +55,34 @@ Future<void> enterRecallText(
 }
 
 void main() {
+  testWidgets('abandoned memory round retains keys without contaminating another round', (tester) async {
+    final resources = (await tester.runAsync(Resources.load))!;
+    final repo = LocalRepository(MemoryStore());
+    await repo.transaction((doc) => (doc['prefs'] as Map).addAll(<String, dynamic>{'lang': 'en', 'pet': false, 'motion': false}));
+    final appearance = AppearanceController(resources.registry, AppearanceMemory(), existingInstall: false);
+    final key = GlobalKey<TypeFreeAppState>();
+    await tester.binding.setSurfaceSize(const Size(1280, 900));
+    await tester.pumpWidget(TypeFreeApp(key: key, initialSection: AppSection.recall, resources: resources, repository: repo, appearance: appearance));
+    await tester.pump();
+    final page = key.currentState!.recallKey.currentState!;
+    page.startRound();
+    await tester.pump();
+    page.hide();
+    await tester.pump();
+    await tester.enterText(find.byKey(const ValueKey('recall-input')), page.engine!.typing.pattern[0]);
+    await tester.pump();
+    final stats = key.currentState!.keyStatistics;
+    expect(stats.recorder.length, 1);
+    await page.toMenu();
+    await tester.pump();
+    expect(stats.recorder.length, 0);
+    expect(stats.currentStats, isNotEmpty);
+    expect(repo.data['legacy']['tr_keystats'], isNotNull);
+    await tester.pumpWidget(const SizedBox());
+    appearance.dispose();
+    await tester.binding.setSurfaceSize(null);
+  });
+
   testWidgets(
     'auto hide boundary, masked hints, failed save gate, untimed keys, reload and reveal timer disposal',
     (tester) async {

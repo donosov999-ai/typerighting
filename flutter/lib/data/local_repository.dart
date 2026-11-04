@@ -119,6 +119,14 @@ class LocalRepository {
         (legacyName is! String || legacyName.length > 1000000)) {
       throw const FormatException('Invalid preserved legacy name');
     }
+    final nameCopies = prefs['webviewNameCopies'];
+    if (nameCopies != null &&
+        (nameCopies is! List ||
+            nameCopies.length > 20 ||
+            !nameCopies.every((name) => name is String && name.isNotEmpty) ||
+            nameCopies.fold<int>(0, (sum, name) => sum + (name as String).length) > 1000000)) {
+      throw const FormatException('Invalid local certificate recovery data');
+    }
     for (final profile in ['m', 'f', 'kids']) {
       final name = prefs['certificateName_$profile'];
       if (name != null && (name is! String || name.length > 512)) {

@@ -74,6 +74,18 @@ Future<WebviewMigrationOutcome> importWebviewValues(
         final existing = prefs['legacyCertificateName'];
         if (existing != null && existing != legacyName) {
           nameConflict = true;
+          // Names are personal: keep bounded local-only recovery copies, never
+          // in the transferable history or WebView conflict export.
+          final copies = List<String>.from(
+            (prefs['webviewNameCopies'] as List?) ?? const <String>[],
+          );
+          final total = copies.fold<int>(0, (sum, value) => sum + value.length);
+          if (!copies.contains(legacyName) &&
+              copies.length < 20 && total + legacyName.length <= 1000000) {
+            copies.add(legacyName);
+            prefs['webviewNameCopies'] = copies;
+          }
+          prefs['webviewNameConflict'] = true;
           return;
         }
         prefs.putIfAbsent('legacyCertificateName', () => legacyName);

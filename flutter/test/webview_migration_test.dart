@@ -281,6 +281,23 @@ void main() {
     expect(reloaded.data['prefs']['legacyCertificateName'], 'Old name');
   });
 
+  test('conflicting names remain local and survive retry and reload', () async {
+    final store = MemoryStore();
+    final repo = LocalRepository(store);
+    await repo.load();
+    await importWebviewValues(repo, {'tr_name': 'First name'});
+    await repo.transaction((d) => (d['prefs'] as Map).remove(webviewMigrationFlag));
+    await importWebviewValues(repo, {'tr_name': 'Second name'});
+    await importWebviewValues(repo, {'tr_name': 'Second name'});
+    final reloaded = LocalRepository(store);
+    await reloaded.load();
+    expect(reloaded.data['prefs']['legacyCertificateName'], 'First name');
+    expect(reloaded.data['prefs']['webviewNameCopies'], ['Second name']);
+    expect((reloaded.data['legacy'] as Map).containsKey('tr_name'), false);
+    expect((reloaded.data['webviewPending'] as Map?) ?? {}, isEmpty);
+    expect(needsWebviewMigration(reloaded.data), true);
+  });
+
   test('oversized certificate name stays pending after an empty reread', () async {
     final store = MemoryStore();
     final repo = LocalRepository(store);

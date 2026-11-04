@@ -13,6 +13,36 @@ import 'storage_transfer_test.dart' show MemoryStore;
 import 'practice_flow_test.dart' show AppearanceMemory;
 
 void main() {
+  testWidgets('abandoned memorization keeps key evidence separate from next session', (tester) async {
+    final resources = (await tester.runAsync(Resources.load))!;
+    final repo = LocalRepository(MemoryStore());
+    await repo.transaction((doc) => (doc['prefs'] as Map).addAll(<String, dynamic>{'lang': 'en', 'pet': false, 'motion': false}));
+    final appearance = AppearanceController(resources.registry, AppearanceMemory(), existingInstall: false);
+    final key = GlobalKey<TypeFreeAppState>();
+    await tester.binding.setSurfaceSize(const Size(1280, 900));
+    await tester.pumpWidget(TypeFreeApp(key: key, initialSection: AppSection.memorize, resources: resources, repository: repo, appearance: appearance));
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey('memorize-source-classic')));
+    await tester.pump();
+    await tester.ensureVisible(find.byKey(const ValueKey('memorize-piece-0')));
+    await tester.tap(find.byKey(const ValueKey('memorize-piece-0')));
+    await tester.pump();
+    final page = key.currentState!.memorizeKey.currentState!;
+    await tester.ensureVisible(find.byKey(const ValueKey('memorize-input')));
+    await tester.enterText(find.byKey(const ValueKey('memorize-input')), page.engine!.typing.expected!);
+    await tester.pump();
+    final stats = key.currentState!.keyStatistics;
+    expect(stats.recorder.length, 1);
+    await page.toMenu();
+    await tester.pump();
+    expect(stats.recorder.length, 0);
+    expect(stats.currentStats, isNotEmpty);
+    expect(repo.data['legacy']['tr_keystats'], isNotNull);
+    await tester.pumpWidget(const SizedBox());
+    appearance.dispose();
+    await tester.binding.setSurfaceSize(null);
+  });
+
   testWidgets(
     'five actual passes, hidden semantics/keyboard, untimed keys, failed final save and length progression',
     (tester) async {

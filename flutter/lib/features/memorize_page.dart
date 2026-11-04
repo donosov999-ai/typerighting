@@ -76,6 +76,9 @@ class MemorizePageState extends State<MemorizePage> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.language != widget.language ||
         oldWidget.profile != widget.profile) {
+      if (engine != null && engine!.result == null) {
+        widget.keyStatistics.recorder.discardSession();
+      }
       engine = null;
       page = 0;
       clearInput();
@@ -99,6 +102,7 @@ class MemorizePageState extends State<MemorizePage> {
   }
 
   void start(int index) {
+    widget.keyStatistics.recorder.discardSession();
     setState(() {
       runId =
           'memorize-${DateTime.now().microsecondsSinceEpoch}-${Random().nextInt(0x7fffffff)}';
@@ -270,6 +274,9 @@ class MemorizePageState extends State<MemorizePage> {
 
   Future<void> toMenu() async {
     if (await finishAndSave() && mounted) {
+      if (engine?.result == null) {
+        widget.keyStatistics.recorder.discardSession();
+      }
       setState(() {
         engine = null;
         page = 0;
@@ -279,6 +286,9 @@ class MemorizePageState extends State<MemorizePage> {
 
   @override
   void dispose() {
+    if (engine != null && engine!.result == null) {
+      widget.keyStatistics.recorder.discardSession();
+    }
     entry.removeListener(edit);
     entry.dispose();
     focus.dispose();

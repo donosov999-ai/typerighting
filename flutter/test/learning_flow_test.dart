@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -9,6 +10,21 @@ import 'package:typefree_flutter_foundation/features/learning_page.dart';
 
 import 'storage_transfer_test.dart' show MemoryStore;
 import 'practice_flow_test.dart' show AppearanceMemory;
+
+class DelayedLearningStore extends MemoryStore {
+  Completer<void>? gate;
+  Completer<void>? entered;
+  @override
+  Future<void> write(String key, String value) async {
+    final current = gate;
+    if (current != null) {
+      entered?.complete();
+      gate = null;
+      await current.future;
+    }
+    await super.write(key, value);
+  }
+}
 
 Future<void> typeLine(
   WidgetTester tester,
@@ -33,6 +49,68 @@ Future<void> typeLine(
 }
 
 void main() {
+  testWidgets('new key events survive delayed completion of an ineligible AI session', (tester) async {
+    final resources = (await tester.runAsync(Resources.load))!;
+    final store = DelayedLearningStore();
+    final repo = LocalRepository(store);
+    await repo.transaction((doc) => (doc['prefs'] as Map).addAll(<String, dynamic>{'lang': 'en', 'pet': false, 'motion': false}));
+    final appearance = AppearanceController(resources.registry, AppearanceMemory(), existingInstall: false);
+    final key = GlobalKey<TypeFreeAppState>();
+    await tester.binding.setSurfaceSize(const Size(1280, 900));
+    await tester.pumpWidget(TypeFreeApp(key: key, initialSection: AppSection.learn, resources: resources, repository: repo, appearance: appearance));
+    await tester.pump();
+    final page = key.currentState!.learningKey.currentState!;
+    final stats = key.currentState!.keyStatistics;
+    await tester.enterText(find.byKey(const ValueKey('learning-input')), '§');
+    await tester.pump();
+    expect(page.engine.metrics['mastery'], 0);
+    final gate = Completer<void>();
+    store.gate = gate;
+    store.entered = Completer<void>();
+    final saving = page.finishAndSave();
+    await tester.pump();
+    expect(store.entered!.isCompleted, true);
+    expect(stats.recorder.length, 0);
+    stats.record('z', true, 100000);
+    expect(stats.recorder.length, 1);
+    gate.complete();
+    await tester.pump();
+    expect(await saving, true);
+    expect(stats.recorder.length, 1);
+    await stats.flush();
+    final persisted = jsonDecode(repo.data['legacy']['tr_keystats']) as Map;
+    expect(persisted['z']['ok'], 1);
+    expect(repo.data['sessions'], isEmpty);
+    await tester.pumpWidget(const SizedBox());
+    appearance.dispose();
+    await tester.binding.setSurfaceSize(null);
+  });
+
+  testWidgets('AI with no mastery does not carry abandoned errors into the next session', (tester) async {
+    final resources = (await tester.runAsync(Resources.load))!;
+    final repo = LocalRepository(MemoryStore());
+    await repo.transaction((doc) => (doc['prefs'] as Map).addAll(<String, dynamic>{'lang': 'en', 'pet': false, 'motion': false}));
+    final appearance = AppearanceController(resources.registry, AppearanceMemory(), existingInstall: false);
+    final key = GlobalKey<TypeFreeAppState>();
+    await tester.binding.setSurfaceSize(const Size(1280, 900));
+    await tester.pumpWidget(TypeFreeApp(key: key, initialSection: AppSection.learn, resources: resources, repository: repo, appearance: appearance));
+    await tester.pump();
+    final page = key.currentState!.learningKey.currentState!;
+    final stats = key.currentState!.keyStatistics;
+    await tester.enterText(find.byKey(const ValueKey('learning-input')), '§');
+    await tester.pump();
+    expect(page.engine.metrics['mastery'], 0);
+    expect(stats.recorder.length, 1);
+    expect(await page.finishAndSave(), true);
+    await tester.pump();
+    expect(stats.recorder.length, 0);
+    expect(repo.data['legacy']['tr_keystats'], isNotNull);
+    expect(repo.data['sessions'], isEmpty);
+    await tester.pumpWidget(const SizedBox());
+    appearance.dispose();
+    await tester.binding.setSurfaceSize(null);
+  });
+
   testWidgets(
     'AI route runs actual lines, preserves theme state, saves once and blocks failed exit',
     (tester) async {

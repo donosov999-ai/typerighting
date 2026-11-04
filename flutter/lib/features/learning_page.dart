@@ -79,6 +79,7 @@ class LearningPageState extends State<LearningPage> {
   }
 
   void startRun() {
+    widget.keyStatistics.recorder.discardSession();
     id =
         'learn-${DateTime.now().microsecondsSinceEpoch}-${Random().nextInt(0x7fffffff)}';
     engine = LearningSession(
@@ -172,11 +173,11 @@ class LearningPageState extends State<LearningPage> {
     }
     final metrics = engine.metrics,
         wpm = (engine.metrics['mastery']! / 5).round();
+    // Capture before the asynchronous write, including an ineligible session.
+    // A later screen may begin recording while that write is in flight.
+    captured ??= widget.keyStatistics.recorder.take(now());
     // The original calls pushHistory only after mastery becomes positive.
-    if (metrics['mastery']! > 0) {
-      captured ??= widget.keyStatistics.recorder.take(now());
-    }
-    final record = captured;
+    final record = metrics['mastery']! > 0 ? captured : null;
     final point = <String, dynamic>{
       'id': id,
       'exercise': 'learning',

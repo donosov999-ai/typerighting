@@ -79,6 +79,32 @@ void main() {
 
   String c(String k) => progressCopy('ru', k);
 
+  testWidgets('certificate recovery keeps copies and applies only the selected profile', (tester) async {
+    final store = MemoryStore();
+    final repo = LocalRepository(store);
+    await repo.load();
+    await importWebviewValues(repo, {'tr_name': 'Previous name', 'tr_profile': 'm'});
+    await repo.transaction((d) => (d['prefs'] as Map).remove(webviewMigrationFlag));
+    await importWebviewValues(repo, {'tr_name': 'Another name'});
+    await show(tester, repo, migrationPending: true);
+    await tester.tap(find.byKey(const ValueKey('progress-name-recovery')));
+    await tester.pumpAndSettle();
+    expect(find.text('Previous name'), findsOneWidget);
+    expect(find.text('Another name'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey('recovery-use-name-1')));
+    await tester.pumpAndSettle();
+    final reloaded = LocalRepository(store);
+    await reloaded.load();
+    expect(reloaded.data['prefs']['certificateName_m'], 'Another name');
+    expect(reloaded.data['prefs']['legacyCertificateName'], 'Previous name');
+    expect(reloaded.data['prefs']['webviewNameCopies'], ['Another name']);
+    expect(reloaded.data['prefs']['certificateName_f'], isNull);
+    expect(needsWebviewMigration(reloaded.data), true);
+    for (final lang in ['ru','en','es','de','fr','it','pt']) {
+      expect(progressCopy(lang, 'nameRecoveryTitle'), isNot('nameRecoveryTitle'));
+    }
+  });
+
   testWidgets(
     'incomplete mobile migration warns that progress may be incomplete',
     (tester) async {

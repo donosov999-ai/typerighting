@@ -149,12 +149,31 @@ class _ProgressPageState extends State<ProgressPage> {
     }
   }
 
+  Future<void> useRecoveryName(String name) async {
+    if (name.length > 512 || !['m', 'f', 'kids'].contains(widget.profile)) return;
+    try {
+      await widget.repository.transaction((doc) {
+        (doc['prefs'] as Map)['certificateName_${widget.profile}'] = name;
+      });
+      if (mounted) setState(() => recoveryStatus = copy('nameSaved'));
+    } catch (_) {
+      if (mounted) setState(() => recoveryStatus = copy('failed'));
+    }
+  }
+
   String copy(String key) => progressCopy(widget.language, key);
   @override
   Widget build(BuildContext context) {
     final view = ProgressView(widget.repository.data), rows = view.timeline;
     final pending = (widget.repository.data['webviewPending'] as Map?) ?? {};
     final recoveryEntries = pending.entries.toList();
+    final prefs = widget.repository.data['prefs'] as Map;
+    final nameCopies = <String>{
+      if (prefs['legacyCertificateName'] is String)
+        prefs['legacyCertificateName'] as String,
+      if (prefs['webviewNameCopies'] is List)
+        ...(prefs['webviewNameCopies'] as List).whereType<String>(),
+    }.toList();
     final invalidKeys =
         (widget.repository.data['prefs'] as Map)['webviewInvalidKeys'];
     final pendingHistories = [
@@ -233,6 +252,34 @@ class _ProgressPageState extends State<ProgressPage> {
             child: Text(
               copy('recoveryInvalid'),
               key: const ValueKey('progress-recovery-invalid'),
+            ),
+          ),
+        if (prefs['webviewNameConflict'] == true)
+          _Panel(
+            child: Material(
+              color: Colors.transparent,
+              child: ExpansionTile(
+                key: const ValueKey('progress-name-recovery'),
+                title: Text(copy('nameRecoveryTitle')),
+                subtitle: Text(copy('nameRecoveryHint')),
+                children: [
+                  for (var i = 0; i < nameCopies.length; i++) ...[
+                    SelectableText(
+                      nameCopies[i].length > 512
+                          ? '${nameCopies[i].substring(0, 512)}…'
+                          : nameCopies[i],
+                      key: ValueKey('recovery-name-$i'),
+                    ),
+                    if (nameCopies[i].length <= 512)
+                      OutlinedButton(
+                        key: ValueKey('recovery-use-name-$i'),
+                        onPressed: () => useRecoveryName(nameCopies[i]),
+                        child: Text(copy('nameUse')),
+                      ),
+                  ],
+                  if (recoveryStatus != null) Text(recoveryStatus!),
+                ],
+              ),
             ),
           ),
         if (pending.isNotEmpty)
@@ -938,6 +985,31 @@ String progressCopy(String language, String key) {
       'Afficher plus',
       'Mostra altro',
       'Mostrar mais',
+    ],
+    'nameRecoveryTitle': [
+      'Сохранённые имена сертификата', 'Saved certificate names',
+      'Nombres de certificado guardados', 'Gespeicherte Zertifikatsnamen',
+      'Noms de certificat enregistrés', 'Nomi del certificato salvati',
+      'Nomes de certificado guardados',
+    ],
+    'nameRecoveryHint': [
+      'Выберите имя для текущего профиля. Остальные копии и предупреждение сохранятся.',
+      'Choose a name for the current profile. Other copies and the warning remain.',
+      'Elige un nombre para el perfil actual. Las demás copias y el aviso permanecen.',
+      'Wähle einen Namen für das aktuelle Profil. Weitere Kopien und der Hinweis bleiben erhalten.',
+      'Choisissez un nom pour le profil actuel. Les autres copies et l’avertissement restent disponibles.',
+      'Scegli un nome per il profilo attuale. Le altre copie e l’avviso rimangono.',
+      'Escolha um nome para o perfil atual. As outras cópias e o aviso permanecem.',
+    ],
+    'nameUse': [
+      'Использовать это имя', 'Use this name', 'Usar este nombre',
+      'Diesen Namen verwenden', 'Utiliser ce nom', 'Usa questo nome', 'Usar este nome',
+    ],
+    'nameSaved': [
+      'Имя сохранено для текущего профиля.', 'Name saved for the current profile.',
+      'Nombre guardado para el perfil actual.', 'Name für das aktuelle Profil gespeichert.',
+      'Nom enregistré pour le profil actuel.', 'Nome salvato per il profilo attuale.',
+      'Nome guardado para o perfil atual.',
     ],
     'recoverySave': [
       'Сохранить копию',

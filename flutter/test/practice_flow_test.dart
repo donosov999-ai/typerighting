@@ -17,6 +17,30 @@ class AppearanceMemory implements AppearanceStore {
 }
 
 void main() {
+  testWidgets('changing a practice exercise does not mix unfinished session counters', (tester) async {
+    final resources = (await tester.runAsync(Resources.load))!;
+    final repo = LocalRepository(MemoryStore());
+    await repo.transaction((doc) => (doc['prefs'] as Map).addAll(<String, dynamic>{'lang': 'en', 'pet': false, 'motion': false}));
+    final appearance = AppearanceController(resources.registry, AppearanceMemory(), existingInstall: false);
+    final key = GlobalKey<TypeFreeAppState>();
+    await tester.binding.setSurfaceSize(const Size(1280, 900));
+    await tester.pumpWidget(TypeFreeApp(key: key, initialSection: AppSection.practice, resources: resources, repository: repo, appearance: appearance));
+    await tester.pump();
+    final state = key.currentState!;
+    await tester.enterText(find.byKey(const ValueKey('practice-input')), state.session.expected!);
+    await tester.pump();
+    expect(state.keyStatistics.recorder.length, 1);
+    expect(state.keyStatistics.currentStats, isNotEmpty);
+    state.next();
+    await tester.pump();
+    expect(state.keyStatistics.recorder.length, 0);
+    await state.keyStatistics.flush();
+    expect(repo.data['legacy']['tr_keystats'], isNotNull);
+    await tester.pumpWidget(const SizedBox());
+    appearance.dispose();
+    await tester.binding.setSurfaceSize(null);
+  });
+
   test('canonical keyboard keeps ISO Enter, five rows, OS Ё and context punctuation', () async {
     final res = await Resources.load();
     final win = KeyboardModel(

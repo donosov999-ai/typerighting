@@ -666,6 +666,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
   }
 
   void reset() {
+    // Reset only temporary session counters, not queued key evidence.
+    if (section == AppSection.practice) {
+      keyStatistics.recorder.discardSession();
+    }
     if (exercises.isEmpty) {
       bank = availableBank(
         widget.resources.content,

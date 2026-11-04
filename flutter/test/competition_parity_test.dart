@@ -5,6 +5,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:typefree_flutter_foundation/domain/competition.dart';
 
 void main() {
+  test('ghost replay does not advance for wrong keys', () {
+    const ticks = [
+      CompetitionTick('a', 0),
+      CompetitionTick('x', 100),
+      CompetitionTick('b', 200),
+      CompetitionTick('\r', 300),
+      CompetitionTick('c', 400),
+    ];
+    expect(competitionReplayPosition('ab\nc', ticks, -1), 0);
+    expect(competitionReplayPosition('ab\nc', ticks, 100), 1);
+    expect(competitionReplayPosition('ab\nc', ticks, 200), 2);
+    expect(competitionReplayPosition('ab\nc', ticks, 300), 3);
+    expect(competitionReplayPosition('ab\nc', ticks, 400), 4);
+  });
   final fixtures = jsonDecode(
     File('test/fixtures/competition.json').readAsStringSync(),
   ) as Map;

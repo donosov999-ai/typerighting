@@ -160,11 +160,34 @@ void main() {
       final reload = LocalRepository(store);
       await reload.load();
       expect(reload.data['sessions'].single['timeline'], hasLength(27));
+      // A previously exported race may be imported after a newer one.
+      await repository.transaction((doc) {
+        final sessions = doc['sessions'] as List;
+        final original = Map<String, dynamic>.from(sessions.single as Map);
+        sessions.add({
+          ...original,
+          'id': 'older-imported-race',
+          't': 1,
+          'pattern': 'older',
+        });
+        sessions.add({
+          ...original,
+          'id': 'newer-incomplete-replay',
+          't': (original['t'] as int) + 1,
+          'timeline': [
+            {'c': 'a', 't': 0},
+          ],
+        });
+      });
       await key.currentState!.showSection(AppSection.practiceMenu);
       await tester.pump();
       await key.currentState!.showSection(AppSection.compete);
       await tester.pump();
       final reentered = key.currentState!.competitionKey.currentState!;
+      expect(
+        reentered.storedReplay('alpha_fwd')!['pattern'],
+        race.typing.pattern,
+      );
       await tester.ensureVisible(
         find.byKey(const ValueKey('stored-replay-alpha_fwd')),
       );
@@ -173,6 +196,31 @@ void main() {
       expect(reentered.engine!.typing.pattern, race.typing.pattern);
       expect(reentered.ghost, hasLength(27));
       expect(reentered.engine!.typing.pos, 0);
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(
+        reentered.ghostPosition,
+        0,
+        reason: 'ghost waits for the player to start',
+      );
+      await tester.tap(find.byKey(const ValueKey('competition-input')));
+      tester.testTextInput.updateEditingValue(
+        const TextEditingValue(text: '§'),
+      );
+      await tester.pump();
+      now += 100;
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(
+        reentered.ghostPosition,
+        0,
+        reason: 'recorded mistake cannot advance the ghost',
+      );
+      now += 100;
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(
+        reentered.ghostPosition,
+        1,
+        reason: 'first correct recorded key advances the ghost',
+      );
       await tester.pumpWidget(const SizedBox());
       await tester.pump(); // ghost timer disposed
       await tester.binding.setSurfaceSize(null);

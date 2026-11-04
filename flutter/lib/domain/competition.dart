@@ -69,6 +69,21 @@ class CompetitionTick {
   Map<String, dynamic> toJson() => {'c': character, 't': elapsedMs};
 }
 
+/// A recorded wrong key does not advance a blocked competition session.
+int competitionReplayPosition(
+  String pattern,
+  List<CompetitionTick> ticks,
+  int elapsedMs,
+) {
+  var position = 0;
+  for (final tick in ticks) {
+    if (tick.elapsedMs > elapsedMs || position >= pattern.length) break;
+    final character = tick.character == '\r' ? '\n' : tick.character;
+    if (character == pattern.substring(position, position + 1)) position++;
+  }
+  return position;
+}
+
 class CompetitionResult {
   const CompetitionResult({
     required this.wpm,

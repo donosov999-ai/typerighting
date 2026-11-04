@@ -60,8 +60,10 @@ class CompetitionPageState extends State<CompetitionPage> {
   }
 
   Map<String, dynamic>? storedReplay(String discipline) {
-    for (final raw in (widget.repository.data['sessions'] as List).reversed) {
+    Map<String, dynamic>? latest;
+    for (final raw in widget.repository.data['sessions'] as List) {
       if (raw is! Map ||
+          raw['t'] is! num ||
           raw['mode'] != 'compete' ||
           raw['profile'] != widget.profile ||
           raw['exercise'] != discipline ||
@@ -91,9 +93,24 @@ class CompetitionPageState extends State<CompetitionPage> {
         }
         previousTime = tick['t'] as int;
       }
-      if (valid) return Map<String, dynamic>.from(raw);
+      if (valid) {
+        final recorded = ticks
+            .map(
+              (tick) => CompetitionTick(tick['c'] as String, tick['t'] as int),
+            )
+            .toList();
+        // Partial recordings (including the 5000-key cap) cannot reproduce a
+        // completed race. Keep the record but do not offer it as a full ghost.
+        valid =
+            competitionReplayPosition(pattern, recorded, previousTime) ==
+            pattern.length;
+      }
+      if (valid &&
+          (latest == null || (raw['t'] as num) > (latest['t'] as num))) {
+        latest = Map<String, dynamic>.from(raw);
+      }
     }
-    return null;
+    return latest;
   }
 
   @override
@@ -167,11 +184,13 @@ class CompetitionPageState extends State<CompetitionPage> {
           ghostTimer?.cancel();
           return;
         }
-        final elapsed = race.startedAt == 0 ? 0 : now() - race.startedAt;
-        var pos = 0;
-        while (pos < ghost.length && ghost[pos].elapsedMs <= elapsed) {
-          pos++;
-        }
+        final pos = race.startedAt == 0
+            ? 0
+            : competitionReplayPosition(
+                race.typing.pattern,
+                ghost,
+                now() - race.startedAt,
+              );
         if (ghostPosition != pos) setState(() => ghostPosition = pos);
       });
     }

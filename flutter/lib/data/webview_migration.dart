@@ -63,7 +63,7 @@ Future<WebviewMigrationOutcome> importWebviewValues(
   var skipped = 0;
   final invalidKnownKeys = <String>[];
   final legacyName = raw['tr_name'];
-  var nameConflict = false;
+  var nameConflict = (repo.data['prefs'] as Map)['webviewNameConflict'] == true;
   if (legacyName != null && legacyName.isNotEmpty) {
     if (legacyName.length > 1000000) {
       // Leave the migration pending and the source untouched.
@@ -83,6 +83,13 @@ Future<WebviewMigrationOutcome> importWebviewValues(
         }
       });
     }
+  }
+  if (nameConflict) {
+    // A later empty read cannot prove that a conflicting name was resolved.
+    // Persist only the issue marker; the original remains in the old WebView.
+    await repo.transaction((doc) {
+      (doc['prefs'] as Map)['webviewNameConflict'] = true;
+    });
   }
   for (final e in raw.entries) {
     if (e.key == 'tr_name') {

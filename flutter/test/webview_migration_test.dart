@@ -265,6 +265,34 @@ void main() {
     expect(repo.data['prefs']['certificateName_f'], 'Old name');
     expect(needsWebviewMigration(repo.data), true);
   });
+  test('certificate name conflict stays pending across restart and empty reread', () async {
+    final store = MemoryStore();
+    final repo = LocalRepository(store);
+    await repo.load();
+    await importWebviewValues(repo, {'tr_profile': 'f', 'tr_name': 'Old name'});
+    await repo.transaction((d) => (d['prefs'] as Map).remove(webviewMigrationFlag));
+    expect((await importWebviewValues(repo, {'tr_name': 'Different name'})).result,
+        WebviewMigrationResult.conflict);
+    final reloaded = LocalRepository(store);
+    await reloaded.load();
+    expect((await importWebviewValues(reloaded, {})).result,
+        WebviewMigrationResult.conflict);
+    expect(needsWebviewMigration(reloaded.data), true);
+    expect(reloaded.data['prefs']['legacyCertificateName'], 'Old name');
+  });
+
+  test('oversized certificate name stays pending after an empty reread', () async {
+    final store = MemoryStore();
+    final repo = LocalRepository(store);
+    await repo.load();
+    expect((await importWebviewValues(repo, {'tr_name': 'x' * 1000001})).result,
+        WebviewMigrationResult.conflict);
+    final reloaded = LocalRepository(store);
+    await reloaded.load();
+    expect((await importWebviewValues(reloaded, {})).result,
+        WebviewMigrationResult.conflict);
+    expect(needsWebviewMigration(reloaded.data), true);
+  });
   test('malformed WebView messages never become a successful empty read', () {
     expect(decodeWebviewMigrationMessage('{'), isNull);
     expect(decodeWebviewMigrationMessage('{"ok":false,"values":{}}'), isNull);

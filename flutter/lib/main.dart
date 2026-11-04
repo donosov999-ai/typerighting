@@ -57,6 +57,18 @@ export 'features/practice_widgets.dart' show PracticeCommitFormatter;
 
 const languages = ['ru', 'en', 'es', 'de', 'fr', 'it', 'pt'];
 
+/// A saved numeric bank cannot be the text bank to restore on toggle-off.
+String _availableTextBank(
+  Map<String, dynamic> catalog,
+  String language,
+  String bank,
+) {
+  final items = ((catalog['catalog'] as Map)[language] as List?) ?? const [];
+  final banks = [for (final item in items) (item as Map)['bank'] as String];
+  if (bank != 'digits' && banks.contains(bank)) return bank;
+  return banks.firstWhere((b) => b != 'digits', orElse: () => bank);
+}
+
 // Product vocabulary uses the shared advisor's public phrase injection API.
 // Selection rules, facts, suppression and animations remain owned by Synapse.
 Advisor typingAdvisor(String locale) {
@@ -488,7 +500,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     layout = ['auto', 'qwerty', 'azerty', 'qwertz'].contains(p['layout'])
         ? p['layout'] as String
         : 'auto';
-    textBank = availableBank(
+    textBank = _availableTextBank(
       widget.resources.content,
       language,
       (p['textBank'] as String?) ?? bank,
@@ -1328,6 +1340,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           in (widget.resources.content['catalog'] as Map)[language] as List)
         (e as Map)['bank'] as String,
     };
+    final digitsActive = bank == 'digits' && custom == null && !weakMode;
     final bankPicker = DropdownButton<String>(
       isExpanded: true,
       underline: const SizedBox(),
@@ -1357,14 +1370,14 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     // Options of the exercise (B1 right pane; a sheet on narrow screens).
     // [close] dismisses the sheet before an action that leaves the options.
     Widget options(VoidCallback refresh, {VoidCallback? close}) {
-      Widget check(String label, bool value, ValueChanged<bool> on) =>
+      Widget check(String label, bool value, ValueChanged<bool>? on) =>
           CheckboxListTile(
             value: value,
             dense: true,
             contentPadding: EdgeInsets.zero,
             controlAffinity: ListTileControlAffinity.leading,
             title: Text(label, style: const TextStyle(fontSize: 15)),
-            onChanged: saving
+            onChanged: saving || on == null
                 ? null
                 : (v) {
                     on(v!);
@@ -1383,13 +1396,13 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
           if (banks.contains('digits'))
             check(
               practiceCopy(language, 'digits'),
-              bank == 'digits',
-              (v) => change(() {
+              digitsActive,
+              banks.any((b) => b != 'digits') || !digitsActive ? (v) => change(() {
                 custom = null;
                 weakMode = false;
                 bank = v ? 'digits' : textBank;
                 index = 0;
-              }),
+              }) : null,
             ),
           check(tr('tb.flow'), flow, (v) => change(() => flow = v)),
           check(tr('tb.heat'), showHeat, (v) {
@@ -1670,7 +1683,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       ),
                       // Narrow: options live in the sheet, so show which
                       // ones are on (J1/J2) — each can be switched off here.
-                      if (!wide && (plain || flow || showHeat || bank == 'digits'))
+                      if (!wide && (plain || flow || showHeat || digitsActive))
                         Padding(
                           padding: const EdgeInsets.only(top: 8),
                           child: Wrap(
@@ -1679,12 +1692,12 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                             children: [
                               for (final (on, label, off) in [
                                 (
-                                  bank == 'digits',
+                                  digitsActive,
                                   practiceCopy(language, 'digits'),
-                                  () => change(() {
+                                  banks.any((b) => b != 'digits') ? () => change(() {
                                     bank = textBank;
                                     index = 0;
-                                  }),
+                                  }) : null,
                                 ),
                                 (
                                   plain,

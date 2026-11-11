@@ -155,12 +155,18 @@ Future<void> main() async {
         !kIsWeb &&
         (defaultTargetPlatform == TargetPlatform.android ||
             defaultTargetPlatform == TargetPlatform.iOS);
+    // The desktop Tauri app (com.odv999.typerighting, no sandbox) keeps its
+    // progress in the WKWebView store of that bundle ID; the same-ID macOS
+    // build reads it the way iOS does (origin tauri://localhost).
+    final macSameId =
+        !kIsWeb && sameIdBuild && defaultTargetPlatform == TargetPlatform.macOS;
+    final legacyWebview = mobile || macSameId;
     void start() => runApp(
       TypeFreeApp(
         deviceLanguage: languages.contains(device) ? device : 'en',
         resources: resources,
         repository: repo,
-        migrationPending: mobile && needsWebviewMigration(repo.data),
+        migrationPending: legacyWebview && needsWebviewMigration(repo.data),
         welcome: needsWelcome(repo.data),
         appearance: AppearanceController(
           resources.registry,
@@ -174,14 +180,14 @@ Future<void> main() async {
       ),
     );
     // Same-ID update from the Tauri app: read its WebView storage once.
-    if (mobile && needsWebviewMigration(repo.data)) {
+    if (legacyWebview && needsWebviewMigration(repo.data)) {
       runApp(
         TauriMigrationGate(
           repository: repo,
           onDone: start,
-          origin: defaultTargetPlatform == TargetPlatform.iOS
-              ? tauriIosOrigin
-              : tauriAndroidOrigin,
+          origin: defaultTargetPlatform == TargetPlatform.android
+              ? tauriAndroidOrigin
+              : tauriIosOrigin,
         ),
       );
     } else {

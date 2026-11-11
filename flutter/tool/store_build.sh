@@ -5,6 +5,7 @@
 #
 #   tool/store_build.sh android 2.60.100 2060100
 #   tool/store_build.sh ios     2.60.100 2060100
+#   tool/store_build.sh macos   2.60.104 2060104   (dmg for the site, no upload)
 #
 # Android: debug signature stripped → play_upload_aab.py signs with the upload key.
 # iOS: archive without signing, signed on export with «TypeFree App Store»;
@@ -43,6 +44,25 @@ elif [[ $platform == ios ]]; then
   issuer=$(python3 -c "import json,os;print(json.load(open(os.path.expanduser('~/.sdt_secrets/apple_appstore.json')))['issuer_id'])")
   xcrun altool --validate-app -f $ipa -t ios --apiKey $key --apiIssuer $issuer
   xcrun altool --upload-app -f $ipa -t ios --apiKey $key --apiIssuer $issuer
+elif [[ $platform == macos ]]; then
+  # Desktop download from the site (no store): the Tauri app's ID
+  # com.odv999.typerighting, no sandbox, ad-hoc signature — exactly what the
+  # released Tauri dmg has, so the same WKWebView store (and progress) is
+  # read on first launch. Patched for this build only, restored on exit.
+  cfg=macos/Runner/Configs/AppInfo.xcconfig ent=macos/Runner/Release.entitlements
+  git diff --quiet -- $cfg $ent || { echo "uncommitted $cfg/$ent"; exit 1; }
+  trap 'git checkout -- $cfg $ent' EXIT
+  sed -i '' 's/^PRODUCT_NAME = .*/PRODUCT_NAME = TypeFree/; s/^PRODUCT_BUNDLE_IDENTIFIER = .*/PRODUCT_BUNDLE_IDENTIFIER = com.odv999.typerighting/' $cfg
+  /usr/libexec/PlistBuddy -c 'Set :com.apple.security.app-sandbox false' $ent
+  nice flutter build macos --release --build-name=$name --build-number=$number $defines
+  app=build/macos/Build/Products/Release/TypeFree.app
+  [[ $(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' $app/Contents/Info.plist) == com.odv999.typerighting ]] \
+    || { echo 'app is not com.odv999.typerighting'; exit 1; }
+  stage=build/macos/dmg; rm -rf $stage; mkdir -p $stage
+  cp -R $app $stage/ && ln -s /Applications $stage/Applications
+  hdiutil create -quiet -volname TypeFree -srcfolder $stage -format UDZO -ov \
+    build/macos/TypeFree_${name}_universal.dmg
+  echo "dmg: build/macos/TypeFree_${name}_universal.dmg"
 else
-  echo "usage: $0 android|ios <name> <number>"; exit 2
+  echo "usage: $0 android|ios|macos <name> <number>"; exit 2
 fi

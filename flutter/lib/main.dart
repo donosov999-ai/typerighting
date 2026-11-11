@@ -1911,6 +1911,10 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
             ),
       body: withRail(c, withSynapseSide(c, SafeArea(
         child: SingleChildScrollView(
+          // One scroll position per section: without the key a mode opened
+          // from the bottom of the home inherited its offset and showed its
+          // middle (lesson 1 445 px above the screen, device run 11.11).
+          key: ValueKey('section-scroll-${section.name}'),
           padding: EdgeInsets.fromLTRB(
             12,
             section == AppSection.today ? 0 : 12,

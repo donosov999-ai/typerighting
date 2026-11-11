@@ -258,4 +258,24 @@ void main() {
     expect(find.byKey(const ValueKey('side-assignments')), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('a mode opened from the bottom of the home starts at its top', (
+    tester,
+  ) async {
+    final (key, _) = await open(tester, const Size(390, 844));
+    final card = find.byKey(
+      ValueKey('home-mode-${key.currentState!.modeEntries[1].title}'),
+    );
+    await tester.ensureVisible(card);
+    await tester.pump();
+    await tester.tap(card);
+    await tester.pump();
+    await tester.pump();
+    final lesson = tester.getRect(
+      find.byKey(const ValueKey('course-lesson-1')),
+    );
+    expect(lesson.top, greaterThanOrEqualTo(0), reason: 'device run 11.11');
+    expect(lesson.top, lessThan(844));
+    expect(tester.takeException(), isNull);
+  });
 }

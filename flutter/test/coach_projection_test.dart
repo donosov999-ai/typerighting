@@ -54,9 +54,10 @@ void main() {
         compete(),
         scopes: scopes,
         consentSince: since,
-        assigned: true,
+        assignmentId: 'a-7',
+        step: 2,
       ),
-      isNotNull,
+      containsPair('assignment_id', 'a-7'),
     );
   });
 
@@ -66,11 +67,16 @@ void main() {
       scopes: {'completion', 'history'},
       consentSince: since,
     )!;
-    expect(e['app_id'], 'typerighting');
-    expect(e['event_id'], 'race-1');
-    expect(e['kind'], 'compete');
-    expect(e['occurred_at'], '2027-01-15T08:00:01.000Z');
-    expect(e['metrics'], {'exercise_ref': 'alpha_fwd', 'language': 'ru'});
+    // coach/2-draft.2 §5 п.11: top level as in the package CoachEvent.
+    expect(e, {
+      'event_id': 'race-1',
+      'kind': 'typing',
+      'mode': 'compete',
+      'exercise_ref': 'alpha_fwd',
+      'occurred_at': '2027-01-15T08:00:01.000Z',
+      'metrics': {'language': 'ru'},
+    });
+    expect(coachAppId, 'typerighting');
   });
 
   test('metrics and errors are separate scopes', () {
@@ -85,16 +91,21 @@ void main() {
     expect(m['accuracy'], 97);
     expect(m['elapsed_ms'], 9500);
     expect(m['medal'], 'silver');
-    expect(m.containsKey('error_symbols'), isFalse);
-    final x =
-        coachProjection(
-              compete(),
-              scopes: {'completion', 'history', 'errors'},
-              consentSince: since,
-            )!['metrics']
-            as Map;
-    expect(x['error_symbols'], {'ж': 2});
-    expect(x.containsKey('wpm'), isFalse);
+    final x = coachProjection(
+      compete(),
+      scopes: {'completion', 'history', 'errors'},
+      consentSince: since,
+    )!;
+    expect(x['errors'], {'ж': 2}); // flat symbol → count, its own object
+    expect((x['metrics'] as Map).containsKey('wpm'), isFalse);
+    expect(
+      coachProjection(
+        compete(),
+        scopes: {'completion', 'history', 'metrics'},
+        consentSince: since,
+      )!.containsKey('errors'),
+      isFalse,
+    );
   });
 
   test('never texts, titles or the key stream — even with every scope', () {
@@ -111,6 +122,16 @@ void main() {
     ]) {
       expect(json.contains(banned), isFalse, reason: banned);
     }
+  });
+
+  test('contract limits: keys ≤ 60, strings ≤ 120, payload ≤ 16 KB', () {
+    final row = compete()
+      ..['exercise'] = 'x' * 121
+      ..['errKeys'] = {'k' * 61: 1, 'ok': 3};
+    final e = coachProjection(row, scopes: all, consentSince: since)!;
+    expect(e.containsKey('exercise_ref'), isFalse);
+    expect(e['errors'], {'ok': 3});
+    expect(utf8.encode(jsonEncode(e)).length, lessThan(16 * 1024));
   });
 
   test('unknown or malformed rows are not sent', () {

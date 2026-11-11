@@ -1,6 +1,8 @@
-/// Teacher cabinet (epic 892cd2c3, contract ecosystem.coach/2): one finished
-/// session → the `result_event` TypeFree sends, limited by the scopes the
-/// student chose for this app. Pure: no I/O, no texts.
+/// Teacher cabinet (epic 892cd2c3, contract ecosystem.coach/2-draft.2 §5 п.11):
+/// one finished session → the event TypeFree passes to `result_submit`
+/// (with `app_id` [coachAppId] beside it), limited by the scopes the student
+/// chose for this app. Top level: event_id, kind `typing`, mode, exercise_ref,
+/// occurred_at; flat `metrics` and `errors`. Pure: no I/O, no texts.
 ///
 /// Never sent: typed text and exercise text, titles, own/custom texts, the key
 /// stream (`timeline`, `pattern`), settings, achievements, the old version's
@@ -26,15 +28,18 @@ const coachModes = {
   'exam',
 };
 
-/// The event for [row], or null when it must not leave the device: no
+/// The `CoachEvent` JSON for [row], or null when it must not leave the device: no
 /// `completion` consent, a session from before [consentSince] (ms), a session
 /// outside an assignment without `history`, an unknown mode or a malformed row.
+/// [assignmentId]/[step]: the teacher's assignment this session fulfils.
 Map<String, Object?>? coachProjection(
   Map<String, dynamic> row, {
   required Set<String> scopes,
   required int consentSince,
-  bool assigned = false,
+  String? assignmentId,
+  int? step,
 }) {
+  final assigned = assignmentId != null && assignmentId.isNotEmpty;
   if (!scopes.contains('completion')) return null;
   final id = row['id'], t = row['t'], mode = row['mode'];
   if (id is! String || id.isEmpty || t is! num || mode is! String) return null;
@@ -42,10 +47,7 @@ Map<String, Object?>? coachProjection(
   if (t < consentSince) return null;
   if (!assigned && !scopes.contains('history')) return null;
 
-  final metrics = <String, Object?>{
-    'exercise_ref': row['exercise'],
-    'language': row['language'],
-  };
+  final metrics = <String, Object?>{'language': row['language']};
   num? n(String key) => row[key] is num ? row[key] as num : null;
   if (scopes.contains('metrics')) {
     for (final (out, key) in const [
@@ -66,20 +68,27 @@ Map<String, Object?>? coachProjection(
     }
     if (row['medal'] is String) metrics['medal'] = row['medal'];
   }
-  if (scopes.contains('errors') && row['errKeys'] is Map) {
-    metrics['error_symbols'] = {
+  // coach/2: a separate flat object, symbol → count (keys ≤ 60).
+  final errors = <String, Object?>{
+    if (scopes.contains('errors') && row['errKeys'] is Map)
       for (final e in (row['errKeys'] as Map).entries)
-        if (e.key is String && e.value is num) e.key as String: e.value as num,
-    };
-  }
+        if (e.key is String && (e.key as String).length <= 60 && e.value is num)
+          e.key as String: e.value as num,
+  };
+  final ref = row['exercise'];
   return {
-    'app_id': coachAppId,
     'event_id': id,
+    'kind': 'typing',
+    'mode': mode,
+    if (ref is String && ref.isNotEmpty && ref.length <= 120)
+      'exercise_ref': ref,
+    if (assigned) 'assignment_id': assignmentId,
+    if (assigned && step != null) 'step': step,
     'occurred_at': DateTime.fromMillisecondsSinceEpoch(
       t.toInt(),
       isUtc: true,
     ).toIso8601String(),
-    'kind': mode,
     'metrics': metrics,
+    if (errors.isNotEmpty) 'errors': errors,
   };
 }

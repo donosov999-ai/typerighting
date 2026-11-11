@@ -320,10 +320,14 @@ class SettingsHub extends StatelessWidget {
     required this.values,
     required this.onInput,
     required this.onSound,
+    this.extra = const [],
   });
   final String language;
   final SettingsValues values;
   final VoidCallback onInput, onSound;
+
+  /// Optional rows after «Sound» (teacher cabinet, when built with it).
+  final List<Widget> extra;
   @override
   Widget build(BuildContext context) => _Page(
     children: [
@@ -341,6 +345,7 @@ class SettingsHub extends StatelessWidget {
         subtitle: settingsCopy(language, 'sound.d'),
         onTap: onSound,
       ),
+      ...extra,
       const SizedBox(height: 16),
       Text(
         'TypeFree · ${settingsCopy(language, 'version')} ${values.version}',
@@ -892,6 +897,7 @@ class _SliderRow extends StatelessWidget {
 
 class NavTile extends StatelessWidget {
   const NavTile({
+    super.key,
     required this.icon,
     required this.accent,
     required this.title,

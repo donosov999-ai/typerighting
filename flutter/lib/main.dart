@@ -5,9 +5,11 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:app_links/app_links.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:synapse_pet/synapse_pet.dart';
 
+import 'data/coach_bridge.dart';
 import 'data/content_selection.dart';
 import 'data/platform_store.dart';
 import 'data/local_repository.dart';
@@ -161,9 +163,15 @@ Future<void> main() async {
     final macSameId =
         !kIsWeb && sameIdBuild && defaultTargetPlatform == TargetPlatform.macOS;
     final legacyWebview = mobile || macSameId;
+    final deviceLanguage = languages.contains(device) ? device : 'en';
+    // Teacher cabinet: only with --dart-define=TF_COACH=true; a failure here
+    // never blocks the trainer.
+    try {
+      TypeFreeCoach.instance = await TypeFreeCoach.fromEnvironment();
+    } catch (_) {}
     void start() => runApp(
       TypeFreeApp(
-        deviceLanguage: languages.contains(device) ? device : 'en',
+        deviceLanguage: deviceLanguage,
         resources: resources,
         repository: repo,
         migrationPending: legacyWebview && needsWebviewMigration(repo.data),
@@ -193,6 +201,15 @@ Future<void> main() async {
     } else {
       start();
     }
+    // Sign-in return and invite links (cabinet built in only); a link
+    // listener failure must not replace the running app with the error page.
+    try {
+      TypeFreeCoach.instance?.listen(
+        AppLinks().uriLinkStream,
+        language: () =>
+            ((repo.data['prefs'] as Map)['lang'] as String?) ?? deviceLanguage,
+      );
+    } catch (_) {}
   } catch (_) {
     runApp(
       const MaterialApp(
@@ -1537,6 +1554,7 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
     listenable: widget.appearance,
     builder: (c, _) => MaterialApp(
       scaffoldMessengerKey: progressMessenger,
+      navigatorKey: TypeFreeCoach.navigatorKey,
       // «Размер текста» multiplies the user's system text scale.
       builder: (context, child) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -2129,6 +2147,26 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                       values: settingsValues,
                       onInput: () => showSection(AppSection.settingsInput),
                       onSound: () => showSection(AppSection.settingsSound),
+                      extra: [
+                        if (TypeFreeCoach.instance case final coach?) ...[
+                          NavTile(
+                            key: const ValueKey('settings-coach-teacher'),
+                            icon: Icons.school_outlined,
+                            accent: const Color(0xFF10B981),
+                            title: coach.strings(language).teacherTitle,
+                            subtitle: coachSettingsSubtitle(language, 'teacher'),
+                            onTap: () => coach.openTeacher(c, language),
+                          ),
+                          NavTile(
+                            key: const ValueKey('settings-coach-mine'),
+                            icon: Icons.groups_outlined,
+                            accent: const Color(0xFFF59E0B),
+                            title: coach.strings(language).myCoaches,
+                            subtitle: coachSettingsSubtitle(language, 'mine'),
+                            onTap: () => coach.openMyCoaches(c, language),
+                          ),
+                        ],
+                      ],
                     );
                   }
                   if (section == AppSection.account) {

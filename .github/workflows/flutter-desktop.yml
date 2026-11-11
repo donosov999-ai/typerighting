@@ -43,9 +43,11 @@ jobs:
           # Runner image ships libunwind-14-dev, which blocks libgstreamer1.0-dev.
           sudo apt-get remove -yq libunwind-14-dev || true
           sudo apt-get install -yq libunwind-dev
+          # libsecret-1-dev: flutter_secure_storage_linux (teacher cabinet session).
           sudo apt-get install -yq clang cmake ninja-build pkg-config libgtk-3-dev \
             liblzma-dev libstdc++-12-dev libgstreamer1.0-dev \
-            libgstreamer-plugins-base1.0-dev libfuse2 file desktop-file-utils
+            libgstreamer-plugins-base1.0-dev libfuse2 file desktop-file-utils \
+            libsecret-1-dev
       - run: flutter pub get
       - run: flutter build linux --release --build-name=${{ inputs.name }} --build-number=${{ inputs.number }} $DEFINES
       - name: Package

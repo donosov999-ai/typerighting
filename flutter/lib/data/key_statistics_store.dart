@@ -11,6 +11,10 @@ import 'legacy_values.dart';
 class KeyStatisticsStore {
   KeyStatisticsStore(this.repository, {this.onAchievements});
   final void Function(List<String>)? onAchievements;
+
+  /// Called once per history row a training added, after it is on disk
+  /// (teacher cabinet). Optional: a failing listener never undoes the save.
+  static void Function(Map<String, dynamic> row)? onSessionSaved;
   final LocalRepository repository;
   final recorder = KeyRecorder();
   final _pending = <KeyEvidence>[];
@@ -51,7 +55,9 @@ class KeyStatisticsStore {
     final result = _tail.then((_) async {
       final batch = List<KeyEvidence>.of(_pending);
       var freshBadges = <String>[];
+      var freshRows = const <Map<String, dynamic>>[];
       await repository.transaction((doc) {
+        final known = {for (final r in doc['sessions'] as List) r['id']};
         final beforeHistory = (doc['legacy'] as Map)['tr_history'];
         final legacy = doc['legacy'] as Map;
         final stats = legacy['tr_keystats'] is String
@@ -69,6 +75,10 @@ class KeyStatisticsStore {
           legacy['tr_keystats'] = encoded;
         }
         apply(doc);
+        freshRows = [
+          for (final r in doc['sessions'] as List)
+            if (!known.contains(r['id'])) Map<String, dynamic>.from(r as Map),
+        ];
         if ((doc['legacy'] as Map)['tr_history'] != beforeHistory) {
           freshBadges = awardAchievements(
             doc,
@@ -78,6 +88,13 @@ class KeyStatisticsStore {
       });
       _pending.removeRange(0, batch.length);
       lastError = null;
+      for (final row in freshRows) {
+        try {
+          onSessionSaved?.call(row);
+        } catch (_) {
+          /* Optional cabinet. */
+        }
+      }
       if (freshBadges.isNotEmpty) {
         try {
           onAchievements?.call(freshBadges);

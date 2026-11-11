@@ -1,0 +1,123 @@
+# TypeFree Flutter — Windows and Linux desktop bundles for the site download.
+# Runs ONLY in the private build repo (donosov999-ai/typefree-flutter-build):
+# the Flutter source is not published in the public typerighting repo.
+# macOS is built on the Mac: flutter/tool/store_build.sh macos <name> <number>.
+# Manual start: gh workflow run flutter-desktop.yml -f name=2.60.104 -f number=2060104
+name: Flutter desktop (Windows + Linux)
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Version name, e.g. 2.60.104'
+        required: true
+      number:
+        description: 'Build number, e.g. 2060104'
+        required: true
+
+env:
+  FLUTTER_VERSION: '3.47.5'
+  DEFINES: >-
+    --dart-define=TYPEFREE_VERSION=${{ inputs.name }}
+    --dart-define=TYPEFREE_SAME_ID=true
+
+jobs:
+  linux:
+    name: Linux x86_64 (AppImage + tar.gz)
+    runs-on: ubuntu-22.04
+    defaults:
+      run:
+        working-directory: flutter
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - name: System packages
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -yq clang cmake ninja-build pkg-config libgtk-3-dev \
+            liblzma-dev libstdc++-12-dev libgstreamer1.0-dev \
+            libgstreamer-plugins-base1.0-dev libfuse2 file
+      - run: flutter pub get
+      - run: flutter build linux --release --build-name=${{ inputs.name }} --build-number=${{ inputs.number }} $DEFINES
+      - name: Package
+        run: |
+          set -euo pipefail
+          v=${{ inputs.name }}
+          out=$GITHUB_WORKSPACE/dist; mkdir -p $out
+          bundle=build/linux/x64/release/bundle
+          tar -czf $out/TypeFree_${v}_x86_64.tar.gz -C $bundle --transform 's,^\.,TypeFree,' .
+          app=$RUNNER_TEMP/TypeFree.AppDir; rm -rf $app; mkdir -p $app/usr/bin
+          cp -R $bundle/. $app/usr/bin/
+          cp linux/packaging/typefree.png $app/typefree.png
+          printf '%s\n' '[Desktop Entry]' 'Type=Application' 'Name=TypeFree' \
+            'Comment=Touch typing trainer' 'Exec=typefree' 'Icon=typefree' \
+            'Categories=Education;' 'StartupWMClass=typefree' > $app/typefree.desktop
+          printf '%s\n' '#!/bin/sh' 'HERE="$(dirname "$(readlink -f "$0")")"' \
+            'exec "$HERE/usr/bin/typefree" "$@"' > $app/AppRun
+          chmod +x $app/AppRun
+          curl -sSfL -o $RUNNER_TEMP/appimagetool \
+            https://github.com/AppImage/appimagetool/releases/download/1.9.0/appimagetool-x86_64.AppImage
+          chmod +x $RUNNER_TEMP/appimagetool
+          ARCH=x86_64 $RUNNER_TEMP/appimagetool --appimage-extract-and-run $app $out/TypeFree_${v}_amd64.AppImage
+          ls -la $out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: typefree-linux-${{ inputs.name }}
+          path: dist/*
+
+  windows:
+    name: Windows x64 (setup.exe + zip)
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: flutter
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+      - run: flutter pub get
+      - run: flutter build windows --release --build-name=${{ inputs.name }} --build-number=${{ inputs.number }} $DEFINES
+      - name: Package
+        run: |
+          set -euo pipefail
+          v=${{ inputs.name }}
+          out=$GITHUB_WORKSPACE/dist; mkdir -p $out
+          rel=build/windows/x64/runner/Release
+          (cd $rel && 7z a -tzip $out/TypeFree_${v}_x64.zip . > /dev/null)
+          choco install innosetup -y --no-progress > /dev/null
+          cat > $RUNNER_TEMP/typefree.iss <<ISS
+          [Setup]
+          AppId={{6B1F2A5E-8C3D-4E7A-9B21-TYPEFREE0001}
+          AppName=TypeFree
+          AppVersion=${v}
+          AppPublisher=TypeFree
+          AppPublisherURL=https://typefree.pro
+          DefaultDirName={localappdata}\Programs\TypeFree
+          DefaultGroupName=TypeFree
+          PrivilegesRequired=lowest
+          OutputDir=$(cygpath -w $out)
+          OutputBaseFilename=TypeFree_${v}_x64-setup
+          SetupIconFile=$(cygpath -w $GITHUB_WORKSPACE/flutter/windows/runner/resources/app_icon.ico)
+          Compression=lzma2
+          SolidCompression=yes
+          ArchitecturesInstallIn64BitMode=x64compatible
+          [Files]
+          Source: "$(cygpath -w $GITHUB_WORKSPACE/flutter/$rel)\*"; DestDir: "{app}"; Flags: recursesubdirs ignoreversion
+          [Icons]
+          Name: "{group}\TypeFree"; Filename: "{app}\TypeFree.exe"
+          Name: "{userdesktop}\TypeFree"; Filename: "{app}\TypeFree.exe"
+          [Run]
+          Filename: "{app}\TypeFree.exe"; Description: "Launch TypeFree"; Flags: nowait postinstall skipifsilent
+          ISS
+          "/c/Program Files (x86)/Inno Setup 6/ISCC.exe" $(cygpath -w $RUNNER_TEMP/typefree.iss)
+          ls -la $out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: typefree-windows-${{ inputs.name }}
+          path: dist/*

@@ -1,6 +1,9 @@
 # TypeFree Flutter — Windows and Linux desktop bundles for the site download.
-# Runs ONLY in the private build repo (donosov999-ai/typefree-flutter-build):
-# the Flutter source is not published in the public typerighting repo.
+# Runs ONLY in the private build repo (donosov999-ai/typefree-flutter-build),
+# branch ci-desktop: there flutter/vendor/ holds synapse_pet and
+# synapse_advisor from the private mascot-engine at the pinned SHA, and
+# flutter/pubspec_overrides.yaml points at them (no token in GitHub secrets).
+# The Flutter source is not published in the public typerighting repo.
 # macOS is built on the Mac: flutter/tool/store_build.sh macos <name> <number>.
 # Manual start: gh workflow run flutter-desktop.yml -f name=2.60.104 -f number=2060104
 name: Flutter desktop (Windows + Linux)
@@ -37,6 +40,9 @@ jobs:
       - name: System packages
         run: |
           sudo apt-get update -q
+          # Runner image ships libunwind-14-dev, which blocks libgstreamer1.0-dev.
+          sudo apt-get remove -yq libunwind-14-dev || true
+          sudo apt-get install -yq libunwind-dev
           sudo apt-get install -yq clang cmake ninja-build pkg-config libgtk-3-dev \
             liblzma-dev libstdc++-12-dev libgstreamer1.0-dev \
             libgstreamer-plugins-base1.0-dev libfuse2 file

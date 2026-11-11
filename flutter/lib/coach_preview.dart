@@ -16,6 +16,7 @@ import 'package:ecosystem_coach/ecosystem_coach.dart';
 import 'package:flutter/material.dart';
 
 import 'data/coach_bridge.dart';
+import 'data/coach_projection.dart';
 import 'design_system/templates.dart';
 import 'main.dart' show Resources, PreferenceStore;
 
@@ -27,12 +28,13 @@ Future<void> main() async {
     PreferenceStore(),
     existingInstall: true,
   );
-  runApp(_Stand(appearance: appearance));
+  runApp(_Stand(appearance: appearance, content: resources.content));
 }
 
 class _Stand extends StatefulWidget {
-  const _Stand({required this.appearance});
+  const _Stand({required this.appearance, required this.content});
   final AppearanceController appearance;
+  final Map<String, dynamic> content;
   @override
   State<_Stand> createState() => _StandState();
 }
@@ -71,6 +73,8 @@ class _StandState extends State<_Stand> {
     final frame = typeFreeCoachFrame(_lang);
     final client = CoachClient(_StandServer(), appId: 'typerighting');
     final signedIn = _StandAuth(signedIn: true);
+    String title(CoachEventView e) =>
+        coachEventTitle(e, language: _lang, content: widget.content);
     return switch (_screen) {
       1 => TeacherCabinetScreen(
         client: CoachClient(
@@ -86,11 +90,13 @@ class _StandState extends State<_Stand> {
         student: CoachDashboard.fromJson(_StandServer.board).students.first,
         strings: strings,
         frame: frame,
+        eventTitle: title,
       ),
       4 => TeacherCabinetScreen(
         client: client,
         auth: signedIn,
         strings: strings,
+        eventTitle: title,
         // Press «Invite» once the screen is up, as a teacher would.
         frame: (context, title, body, actions) {
           final invite = actions.where(
@@ -124,6 +130,7 @@ class _StandState extends State<_Stand> {
         auth: signedIn,
         strings: strings,
         frame: frame,
+        eventTitle: title,
       ),
     };
   }
@@ -254,25 +261,19 @@ class _StandServer implements CoachTransport {
     ],
   };
 
-  static Map<String, Object?> _event(
-    String id,
-    String mode,
-    String ref,
-    int ago,
-    num wpm,
-    num acc,
-    int errors,
-    Map<String, Object?>? errKeys,
-  ) => {
-    'id': id,
-    'app_id': 'typerighting',
-    'kind': 'typing',
-    'mode': mode,
-    'exercise_ref': ref,
-    'occurred_at': _ago(ago),
-    'metrics': {'wpm': wpm, 'accuracy': acc, 'errors': errors},
-    'errors': errKeys,
-  };
+  /// A TypeFree history row as the server stores it: through the real
+  /// projection (all scopes granted), exactly what the app would send.
+  static Map<String, Object?> _event(Map<String, dynamic> row, int ago) {
+    final json = coachProjection(
+      {
+        ...row,
+        't': _now.subtract(Duration(minutes: ago)).millisecondsSinceEpoch,
+      },
+      scopes: const {'completion', 'metrics', 'errors', 'history'},
+      consentSince: 0,
+    )!;
+    return {...json, 'id': json['event_id'], 'app_id': 'typerighting'};
+  }
 
   @override
   Future<Object?> call(String action, Map<String, Object?> payload) async {
@@ -298,19 +299,58 @@ class _StandServer implements CoachTransport {
         }
         return {
           'events': [
-            _event('e1', 'course', 'lesson_12', 35, 52, 97, 3, {
-              'k': 2,
-              'semicolon': 1,
-            }),
-            _event('e2', 'practice', 'alpha_fwd', 60 * 3, 48, 95, 5, {
-              'j': 3,
-              'f': 2,
-            }),
-            _event('e3', 'compete', 'pangram_3', 60 * 27, 61, 98, 1, {'q': 1}),
-            _event('e4', 'exam', 'exam_5min', 60 * 50, 45, 96, 9, {
-              'b': 4,
-              'n': 5,
-            }),
+            _event({
+              'id': 'e1',
+              'mode': 'course',
+              'exercise': 'course-12',
+              'language': 'ru',
+              'wpm': 52,
+              'accuracy': 97,
+              'errors': 3,
+              'elapsedMs': 41000,
+              'typed': 160,
+              'stars': 3,
+              'errKeys': {'k': 2, 'semicolon': 1},
+            }, 35),
+            _event({
+              'id': 'e2',
+              'mode': 'practice',
+              'exercise': 'classic-ru-1',
+              'language': 'ru',
+              'wpm': 48,
+              'accuracy': 95,
+              'errors': 5,
+              'elapsedMs': 64000,
+              'typed': 300,
+              'errKeys': {'j': 3, 'f': 2},
+            }, 60 * 3),
+            _event({
+              'id': 'e3',
+              'mode': 'compete',
+              'exercise': 'alpha_fwd',
+              'language': 'ru',
+              'wpm': 61,
+              'accuracy': 98,
+              'errors': 1,
+              'elapsedMs': 9500,
+              'typed': 33,
+              'medal': 'silver',
+              'errKeys': {'q': 1},
+            }, 60 * 27),
+            _event({
+              'id': 'e4',
+              'mode': 'exam',
+              'exercise': 'exam',
+              'language': 'ru',
+              'wpm': 45,
+              'accuracy': 96,
+              'errors': 9,
+              'elapsedMs': 300000,
+              'typed': 1100,
+              'target': 40,
+              'durationMinutes': 5,
+              'errKeys': {'b': 4, 'n': 5},
+            }, 60 * 50),
           ],
         };
       case 'invite_create':

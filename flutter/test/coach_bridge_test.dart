@@ -345,4 +345,66 @@ void main() {
       expect(find.byType(TeacherCabinetScreen), findsOneWidget);
     },
   );
+
+  test('training titles: TypeFree words for mode and public exercise, never raw ids', () async {
+    final content = (await Resources.load()).content;
+    CoachEventView ev(
+      String mode,
+      String? ref, {
+      String app = 'typerighting',
+    }) => CoachEventView(
+      id: 'x',
+      appId: app,
+      kind: 'typing',
+      mode: mode,
+      exerciseRef: ref,
+    );
+    String t(CoachEventView e, String l) =>
+        coachEventTitle(e, language: l, content: content);
+
+    expect(t(ev('course', 'course-12'), 'ru'), 'Курс печати · Урок 12');
+    expect(t(ev('course', 'course-12'), 'en'), 'Typing course · Lesson 12');
+    expect(
+      t(ev('practice', 'my-own-text'), 'ru'),
+      'Практика',
+      reason: 'own texts have no catalog title',
+    );
+    final first = ((content['catalog'] as Map)['ru'] as List).first as Map;
+    expect(
+      t(ev('practice', first['id'] as String), 'ru'),
+      'Практика · ${first['title']}',
+    );
+    expect(
+      t(ev('compete', 'alpha_fwd'), 'ru'),
+      startsWith('Тест-соревнование · '),
+    );
+    expect(t(ev('compete', 'alpha_fwd'), 'ru'), isNot(contains('alpha_fwd')));
+    expect(t(ev('exam', 'exam'), 'en'), 'Typing Test');
+    expect(t(ev('recall', 'recall'), 'ru'), 'Память');
+    expect(
+      t(ev('schulte', 'schulte:5x5', app: 'psygames'), 'ru'),
+      defaultEventTitle(ev('schulte', 'schulte:5x5', app: 'psygames')),
+    );
+  });
+
+  test('strings carry the coach/2 additions for both languages', () {
+    final coach = TypeFreeCoach(
+      CoachClient(_Transport(), appId: 'typerighting'),
+    );
+    for (final l in ['ru', 'en', 'de']) {
+      final s = coach.strings(l);
+      expect(s.eventsCount, contains('{n}'));
+      expect(s.lastAt, contains('{date}'));
+      for (final v in [
+        s.sharedScopes,
+        s.metricScore,
+        s.metricTime,
+        s.metricLevel,
+        s.metricErrors,
+        s.warmup,
+      ]) {
+        expect(v, isNotEmpty);
+      }
+    }
+  });
 }

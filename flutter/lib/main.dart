@@ -2155,7 +2155,11 @@ class TypeFreeAppState extends State<TypeFreeApp> with WidgetsBindingObserver {
                             accent: const Color(0xFF10B981),
                             title: coach.strings(language).teacherTitle,
                             subtitle: coachSettingsSubtitle(language, 'teacher'),
-                            onTap: () => coach.openTeacher(c, language),
+                            onTap: () => coach.openTeacher(
+                              c,
+                              language,
+                              widget.resources.content,
+                            ),
                           ),
                           NavTile(
                             key: const ValueKey('settings-coach-mine'),

@@ -25,6 +25,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../features/today_page.dart' show shellText;
 import 'coach_projection.dart';
 import 'key_statistics_store.dart';
 
@@ -147,16 +148,26 @@ class TypeFreeCoach {
     }
   }
 
+  /// Package texts, all 43 fields incl. the coach/2 additions (sharedScopes,
+  /// eventsCount `{n}`, lastAt `{date}`, metric*, warmup): Russian for ru,
+  /// English otherwise (the ecosystem's primary language).
   CoachStrings strings(String language) =>
       language == 'ru' ? CoachStrings.ru : CoachStrings.en;
 
-  Future<void> openTeacher(BuildContext context, String language) => _open(
+  /// [content] — the app's catalog (`dict` + `catalog`) for training titles.
+  Future<void> openTeacher(
+    BuildContext context,
+    String language,
+    Map<String, dynamic> content,
+  ) => _open(
     context,
     (s) => TeacherCabinetScreen(
       client: client,
       auth: auth,
       strings: s,
       frame: typeFreeCoachFrame(language),
+      eventTitle: (e) =>
+          coachEventTitle(e, language: language, content: content),
     ),
     language,
   );
@@ -239,6 +250,59 @@ String coachSettingsSubtitle(String language, String key) =>
       (false, _) => 'Who sees your trainings and what exactly',
     };
 
+/// A training as the teacher reads it: the mode from TypeFree's dictionary and,
+/// where it is public catalog content, the exercise — «Typing course · Lesson
+/// 12», «Practice · catalog text title», «Typing Compete · discipline».
+/// Own/custom texts have no catalog title, so only the mode is shown. Other
+/// apps' trainings keep the package title.
+String coachEventTitle(
+  CoachEventView e, {
+  required String language,
+  required Map<String, dynamic> content,
+}) {
+  if (e.appId.isNotEmpty && e.appId != coachAppId) return defaultEventTitle(e);
+  String? tr(String key) {
+    final v = (content['dict'] as Map?)?[key];
+    return v is Map ? (v[language] ?? v['en'])?.toString() : null;
+  }
+
+  final ref = e.exerciseRef ?? '';
+  final mode = switch (e.mode) {
+    'practice' => shellText(language, 'practice'),
+    'weak' => tr('weak.title'),
+    'course' => tr('course.title'),
+    'learn' => tr('learn.title'),
+    'compete' => tr('compete.title'),
+    'memorize' => tr('mem.title'),
+    'recall' => tr('span.title'),
+    'exam' => tr('ex.title'),
+    _ => null,
+  };
+  if (mode == null) return defaultEventTitle(e);
+  final detail = switch (e.mode) {
+    'course' when ref.startsWith('course-') =>
+      '${tr('course.lesson') ?? 'Lesson'} ${ref.substring(7)}',
+    'compete' => tr('comp.$ref'),
+    'practice' || 'weak' => _catalogTitle(content, ref),
+    _ => null,
+  };
+  return detail == null || detail.isEmpty ? mode : '$mode · $detail';
+}
+
+String? _catalogTitle(Map<String, dynamic> content, String id) {
+  final catalog = content['catalog'];
+  if (id.isEmpty || catalog is! Map) return null;
+  for (final items in catalog.values) {
+    if (items is! List) continue;
+    for (final item in items) {
+      if (item is Map && item['id'] == id && item['title'] is String) {
+        return item['title'] as String;
+      }
+    }
+  }
+  return null;
+}
+
 /// The projection JSON ([coachProjection]) as the package event.
 CoachEvent coachEventFromProjection(Map<String, Object?> json) => CoachEvent(
   eventId: json['event_id']! as String,
@@ -253,7 +317,8 @@ CoachEvent coachEventFromProjection(Map<String, Object?> json) => CoachEvent(
 );
 
 /// TypeFree's sub-page frame (as «Settings → Input/Sound»): bold title, the
-/// arrow back, content up to 720 px wide; screen buttons in the bottom row.
+/// arrow back, content up to 720 px wide; screen buttons in the bottom row
+/// (main action filled, secondary — text).
 CoachFrame typeFreeCoachFrame(String language) =>
     (context, title, body, actions) => Scaffold(
       appBar: AppBar(
@@ -283,17 +348,28 @@ CoachFrame typeFreeCoachFrame(String language) =>
                 child: Row(
                   children: [
                     for (final a in actions)
-                      Expanded(
-                        child: Padding(
+                      if (a.primary)
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: FilledButton.icon(
+                              key: a.key,
+                              onPressed: a.onPressed,
+                              icon: Icon(a.icon),
+                              label: Text(a.label),
+                            ),
+                          ),
+                        )
+                      // Secondary (sign out): a quiet text button.
+                      else
+                        Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: FilledButton.icon(
+                          child: TextButton(
                             key: a.key,
                             onPressed: a.onPressed,
-                            icon: Icon(a.icon),
-                            label: Text(a.label),
+                            child: Text(a.label),
                           ),
                         ),
-                      ),
                   ],
                 ),
               ),
